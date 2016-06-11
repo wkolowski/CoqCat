@@ -200,35 +200,52 @@ Definition isomorphic `{C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 
 Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A) (p2 : Hom P B) :=
-    forall X : Ob, exists u : Hom X P, forall (f : Hom X A) (g : Hom X B),
+    forall X : Ob, exists! u : Hom X P, forall (f : Hom X A) (g : Hom X B),
     f = u .> p1 /\ g = u .> p2.
 
 Theorem product_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
     (pB : Hom P B), is_product P pA pB -> is_product P pB pA.
 unfold is_product in *; intros.
-destruct (H X) as (u, H').
-exists u. intros. destruct (H' g f) as (eq1, eq2).
+destruct (H X) as (u, H'); clear H; destruct H' as [H1 H2].
+exists u; unfold unique. split; intros. destruct (H1 g f) as (eq1, eq2).
 split; assumption.
+intros. apply H2. intros. destruct (H g f). split; assumption.
 Qed.
 
 Theorem proj_ret : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
     (pB : Hom P B), is_product P pA pB -> Ret pA.
 unfold is_product, Ret in *; intros.
-destruct (H A) as (u, H').
-exists u. destruct (H' (id A) (u .> pB)) as (eq1, eq2).
+destruct (H A) as (u, H'); clear H; destruct H' as (eq, unique).
+exists u. destruct (eq (id A) (u .> pB)) as (eq1, eq2).
 rewrite eq1. trivial.
 Qed.
+
+(* Is it even true?
+Theorem product_proj_unique : forall `(C : Cat) (A B P : ob C) (pA pA' : Hom P A)
+    (pB pB' : Hom P B), is_product P pA pB -> is_product P pA' pB' ->
+        pA = pA' /\ pB = pB'.
+unfold is_product; intros.
+destruct (H P) as (u1, [eq1 uq1]). 
+
+Theorem double_sided_id : forall `(C : Cat) (A B : ob C) (f : Hom A B)
+    (i : Hom A A), *)
 
 Theorem product_iso_unique : forall `(C : Cat) (A B : Ob) (P : Ob)
     (pA : Hom P A) (pB : Hom P B) (Q : Ob) (qA : Hom Q A) (qB : Hom Q B),
     is_product P pA pB -> is_product Q qA qB -> P ~ Q.
-intros. assert (pA_ret : Ret pA). apply proj_ret with B pB; assumption.
+intros.
+assert (pA_ret : Ret pA). apply proj_ret with B pB; assumption.
 unfold is_product, isomorphic, Ret in *.
-destruct (H0 P) as (u1, iso1); destruct (H Q) as (u2, iso2).
+destruct (H0 P) as (u1, [iso1 unique1]);
+destruct (H Q) as (u2, [iso2 unique2]).
 exists u1. unfold Iso. exists u2. split.
+destruct (H P) as (idP, [isoId uq]).
+
 assert (H1 : pA = u1 .> qA). apply (iso1 pA pB).
-assert (H2 : qA = u2 .> pA). apply (iso2 qA qB).
-rewrite H1 in H2.
+assert (H2 : pB = u1 .> qB). apply (iso1 pA pB).
+assert (H3 : qA = u2 .> pA). apply (iso2 qA qB).
+assert (H4 : qB = u2 .> pB). apply (iso2 qA qB).
+rewrite H3 in H1. rewrite H4 in H2.
 assert (Eq : u1 .> u2 .> pA = u1 .> qA). apply iso1; assumption.
 
 Definition is_big_product `{C : Cat} (I : Set) (A : I -> Ob) (P : Ob)
