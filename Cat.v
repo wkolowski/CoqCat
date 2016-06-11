@@ -1,4 +1,5 @@
 Require Import Coq.Setoids.Setoid.
+Require Import CaseTactic.
 
 Class CatHom {Ob : Type} : Type :=
 {
@@ -199,25 +200,25 @@ Definition isomorphic `{C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 
-Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A) (p2 : Hom P B) :=
-    forall X : Ob, exists! u : Hom X P, forall (f : Hom X A) (g : Hom X B),
-    f = u .> p1 /\ g = u .> p2.
+Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
+    (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
+    exists! u : Hom X P, f = u .> p1 /\ g = u .> p2.
 
 Theorem product_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
     (pB : Hom P B), is_product P pA pB -> is_product P pB pA.
 unfold is_product in *; intros.
-destruct (H X) as (u, H'); clear H; destruct H' as [H1 H2].
-exists u; unfold unique. split; intros. destruct (H1 g f) as (eq1, eq2).
-split; assumption.
-intros. apply H2. intros. destruct (H g f). split; assumption.
+destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
+exists u. split.
+Case "morphism". split; assumption.
+Case "unique". intros. apply uniq. destruct H; split; assumption.
 Qed.
 
-Theorem proj_ret : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
-    (pB : Hom P B), is_product P pA pB -> Ret pA.
+Theorem proj_ret : forall `(C : Cat) (A B P : ob C) (pA : Hom P A)
+    (pB : Hom P B) (f : Hom A B) (g : Hom B A), is_product P pA pB -> Ret pA.
 unfold is_product, Ret in *; intros.
-destruct (H A) as (u, H'); clear H; destruct H' as (eq, unique).
-exists u. destruct (eq (id A) (u .> pB)) as (eq1, eq2).
-rewrite eq1. trivial.
+(*assert (H' : exists (X : ob C) (f' : Hom A B) (g' : Hom B A) *)
+destruct (H A (id A) f) as (u, H'); clear H; destruct H' as (eq, unique).
+exists u. destruct eq. rewrite H. trivial.
 Qed.
 
 (* Is it even true?
@@ -234,19 +235,24 @@ Theorem product_iso_unique : forall `(C : Cat) (A B : Ob) (P : Ob)
     (pA : Hom P A) (pB : Hom P B) (Q : Ob) (qA : Hom Q A) (qB : Hom Q B),
     is_product P pA pB -> is_product Q qA qB -> P ~ Q.
 intros.
-assert (pA_ret : Ret pA). apply proj_ret with B pB; assumption.
+(*assert (pA_ret : Ret pA). apply proj_ret with B pB; assumption.*)
 unfold is_product, isomorphic, Ret in *.
-destruct (H0 P) as (u1, [iso1 unique1]);
-destruct (H Q) as (u2, [iso2 unique2]).
+destruct (H0 P pA pB) as (u1, [[iso_pA iso_pB] unique1]);
+destruct (H Q qA qB) as (u2, [[iso_qA iso_qB] unique2]).
 exists u1. unfold Iso. exists u2. split.
-destruct (H P) as (idP, [isoId uq]).
-
-assert (H1 : pA = u1 .> qA). apply (iso1 pA pB).
-assert (H2 : pB = u1 .> qB). apply (iso1 pA pB).
-assert (H3 : qA = u2 .> pA). apply (iso2 qA qB).
-assert (H4 : qB = u2 .> pB). apply (iso2 qA qB).
-rewrite H3 in H1. rewrite H4 in H2.
-assert (Eq : u1 .> u2 .> pA = u1 .> qA). apply iso1; assumption.
+destruct (H P pA pB) as (i, [[i_iso1 i_iso2] uq]).
+assert (i_is_id : i = id P). apply uq. cat.
+rewrite <- i_is_id.
+symmetry. apply uq. split.
+cat. rewrite <- iso_qA. assumption.
+cat. rewrite <- iso_qB. assumption.
+destruct (H0 Q qA qB) as (i, [[i_iso1 i_iso2] uq]).
+assert (i_is_id : i = id Q). apply uq. cat.
+rewrite <- i_is_id.
+symmetry. apply uq. split.
+cat. rewrite <- iso_pA. assumption.
+cat. rewrite <- iso_pB. assumption.
+Qed.
 
 Definition is_big_product `{C : Cat} (I : Set) (A : I -> Ob) (P : Ob)
     (p : forall i : I, Hom P (A i)) := forall X : Ob, exists u : Hom X P,
