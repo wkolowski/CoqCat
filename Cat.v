@@ -1,12 +1,10 @@
 Require Import Coq.Setoids.Setoid.
-Require Import CaseTactic.
+Require Export CaseTactic.
 
 Class CatHom {Ob : Type} : Type :=
 {
     Hom : forall (A B : Ob), Type
 }.
-
-(*Notation "A ~> B" := (Hom A B) (at level 50).*)
 
 Class CatComp {Ob : Type} {catHom : CatHom} : Type :=
 {
@@ -34,13 +32,9 @@ Ltac cat_simpl := repeat cat_rw.
 Ltac cat_simpl' := repeat cat_rw'.
 Ltac cat := repeat (intros || cat_rw || auto).
 
-Theorem ids : forall `(C : Cat) (A : Ob), id A .> id A .> id A = id A.
-intros; cat_simpl; trivial.
-Qed.
-
 Definition ob `(C : Cat) := Ob.
 
-Definition dom `(C : Cat) {A B : ob C} (_ : Hom A B) := A.
+Definition dom `(C : Cat) {A B : Ob} (_ : Hom A B) := A.
 
 Definition cod `(C : Cat) {A B : Ob} (_ : Hom A B) := B.
 
@@ -72,10 +66,6 @@ assert (eq1 : idA .> (id A) = id A). apply H.
 assert (eq2 : idA .> (id A) = idA); cat.
 rewrite <- eq1, eq2; trivial.
 Qed.
-
-(*Theorem id_unique_l : forall `(C : Cat) (A B : Ob) (f : Hom A B) (idA : Hom A A),
-    idA .> f = f -> idA = id A.
-intros.*)
 
 Theorem id_unique_right : forall `(C : Cat) (B : Ob) (idB : Hom B B),
     (forall (A : Ob) (f : Hom A B), f .> idB = f) -> idB = id B.
@@ -124,13 +114,13 @@ assert (HComp : h2 .> (f .> g) = (h2 .> f) .> g). cat.
 rewrite HComp. rewrite eq2. cat.
 Qed.
 
-Theorem iso_inv_unique : forall `(C : Cat) (A B : ob C) (f : Hom A B),
+Theorem iso_inv_unique : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Iso f -> (exists! g : Hom B A, f .> g = id A /\ g .> f = id B).
 intros; unfold Iso in H; destruct H as (g, [inv1 inv2]).
 exists g. unfold unique; split. split; assumption.
 intros h H; destruct H as (iso1, iso2).
 assert (eq1 : h .> f .> g = g). rewrite iso2. cat.
-assert (eq2 : h .> (f .> g) = h). rewrite inv1. cat.
+assert (eq2 : h .> f .> g = h). rewrite comp_assoc, inv1. cat.
 rewrite <- eq1. pattern h at 2. rewrite <- eq2. cat.
 Qed.
 
@@ -194,265 +184,59 @@ intros. unfold Sec in *. destruct H as (h, eq).
 exists (g .> h). rewrite comp_assoc in eq. assumption.
 Qed.
 
-Inductive empty : Set := .
-
 Definition isomorphic `{C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
+Definition uniquely_isomorphic `{C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
+Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 
-Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
-    (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
-    exists! u : Hom X P, f = u .> p1 /\ g = u .> p2.
-
-Theorem product_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
-    (pB : Hom P B), is_product P pA pB -> is_product P pB pA.
-unfold is_product in *; intros.
-destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
-exists u. split.
-Case "morphism". split; assumption.
-Case "unique". intros. apply uniq. destruct H; split; assumption.
-Qed.
-
-Theorem proj_ret : forall `(C : Cat) (A B P : ob C) (pA : Hom P A)
-    (pB : Hom P B) (f : Hom A B) (g : Hom B A), is_product P pA pB -> Ret pA.
-unfold is_product, Ret in *; intros.
-(*assert (H' : exists (X : ob C) (f' : Hom A B) (g' : Hom B A) *)
-destruct (H A (id A) f) as (u, H'); clear H; destruct H' as (eq, unique).
-exists u. destruct eq. rewrite H. trivial.
-Qed.
-
-(* Is it even true?
-Theorem product_proj_unique : forall `(C : Cat) (A B P : ob C) (pA pA' : Hom P A)
-    (pB pB' : Hom P B), is_product P pA pB -> is_product P pA' pB' ->
-        pA = pA' /\ pB = pB'.
-unfold is_product; intros.
-destruct (H P) as (u1, [eq1 uq1]). 
-
-Theorem double_sided_id : forall `(C : Cat) (A B : ob C) (f : Hom A B)
-    (i : Hom A A), *)
-
-Theorem product_iso_unique : forall `(C : Cat) (A B : Ob) (P : Ob)
-    (pA : Hom P A) (pB : Hom P B) (Q : Ob) (qA : Hom Q A) (qB : Hom Q B),
-    is_product P pA pB -> is_product Q qA qB -> P ~ Q.
-intros.
-(*assert (pA_ret : Ret pA). apply proj_ret with B pB; assumption.*)
-unfold is_product, isomorphic, Ret in *.
-destruct (H0 P pA pB) as (u1, [[iso_pA iso_pB] unique1]);
-destruct (H Q qA qB) as (u2, [[iso_qA iso_qB] unique2]).
-exists u1. unfold Iso. exists u2. split.
-destruct (H P pA pB) as (i, [[i_iso1 i_iso2] uq]).
-assert (i_is_id : i = id P). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- iso_qA. assumption.
-cat. rewrite <- iso_qB. assumption.
-destruct (H0 Q qA qB) as (i, [[i_iso1 i_iso2] uq]).
-assert (i_is_id : i = id Q). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- iso_pA. assumption.
-cat. rewrite <- iso_pB. assumption.
-Qed.
-
-Definition is_big_product `{C : Cat} (I : Set) (A : I -> Ob) (P : Ob)
-    (p : forall i : I, Hom P (A i)) := forall X : Ob, exists u : Hom X P,
-    forall (i : I) (f : Hom X (A i)), f = u .> p i.
+Definition is_big_product `{C : Cat} {I : Set} {A : I -> Ob} (P : Ob)
+    (p : forall i : I, Hom P (A i)) := forall (X : Ob) (i : I) (f : Hom X (A i)),
+    exists! u : Hom X P, f = u .> p i.
 
 Theorem big_proj_ret : forall `(C : Cat) (I : Set) (A : I -> Ob) (P : Ob)
     (p : forall i : I, Hom P (A i)),
-        is_big_product I A P p -> forall i : I, Ret (p i).
+        is_big_product P p -> forall i : I, Ret (p i).
 unfold is_big_product, Ret; intros.
-destruct (H (A i)) as (u, H').
-exists u. rewrite (H' i (id (A i))). trivial.
+destruct (H (A i) i (id (A i))) as (u, [eq uniq]).
+exists u. rewrite eq. trivial.
 Qed.
 
 Definition is_coproduct `{C : Cat} {A B : Ob} (P : Ob) (iA : Hom A P)
-    (iB : Hom B P) := forall (X : Ob), exists u : Hom P X,
-    forall (f : Hom A X) (g : Hom B X), f = iA .> u /\ g = iB .> u.
+    (iB : Hom B P) := forall (X : Ob) (f : Hom A X) (g : Hom B X),
+    exists! u : Hom P X, f = iA .> u /\ g = iB .> u.
 
 Theorem coproduct_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)
     (iB : Hom B P), is_coproduct P iA iB -> is_coproduct P iB iA.
-intros. unfold is_coproduct in *. intro. destruct (H X) as (u, H').
-exists u. intros. destruct (H' g f) as (eq1, eq2). split; assumption.
+unfold is_coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
+exists u. split.
+Case "Universal property". split; assumption.
+Case "Uniqueness". intros. apply uniq. destruct H0; split; assumption.
 Qed.
 
-Theorem inj_sec : forall `(C : Cat) (A B P : Ob) (iA : Hom A P) (iB : Hom B P),
-    is_coproduct P iA iB -> Sec iA.
-intros. unfold Sec, is_coproduct in *. destruct (H A) as (u, H').
-exists u. destruct (H' (id A) (iB .> u)) as (eq1, eq2).
-rewrite eq1; trivial.
+(*  The f : Hom B A is auxiliary as in the case of the product. *)
+Theorem inj_sec : forall `(C : Cat) (A B P : Ob) (iA : Hom A P) (iB : Hom B P)
+    (f : Hom B A), is_coproduct P iA iB -> Sec iA.
+unfold Sec, is_coproduct in *; intros.
+destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
+exists u. rewrite eq1; trivial.
 Qed.
 
-Definition big_coproduct `{C : Cat} (J : Set) (A : J -> Ob) (P : Ob)
-    (i : forall j : J, Hom (A j) P) := forall (X : Ob), exists u : Hom P X,
-    forall (j : J) (f : Hom (A j) X), f = i j .> u.
+Definition big_coproduct `{C : Cat} {J : Set} {A : J -> Ob} (P : Ob)
+    (i : forall j : J, Hom (A j) P) := forall (X : Ob) (j : J) (f : Hom (A j) X),
+    exists! u : Hom P X, f = i j .> u.
 
 Theorem big_inj_sec : forall `(C : Cat) (J : Set) (A : J -> Ob) (P : Ob)
     (i : forall j : J, Hom (A j) P),
-        big_coproduct J A P i -> forall j : J, Sec (i j).
+        big_coproduct P i -> forall j : J, Sec (i j).
 unfold big_coproduct, Sec in *; intros.
-destruct (H (A j)) as (u, H').
-exists u. rewrite <- (H' j (id (A j))). trivial.
-Qed.
-
-Definition initial_object `{C : Cat} (I : Ob) : Prop :=
-    forall (X : Ob), exists! f : Hom I X, True.
-
-Definition terminal_object `{C : Cat} (T : Ob) : Prop :=
-    forall (X : Ob), exists! f : Hom X T, True.
-
-(*  Most likely there's no initial object in the category Sets, because there are
-    no functions from the empty set to itself. *)
-
-Definition is_singleton (A : Set) : Prop :=
-    exists a : A, True /\ forall (x y : A), x = y.
-
-Theorem init_ob_iso_unique : forall `(C : Cat) (I1 I2 : Ob),
-    initial_object I1 -> initial_object I2 -> I1 ~ I2.
-unfold initial_object, isomorphic; intros.
-destruct (H I1) as (id1, [_ eq1]), (H0 I2) as (id2, [_ eq2]);
-destruct (H I2) as (f, _), (H0 I1) as (g, _).
-exists f; unfold Iso; exists g; split.
-rewrite <- (eq1 (f .> g)); [rewrite <- (eq1 (id I1)); trivial | trivial].
-rewrite <- (eq2 (g .> f)); [rewrite <- (eq2 (id I2)); trivial | trivial].
-Qed.
-
-Theorem final_ob_iso_unique : forall `(C : Cat) (T1 T2 : Ob),
-    terminal_object T1 -> terminal_object T2 -> T1 ~ T2.
-unfold terminal_object, isomorphic; intros.
-destruct (H T1) as (id1, [_ eq1]), (H0 T2) as (id2, [_ eq2]);
-destruct (H T2) as (f, _), (H0 T1) as (g, _).
-exists g; unfold Iso; exists f; split.
-rewrite <- (eq1 (g .> f)); [rewrite <- (eq1 (id T1)); trivial | trivial].
-rewrite <- (eq2 (id T2)); [rewrite <- (eq2 (f .> g)); trivial | trivial].
+destruct (H (A j) j (id (A j))) as (u, [eq uniq]); clear H.
+exists u. rewrite <- eq. trivial.
 Qed.
 
 Theorem id_is_aut : forall `(C : Cat) (A : Ob), Aut (id A).
 unfold Aut, Iso; intros; exists (id A); cat.
 Qed.
 
-(*Theorem iso_prod : forall `(_ : Cat) (A B C D P Q : Ob) (pA : Hom P A)
-    (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
-    A ~ C -> B ~ D -> is_product P pA pB -> is_product Q qC qD -> P ~ Q.
-unfold isomorphic, is_product; intros.
-destruct H0 as (f, iso_f), H1 as (g, iso_g).
-destruct (H3 P) as (u1, eq1), (H2 Q) as (u2, eq2).
-exists u1. unfold Iso. exists u2. split.*)
-
-Theorem init_ob_mor_ret : forall `(_ : Cat) (I X : Ob) (f : Hom X I),
-    initial_object I -> Ret f.
-unfold initial_object, Ret; intros.
-destruct (H0 X) as (g, [_ eq1]); destruct (H0 I) as (idI, [_ eq2]).
-exists g.
-rewrite <- (eq2 (g .> f)); [rewrite <- (eq2 (id I)); trivial | trivial].
-Qed.
-
-Theorem terminal_ob_mor_sec : forall `(_ : Cat) (T X : Ob) (f : Hom T X),
-    terminal_object T -> Sec f.
-unfold terminal_object, Ret; intros.
-destruct (H0 X) as (g, [_ eq1]); destruct (H0 T) as (idT, [_ eq2]).
-exists g.
-rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id T)); trivial | trivial].
-Qed.
-
-Definition zero_object `{_ : Cat} (Z : Ob) : Prop :=
-    initial_object Z /\ terminal_object Z.
-
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
-
-Definition has_initial_object `(C : Cat) : Prop :=
-    exists I : Ob, initial_object I.
-
-Definition has_terminal_object `(C : Cat) : Prop :=
-    exists T : Ob, terminal_object T.
-
-Definition has_zero_object `(C : Cat) : Prop :=
-    exists Z : Ob, zero_object Z.
-
-Definition has_binary_products `(C : Cat) : Prop := forall (A B : Ob),
-    exists (P : Ob) (pA : Hom P A) (pB : Hom P B), is_product P pA pB.
-
-Definition has_binary_coproducts `(C : Cat) : Prop := forall (A B : Ob),
-    exists (P : Ob) (iA : Hom A P) (iB : Hom B P), is_coproduct P iA iB.
-
-Definition has_finite_products `(C : Cat) : Prop :=
-    has_terminal_object C /\ has_binary_products C.
-
-Definition has_finite_coproducts `(C : Cat) : Prop :=
-    has_initial_object C /\ has_binary_coproducts C.
-
-Class Functor `(C : Cat) `(D : Cat) (fob : ob C -> ob D)
-    `(fhom : forall {A B : ob C}, Hom A B -> Hom (fob A) (fob B)) : Type :=
-{
-    pres_comp : forall {A B C : ob C} (f : Hom A B) (g : Hom B C),
-        fhom (f .> g) = fhom f .> fhom g;
-    pres_id : forall A : ob C, fhom (id A) = id (fob A)
-}.
-
-Theorem functor_pres_sec : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    Sec f -> Sec (fhom A B f).
-unfold Sec; intros.
-destruct H as (g, H'). exists (@fhom B A g).
-rewrite <- pres_comp. rewrite <- pres_id. f_equal. assumption.
-Qed.
-
-Theorem functor_pres_ret : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    Ret f -> Ret (@fhom A B f).
-unfold Ret; intros. destruct H as (g, H'). exists (@fhom B A g).
-rewrite <- pres_comp, <- pres_id. apply f_equal; assumption.
-Qed.
-
-Theorem functor_pres_iso : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    Iso f -> Iso (@fhom A B f).
-intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H.
-destruct H as (H_sec, H_ret).
-split. apply functor_pres_sec; assumption.
-apply functor_pres_ret; assumption.
-Qed.
-
-Definition full `(T : Functor) : Prop := forall (A B : ob C)
-    (g : Hom (fob A) (fob B)), exists f : Hom A B, @fhom A B f = g.
-
-Definition faithful `(T : Functor) : Prop := forall (A B : ob C)
-    (f g : Hom A B), @fhom A B f = @fhom A B g -> f = g.
-
-Definition iso_dense `(T : Functor) : Prop := forall (Y : ob D),
-    exists X : ob C, fob X ~ Y.
-
-Definition embedding `(T : Functor) : Prop :=
-    faithful T /\ injective fob.
-
-Theorem full_faithful_refl_sec : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    full T -> faithful T -> Sec (@fhom A B f) -> Sec f.
-unfold full, faithful, Sec; intros. rename H into T_full, H0 into T_faithful.
-destruct H1 as (g, H).
-destruct (T_full B A g) as [g' eq].
-exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
-rewrite <- pres_id in H. apply T_faithful in H. assumption.
-Qed.
-
-Theorem full_faithful_refl_ret : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    full T -> faithful T -> Ret (@fhom A B f) -> Ret f.
-unfold full, faithful, Sec; intros. rename H into T_full, H0 into T_faithful.
-destruct H1 as (g, H). destruct (T_full B A g) as [g' eq].
-exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
-rewrite <- pres_id in H. apply T_faithful in H. assumption.
-Qed.
-
-Theorem full_faithful_refl_iso : forall `(T : Functor) (A B : ob C) (f : Hom A B),
-    full T -> faithful T -> Iso (@fhom A B f) -> Iso f.
-intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H1.
-destruct H1 as (H_sec, H_ret). split.
-apply full_faithful_refl_sec with T; assumption.
-apply full_faithful_refl_ret with T; assumption.
-Qed.
-
-(*Theorem comp_full : forall `(C : Cat) `(D : Cat) `(E : Cat)
-    (fob1 : ob C -> ob D) (fob2 : ob D -> ob E)
-    (fhom1 : forall A B : ob C, Hom A B -> Hom (fob1 A) (fob1 B))
-    (fhom2 : forall A B : ob D, Hom A B -> Hom (fob2 A) (fob2 B))
-    (T1 : Functor C D fob1 fhom1) (T2 : Functor D E fob2 fhom2)
-    (TComp : Functor C E (fun A : ob C => fob2 (fob1 A))
-        (forall A B : ob C, Hom A B -> Hom ),
-    full T1 -> full T2 -> full TComp.*)

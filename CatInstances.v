@@ -60,6 +60,12 @@ apply fn_ext_axiom. intros. apply H. generalize a.
 rewrite <- fn_ext_axiom. apply H0.
 Qed.
 
+(*  Most likely there's no initial object in the category Sets, because there are
+    no functions from the empty set to itself. *)
+
+Definition is_singleton (A : Set) : Prop :=
+    exists a : A, True /\ forall (x y : A), x = y.
+
 (* Beware: requires function extensionality. *)
 Theorem terminal_object_Sets : forall A : Set,
     is_singleton A -> terminal_object A.
