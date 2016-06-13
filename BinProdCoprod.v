@@ -1,4 +1,5 @@
 Require Export InitTerm.
+Require Export Coq.Setoids.Setoid.
 
 Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
@@ -42,7 +43,7 @@ Theorem product_iso_unique : forall `(C : Cat) (A B : Ob) (P : Ob)
     (pA : Hom P A) (pB : Hom P B) (Q : Ob) (qA : Hom Q A) (qB : Hom Q B),
     is_product P pA pB -> is_product Q qA qB -> P ~ Q.
 intros.
-unfold is_product, isomorphic, Ret in *.
+unfold is_product, isomorphic in *.
 destruct (H0 P pA pB) as (u1, [[iso_pA iso_pB] unique1]);
 destruct (H Q qA qB) as (u2, [[iso_qA iso_qB] unique2]).
 exists u1. unfold Iso. exists u2. split.
@@ -89,6 +90,12 @@ rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso2. cat.
 cat. rewrite <- u1_proj2.
 assert (As2 : qD .> g' .> g = u2 .> pB .> g). rewrite u2_proj2. trivial.
 rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
+Qed.
+
+Theorem product_iso_unique2 : forall `(C : Cat) (A B : Ob) (P : Ob)
+    (pA : Hom P A) (pB : Hom P B) (Q : Ob) (qA : Hom Q A) (qB : Hom Q B),
+    is_product P pA pB -> is_product Q qA qB -> P ~ Q.
+intros. apply iso_prod with A B A B pA pB qA qB; try reflexivity; assumption.
 Qed.
 
 Theorem coproduct_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)

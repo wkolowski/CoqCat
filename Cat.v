@@ -75,11 +75,15 @@ Definition Iso `{C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
 
 Definition Aut `{C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
-Definition isomorphic `{C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
+Definition isomorphic `{C : Cat} (A B : Ob) : Prop := exists f : Hom A B, Iso f.
 Definition uniquely_isomorphic `{C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
+
+Print Equivalence.
+Print relation.
+Print isomorphic.
 
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
@@ -188,6 +192,18 @@ Qed.
 Theorem id_is_aut : forall `(C : Cat) (A : Ob), Aut (id A).
 unfold Aut, Iso; intros; exists (id A); cat.
 Qed.
+
+Instance isomorphic_equiv `(C' : Cat) : Equivalence isomorphic.
+split.
+Case "Reflexivity". unfold Reflexive. intro A. unfold isomorphic.
+    exists (id A). apply id_is_aut.
+Case "Symmetry". unfold Symmetric. intros A B iso.
+    destruct iso as [f [g [eq1 eq2]]]. unfold isomorphic. exists g.
+    unfold Iso. exists f; split; assumption.
+Case "Transitivity". unfold Transitive. intros A B C H H'.
+    destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
+    exists (f .> g). apply iso_comp; assumption.
+Defined.
 
 Record BareCat : Type := mkBareCat
 {
