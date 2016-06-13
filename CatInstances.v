@@ -1,4 +1,29 @@
-Require Import Cat.
+Require Export InitTerm.
+
+Definition injective {A B : Type} (f : A -> B) : Prop := forall (a a' : A),
+    f a = f a' -> a = a'.
+
+(*Lemma lolz : forall (A B : Type) (f g : A -> B),
+    f = g -> (forall a : A, f a = g a).
+intros. rewrite H. trivial.
+Qed.
+
+Lemma fn_ext : forall (A B : Set) (f g : A -> B),
+f = g -> forall a : A, f a = g a.
+intros. rewrite H. trivial.
+Qed.*)
+
+Axiom fn_ext_axiom : forall {A B : Set} (f g : A -> B),
+f = g <-> forall a : A, f a = g a.
+
+Definition fn_ext : Prop := forall (A B : Type) (f g : A -> A),
+    f = g <-> forall a : A, f a = g a.
+
+Lemma const_fun : forall (A B : Set) (a : A) (b b' : B),
+    b = b' <-> (fun _ : A => b) = (fun _ : A => b').
+split; intros. rewrite H; trivial.
+rewrite fn_ext_axiom in H. apply H. assumption.
+Qed.
 
 Instance HomCoq : @CatHom Type.
 split. exact (fun A B : Type => A -> B).

@@ -41,11 +41,10 @@ Defined.
     pure_id : forall (A : Type) (a : A), ap (pure (id)) a = a
 }.*)
 
-Class Monad (M : Type -> Type) : Type :=
+(*Class Monad (M : Type -> Type) : Type :=
 {
     functor :> Functor M;
     ret : forall {A : Type}, A -> M A;
-    (*bind : forall A B : Type, M A -> (A -> M B) -> M B*)
     mcomp : forall {A B C : Type}, (A -> M B) -> (B -> M C) -> (A -> M C);
     unit_l : forall (A B : Type) (f : A -> M B), mcomp ret f = f;
     unit_r : forall (A B : Type) (f : A -> M B), mcomp f ret = f;
@@ -54,12 +53,6 @@ Class Monad (M : Type -> Type) : Type :=
 }.
 
 Notation "f >=> g" := (mcomp f g) (at level 50).
-
-(* WRONG AS FK
-Definition bind `{_ : Monad} {A B : Type} (a : M A) (f : A -> M B)
-    := (fun _ : A => a) >=> f.*)
-
-Eval compute in bind Nothing (fun a => Just 22).
 
 Definition comp_maybe {A B C : Type} (f : A -> B?) (g : B -> C?) (a : A) : C? :=
     match f a with
@@ -75,9 +68,17 @@ try apply FunctorMaybe.
 rewrite fn_ext; trivial.
 rewrite fn_ext; intros. unfold comp_maybe. destruct (f a); trivial.
 rewrite fn_ext; intros. unfold comp_maybe. destruct (f a); trivial.
-Defined.
+Defined.*)
 
-Eval compute in fmap (fun x => x + 2) (Just 5).
-Eval compute in ((fun a => Just (a + 5)) >=> (fun a => Just (a * a))) 2.
+Class Monad (M : Type -> Type) : Type :=
+{
+    functor :> Functor M;
+    ret : forall {A : Type}, A -> M A;
+    join : forall {A : Type}, M (M A) -> M A;
+    l1 : forall (A B : Type) (f : A -> A) (m : M A),
+        join (ret (fmap f m)) = join (fmap ret m)
 
+    
+        
 
+}.
