@@ -189,15 +189,11 @@ Theorem id_is_aut : forall `(C : Cat) (A : Ob), Aut (id A).
 unfold Aut, Iso; intros; exists (id A); cat.
 Qed.
 
-Print sig.
-
 Record BareCat : Type := mkBareCat
 {
-    _A : Type;
-    _h : @CatHom _A;
-    _c : CatComp;
-    _i : CatId;
-    _C : @Cat _A _h _c _i
+    ob_ : Type;
+    hom_ : @CatHom ob_;
+    cmp_ : CatComp;
+    id_ : CatId;
+    inst_ : @Cat ob_ hom_ cmp_ id_
 }.
-
-Print BareCat.

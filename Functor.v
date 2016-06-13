@@ -66,14 +66,50 @@ apply full_faithful_refl_sec with T; assumption.
 apply full_faithful_refl_ret with T; assumption.
 Qed.
 
-(*Theorem comp_full : forall `(C : Cat) `(D : Cat) `(E : Cat)
-    (fob1 : ob C -> ob D) (fob2 : ob D -> ob E)
-    (fhom1 : forall A B : ob C, Hom A B -> Hom (fob1 A) (fob1 B))
-    (fhom2 : forall A B : ob D, Hom A B -> Hom (fob2 A) (fob2 B))
-    (T1 : Functor C D fob1 fhom1) (T2 : Functor D E fob2 fhom2)
-    (TComp : Functor C E (fun A : ob C => fob2 (fob1 A))
-        (forall A B : ob C, Hom A B -> Hom ),
-    full T1 -> full T2 -> full TComp.*)
+Class Functor2 `(C : Cat) `(D : Cat) : Type :=
+{
+    fob : ob C -> ob D;
+    fmap : forall (A B : ob C), Hom A B -> Hom (fob A) (fob B);
+    _ : Functor C D fob fmap
+}.
+
+Definition Functor2_proj `(T : Functor2) := fmap.
+Coercion Functor2_proj : Functor2 >-> Funclass.
+
+Instance IdFunctor `(C : Cat) : Functor2 C C.
+split with
+    (fob := fun A : ob C => A)
+    (fmap := fun (A B : ob C) (f : Hom A B) => f).
+split; trivial.
+Defined.
+
+Instance FunctorComp `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor2 C D)
+    (S : Functor2 D E) : Functor2 C E.
+split with
+    (fob := fun A : ob C => fob (fob A))
+    (fmap := fun (A B : ob C) (f : Hom A B) => S (fob A) (fob B) (T A B f)).
+split; intros.
+destruct T, S; simpl. repeat rewrite <- pres_comp. trivial.
+destruct T, S; simpl. repeat rewrite pres_id. trivial.
+Defined.
 
 Instance CAT_Hom : @CatHom BareCat.
-split. intros C D. destruct C. destruct D. exact (Functor _C _C0).
+split. intros C D. destruct C. destruct D. exact (Functor2 inst_ inst_0).
+Defined.
+
+Instance CAT_Comp : @CatComp BareCat CAT_Hom.
+split. intros C D E T S. destruct C, D, E; simpl in *.
+exact (FunctorComp inst_ inst_0 inst_1 T S).
+Defined.
+
+Instance CAT_id : @CatId BareCat CAT_Hom.
+split. intro C. destruct C; simpl in *. exact (IdFunctor inst_).
+Defined.
+
+(*Axiom functor_eq : forall `(C : Cat) `(D : Cat) `(obp : ObPart)
+    `(morp1 morp2 : MorPart) `(T : Functor C D obp morp1)
+    `(S : Functor C D obp morp2), T = S <->
+        forall (A B : ob C) (f : Hom A B), fhom f = fhom f.*)
+
+Instance CAT : @Cat BareCat CAT_Hom CAT_Comp CAT_id.
+split; intros.
