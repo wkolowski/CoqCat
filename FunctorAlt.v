@@ -1,4 +1,5 @@
 Require Export Cat.
+Require Import Logic.ProofIrrelevance.
 
 Class ObPart `(C : Cat) `(D : Cat) : Type :=
 {
@@ -143,3 +144,16 @@ Axiom functor_eq : forall `(C : Cat) `(D : Cat) (obp : ObPart C D)
 
 Instance CAT : @Cat BareCat CAT_Hom CAT_Comp CAT_id.
 split; intros.
+destruct A, B, C, D. destruct f, g, h. destruct _obPart0, _obPart1, _obPart2.
+destruct _morPart0, _morPart1, _morPart2.
+simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
+f_equal. apply proof_irrelevance.
+destruct A, B, f; destruct _obPart0, _morPart0.
+simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
+f_equal. apply proof_irrelevance.
+destruct A, B, f; destruct _obPart0, _morPart0.
+simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
+f_equal. apply proof_irrelevance.
+Defined.
+
+Print CAT.

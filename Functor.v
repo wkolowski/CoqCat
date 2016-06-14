@@ -1,4 +1,5 @@
 Require Export Cat.
+Require Import Logic.ProofIrrelevance.
 
 Class Functor `(C : Cat) `(D : Cat) (fob : ob C -> ob D)
     `(fhom : forall {A B : ob C}, Hom A B -> Hom (fob A) (fob B)) : Type :=
@@ -73,6 +74,8 @@ Class Functor2 `(C : Cat) `(D : Cat) : Type :=
     _ : Functor C D fob fmap
 }.
 
+Print Functor2.
+
 Definition Functor2_proj `(T : Functor2) := fmap.
 Coercion Functor2_proj : Functor2 >-> Funclass.
 
@@ -106,10 +109,14 @@ Instance CAT_id : @CatId BareCat CAT_Hom.
 split. intro C. destruct C; simpl in *. exact (IdFunctor inst_).
 Defined.
 
-(*Axiom functor_eq : forall `(C : Cat) `(D : Cat) `(obp : ObPart)
-    `(morp1 morp2 : MorPart) `(T : Functor C D obp morp1)
-    `(S : Functor C D obp morp2), T = S <->
-        forall (A B : ob C) (f : Hom A B), fhom f = fhom f.*)
-
 Instance CAT : @Cat BareCat CAT_Hom CAT_Comp CAT_id.
 split; intros.
+destruct A, B, C, D, f, g, h. simpl; unfold FunctorComp.
+f_equal. apply proof_irrelevance.
+destruct A, B, f. simpl; unfold FunctorComp.
+f_equal. apply proof_irrelevance.
+destruct A, B, f; simpl; unfold FunctorComp.
+f_equal. apply proof_irrelevance.
+Defined.
+
+Print CAT.

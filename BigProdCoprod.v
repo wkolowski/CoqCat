@@ -89,16 +89,7 @@ exists p. split; try split; try assumption. intros.
 assert (pA' : Hom P A). rewrite <- eq1. apply (p true).
 assert (pB' : Hom P B). rewrite <- eq2. apply (p false).
 destruct j.*)
-
-Definition injective {A B : Type} (f : A -> B) : Prop :=
-    forall a a' : A, f a = f a' -> a = a'.
-
-Definition surjective {A B : Type} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a = b.
-
-Definition bijective {A B : Type} (f : A -> B) : Prop :=
-    injective f /\ surjective f.
-
+Print bijective.
 Theorem big_product_comm : forall `(C : Cat) (J : Set) (A : J -> Ob) (P : Ob)
     (f : J -> J) (p : forall j : J, Hom P (A j))
     (p' : forall j : J, Hom P (A (f j))),

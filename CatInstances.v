@@ -1,7 +1,7 @@
 Require Export InitTerm.
 
-Definition injective {A B : Type} (f : A -> B) : Prop := forall (a a' : A),
-    f a = f a' -> a = a'.
+(*Definition injective {A B : Type} (f : A -> B) : Prop := forall (a a' : A),
+    f a = f a' -> a = a'.*)
 
 (*Lemma lolz : forall (A B : Type) (f g : A -> B),
     f = g -> (forall a : A, f a = g a).
@@ -76,7 +76,7 @@ split; trivial.
 Defined.
 
 Theorem Sets_mon_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
-    (Mon f <-> injective f).
+    Mon f <-> injective f.
 unfold Mon, injective in *; split; intros.
 assert (H2 : (fun _ : A => a) = (fun _ => a')).
 apply H. simpl. rewrite H0. trivial. 
@@ -84,6 +84,26 @@ apply const_fun in H2; [assumption | assumption].
 apply fn_ext_axiom. intros. apply H. generalize a.
 rewrite <- fn_ext_axiom. apply H0.
 Qed.
+
+Theorem Sets_epi_sur : forall (A B : Set) (nonempty : A) (f : Hom A B),
+    Epi f <-> surjective f.
+unfold Epi, surjective; split; intros.
+
+unfold comp, CompSets in H.
+
+
+simpl in H.
+specialize (H B (fun _ => b) (id B)).
+
+Focus 2.
+apply fn_ext_axiom. intro b.
+specialize (H b). destruct H as [a H]. rewrite <- H.
+unfold comp, CompSets in H0.
+generalize a. rewrite <- fn_ext_axiom. assumption.
+Qed.
+
+
+
 
 (*  Most likely there's no initial object in the category Sets, because there are
     no functions from the empty set to itself. *)
@@ -139,3 +159,24 @@ intros a b c d f g h. rewrite f, g, h; trivial.
 intros a b f. rewrite f; trivial.
 intros. rewrite f; trivial.
 Defined.
+
+(*  BIG, REALLY BIG BEWARE: the dual category instance somehow breaks
+    projection definitions in Functor and FunctorAlt. *)
+Instance DualHom `(C : Cat) : @CatHom Ob.
+split. destruct catHom as [Hom]. exact (fun A B : Ob => Hom B A).
+Defined.
+
+Instance DualComp `(cat : Cat) : @CatComp Ob (DualHom cat).
+split. intros. destruct cat, catHom, catComp. simpl in *.
+exact (comp C B A X0 X).
+Defined.
+
+Instance DualId `(C : Cat) : @CatId Ob (DualHom C).
+split. intros. destruct C, catHom, catId. simpl in *.
+exact (id A).
+Defined.
+
+Instance Dual `(C : Cat) : @Cat Ob (DualHom C) (DualComp C) (DualId C).
+split; destruct C, catHom, catComp, catId; simpl in *; cat.
+Defined.
+

@@ -230,4 +230,7 @@ split with
     (comp := fun (C D E : Cat) (T : Functor C D) (S : Functor D E) =>
         FunctorComp T S)
     (id := fun C : Cat => IdFunctor C);
-intros.
+intros; [destruct f, g, h | destruct f | destruct f];
+unfold FunctorComp; simpl; f_equal; apply proof_irrelevance.
+(*  Universe inconsistency. *)
+Defined.

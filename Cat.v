@@ -59,6 +59,12 @@ Definition End `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
 Definition Mon `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
 
+(*Print Mon.
+
+Arguments Mon {Ob} _ _ _ _ _ _ _.
+
+Print Mon.*)
+
 Definition Epi `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
 
@@ -80,10 +86,6 @@ Definition uniquely_isomorphic `{C : Cat} (A B : Ob) := exists! f : Hom A B, Iso
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
-
-Print Equivalence.
-Print relation.
-Print isomorphic.
 
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
@@ -213,3 +215,15 @@ Record BareCat : Type := mkBareCat
     id_ : CatId;
     inst_ : @Cat ob_ hom_ cmp_ id_
 }.
+
+Definition injective {A B : Type} (f : A -> B) : Prop :=
+    forall a a' : A, f a = f a' -> a = a'.
+
+Definition surjective {A B : Type} (f : A -> B) : Prop :=
+    forall b : B, exists a : A, f a = b.
+
+Definition bijective {A B : Type} (f : A -> B) : Prop :=
+    injective f /\ surjective f.
+
+(*Theorem mono_epi_dual : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Mon f <-> Epi f.*)

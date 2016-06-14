@@ -38,7 +38,6 @@ rewrite <- (eq1 (g .> f)); [rewrite <- (eq1 (id T1)); trivial | trivial].
 rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id T2)); trivial | trivial].
 Qed.
 
-
 Theorem mor_to_init_is_ret : forall `(_ : Cat) (I X : Ob) (f : Hom X I),
     initial_object I -> Ret f.
 unfold initial_object, Ret; intros.
