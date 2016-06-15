@@ -1,8 +1,6 @@
-(*Require Export Props.*)
 Require Omega.
 Require Import ZArith.
 Require Import NPeano.
-(*Require Export MyTactics.*)
 
 Class Preord {A : Type} (leq : A -> A -> Prop) : Type :=
 {
