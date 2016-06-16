@@ -13,7 +13,7 @@ f = g -> forall a : A, f a = g a.
 intros. rewrite H. trivial.
 Qed.*)
 
-Axiom fn_ext_axiom : forall {A B : Set} (f g : A -> B),
+Axiom fn_ext_axiom : forall {A B : Type} (f g : A -> B),
 f = g <-> forall a : A, f a = g a.
 
 Definition fn_ext : Prop := forall (A B : Type) (f g : A -> A),
@@ -77,13 +77,21 @@ Defined.
 
 Theorem Sets_mon_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
     Mon f <-> injective f.
-unfold Mon, injective in *; split; intros.
+unfold Mon, injective; split; intros.
 assert (H2 : (fun _ : A => a) = (fun _ => a')).
 apply H. simpl. rewrite H0. trivial. 
 apply const_fun in H2; [assumption | assumption].
 apply fn_ext_axiom. intros. apply H. generalize a.
 rewrite <- fn_ext_axiom. apply H0.
 Qed.
+
+Theorem Sets_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
+    Sec f <-> injective f.
+split; intros.
+apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
+unfold Sec, injective in *.
+
+
 
 (*Theorem Sets_epi_ret : forall (A B : Set) (f : Hom A B),
     Ret f <-> surjective f.

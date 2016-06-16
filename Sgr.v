@@ -1,6 +1,8 @@
 Require Import Omega.
 Require Import ProofIrrelevance.
-Require Export Cat.
+Require Import List.
+
+Require Export CatInstances.
 
 Class Sgr {A : Type} : Type :=
 {
@@ -18,10 +20,6 @@ Class HomSgr `(A : Sgr) `(B : Sgr) : Type :=
     f_ : A -> B;
     homo_sgr : forall a b : A, f_ (a & b) = f_ a & f_ b
 }.
-
-Theorem trolo : forall `(A : Sgr) (a : A), a = a.
-intros. destruct A.
-trivial. Qed.
 
 Definition HomSgr'_Fun `(_ : HomSgr) := f_.
 Coercion HomSgr'_Fun : HomSgr >-> Funclass.
@@ -63,9 +61,36 @@ assert (a * (b * c) = a * b * c). rewrite mult_assoc. trivial.
 assumption.
 Defined.
 
+Instance ListApp (A : Type) : @Sgr (list A).
+split with (@app A).
+intros; rewrite app_assoc; trivial.
+Defined.
+
 Instance timesTwo : HomSgr NatPlus NatPlus.
 split with (fun n => 2 * n).
 simpl; intros.
 assert (a + b + (a + b + 0) = a + (a + 0) + (b + (b + 0))). omega.
 assumption.
 Defined.
+
+Instance len (A : Type) : HomSgr (ListApp A) NatPlus.
+split with (@length A).
+induction a, b; simpl; trivial.
+rewrite app_nil_r, plus_0_r. trivial.
+f_equal. apply IHa.
+Defined.
+
+Print len.
+
+Axiom fn_ext_sgr : forall (A B : Sgr') (f : Hom A B) (g : Hom A B),
+    f = g <-> forall x : A, f x = g x.
+
+Theorem sgr_mon_inj : forall (A B : Sgr') (f : Hom A B),
+    Mon f <-> injective f.
+unfold Mon, injective; split; intros.
+(* Part 1 to be filled when concrete categories are developed. *)
+Focus 2.
+rewrite fn_ext_sgr; intro x. apply H.
+generalize x; rewrite fn_ext_sgr in H0. assumption.
+admit.
+

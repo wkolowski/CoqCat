@@ -1,7 +1,8 @@
 Require Import NPeano.
 Require Import Omega.
 Require Import ProofIrrelevance.
-Require Export Cat.
+
+Require Export CatInstances.
 
 Class Pros {A : Type} : Type :=
 {
@@ -67,13 +68,18 @@ split with (fun n => 2 * n).
 simpl; intros; omega.
 Defined.
 
-(*Theorem Pros_mon_inj : forall (A B : Pros) (f : Hom A B),
+Axiom fn_ext_pros : forall (A B : Pros') (f : Hom A B) (g : Hom A B),
+    f = g <-> forall x : A, f x = g x.
+
+Theorem Pros_mon_inj : forall (A B : Pros') (f : Hom A B),
     Mon f <-> injective f.
 unfold Mon, injective; split; intros.
 (* Trivial: use the property that Pros is a contruct over Set. *)
-Focus 2. (*unfold comp, CompPros in H0. simpl in *.*)
-rewrite fn_ext_axiom.
-destruct f0, g, h.*)
+Focus 2.
+rewrite fn_ext_pros; intro x. apply H.
+generalize x; rewrite fn_ext_pros in H0. assumption.
+admit.
+
 
 Definition lst `(A : Pros) (a : A) : Prop := forall a' : A, a ≤ a'.
 
