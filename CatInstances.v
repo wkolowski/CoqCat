@@ -2,19 +2,6 @@ Require Export InitTerm.
 Require Import ProofIrrelevance.
 Require Import Coq.Logic.Eqdep.
 
-(*Definition injective {A B : Type} (f : A -> B) : Prop := forall (a a' : A),
-    f a = f a' -> a = a'.*)
-
-(*Lemma lolz : forall (A B : Type) (f g : A -> B),
-    f = g -> (forall a : A, f a = g a).
-intros. rewrite H. trivial.
-Qed.
-
-Lemma fn_ext : forall (A B : Set) (f g : A -> B),
-f = g -> forall a : A, f a = g a.
-intros. rewrite H. trivial.
-Qed.*)
-
 Axiom fn_ext_axiom : forall {A B : Type} (f g : A -> B),
 f = g <-> forall a : A, f a = g a.
 
@@ -94,7 +81,6 @@ apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
 unfold Sec, injective in *.
 admit.
 
-
 (*Theorem Sets_epi_ret : forall (A B : Set) (f : Hom A B),
     Ret f <-> surjective f.
 unfold Ret, surjective; split; intros.
@@ -157,10 +143,6 @@ rewrite Sets_mon_inj in H1. assumption. assumption.
 Focus 2.
 rewrite iso_iff_sec_ret. split.
 destruct H as [a b]. unfold injective, surjective in *.*)
-
-
-
-
 
 (*  Most likely there's no initial object in the category Sets, because there are
     no functions from the empty set to itself. *)
@@ -241,8 +223,6 @@ Instance HomIso `(C : Cat) : @CatHom Ob.
 split. intros. exact {f : Hom A B | Iso f}.
 Defined.
 
-Print HomIso.
-
 Instance CompIso `(C' : Cat) : @CatComp Ob (HomIso C').
 split. unfold Hom, HomIso; intros A B C f g.
 destruct f as [f f_iso], g as [g g_iso].
@@ -254,7 +234,44 @@ split; unfold Hom, HomIso; intros. exists (id A).
 apply id_is_aut.
 Defined.
 
-Instance CatIso `(C' : Cat) : @Cat Ob (HomIso C') (CompIso C') (IdIso C').
+(*Instance CatIso `(C' : Cat) : @Cat Ob (HomIso C') (CompIso C') (IdIso C').
 split; intros. unfold comp, CompIso.
 Focus 2.
-destruct f. simpl. Print id_left. try rewrite id_left with A B x. cat.
+destruct f. simpl. Print id_left. try rewrite id_left with A B x. cat.*)
+
+Inductive empty : Set := .
+
+Instance HomEmpty : @CatHom empty.
+split; intros. exact empty.
+Defined.
+
+Instance CompEmpty : @CatComp empty HomEmpty.
+split; unfold Hom, HomEmpty; intros. trivial.
+Defined.
+
+Instance IdEmpty : @CatId empty HomEmpty.
+split; unfold Hom, HomEmpty; intros. trivial.
+Defined.
+
+Instance CatEmpty : @Cat empty HomEmpty CompEmpty IdEmpty.
+split; destruct f.
+Defined.
+
+Instance HomUnit : @CatHom unit.
+split; intros. exact unit.
+Defined.
+
+Instance CompUnit : @CatComp unit HomUnit.
+split; trivial.
+Defined.
+
+Instance IdUnit : @CatId unit HomUnit.
+split; trivial.
+Defined.
+
+Instance CatUnit : @Cat unit HomUnit CompUnit IdUnit.
+split; destruct A, B, f; trivial.
+Defined.
+
+Definition slice_over `(C : Cat) (A : Ob) := forall X : Ob, Hom X A.
+

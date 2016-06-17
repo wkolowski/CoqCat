@@ -1,5 +1,7 @@
 Require Import Omega.
 Require Import ProofIrrelevance.
+Require Import ZArith.
+Require Import Ring.
 Require Import Sgr.
 Require Import CatInstances.
 
@@ -63,8 +65,41 @@ intros _ _ f. rewrite neutr_left. trivial.
 intros _ _ f. rewrite neutr_right. trivial.
 Defined.
 
+Instance NatPlus : @Monoid nat.
+split with (sgr_ := NatPlus) (e := 0);
+intros; simpl; omega.
+Defined.
+
+Instance NatMult : @Monoid nat.
+split with (sgr_ := NatMult) (e := 1);
+intros; simpl; omega.
+Defined.
+
+Instance ListApp (A : Type) : @Monoid (list A).
+split with (sgr_ := (ListApp A)) (e := nil);
+intros; simpl; try rewrite List.app_nil_r; trivial.
+Defined.
+
+Instance ZPlus : @Monoid Z.
+split with (sgr_ := ZPlus) (e := 0%Z);
+intros; simpl; omega.
+Defined.
+
+Instance ZMult : @Monoid Z.
+split with (sgr_ := ZMult) (e := 1%Z);
+intros; simpl; destruct a; omega.
+Defined.
+
+(*Instance inj : HomSgr NatMult ZMult.
+split with (fun n : nat => Z.of_nat n). 
+simpl; induction a, b; trivial.
+rewrite mult_0_r. trivial.
+simpl. f_equal. repeat rewrite Pos.of_nat_succ.
+SearchAbout Pos.of_nat.*)
+
 
 (*Theorem hom_monoid_pres_e : forall `(A : Monoid) `(B : Monoid) (f : HomMon A B),
     f e = e.
 intros. rewrite pres_e. trivial.*)
 
+Theorem epi_sur_counterexample : 

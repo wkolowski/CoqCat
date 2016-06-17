@@ -1,0 +1,15 @@
+1. Define coercions between Cat and BareCat.
+2. Define slice categories (possibly using records). https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
+3. Write some simplyfying tactics for Pros, Sgr and Monoids.
+4. Make an attempt at a general categorical tactic that could solve anything useful.
+5. Fix Dual and Functor icompatibility.
+6. Change uniqueness theorems to "unique up to unique isomorphism".
+7. Refactor CatInstances into a directory of single files.
+8. Rename category Sets to CoqSet.
+9. Define category of sets and relations.
+10. Refactor Monads.v: move the Maybe monad to CoqSet.
+11. Define concrecete categories and use them for theorems about individual categories.
+12. Define monoidal categories.
+13. State and prove duality facts.
+
+Commit : defined initial and terminal category, proved some characterizations for mono- and epimorphisms, first attempt at defining slice categories, updated this TODO, defined Sgr and Monoid instance for Z with addition and multiplication. Tried to prove there's a non-surjective monoid epimorphism between NatMult and ZMult, but failed, proved that initial object is unique up to unique isomorphism, proved that iso is sec + epi / mon + ret.

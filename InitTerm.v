@@ -28,6 +28,18 @@ rewrite <- (eq1 (f .> g)); [rewrite <- (eq1 (id I1)); trivial | trivial].
 rewrite <- (eq2 (g .> f)); [rewrite <- (eq2 (id I2)); trivial | trivial].
 Qed.
 
+Theorem init_ob_uniquely_isomorphic : forall `(C : Cat) (I1 I2 : Ob),
+    initial_object I1 -> initial_object I2 -> I1 ~~ I2.
+unfold uniquely_isomorphic; intros.
+assert (I1 ~ I2). apply init_ob_iso_unique; assumption.
+destruct H1 as [f [g [eq1 eq2]]].
+exists f. split. unfold Iso; exists g; split; assumption.
+intros f' iso_f'. unfold initial_object in *.
+destruct (H I2) as []. destruct H1.
+assert (x = f). apply H2. trivial.
+rewrite <- H3. apply H2. trivial.
+Qed.
+
 Theorem final_ob_iso_unique : forall `(C : Cat) (T1 T2 : Ob),
     terminal_object T1 -> terminal_object T2 -> T1 ~ T2.
 unfold terminal_object, isomorphic; intros.

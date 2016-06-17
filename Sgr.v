@@ -1,6 +1,7 @@
 Require Import Omega.
 Require Import ProofIrrelevance.
 Require Import List.
+Require Import ZArith.
 
 Require Export CatInstances.
 
@@ -56,9 +57,17 @@ split with plus. intros; omega. (*rewrite plus_assoc; trivial. (* omega.*)*)
 Defined.
 
 Instance NatMult : @Sgr nat.
-split with mult. intros. 
+split with mult. intros.
 assert (a * (b * c) = a * b * c). rewrite mult_assoc. trivial.
 assumption.
+Defined.
+
+Instance ZPlus : @Sgr Z.
+split with Zplus; intros; omega.
+Defined.
+
+Instance ZMult : @Sgr Z.
+split with Zmult; intros. rewrite <- Zmult_assoc_reverse. trivial.
 Defined.
 
 Instance ListApp (A : Type) : @Sgr (list A).

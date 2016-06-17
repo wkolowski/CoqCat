@@ -122,6 +122,24 @@ assert (eq : g = h). rewrite <- eq1, eq2. trivial.
 exists g. split. assumption. rewrite eq. assumption.
 Qed.
 
+Theorem iso_iff_sec_epi : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Iso f <-> Sec f /\ Epi f.
+split; intros. apply iso_iff_sec_ret in H. destruct H. split.
+assumption. apply ret_is_epi in H0. assumption.
+unfold Iso, Sec, Epi in *. destruct H as [[g eq] H].
+exists g. split. assumption.
+apply H. rewrite <- comp_assoc. rewrite eq. cat.
+Qed.
+
+Theorem iso_iff_mon_ret : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Iso f <-> Mon f /\ Ret f.
+split; intros. apply iso_iff_sec_ret in H. destruct H. split. Focus 2.
+assumption. apply sec_is_mon in H; assumption.
+unfold Iso, Sec, Epi in *. destruct H as [H [g eq]].
+exists g. split. Focus 2. assumption.
+apply H. rewrite comp_assoc. rewrite eq. cat.
+Qed.
+
 Theorem mon_comp : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Mon f -> Mon g -> Mon (f .> g).
 unfold Mon in *; intros. apply H0, H1.
@@ -235,4 +253,18 @@ Inductive locally_small : BareCat -> Prop :=
         (i : @CatId A h) (C : Cat A h c i), locally_small (mkBareCat A h c i C).
 
 (*Definition large (C : BareCat) := ~ small C.*)
+
+Theorem mon_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Mon f <-> forall X : Ob, injective (fun g : Hom X A => g .> f).
+unfold Mon, injective; split; intros.
+apply H. assumption.
+apply H. assumption.
+Qed.
+
+Theorem epi_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Epi f <-> forall X : Ob, injective (fun g : Hom B X => f .> g).
+unfold Epi, injective; split; intros.
+apply H. assumption.
+apply H. assumption.
+Qed.
 
