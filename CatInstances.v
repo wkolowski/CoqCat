@@ -1,4 +1,6 @@
 Require Export InitTerm.
+Require Import ProofIrrelevance.
+Require Import Coq.Logic.Eqdep.
 
 (*Definition injective {A B : Type} (f : A -> B) : Prop := forall (a a' : A),
     f a = f a' -> a = a'.*)
@@ -90,7 +92,7 @@ Theorem Sets_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
 split; intros.
 apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
 unfold Sec, injective in *.
-
+admit.
 
 
 (*Theorem Sets_epi_ret : forall (A B : Set) (f : Hom A B),
@@ -235,3 +237,24 @@ Instance Dual `(C : Cat) : @Cat Ob (DualHom C) (DualComp C) (DualId C).
 split; destruct C, catHom, catComp, catId; simpl in *; cat.
 Defined.
 
+Instance HomIso `(C : Cat) : @CatHom Ob.
+split. intros. exact {f : Hom A B | Iso f}.
+Defined.
+
+Print HomIso.
+
+Instance CompIso `(C' : Cat) : @CatComp Ob (HomIso C').
+split. unfold Hom, HomIso; intros A B C f g.
+destruct f as [f f_iso], g as [g g_iso].
+exists (f .> g). apply iso_comp; assumption.
+Defined.
+
+Instance IdIso `(C' : Cat) : @CatId Ob (HomIso C').
+split; unfold Hom, HomIso; intros. exists (id A).
+apply id_is_aut.
+Defined.
+
+Instance CatIso `(C' : Cat) : @Cat Ob (HomIso C') (CompIso C') (IdIso C').
+split; intros. unfold comp, CompIso.
+Focus 2.
+destruct f. simpl. Print id_left. try rewrite id_left with A B x. cat.

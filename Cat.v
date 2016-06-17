@@ -227,3 +227,12 @@ Definition bijective {A B : Type} (f : A -> B) : Prop :=
 
 (*Theorem mono_epi_dual : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Mon f <-> Epi f.*)
+
+(*Definition Cat_BareCat `(C : Cat) := .*)
+
+Inductive locally_small : BareCat -> Prop :=
+    | small_c : forall (A : Set) (h : @CatHom A) (c : @CatComp A h)
+        (i : @CatId A h) (C : Cat A h c i), locally_small (mkBareCat A h c i C).
+
+(*Definition large (C : BareCat) := ~ small C.*)
+

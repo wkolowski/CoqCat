@@ -12,8 +12,8 @@ Class Sgr {A : Type} : Type :=
 
 Notation "a & b" := (op a b) (at level 50).
 
-Definition Sgr'_Sort `(_ : Sgr) := A.
-Coercion Sgr'_Sort : Sgr >-> Sortclass.
+Definition Sgr_Sort `(_ : Sgr) := A.
+Coercion Sgr_Sort : Sgr >-> Sortclass.
 
 Class HomSgr `(A : Sgr) `(B : Sgr) : Type :=
 {
@@ -21,8 +21,8 @@ Class HomSgr `(A : Sgr) `(B : Sgr) : Type :=
     homo_sgr : forall a b : A, f_ (a & b) = f_ a & f_ b
 }.
 
-Definition HomSgr'_Fun `(_ : HomSgr) := f_.
-Coercion HomSgr'_Fun : HomSgr >-> Funclass.
+Definition HomSgr_Fun `(_ : HomSgr) := f_.
+Coercion HomSgr_Fun : HomSgr >-> Funclass.
 
 Class Sgr' : Type :=
 {
@@ -85,12 +85,12 @@ Print len.
 Axiom fn_ext_sgr : forall (A B : Sgr') (f : Hom A B) (g : Hom A B),
     f = g <-> forall x : A, f x = g x.
 
-Theorem sgr_mon_inj : forall (A B : Sgr') (f : Hom A B),
+(*Theorem sgr_mon_inj : forall (A B : Sgr') (f : Hom A B),
     Mon f <-> injective f.
 unfold Mon, injective; split; intros.
 (* Part 1 to be filled when concrete categories are developed. *)
 Focus 2.
 rewrite fn_ext_sgr; intro x. apply H.
 generalize x; rewrite fn_ext_sgr in H0. assumption.
-admit.
+admit.*)
 
