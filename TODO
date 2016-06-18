@@ -11,5 +11,9 @@
 11. Define concrecete categories and use them for theorems about individual categories.
 12. Define monoidal categories.
 13. State and prove duality facts.
+14. Define posets and make the category Pos.
+15. Define the divisibility poset.
+16. START USING SETOIDS.
+17. Define the coproduct-maker category.
 
-Commit : defined initial and terminal category, proved some characterizations for mono- and epimorphisms, first attempt at defining slice categories, updated this TODO, defined Sgr and Monoid instance for Z with addition and multiplication. Tried to prove there's a non-surjective monoid epimorphism between NatMult and ZMult, but failed, proved that initial object is unique up to unique isomorphism, proved that iso is sec + epi / mon + ret.
+Commit : proved that prod with fst and snd is the product and sum with inl and inr is the coproduct in the category Coqset (not yet renamed), first attempt at formulating the product maker category.

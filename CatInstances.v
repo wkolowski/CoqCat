@@ -1,6 +1,8 @@
-Require Export InitTerm.
 Require Import ProofIrrelevance.
 Require Import Coq.Logic.Eqdep.
+
+Require Export InitTerm.
+Require Import BinProdCoprod.
 
 Axiom fn_ext_axiom : forall {A B : Type} (f g : A -> B),
 f = g <-> forall a : A, f a = g a.
@@ -80,6 +82,34 @@ split; intros.
 apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
 unfold Sec, injective in *.
 admit.
+
+Theorem Sets_prod : forall (A B : Set),
+    is_product (prod A B) (@fst A B) (@snd A B).
+unfold is_product; intros.
+exists (fun x : X => (f x, g x)). split; simpl.
+split; rewrite fn_ext_axiom; trivial.
+intros. destruct H as [f_eq g_eq].
+rewrite f_eq, g_eq, fn_ext_axiom; intro; simpl.
+rewrite surjective_pairing; trivial.
+Qed.
+
+Theorem Sets_coprod : forall (A B : Set),
+    is_coproduct (sum A B) (@inl A B) (@inr A B).
+unfold is_coproduct; intros.
+SearchAbout inl.
+exists (
+    fun p : A + B => match p with
+        | inl a => f a
+        | inr b => g b
+    end).
+split; simpl.
+split; rewrite fn_ext_axiom; trivial.
+intros. destruct H as [f_eq g_eq].
+rewrite f_eq, g_eq, fn_ext_axiom; intro.
+destruct a; trivial.
+Qed.
+
+
 
 (*Theorem Sets_epi_ret : forall (A B : Set) (f : Hom A B),
     Ret f <-> surjective f.
@@ -275,3 +305,96 @@ Defined.
 
 Definition slice_over `(C : Cat) (A : Ob) := forall X : Ob, Hom X A.
 
+Record ObProdMaker `(_ : Cat) (A B : Ob) : Type :=
+{
+    C_ : Ob;
+    f_ : Hom C_ A;
+    g_ : Hom C_ B
+}.
+
+Record HomProdMaker' `(C : Cat) (A B : Ob) (X Y : ObProdMaker C A B) : Type :=
+{
+    h_ : Hom (C_ C A B X) (C_ C A B Y);
+    eq1_ : f_ C A B X = h_ .> f_ C A B Y;
+    eq2_ : g_ C A B X = h_ .> g_ C A B Y
+}.
+
+Instance HomProdMaker `(C : Cat) (A B : Ob) : @CatHom (ObProdMaker C A B).
+split; intros.
+exact (HomProdMaker' C A B A0 B0).
+Defined.
+
+Instance CompProdMaker `(C : Cat) (A B : Ob) :
+    @CatComp (ObProdMaker C A B) (HomProdMaker C A B).
+split; unfold Hom, HomProdMaker; intros; destruct A0, B0, C0.
+destruct X as [h1 h1_eq1 h1_eq2], X0 as [h2 h2_eq1 h2_eq2].
+exists (h1 .> h2).
+rewrite h1_eq1, h2_eq1; cat.
+rewrite h1_eq2, h2_eq2; cat.
+Defined.
+
+Instance IdProdMaker `(C : Cat) (A B : Ob) :
+    @CatId (ObProdMaker C A B) (HomProdMaker C A B).
+split; unfold Hom, HomProdMaker; intros; destruct A0.
+exists (id C_0); cat.
+Defined.
+
+Instance CatProdMaker `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
+    (HomProdMaker C A B) (CompProdMaker C A B) (IdProdMaker C A B).
+split.
+Focus 2.
+intros. simpl. destruct A0, B0, f.
+assert (id C_0 .> h_0 = h_0). cat. 
+intros.
+
+rewrite H.
+pattern (id C_0 .> h_0) at 0. rewrite H.
+
+ unfold Hom, HomProdMaker, comp, CompProdMaker; intros;
+try destruct A0, B0, C0, D. destruct f, g, h.
+assert ((h_0 .> h_1) .> h_2 = h_0 .> (h_1 .> h_2)). cat.
+Focus 2.
+destruct A0, B0, f. f_equal. cat.
+
+
+f_equal.
+Print proof_irrelevance.
+decompose record.
+rewrite proof_irrelevance with eq1_.
+
+ance.
+unfold comp, CompProdMaker.
+Focus 2. destruct A0, B0; unfold comp, CompProdMaker; trivial.
+f_equal. destruct f as [f [eq1 eq2]].
+repeat rewrite eq1, eq2.
+
+
+
+
+ destruct A0, B0.
+exact ({h : Hom C_0 C_1 | f_0 = h .> f_1 /\ g_0 = h .> g_1}).
+Defined.
+
+Instance CompProdMaker `(C : Cat) (A B : Ob) :
+    @CatComp (ObProdMaker C A B) (HomProdMaker C A B).
+split; unfold Hom, HomProdMaker; intros; destruct A0, B0, C0.
+destruct X as [h1 [h1_eq1 h1_eq2]], X0 as [h2 [h2_eq1 h2_eq2]].
+exists (h1 .> h2). split.
+rewrite h1_eq1, h2_eq1; cat.
+rewrite h1_eq2, h2_eq2; cat.
+Defined.
+
+Instance IdProdMaker `(C : Cat) (A B : Ob) :
+    @CatId (ObProdMaker C A B) (HomProdMaker C A B).
+split; unfold Hom, HomProdMaker; intros; destruct A0.
+exists (id C_0). split; cat.
+Defined.
+
+Instance CatProdMaker `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
+    (HomProdMaker C A B) (CompProdMaker C A B) (IdProdMaker C A B).
+split; unfold Hom, HomProdMaker (*comp, CompProdMaker*); intros;
+try destruct A0, B0, C0, D. 
+unfold comp, CompProdMaker.
+Focus 2. destruct A0, B0; unfold comp, CompProdMaker; trivial.
+f_equal. destruct f as [f [eq1 eq2]].
+repeat rewrite eq1, eq2.
