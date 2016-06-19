@@ -1,11 +1,8 @@
-1. Define coercions between Cat and BareCat.
 2. Define slice categories (possibly using records). https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
 3. Write some simplyfying tactics for Pros, Sgr and Monoids.
 4. Make an attempt at a general categorical tactic that could solve anything useful.
 5. Fix Dual and Functor icompatibility.
 6. Change uniqueness theorems to "unique up to unique isomorphism".
-7. Refactor CatInstances into a directory of single files.
-8. Rename category Sets to CoqSet.
 9. Define category of sets and relations.
 10. Refactor Monads.v: move the Maybe monad to CoqSet.
 11. Define concrecete categories and use them for theorems about individual categories.
@@ -16,4 +13,4 @@
 16. START USING SETOIDS.
 17. Define the coproduct-maker category.
 
-Commit : proved that prod with fst and snd is the product and sum with inl and inr is the coproduct in the category Coqset (not yet renamed), first attempt at formulating the product maker category.
+Commit : proved theorems about mono- and epi- composition, defined coercions between Cat and BareCat, renamed BareCat to Cat', proved terminal and zero objects to be unique up to unique isomorphism, partially refactored CatInstances into single files, renamed categories Type and Sets to CoqType and CoqSet respectively.

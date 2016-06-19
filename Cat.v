@@ -10,13 +10,13 @@ Class CatComp {Ob : Type} {catHom : CatHom} : Type :=
 {
     comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C
 }.
+
+Notation "f .> g" := (comp f g) (at level 50).
+
 Class CatId {Ob : Type} {catHom : CatHom} : Type :=
 {
     id : forall A : Ob, Hom A A
 }.
-
-Notation "f <. g" := (comp g f) (at level 50).
-Notation "f .> g" := (comp f g) (at level 50).
 
 Class Cat (Ob : Type) (catHom : @CatHom Ob) (catComp : CatComp) (catId : CatId) : Type :=
 {
@@ -25,6 +25,23 @@ Class Cat (Ob : Type) (catHom : @CatHom Ob) (catComp : CatComp) (catId : CatId) 
    id_left : forall (A B : Ob) (f : Hom A B), id A .> f = f;
    id_right : forall (A B : Ob) (f : Hom A B), f .> id B = f
 }.
+
+Record Cat' : Type := mkBareCat
+{
+    ob_ : Type;
+    hom_ : @CatHom ob_;
+    cmp_ : CatComp;
+    id_ : CatId;
+    inst_ : @Cat ob_ hom_ cmp_ id_
+}.
+
+Definition Cat_BareCat `(C : Cat) : Cat' := {| ob_ := Ob |}.
+(* The rest gets inferred automagically. *)
+Coercion Cat_BareCat : Cat >-> Cat'.
+
+Definition BareCat_Cat (C : Cat') :
+    (Cat (ob_ C) (hom_ C) (cmp_ C) (id_ C)) := inst_ C.
+Coercion BareCat_Cat : Cat' >-> Cat.
 
 Ltac cat_rw := rewrite id_left || rewrite id_right || rewrite comp_assoc.
 Ltac cat_rw' := rewrite id_left || rewrite id_right || rewrite <- comp_assoc.
@@ -59,12 +76,6 @@ Definition End `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
 Definition Mon `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
 
-(*Print Mon.
-
-Arguments Mon {Ob} _ _ _ _ _ _ _.
-
-Print Mon.*)
-
 Definition Epi `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
 
@@ -90,6 +101,7 @@ Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
 
+(* Relations between different types of morphisms. *)
 Theorem sec_is_mon : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Sec f -> Mon f.
 intros. unfold Sec, Mon in *. intros X h1 h2 eq. destruct H as (g, H).
@@ -104,6 +116,31 @@ intros. unfold Ret, Epi in *. intros X h1 h2 eq. destruct H as (g, H).
 assert (eq2 : g .> (f .> h1) = g .> (f .> h2)). rewrite eq; trivial.
 rewrite <- comp_assoc, <- comp_assoc in eq2. rewrite H in eq2.
 rewrite id_left, id_left in eq2. assumption.
+Qed.
+
+(* Kinds of ordinary functions. *)
+Definition injective {A B : Type} (f : A -> B) : Prop :=
+    forall a a' : A, f a = f a' -> a = a'.
+
+Definition surjective {A B : Type} (f : A -> B) : Prop :=
+    forall b : B, exists a : A, f a = b.
+
+Definition bijective {A B : Type} (f : A -> B) : Prop :=
+    injective f /\ surjective f.
+
+(* Characterizations. *)
+Theorem mon_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Mon f <-> forall X : Ob, injective (fun g : Hom X A => g .> f).
+unfold Mon, injective; split; intros.
+apply H. assumption.
+apply H. assumption.
+Qed.
+
+Theorem epi_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
+    Epi f <-> forall X : Ob, injective (fun g : Hom B X => f .> g).
+unfold Epi, injective; split; intros.
+apply H. assumption.
+apply H. assumption.
 Qed.
 
 Theorem iso_iff_sec_ret : forall `(C : Cat) (A B : Ob) (f : Hom A B),
@@ -140,6 +177,7 @@ exists g. split. Focus 2. assumption.
 apply H. rewrite comp_assoc. rewrite eq. cat.
 Qed.
 
+(* Composition theorems. *)
 Theorem mon_comp : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Mon f -> Mon g -> Mon (f .> g).
 unfold Mon in *; intros. apply H0, H1.
@@ -197,6 +235,19 @@ assert (eq2 : h .> f .> g = h). rewrite comp_assoc, inv1. cat.
 rewrite <- eq1. pattern h at 2. rewrite <- eq2. cat.
 Qed.
 
+(* Composition properties. *)
+Theorem mon_prop : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
+    Mon (f .> g) -> Mon f.
+unfold Mon; intros. apply H0.
+repeat rewrite <- comp_assoc. rewrite H1. trivial.
+Qed.
+
+Theorem epi_prop : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
+    Epi (f .> g) -> Epi g.
+unfold Epi; intros. apply H0.
+repeat rewrite comp_assoc. rewrite H1. trivial.
+Qed.
+
 Theorem sec_prop : forall `(cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Sec (f .> g) -> Sec f.
 unfold Sec; intros. destruct H as (h, eq).
@@ -215,56 +266,20 @@ Qed.
 
 Instance isomorphic_equiv `(C' : Cat) : Equivalence isomorphic.
 split.
-Case "Reflexivity". unfold Reflexive. intro A. unfold isomorphic.
+(*Case "Reflexivity".*) unfold Reflexive. intro A. unfold isomorphic.
     exists (id A). apply id_is_aut.
-Case "Symmetry". unfold Symmetric. intros A B iso.
+(*Case "Symmetry".*) unfold Symmetric. intros A B iso.
     destruct iso as [f [g [eq1 eq2]]]. unfold isomorphic. exists g.
     unfold Iso. exists f; split; assumption.
-Case "Transitivity". unfold Transitive. intros A B C H H'.
+(*Case "Transitivity".*) unfold Transitive. intros A B C H H'.
     destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
     exists (f .> g). apply iso_comp; assumption.
 Defined.
 
-Record BareCat : Type := mkBareCat
-{
-    ob_ : Type;
-    hom_ : @CatHom ob_;
-    cmp_ : CatComp;
-    id_ : CatId;
-    inst_ : @Cat ob_ hom_ cmp_ id_
-}.
-
-Definition injective {A B : Type} (f : A -> B) : Prop :=
-    forall a a' : A, f a = f a' -> a = a'.
-
-Definition surjective {A B : Type} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a = b.
-
-Definition bijective {A B : Type} (f : A -> B) : Prop :=
-    injective f /\ surjective f.
-
 (*Theorem mono_epi_dual : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Mon f <-> Epi f.*)
 
-(*Definition Cat_BareCat `(C : Cat) := .*)
-
-Inductive locally_small : BareCat -> Prop :=
+Inductive locally_small : Cat' -> Prop :=
     | small_c : forall (A : Set) (h : @CatHom A) (c : @CatComp A h)
-        (i : @CatId A h) (C : Cat A h c i), locally_small (mkBareCat A h c i C).
-
-(*Definition large (C : BareCat) := ~ small C.*)
-
-Theorem mon_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
-    Mon f <-> forall X : Ob, injective (fun g : Hom X A => g .> f).
-unfold Mon, injective; split; intros.
-apply H. assumption.
-apply H. assumption.
-Qed.
-
-Theorem epi_char : forall `(C : Cat) (A B : Ob) (f : Hom A B),
-    Epi f <-> forall X : Ob, injective (fun g : Hom B X => f .> g).
-unfold Epi, injective; split; intros.
-apply H. assumption.
-apply H. assumption.
-Qed.
-
+        (i : @CatId A h) (C : Cat A h c i), locally_small C.
+(*Definition large (C : Cat') := ~ small C.*)

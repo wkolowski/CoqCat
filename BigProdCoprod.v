@@ -44,6 +44,37 @@ rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
 rewrite <- eq1. assumption.
 Qed.
 
+Theorem big_product_uniquely_isomorphic : forall `(C : Cat) (J : Set)
+    (A : J -> Ob) (P Q : Ob) (p : forall j : J, Hom P (A j))
+    (q : forall j : J, Hom Q (A j)) (j : J),
+    big_product P p -> big_product Q q -> P ~~ Q.
+(*unfold big_product; intros. unfold uniquely_isomorphic, isomorphic.
+destruct (H0 P j (p j)) as [u1 [eq1 uniq1]],
+(H Q j (q j)) as [u2 [eq2 uniq2]].
+exists u1. unfold Iso. split. exists u2. split.
+destruct (H P j (p j)) as [i [eq_id uniq_id]].
+assert (i_is_id : i = id P). apply uniq_id. cat.
+rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
+rewrite <- eq2. assumption.
+destruct (H0 Q j (q j)) as [i [eq_id uniq_id]].
+assert (i_is_id : i = id Q). apply uniq_id. cat.
+rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
+rewrite <- eq1. assumption.
+intros. apply uniq1.
+destruct H1 as [g eq].
+specialize (H0 P j (x' .> g .> p j)).
+specialize (H Q j (g .> x' .> q j)).
+
+******************
+
+unfold big_product, uniquely_isomorphic, isomorphic; intros.
+assert (P ~ Q). apply big_product_iso_unique with J A p q; assumption.
+destruct H1 as [f f_iso].
+exists f; split. assumption.
+intros f' f'_iso. destruct (H0 P j (p j)).
+destruct H1 as [eq unique].
+assert (x = f). apply unique. *)
+
 Theorem big_product_iso_unique2 : forall `(C : Cat) (J : Set) (A B : J -> Ob)
     (P Q : Ob) (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j))
     (j : J), (forall j : J, A j ~ B j) ->
