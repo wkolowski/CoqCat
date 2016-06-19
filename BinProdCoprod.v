@@ -30,6 +30,14 @@ Case "Universal property". split; assumption.
 Case "Uniquenes". intros. apply uniq. destruct H; split; assumption.
 Qed.
 
+Theorem coproduct_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)
+    (iB : Hom B P), is_coproduct P iA iB -> is_coproduct P iB iA.
+unfold is_coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
+exists u. split.
+Case "Universal property". split; assumption.
+Case "Uniqueness". intros. apply uniq. destruct H0; split; assumption.
+Qed.
+
 (*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product
     definition. In case of the big product, this is not needed. *)
 Theorem proj_ret : forall `(C : Cat) (A B P : Ob) (pA : Hom P A)
@@ -37,6 +45,14 @@ Theorem proj_ret : forall `(C : Cat) (A B P : Ob) (pA : Hom P A)
 unfold is_product, Ret in *; intros.
 destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]); clear H.
 exists u. rewrite eq1. trivial.
+Qed.
+
+(*  The f : Hom B A is auxiliary as in the case of the product. *)
+Theorem inj_sec : forall `(C : Cat) (A B P : Ob) (iA : Hom A P) (iB : Hom B P)
+    (f : Hom B A), is_coproduct P iA iB -> Sec iA.
+unfold Sec, is_coproduct in *; intros.
+destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
+exists u. rewrite eq1; trivial.
 Qed.
 
 Theorem product_iso_unique : forall `(C : Cat) (A B : Ob) (P : Ob)
@@ -98,18 +114,10 @@ Theorem product_iso_unique2 : forall `(C : Cat) (A B : Ob) (P : Ob)
 intros. apply iso_prod with A B A B pA pB qA qB; try reflexivity; assumption.
 Qed.
 
-Theorem coproduct_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)
-    (iB : Hom B P), is_coproduct P iA iB -> is_coproduct P iB iA.
-unfold is_coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
-exists u. split.
-Case "Universal property". split; assumption.
-Case "Uniqueness". intros. apply uniq. destruct H0; split; assumption.
-Qed.
-
-(*  The f : Hom B A is auxiliary as in the case of the product. *)
-Theorem inj_sec : forall `(C : Cat) (A B P : Ob) (iA : Hom A P) (iB : Hom B P)
-    (f : Hom B A), is_coproduct P iA iB -> Sec iA.
-unfold Sec, is_coproduct in *; intros.
-destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
-exists u. rewrite eq1; trivial.
-Qed.
+Theorem prod_assoc : forall `(_ : Cat) (A B C AB BC A_BC AB_C : Ob)
+    (pAB_A : Hom AB A) (pAB_B : Hom AB B) (pBC_B : Hom BC B) (pBC_C : Hom BC C)
+    (pA_BC_A : Hom A_BC A) (pA_BC_BC : Hom A_BC BC) (pAB_C_AB : Hom AB_C AB)
+    (pAB_C_C : Hom AB_C C),
+    is_product AB pAB_A pAB_B -> is_product BC pBC_B pBC_C ->
+    is_product A_BC pA_BC_A pA_BC_BC -> is_product AB_C pAB_C_AB pAB_C_C ->
+    A_BC ~ AB_C.

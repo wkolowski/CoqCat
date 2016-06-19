@@ -44,11 +44,11 @@ rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
 rewrite <- eq1. assumption.
 Qed.
 
-Theorem big_product_uniquely_isomorphic : forall `(C : Cat) (J : Set)
+(*Theorem big_product_uniquely_isomorphic : forall `(C : Cat) (J : Set)
     (A : J -> Ob) (P Q : Ob) (p : forall j : J, Hom P (A j))
     (q : forall j : J, Hom Q (A j)) (j : J),
     big_product P p -> big_product Q q -> P ~~ Q.
-(*unfold big_product; intros. unfold uniquely_isomorphic, isomorphic.
+unfold big_product; intros. unfold uniquely_isomorphic, isomorphic.
 destruct (H0 P j (p j)) as [u1 [eq1 uniq1]],
 (H Q j (q j)) as [u2 [eq2 uniq2]].
 exists u1. unfold Iso. split. exists u2. split.
@@ -120,8 +120,9 @@ exists p. split; try split; try assumption. intros.
 assert (pA' : Hom P A). rewrite <- eq1. apply (p true).
 assert (pB' : Hom P B). rewrite <- eq2. apply (p false).
 destruct j.*)
+
 Print bijective.
-Theorem big_product_comm : forall `(C : Cat) (J : Set) (A : J -> Ob) (P : Ob)
+(*Theorem big_product_comm : forall `(C : Cat) (J : Set) (A : J -> Ob) (P : Ob)
     (f : J -> J) (p : forall j : J, Hom P (A j))
     (p' : forall j : J, Hom P (A (f j))),
     bijective f -> big_product P p -> big_product P p'.
@@ -130,3 +131,26 @@ destruct H as [inj sur].
 assert (H' : exists j' : J, f j' = j). apply sur.
 destruct H' as (j', proof).
 destruct (H0 X (f j') f0).
+*)
+
+Theorem unary_prod_exists : forall `(C : Cat) (A : unit -> Ob),
+    big_product (A tt) (fun _ : unit => id (A tt)).
+unfold big_product; intros.
+exists f. split. cat. intros. assert (x' = x' .> id (A tt)). cat.
+rewrite <- H0 in H. apply H.
+Qed.
+
+Theorem unary_coprod_exists : forall `(C : Cat) (A : unit -> Ob),
+    big_coproduct (A tt) (fun _ : unit => id (A tt)).
+unfold big_coproduct; intros.
+exists f. split. cat. intros. assert (x' = id (A tt) .> x'). cat.
+rewrite <- H0 in H. apply H.
+Qed.
+
+(* WARNING: ANY OBJECT IS NULLARY PRODUCT *)
+Theorem nullary_prod : forall `(C : Cat) (A : False -> Ob) (T : Ob)
+    (p : forall j : False, Hom T (A j)),
+    (*terminal_object T ->*) big_product T p.
+unfold big_product; intros.
+contradiction j.
+Qed.
