@@ -9,16 +9,19 @@ Record ObProdMaker `(_ : Cat) (A B : Ob) : Type :=
     g_ : Hom C_ B
 }.
 
-Record HomProdMaker' `(C : Cat) (A B : Ob) (X Y : ObProdMaker C A B) : Type :=
+Record HomProdMaker' `{C : Cat} {A B : Ob} (X Y : ObProdMaker C A B) : Type :=
 {
     h_ : Hom (C_ C A B X) (C_ C A B Y);
     eq1_ : f_ C A B X = h_ .> f_ C A B Y;
     eq2_ : g_ C A B X = h_ .> g_ C A B Y
 }.
 
+Axiom HomProdMaker_eq : forall `(C : Cat) (A B : Ob) (X Y : ObProdMaker C A B)
+    (f g : HomProdMaker' X Y), f = g <-> h_ X Y f = h_ X Y g.
+
 Instance HomProdMaker `(C : Cat) (A B : Ob) : @CatHom (ObProdMaker C A B).
 split; intros.
-exact (HomProdMaker' C A B A0 B0).
+exact (HomProdMaker' A0 B0).
 Defined.
 
 Instance CompProdMaker `(C : Cat) (A B : Ob) :
@@ -36,46 +39,21 @@ split; unfold Hom, HomProdMaker; intros; destruct A0.
 exists (id C_0); cat.
 Defined.
 
-(*Instance CatProdMaker `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
+Instance CatProdMaker `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
     (HomProdMaker C A B) (CompProdMaker C A B) (IdProdMaker C A B).
-split.
-Focus 2.
-intros. simpl. destruct A0, B0, f.
-assert (id C_0 .> h_0 = h_0). cat. 
-intros.
+split; unfold Hom, HomProdMaker, comp, CompProdMaker; intros.
+destruct A0, B0, C0, D, f, g, h; apply HomProdMaker_eq; simpl; cat.
+destruct A0, B0, f; apply HomProdMaker_eq; simpl; cat.
+destruct A0, B0, f; apply HomProdMaker_eq; simpl; cat.
+Defined.
 
-rewrite H.
-pattern (id C_0 .> h_0) at 0. rewrite H.
-
- unfold Hom, HomProdMaker, comp, CompProdMaker; intros;
-try destruct A0, B0, C0, D. destruct f, g, h.
-assert ((h_0 .> h_1) .> h_2 = h_0 .> (h_1 .> h_2)). cat.
-Focus 2.
-destruct A0, B0, f. f_equal. cat.
-
-
-f_equal.
-Print proof_irrelevance.
-decompose record.
-rewrite proof_irrelevance with eq1_.
-
-ance.
-unfold comp, CompProdMaker.
-Focus 2. destruct A0, B0; unfold comp, CompProdMaker; trivial.
-f_equal. destruct f as [f [eq1 eq2]].
-repeat rewrite eq1, eq2.
-
-
-
-
- destruct A0, B0.
+Instance HomProdMaker2 `(C : Cat) (A B : Ob) : @CatHom (ObProdMaker C A B).
+split; intros. destruct A0, B0.
 exact ({h : Hom C_0 C_1 | f_0 = h .> f_1 /\ g_0 = h .> g_1}).
-Defined.*)
+Defined.
 
-
-(* OLD ONES
-Instance CompProdMaker `(C : Cat) (A B : Ob) :
-    @CatComp (ObProdMaker C A B) (HomProdMaker C A B).
+Instance CompProdMaker2 `(C : Cat) (A B : Ob) :
+    @CatComp (ObProdMaker C A B) (HomProdMaker2 C A B).
 split; unfold Hom, HomProdMaker; intros; destruct A0, B0, C0.
 destruct X as [h1 [h1_eq1 h1_eq2]], X0 as [h2 [h2_eq1 h2_eq2]].
 exists (h1 .> h2). split.
@@ -83,16 +61,17 @@ rewrite h1_eq1, h2_eq1; cat.
 rewrite h1_eq2, h2_eq2; cat.
 Defined.
 
-Instance IdProdMaker `(C : Cat) (A B : Ob) :
-    @CatId (ObProdMaker C A B) (HomProdMaker C A B).
+Instance IdProdMaker2 `(C : Cat) (A B : Ob) :
+    @CatId (ObProdMaker C A B) (HomProdMaker2 C A B).
 split; unfold Hom, HomProdMaker; intros; destruct A0.
-exists (id C_0). split; cat. *)
+exists (id C_0). split; cat.
 Defined.
 
-Instance CatProdMaker `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
-    (HomProdMaker C A B) (CompProdMaker C A B) (IdProdMaker C A B).
-split; unfold Hom, HomProdMaker (*comp, CompProdMaker*); intros;
-try destruct A0, B0, C0, D. 
+(* Add custom equality on HomProdMaker2 to make it work. 
+Instance CatProdMaker2 `(C : Cat) (A B : Ob) : @Cat (ObProdMaker C A B)
+    (HomProdMaker2 C A B) (CompProdMaker2 C A B) (IdProdMaker2 C A B).
+split; unfold Hom, HomProdMaker2, comp, CompProdMaker2; intros.
+destruct A0, B0, C0, D, f, g, h; simpl.
 unfold comp, CompProdMaker.
 Focus 2. destruct A0, B0; unfold comp, CompProdMaker; trivial.
 f_equal. destruct f as [f [eq1 eq2]].
