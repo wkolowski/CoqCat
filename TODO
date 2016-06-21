@@ -1,7 +1,7 @@
 2. Define slice categories (possibly using records). https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
 3. Write some simplyfying tactics for Pros, Sgr and Monoids.
 4. Make an attempt at a general categorical tactic that could do something useful.
-5. Fix Dual and Functor icompatibility.
+5. Fix Dual and Functor incompatibility.
 6. Change uniqueness theorems to "unique up to unique isomorphism".
 10. Refactor Monads.v: move the Maybe monad to CoqSet.
 11. Define concrecete categories and use them for theorems about individual categories.

@@ -6,30 +6,11 @@ Require Import CatInstances.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Axiom fn_ext_type : forall {A B : Type} (f g : A -> B),
-f = g <-> forall a : A, f a = g a.
-
 Lemma const_fun : forall (A B : Set) (nonempty : A) (b b' : B),
     b = b' <-> (fun _ : A => b) = (fun _ : A => b').
 split; intros. rewrite H; trivial.
 rewrite fn_ext_type in H. apply H. assumption.
 Qed.
-
-Instance HomCoqType : @CatHom Type.
-split. exact (fun A B : Type => A -> B).
-Defined.
-
-Instance CompCoqType : @CatComp Type HomCoqType.
-split; exact (fun (A B C : Type) (f : Hom A B) (g : Hom B C) => fun a : A => g (f a)).
-Defined.
-
-Instance IdCoqType : @CatId Type HomCoqType.
-split; exact (fun (A : Type) (a : A) => a).
-Defined.
-
-Instance CatCoqType : Cat Type HomCoqType CompCoqType IdCoqType.
-split; trivial.
-Defined.
 
 Instance HomCoqSet : @CatHom Set.
 split. exact (fun A B : Set => A -> B).
@@ -45,23 +26,6 @@ split. exact (fun A : Set => fun a : A => a).
 Defined.
 
 Instance CatCoqSet : Cat Set HomCoqSet CompCoqSet IdCoqSet.
-split; trivial.
-Defined.
-
-Instance HomProp : @CatHom Prop.
-split. exact(fun A B : Prop => A -> B).
-Defined.
-
-Instance CompProp : @CatComp Prop HomProp.
-split. exact (fun A B C : Prop => fun (f : A -> B) (g : B -> C) =>
-    fun a : A => g (f a)).
-Defined.
-
-Instance IdProp : @CatId Prop HomProp.
-split. exact (fun A : Prop => fun a : A => a).
-Defined.
-
-Instance Props : Cat Prop HomProp CompProp IdProp.
 split; trivial.
 Defined.
 
@@ -106,7 +70,6 @@ intros. destruct H as [f_eq g_eq].
 rewrite f_eq, g_eq, fn_ext_type; intro.
 destruct a; trivial.
 Qed.
-
 
 (*Theorem CoqSet_epi_ret : forall (A B : Set) (f : Hom A B),
     Ret f <-> surjective f.
@@ -185,4 +148,3 @@ destruct H as [a [_ H]]. exists (fun _ : X => a).
 simpl; unfold unique; split; [trivial | intros].
 rewrite fn_ext_type. intros. apply H.
 Qed.
-
