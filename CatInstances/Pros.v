@@ -1,3 +1,5 @@
+Add LoadPath "/home/Zeimer/Code/Coq/Cat".
+
 Require Import NPeano.
 Require Import Omega.
 Require Import ProofIrrelevance.
@@ -50,8 +52,6 @@ Defined.
 
 Instance CatPros : @Cat Pros' HomPros' CompPros IdPros.
 split; intros; destruct f; simpl; f_equal; apply proof_irrelevance.
-(*[destruct f | destruct f | destruct f];
-simpl; f_equal. apply proof_irrelevance.*)
 Defined.
 
 Instance NatLe : @Pros nat.
@@ -71,14 +71,19 @@ Defined.
 Axiom fn_ext_pros : forall (A B : Pros') (f : Hom A B) (g : Hom A B),
     f = g <-> forall x : A, f x = g x.
 
-Theorem Pros_mon_inj : forall (A B : Pros') (f : Hom A B),
+(*Theorem Pros_mon_inj : forall (A B : Pros') (f : Hom A B),
     Mon f <-> injective f.
 unfold Mon, injective; split; intros.
 (* Trivial: use the property that Pros is a contruct over Set. *)
 Focus 2.
 rewrite fn_ext_pros; intro x. apply H.
 generalize x; rewrite fn_ext_pros in H0. assumption.
-admit.
+admit.*)
+
+Definition product_leq {A B : Type} (leqA : A -> A -> Prop)
+    (leqB : B -> B -> Prop) (p : A * B) (q : A * B) : Prop := match p, q with
+        | (a, b), (a', b') => leqA a a' /\ leqB b b'
+    end.
 
 Definition lst `(A : Pros) (a : A) : Prop := forall a' : A, a ≤ a'.
 
@@ -106,8 +111,7 @@ split; unfold Hom, HomProsCat, comp, CompProsCat;
 intros; apply proof_irrelevance.
 Defined.
 
-
-Instance exp : HomPros NatLe NatLe.
+(*Instance exp : HomPros NatLe NatLe.
 split with (fun n => 2 ^ n).
 simpl; intros. induction a, a'; simpl. trivial.
-rewrite plus_0_r. SearchPattern (_ ^ _ = _).
+rewrite plus_0_r. SearchPattern (_ ^ _ = _).*)

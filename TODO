@@ -11,4 +11,4 @@
 15. Define the divisibility poset.
 16. START USING SETOIDS.
 
-Commit : 
+Commit : defined Pos, Pos' and the coercions and proved that Pos is a category; moved Sgr, Mon and Pros to CatInstances; defined product preorder relation.
