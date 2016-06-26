@@ -7,8 +7,7 @@
 11. Define concrecete categories and use them for theorems about individual categories.
 12. Define monoidal categories.
 13. State and prove duality facts.
-14. Define posets and make the category Pos.
 15. Define the divisibility poset.
 16. START USING SETOIDS.
 
-Commit : defined Pos, Pos' and the coercions and proved that Pos is a category; moved Sgr, Mon and Pros to CatInstances; defined product preorder relation.
+Commit : 

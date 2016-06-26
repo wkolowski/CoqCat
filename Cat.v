@@ -92,6 +92,19 @@ Definition Iso `{C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
 
 Definition Aut `{C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
+Definition Iso' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Iso f}.
+
+Print proj1_sig.
+
+Definition Iso'_Hom `(C : Cat) (A B : Ob) (f : Iso' A B) := proj1_sig f.
+Coercion Iso'_Hom : Iso' >-> Hom.
+
+Theorem lolo : forall `(C : Cat) (A B : Ob) (f : Iso' A B), f = f.
+reflexivity.
+Qed.
+
+Print lolo.
+
 Definition isomorphic `{C : Cat} (A B : Ob) : Prop := exists f : Hom A B, Iso f.
 Definition uniquely_isomorphic `{C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
 
@@ -158,6 +171,31 @@ assert (eq2 : h .> f .> g = g). rewrite f_ret; cat.
 assert (eq : g = h). rewrite <- eq1, eq2. trivial.
 exists g. split. assumption. rewrite eq. assumption.
 Qed.
+
+Theorem iso_sec : forall `(_ : Cat) (A B : Ob) (f : Hom A B),
+    Iso f -> Sec f.
+intros. rewrite iso_iff_sec_ret in H0. destruct H0; assumption.
+Qed.
+
+Theorem iso_ret : forall `(_ : Cat) (A B : Ob) (f : Hom A B),
+    Iso f -> Ret f.
+intros. rewrite iso_iff_sec_ret in H0. destruct H0; assumption.
+Qed.
+
+Ltac simpl_mor := cat; match goal with
+    | [ H : Mon ?f |- ?g .> ?f = ?h .> ?f ] => f_equal
+    | [ H : Epi ?f |- ?f .> ?g = ?f .> ?g ] => f_equal
+    | [ H : Sec ?f |- ?g .> ?f = ?h .> ?f ] => f_equal
+    | [ H : Ret ?f |- ?f .> ?g = ?f .> ?g ] => f_equal
+    | [ H : Iso ?f |- ?g .> ?f = ?h .> ?f ] => f_equal
+    | [ H : Iso ?f |- ?f .> ?g = ?f .> ?g ] => f_equal
+end.
+
+(*Theorem troll : forall `(_ : Cat) (A B C : Ob) (g h : Hom A B) (f : Hom B C),
+   Iso f -> g .> f .> id C = h .> f.
+intros. simpl_mor. f_equal. rewrite H.
+*)
+
 
 Theorem iso_iff_sec_epi : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Iso f <-> Sec f /\ Epi f.

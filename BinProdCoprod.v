@@ -114,6 +114,7 @@ Theorem product_iso_unique2 : forall `(C : Cat) (A B : Ob) (P : Ob)
 intros. apply iso_prod with A B A B pA pB qA qB; try reflexivity; assumption.
 Qed.
 
+(*
 Theorem prod_assoc : forall `(_ : Cat) (A B C AB BC A_BC AB_C : Ob)
     (pAB_A : Hom AB A) (pAB_B : Hom AB B) (pBC_B : Hom BC B) (pBC_C : Hom BC C)
     (pA_BC_A : Hom A_BC A) (pA_BC_BC : Hom A_BC BC) (pAB_C_AB : Hom AB_C AB)
@@ -121,3 +122,6 @@ Theorem prod_assoc : forall `(_ : Cat) (A B C AB BC A_BC AB_C : Ob)
     is_product AB pAB_A pAB_B -> is_product BC pBC_B pBC_C ->
     is_product A_BC pA_BC_A pA_BC_BC -> is_product AB_C pAB_C_AB pAB_C_C ->
     A_BC ~ AB_C.
+*)
+
+Theorem prod_coprod_distr_uniq : foral `(_ : Cat) (
