@@ -92,7 +92,13 @@ Definition Iso `{C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
 
 Definition Aut `{C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
+Definition End' `{C : Cat} (A : Ob) : Type := {f : Hom A A | True}.
+Definition Mon' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Mon f}.
+Definition Epi' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Epi f}.
+Definition Sec' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Sec f}.
+Definition Ret' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Ret f}.
 Definition Iso' `{C : Cat} (A B : Ob) : Type := {f : Hom A B | Iso f}.
+Definition Aut' `{C : Cat} (A : Ob) : Type := {f : Hom A A | Aut f}.
 
 Print proj1_sig.
 
