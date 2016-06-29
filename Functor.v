@@ -1,5 +1,7 @@
-Require Export Cat.
 Require Import Logic.ProofIrrelevance.
+
+Require Export Cat.
+Require Import BinProdCoprod.
 
 Class Functor `(C : Cat) `(D : Cat) (fob : ob C -> ob D)
     `(fhom : forall {A B : ob C}, Hom A B -> Hom (fob A) (fob B)) : Type :=
@@ -8,6 +10,12 @@ Class Functor `(C : Cat) `(D : Cat) (fob : ob C -> ob D)
         fhom (f .> g) = fhom f .> fhom g;
     pres_id : forall A : ob C, fhom (id A) = id (fob A)
 }.
+
+Ltac functor_rw := rewrite pres_comp || rewrite pres_id.
+Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
+Ltac functor_simpl := repeat functor_rw.
+Ltac functor_simpl' := repeat functor_rw'.
+Ltac functor := repeat (split || intros || functor_simpl || cat).
 
 Theorem functor_pres_sec : forall `(T : Functor) (A B : ob C) (f : Hom A B),
     Sec f -> Sec (fhom A B f).
@@ -83,37 +91,39 @@ Instance IdFunctor `(C : Cat) : Functor2 C C.
 split with
     (fob := fun A : ob C => A)
     (fmap := fun (A B : ob C) (f : Hom A B) => f).
-split; trivial.
+functor.
 Defined.
+
+Print IdFunctor.
 
 Instance FunctorComp `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor2 C D)
     (S : Functor2 D E) : Functor2 C E.
 split with
     (fob := fun A : ob C => fob (fob A))
     (fmap := fun (A B : ob C) (f : Hom A B) => S (fob A) (fob B) (T A B f)).
-split; intros.
-destruct T, S; simpl. repeat rewrite <- pres_comp. trivial.
-destruct T, S; simpl. repeat rewrite pres_id. trivial.
+destruct T, S. functor. 
 Defined.
 
-Instance CAT_Hom : @CatHom BareCat.
-split. intros C D. destruct C. destruct D. exact (Functor2 inst_ inst_0).
+Print FunctorComp.
+
+Instance CAT_Hom : @CatHom Cat'.
+split. intros C D. destruct C, D. exact (Functor2 inst_ inst_0).
 Defined.
 
-Instance CAT_Comp : @CatComp BareCat CAT_Hom.
+Instance CAT_Comp : @CatComp Cat' CAT_Hom.
 split. intros C D E T S. destruct C, D, E; simpl in *.
 exact (FunctorComp inst_ inst_0 inst_1 T S).
 Defined.
 
-Instance CAT_id : @CatId BareCat CAT_Hom.
-split. intro C. destruct C; simpl in *. exact (IdFunctor inst_).
+Instance CAT_id : @CatId Cat' CAT_Hom.
+split. destruct 0; simpl. exact (IdFunctor inst_).
 Defined.
 
-Instance CAT : @Cat BareCat CAT_Hom CAT_Comp CAT_id.
+Instance CAT : @Cat Cat' CAT_Hom CAT_Comp CAT_id.
 split; intros.
-destruct A, B, C, D, f, g, h. simpl; unfold FunctorComp.
+destruct A, B, C, D, f, g, h. simpl. unfold FunctorComp.
 f_equal. apply proof_irrelevance.
-destruct A, B, f. simpl; unfold FunctorComp.
+destruct A, B, f; simpl; unfold FunctorComp.
 f_equal. apply proof_irrelevance.
 destruct A, B, f; simpl; unfold FunctorComp.
 f_equal. apply proof_irrelevance.

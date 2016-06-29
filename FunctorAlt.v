@@ -1,5 +1,7 @@
-Require Export Cat.
 Require Import Logic.ProofIrrelevance.
+
+Require Export Cat.
+Require Export BinProdCoprod.
 
 Class ObPart `(C : Cat) `(D : Cat) : Type :=
 {
@@ -24,17 +26,24 @@ Class Functor `(C : Cat) `(D : Cat) (fobInst : ObPart C D)
 Definition fn_fhom3 `(T : Functor) {A B : ob C} (f : Hom A B) := fmap f.
 Coercion fn_fhom3 : Functor >-> Funclass.
 
+Hint Unfold id.
+
+Ltac functor_rw := rewrite pres_comp || rewrite pres_id.
+Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
+Ltac functor_simpl := repeat functor_rw.
+Ltac functor_simpl' := repeat functor_rw'.
+Ltac functor := repeat (split || intros || functor_simpl || cat).
+
 Theorem functor_pres_sec : forall `(T : Functor) (A B : ob C) (f : Hom A B),
     Sec f -> Sec (fmap f).
-unfold Sec; intros.
-destruct H as (g, H'). exists (fmap g).
-rewrite <- pres_comp. rewrite <- pres_id. f_equal. assumption.
+unfold Sec; intros. destruct H as (g, H'). exists (fmap g).
+functor_simpl'. f_equal. assumption.
 Qed.
 
 Theorem functor_pres_ret : forall `(T : Functor) (A B : ob C) (f : Hom A B),
     Ret f -> Ret (fmap f).
 unfold Ret; intros. destruct H as (g, H'). exists (fmap g).
-rewrite <- pres_comp, <- pres_id. apply f_equal; assumption.
+functor_simpl'. f_equal; assumption.
 Qed.
 
 Theorem functor_pres_iso : forall `(T : Functor) (A B : ob C) (f : Hom A B),
@@ -82,7 +91,7 @@ apply full_faithful_refl_sec with T; assumption.
 apply full_faithful_refl_ret with T; assumption.
 Qed.
 
-Class Functor2 `(C : Cat) `(D : Cat) : Type :=
+Class Functor' `(C : Cat) `(D : Cat) : Type :=
 {
     _obPart : ObPart C D;
     _morPart : MorPart C D _obPart;
@@ -95,7 +104,7 @@ Defined.
 Instance IdFunctorMorPart `(C : Cat) : MorPart C C (IdFunctorObPart C).
 split. exact (fun (A B : ob C) (f : Hom A B) => f).
 Defined.
-Instance IdFunctor `(C : Cat) : Functor2 C C.
+Instance IdFunctor `(C : Cat) : Functor' C C.
 split with
     (_obPart := (IdFunctorObPart C))
     (_morPart := (IdFunctorMorPart C)).
@@ -103,38 +112,38 @@ split; trivial.
 Defined.
 
 Instance FunctorCompObPart `(C : Cat) `(D : Cat) `(E : Cat)
-    (T : Functor2 C D) (S : Functor2 D E) : ObPart C E.
+    (T : Functor' C D) (S : Functor' D E) : ObPart C E.
 split. destruct T as ([fobT], _a, T), S as ([fobS], _b, S).
 exact (fun A : ob C => fobS (fobT A)).
 Defined.
-Instance FunctorCompMorPart `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor2 C D)
-    (S : Functor2 D E) : MorPart C E (FunctorCompObPart C D E T S).
+Instance FunctorCompMorPart `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor' C D)
+    (S : Functor' D E) : MorPart C E (FunctorCompObPart C D E T S).
 split. intros.
 destruct T as ([fobT], [fmapT], T), S as ([fobS], [fmapS], S); simpl in *.
 exact (fmapS (fobT A) (fobT B) (fmapT A B X)).
 Defined.
 
-Instance FunctorComp `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor2 C D)
-    (S : Functor2 D E) : Functor2 C E.
+Instance FunctorComp `(C : Cat) `(D : Cat) `(E : Cat) (T : Functor' C D)
+    (S : Functor' D E) : Functor' C E.
 split with
     (_obPart := FunctorCompObPart C D E T S)
     (_morPart := FunctorCompMorPart C D E T S).
 split; intros;
-destruct T as ([fobT], [fmap], T), S as ([fobS], [fmapS], S), T, S; simpl.
+destruct T as ([fobT], [fmapT], T), S as ([fobS], [fmapS], S), T, S; simpl.
 rewrite pres_comp0, pres_comp1. trivial.
 rewrite pres_id0, pres_id1. trivial.
 Defined.
 
-Instance CAT_Hom : @CatHom BareCat.
-split. intros C D. destruct C, D. exact (Functor2 inst_ inst_0).
+Instance CAT_Hom : @CatHom Cat'.
+split. intros C D. destruct C, D. exact (Functor' inst_ inst_0).
 Defined.
 
-Instance CAT_Comp : @CatComp BareCat CAT_Hom.
+Instance CAT_Comp : @CatComp Cat' CAT_Hom.
 split. intros C D E T S. destruct C, D, E; simpl in *.
 exact (FunctorComp inst_ inst_0 inst_1 T S).
 Defined.
 
-Instance CAT_id : @CatId BareCat CAT_Hom.
+Instance CAT_id : @CatId Cat' CAT_Hom.
 split. intro C. destruct C; simpl in *. exact (IdFunctor inst_).
 Defined.
 
@@ -142,18 +151,20 @@ Axiom functor_eq : forall `(C : Cat) `(D : Cat) (obp : ObPart C D)
     (morp : MorPart C D obp) (T : Functor C D obp morp)
     (S : Functor C D obp morp), T = S.
 
-Instance CAT : @Cat BareCat CAT_Hom CAT_Comp CAT_id.
+Instance CAT : @Cat Cat' CAT_Hom CAT_Comp CAT_id.
 split; intros.
-destruct A, B, C, D. destruct f, g, h. destruct _obPart0, _obPart1, _obPart2.
+destruct A, B, C, D, f, g, h;
+destruct _obPart0, _obPart1, _obPart2;
 destruct _morPart0, _morPart1, _morPart2.
 simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
-f_equal. apply proof_irrelevance.
+f_equal; apply proof_irrelevance.
 destruct A, B, f; destruct _obPart0, _morPart0.
 simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
-f_equal. apply proof_irrelevance.
+f_equal; apply proof_irrelevance.
 destruct A, B, f; destruct _obPart0, _morPart0.
 simpl; unfold FunctorComp, FunctorCompObPart, FunctorCompMorPart.
-f_equal. apply proof_irrelevance.
+f_equal; apply proof_irrelevance.
 Defined.
 
-Print CAT.
+Instance ProdFunctorObPart `(C : {C' : Cat' | has_binary_products C'}) : ObPart C C.
+split. 

@@ -1,5 +1,6 @@
-Require Export InitTerm.
 Require Export Coq.Setoids.Setoid.
+
+Require Export InitTerm.
 
 Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
@@ -124,4 +125,5 @@ Theorem prod_assoc : forall `(_ : Cat) (A B C AB BC A_BC AB_C : Ob)
     A_BC ~ AB_C.
 *)
 
-Theorem prod_coprod_distr_uniq : foral `(_ : Cat) (
+(*Theorem prod_coprod_distr_uniq : foral `(_ : Cat) ( 
+*)

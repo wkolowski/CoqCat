@@ -37,7 +37,7 @@ Record Cat' : Type := mkBareCat
 
 Definition Cat_BareCat `(C : Cat) : Cat' := {| ob_ := Ob |}.
 (* The rest gets inferred automagically. *)
-Coercion Cat_BareCat : Cat >-> Cat'.
+(*Coercion Cat_BareCat : Cat >-> Cat'.*)
 
 Definition BareCat_Cat (C : Cat') :
     (Cat (ob_ C) (hom_ C) (cmp_ C) (id_ C)) := inst_ C.
@@ -325,5 +325,5 @@ Defined.
 
 Inductive locally_small : Cat' -> Prop :=
     | small_c : forall (A : Set) (h : @CatHom A) (c : @CatComp A h)
-        (i : @CatId A h) (C : Cat A h c i), locally_small C.
+        (i : @CatId A h) (C : Cat A h c i), locally_small (Cat_BareCat C).
 (*Definition large (C : Cat') := ~ small C.*)

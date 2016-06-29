@@ -97,18 +97,23 @@ Theorem duality : forall P : Cat' -> Prop,
 trivial.
 Qed.
 
-Theorem double_duality_hom : forall `(C : Cat), catHom = DualHom (Dual C).
-unfold Dual, DualHom; intros.
-destruct catHom. f_equal.
+Theorem dual_involution : forall (C : Cat'), Dual' (Dual' C) = C.
+unfold Dual'; intros;
+destruct C; destruct inst_;
+destruct hom_, cmp_, id_;
+simpl; f_equal; apply proof_irrelevance.
 Qed.
 
-Theorem double_dual_comp : forall `(C : Cat), catComp = @DualComp Ob (DualHom C) (DualComp C) (DualId C) (Dual C). catComp catId (Dual C).
-unfold Dual, DualComp; intros.
-destruct catHom. f_equal.
+Theorem coproduct_comm' : forall (C : Cat') (A B P : ob C) (iA : Hom A P)
+    (iB : Hom B P), coprod' C P iA iB -> coprod' C P iB iA.
+intro C. rewrite <- (dual_involution C). intros.
+rewrite <- (dual_prod_coprod (Dual' C)) in *.
+unfold prod' in *. apply product_comm. assumption.
 Qed.
 
+Definition Hom' (C : Cat') (A B : ob_ C) := @Hom (ob C) (hom_ C) A B.
 
-Theorem dbl_dual : forall (C : Cat'), Dual' (Dual' C) = C.
-unfold Dual', DualHom, DualComp, DualId; simpl; intros.
-destruct C; simpl. unfold Hom. destruct inst_.
-unfold Dual; simpl. cat. f_equal.
+Theorem iso_coprod : forall (C' : Cat') (A B C D P Q : ob C') (iA : Hom' C' A P)
+    (iB : Hom' C' B P) (jC : Hom' C' C Q) (jD : Hom' C' D Q), 5 = 5.
+    isomorphic C' C. -> B ~ D. -> coprod' C' P iA iB -> coprod' C' Q jC jD -> P ~ Q.
+intros. rewrite <- (dual_involution C') in *.
