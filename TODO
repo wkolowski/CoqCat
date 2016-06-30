@@ -10,4 +10,4 @@
 15. Define the divisibility poset.
 16. START USING SETOIDS.
 
-Commit : wrote some functor tactics (they work mainly for the old functor implementation), proved that taking opposie category is involutive, proved that coproduct commutes using duality.
+Commit : 

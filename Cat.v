@@ -66,30 +66,21 @@ rewrite <- eq1, eq2; trivial.
 Qed.
 
 Definition ob `(C : Cat) := Ob.
-
 Definition dom `(C : Cat) {A B : Ob} (_ : Hom A B) := A.
-
 Definition cod `(C : Cat) {A B : Ob} (_ : Hom A B) := B.
 
 Definition End `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
-
 Definition Mon `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
-
 Definition Epi `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
-
 Definition Bim `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
-
 Definition Sec `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g = id A.
-
 Definition Ret `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f = id B.
-
 Definition Iso `{C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
    exists g : Hom B A, f .> g = id A /\ g .> f = id B.
-
 Definition Aut `{C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
 Definition End' `{C : Cat} (A : Ob) : Type := {f : Hom A A | True}.
@@ -201,7 +192,6 @@ end.
    Iso f -> g .> f .> id C = h .> f.
 intros. simpl_mor. f_equal. rewrite H.
 *)
-
 
 Theorem iso_iff_sec_epi : forall `(C : Cat) (A B : Ob) (f : Hom A B),
     Iso f <-> Sec f /\ Epi f.

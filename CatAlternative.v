@@ -21,44 +21,53 @@ Ltac cat_simpl := repeat cat_rw.
 Ltac cat_simpl' := repeat cat_rw'.
 Ltac cat := repeat (intros || cat_rw || auto).
 
-Instance Sets : Cat.
-split with
-    (Ob := Set)
-    (Hom := fun A B : Set => A -> B)
-    (comp := fun (A B C : Set) (f : A -> B) (g : B -> C) => (fun a : A => g (f a)))
-    (id := fun A : Set => (fun a : A => a));
+Instance CoqSet : Cat.
+refine
+{|
+    Ob := Set;
+    Hom := fun A B : Set => A -> B;
+    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
+    id := fun (A : Set) (a : A) => a
+|};
 auto.
 Defined.
 
-Definition ob `(C : Cat) := Ob.
+Definition dom (C : Cat) {A B : Ob} (_ : Hom A B) := A.
+Definition cod (C : Cat) {A B : Ob} (_ : Hom A B) := B.
 
-Definition dom `(C : Cat) {A B : ob C} (_ : Hom A B) := A.
-
-Definition cod `(C : Cat) {A B : Ob} (_ : Hom A B) := B.
-
-Definition End `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
-
-Definition Mon `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition End {C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
+Definition Mon {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
-
-Definition Epi `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Epi {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
-
-Definition Bim `{C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
-
-Definition Sec `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Bim {C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
+Definition Sec {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g = id A.
-
-Definition Ret `{C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Ret {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f = id B.
-
-Definition Iso `{C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
+Definition Iso {C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
    exists g : Hom B A, f .> g = id A /\ g .> f = id B.
+Definition Aut {C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
-Definition Aut `{C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
+Definition End' {C : Cat} (A : Ob) : Type := {f : Hom A A | True}.
+Definition Mon' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Mon f}.
+Definition Epi' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Epi f}.
+Definition Sec' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Sec f}.
+Definition Ret' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Ret f}.
+Definition Iso' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Iso f}.
+Definition Aut' {C : Cat} (A : Ob) : Type := {f : Hom A A | Aut f}.
 
-Definition isomorphic `{C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
-Definition uniquely_isomorphic `{C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
+Definition Mon'_Hom (C : Cat) (A B : Ob) (f : Mon' A B) := proj1_sig f.
+Definition Epi'_Hom (C : Cat) (A B : Ob) (f : Epi' A B) := proj1_sig f.
+Definition Sec'_Hom (C : Cat) (A B : Ob) (f : Sec' A B) := proj1_sig f.
+Definition Ret'_Hom (C : Cat) (A B : Ob) (f : Ret' A B) := proj1_sig f.
+Coercion Mon'_Hom : Mon' >-> Hom.
+Coercion Epi'_Hom : Epi' >-> Hom.
+Coercion Sec'_Hom : Sec' >-> Hom.
+Coercion Ret'_Hom : Ret' >-> Hom.
+
+Definition isomorphic {C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
+Definition uniquely_isomorphic {C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
@@ -66,7 +75,7 @@ Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
 
-Theorem id_unique_left : forall (C : Cat) (A : ob C) (idA : Hom A A),
+Theorem id_unique_left : forall (C : Cat) (A : Ob) (idA : Hom A A),
     (forall (B : Ob) (f : Hom A B), idA .> f = f) -> idA = id A.
 intros.
 assert (eq1 : idA .> (id A) = id A). apply H.
@@ -114,21 +123,28 @@ assert (eq : g = h). rewrite <- eq1, eq2. trivial.
 exists g. split. assumption. rewrite eq. assumption.
 Qed.
 
-Theorem mon_comp : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
+(*Theorem mon_comp : forall (cat : Cat) (A B C : Ob) (f : Mon' A B) (g : Mon' B C),
+    (*Mon f -> Mon g ->*) Mon (f .> g).
+unfold Mon', Mon in *; intros cat A B C f g X h1 h2 H.
+destruct f as [f f_mon], g as [g g_mon]; simpl in *.
+apply f_mon, g_mon. cat.
+Qed.*)
+
+Theorem mon_comp : forall (cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Mon f -> Mon g -> Mon (f .> g).
-unfold Mon in *; intros. apply H0, H1.
-repeat rewrite comp_assoc; assumption.
+unfold Mon', Mon. intros cat A B C f g f_mon g_mon X h1 h2 H.
+apply f_mon, g_mon. cat.
 Qed.
 
-Theorem epi_comp : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
+Theorem epi_comp : forall (cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Epi f -> Epi g -> Epi (f .> g).
-unfold Epi in *; intros. apply H1, H0.
-repeat rewrite <- comp_assoc. assumption.
+unfold Epi', Epi; intros cat A B C f g f_epi g_epi X h1 h2 H.
+apply g_epi, f_epi. cat_simpl'. assumption.
 Qed.
 
-Theorem bim_comp : forall `(_ : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
+Theorem bim_comp : forall `(cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Bim f -> Bim g -> Bim (f .> g).
-unfold Bim; intros. destruct H0, H1.
+unfold Bim; intros. destruct H, H0.
 split; [apply mon_comp; assumption | apply epi_comp; assumption].
 Qed.
 
@@ -187,49 +203,50 @@ Theorem id_is_aut : forall `(C : Cat) (A : Ob), Aut (id A).
 unfold Aut, Iso; intros; exists (id A); cat.
 Qed.
 
-Class Functor `(C : Cat) `(D : Cat) : Type :=
+Class Functor (C : Cat) (D : Cat) : Type :=
 {
-    fob : ob C -> ob D;
-    fhom : forall {A B : ob C}, Hom A B -> Hom (fob A) (fob B);
-    pres_comp : forall {A B C : ob C} (f : Hom A B) (g : Hom B C),
-        fhom (f .> g) = fhom f .> fhom g;
-    pres_id : forall A : ob C, fhom (id A) = id (fob A)
+    fob : @Ob C -> @Ob D;
+    fmap : forall {A B : @Ob C}, Hom A B -> Hom (fob A) (fob B);
+    pres_comp : forall {A B C : @Ob C} (f : Hom A B) (g : Hom B C),
+        fmap (f .> g) = fmap f .> fmap g;
+    pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
 }.
 
-Definition Tob `(T : Functor) := fob.
-Definition Thom `(T : Functor) {A B : ob C} (f : Hom A B) := fhom f.
+Definition Functor_fob `(T : Functor) := fob.
+Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
+Coercion Functor_fob : Functor >-> Funclass.
+Coercion Functor_fmap : Functor >-> Funclass.
 
 Instance IdFunctor (C : Cat) : Functor C C.
-split with
-    (fob := fun A : ob C => A)
-    (fhom := fun (A B : ob C) (f : Hom A B) => f);
+refine
+{|
+    fob := fun A : Ob => A;
+    fmap := fun (A B : Ob) (f : Hom A B) => f
+|};
 trivial.
 Defined.
 
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E) : Functor C E.
-split with
-    (fob := fun A : ob C => fob (fob A))
-    (fhom := fun (A B : ob C) (f : Hom A B) => fhom (fhom f)).
-intros. repeat rewrite pres_comp; trivial.
-intros. repeat rewrite pres_id; trivial.
+refine
+{|
+    fob := fun A : @Ob C => S (T A);
+    fmap := fun (A B : @Ob C) (f : Hom A B) => fmap (fmap f)
+|};
+intros; [repeat rewrite pres_comp | repeat rewrite pres_id]; trivial.
 Defined.
 
-(*Axiom FunctorExt : forall (C D : Cat) (T S : Functor C D),
-    T = S <-> Tob T = Tob S /\ Thom T = Thom S.
-
-Axiom fn_ext_axiom : forall {A B : Set} (f g : A -> B),
-forall a : A, f a = g a -> f = g.
-
-Axiom functor_eq : forall `(T S : Functor), T = S <->*)
-    
+Inductive locally_small : Cat -> Prop :=
+    | small_c : forall (Ob : Type) (Hom : forall A B : Ob, Set)
+        (comp : forall A B C : Ob, Hom A B -> Hom B C -> Hom A C)
+        (id : forall A : Ob, Hom A A), locally_small (Build_Cat Ob Hom comp id _ _ _).
 
 Instance CAT : Cat.
 split with
     (Ob := Cat)
-    (Hom := fun C D : Cat => Functor C D)
-    (comp := fun (C D E : Cat) (T : Functor C D) (S : Functor D E) =>
-        FunctorComp T S)
-    (id := fun C : Cat => IdFunctor C);
+    (Hom := Functor) (*fun C D : Cat => Functor C D)*)
+    (comp := @FunctorComp) (*fun (C D E : Cat) (T : Functor C D) (S : Functor D E) =>
+        FunctorComp T S)*)
+    (id := IdFunctor); (*fun C : Cat => IdFunctor C);*)
 intros; [destruct f, g, h | destruct f | destruct f];
 unfold FunctorComp; simpl; f_equal; apply proof_irrelevance.
 (*  Universe inconsistency. *)

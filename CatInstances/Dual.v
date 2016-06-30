@@ -111,9 +111,11 @@ rewrite <- (dual_prod_coprod (Dual' C)) in *.
 unfold prod' in *. apply product_comm. assumption.
 Qed.
 
-Definition Hom' (C : Cat') (A B : ob_ C) := @Hom (ob C) (hom_ C) A B.
+Definition Hom' {C : Cat'} (A B : ob C) := @Hom (ob_ C) (hom_ C) A B.
 
-Theorem iso_coprod : forall (C' : Cat') (A B C D P Q : ob C') (iA : Hom' C' A P)
+Print Hom'.
+
+Theorem iso_coprod : forall (C' : Cat') (A B C D P Q : ob C') (iA : @Hom' C' A P)
     (iB : Hom' C' B P) (jC : Hom' C' C Q) (jD : Hom' C' D Q), 5 = 5.
     isomorphic C' C. -> B ~ D. -> coprod' C' P iA iB -> coprod' C' Q jC jD -> P ~ Q.
 intros. rewrite <- (dual_involution C') in *.
