@@ -115,6 +115,9 @@ Definition Hom' {C : Cat'} (A B : ob C) := @Hom (ob_ C) (hom_ C) A B.
 
 Print Hom'.
 
+Theorem dual_initial_terminal : forall `(C : Cat) (A : Ob),
+    @initial_object C A <-> @terminal_object (Dual C) A.
+
 Theorem iso_coprod : forall (C' : Cat') (A B C D P Q : ob C') (iA : @Hom' C' A P)
     (iB : Hom' C' B P) (jC : Hom' C' C Q) (jD : Hom' C' D Q), 5 = 5.
     isomorphic C' C. -> B ~ D. -> coprod' C' P iA iB -> coprod' C' Q jC jD -> P ~ Q.

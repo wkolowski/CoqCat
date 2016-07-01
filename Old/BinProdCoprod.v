@@ -1,6 +1,7 @@
 Require Export Coq.Setoids.Setoid.
 
-Require Export InitTerm.
+(*Require Export InitTerm.*)
+Require Import CatAlternative.
 
 Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),

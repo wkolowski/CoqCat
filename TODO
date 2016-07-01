@@ -8,6 +8,11 @@
 12. Define monoidal categories.
 13. State and prove duality facts.
 15. Define the divisibility poset.
-16. START USING SETOIDS.
+16. START USING SETOIDS (or not).
+
+Newer todos:
+1. Divide the whole development into old (using parametrized Cat and Functor) and new (using the bare, unparametrized classes).
+2. Paste and adjust code from the old to the new development.
+3. Maybe move the dual instance right into CatAlternative? If so, rework the proofs to use duality.
 
 Commit : 
