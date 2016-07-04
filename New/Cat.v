@@ -1,7 +1,9 @@
 Require Export Coq.Setoids.Setoid.
 Require Export Coq.Logic.ProofIrrelevance.
 
-(*Require Export CaseTactic.*)
+(*Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/New".*)
+
+Require Export CaseTactic.
 
 Polymorphic Class Cat : Type :=
 {
@@ -91,6 +93,25 @@ Coercion Sec'_Hom : Sec' >-> Hom.
 Coercion Ret'_Hom : Ret' >-> Hom.
 *)
 
+Theorem dual_mon_epi : forall (C : Cat) (A B : Ob) (f : Hom A B),
+    @Mon C A B f <-> @Epi (Dual C) B A f.
+unfold Mon, Epi; split; intros.
+apply H. unfold comp, Dual in H0. assumption.
+apply H. unfold comp, Dual. assumption.
+Qed.
+
+Theorem dual_bim_self : forall (C : Cat) (A B : Ob) (f : Hom A B),
+    @Bim C A B f <-> @Bim (Dual C) B A f.
+intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
+repeat split; destruct H; assumption.
+Qed.
+
+Theorem dual_sec_ret : forall (C : Cat) (A B : Ob) (f : Hom A B),
+    @Sec C A B f <-> @Ret (Dual C) B A f.
+unfold Sec, Ret; split; intros.
+apply H. unfold Hom, comp, id, Dual in H. assumption.
+Qed.
+
 Theorem dual_iso_self : forall (C : Cat) (A B : Ob) (f : Hom A B),
     @Iso C A B f <-> @Iso (Dual C) B A f.
 unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
@@ -100,17 +121,13 @@ Qed.
 Definition isomorphic {C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
 Definition uniquely_isomorphic {C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
 
-Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob),
-    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
-unfold uniquely_isomorphic; split; simpl; intros.
-destruct H as [f [[g [eq1 eq2]]]].
-exists g. split. exists f. split; assumption.
-Pose proof iso_inv_unique.
-
-intros.
-
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
+
+Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob), A ~~ B -> A ~ B.
+unfold uniquely_isomorphic, isomorphic.
+intros. destruct H as [f [H _]]. exists f; apply H.
+Qed.
 
 Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
     Iso f <-> Bim f.
@@ -239,6 +256,15 @@ rewrite <- eq1. pattern h at 2. rewrite <- eq2. cat.
 unfold Iso. exists g; split; destruct inv1; assumption.
 Qed.
 
+(*Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob),
+    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
+unfold uniquely_isomorphic; split; simpl; intros.
+unfold Iso, Dual; simpl. apply iso_inv_unique.
+destruct H as [f [[g [eq1 eq2]]]].
+exists g. split. exists f. split; assumption. intros.
+destruct H0.
+*)
+
 (* Composition theorems. *)
 Theorem mon_comp : forall (cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),
     Mon f -> Mon g -> Mon (f .> g).
@@ -326,53 +352,4 @@ split.
 (*Case "Transitivity".*) unfold Transitive. intros A B C H H'.
     destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
     exists (f .> g). apply iso_comp; assumption.
-Defined.
-
-Class Functor (C : Cat) (D : Cat) : Type :=
-{
-    fob : @Ob C -> @Ob D;
-    fmap : forall {A B : @Ob C}, Hom A B -> Hom (fob A) (fob B);
-    pres_comp : forall {A B C : @Ob C} (f : Hom A B) (g : Hom B C),
-        fmap (f .> g) = fmap f .> fmap g;
-    pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
-}.
-
-Definition Functor_fob `(T : Functor) := fob.
-Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
-Coercion Functor_fob : Functor >-> Funclass.
-Coercion Functor_fmap : Functor >-> Funclass.
-
-Instance IdFunctor (C : Cat) : Functor C C.
-refine
-{|
-    fob := fun A : Ob => A;
-    fmap := fun (A B : Ob) (f : Hom A B) => f
-|};
-trivial.
-Defined.
-
-Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E) : Functor C E.
-refine
-{|
-    fob := fun A : @Ob C => S (T A);
-    fmap := fun (A B : @Ob C) (f : Hom A B) => fmap (fmap f)
-|};
-intros; [repeat rewrite pres_comp | repeat rewrite pres_id]; trivial.
-Defined.
-
-(*Inductive locally_small : Cat -> Prop :=
-    | small_c : forall (Ob : Type) (Hom : forall A B : Ob, Set)
-        (comp : forall A B C : Ob, Hom A B -> Hom B C -> Hom A C)
-        (id : forall A : Ob, Hom A A), locally_small (Build_Cat Ob Hom comp id _ _ _).
-*)
-Instance CAT : Cat.
-refine
-{|
-    Ob := Cat;
-    Hom := Functor;
-    comp := FunctorComp;
-    id := IdFunctor
-|};
-intros; [destruct f, g, h | destruct f | destruct f];
-unfold FunctorComp; simpl; f_equal; apply proof_irrelevance.
 Defined.

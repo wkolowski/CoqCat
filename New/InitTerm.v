@@ -97,8 +97,12 @@ Qed.
 
 Theorem mor_to_term_is_sec : forall (C : Cat) (T X : Ob) (f : Hom T X),
     terminal T -> Sec f.
-unfold terminal, Ret; intros.
+(*unfold terminal, Ret; intros.
 destruct (H X) as (g, [_ eq1]); destruct (H T) as (idT, [_ eq2]).
 exists g.
 rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id T)); trivial | trivial].
+Restart.*)
+intro C. rewrite <- (dual_involution C). intros.
+rewrite dual_sec_ret. rewrite <- dual_initial_terminal in H.
+apply mor_to_init_is_ret. assumption.
 Qed.

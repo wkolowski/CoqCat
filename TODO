@@ -1,18 +1,19 @@
 2. Define slice categories (possibly using records). https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
 3. Write some simplyfying tactics for Pros, Sgr and Monoids.
 4. Make an attempt at a general categorical tactic that could do something useful.
-5. Fix Dual and Functor incompatibility.
+5. Fix Dual and Functor incompatibility. Looks like it's fixed in the New development.
 6. Change uniqueness theorems to "unique up to unique isomorphism".
 10. Refactor Monads.v: move the Maybe monad to CoqSet.
 11. Define concrecete categories and use them for theorems about individual categories.
 12. Define monoidal categories.
 13. State and prove duality facts.
 15. Define the divisibility poset.
-16. START USING SETOIDS (or not).
+16. START USING SETOIDS (or not). NOT.
+17. Define groupoids.
+18. Define (or try to construct) the product functor.
 
 Newer todos:
-1. Divide the whole development into old (using parametrized Cat and Functor) and new (using the bare, unparametrized classes).
 2. Paste and adjust code from the old to the new development.
 3. Maybe move the dual instance right into CatAlternative? If so, rework the proofs to use duality.
 
-Commit : 
+Commit : Fixed import-related things. Proved duality facts about monos and epis, sections and retractions. Proved, using duality, that morphisms to terminal objects are sections, that coproduct commutes and that coprojections are sections. Moved Functor to separate file and copied theorems from the old functor. Adjusted old product and pullback code to the New development.
