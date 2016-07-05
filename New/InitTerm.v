@@ -1,21 +1,21 @@
 Require Export Cat.
 
-Definition initial {C : Cat} (I : Ob) : Prop :=
+Polymorphic Definition initial {C : Cat} (I : Ob) : Prop :=
     forall (X : Ob), exists! f : Hom I X, True.
 
-Definition terminal {C : Cat} (T : Ob) : Prop :=
+Polymorphic Definition terminal {C : Cat} (T : Ob) : Prop :=
     forall (X : Ob), exists! f : Hom X T, True.
 
-Definition zero_object {C : Cat} (Z : Ob) : Prop :=
+Polymorphic Definition zero_object {C : Cat} (Z : Ob) : Prop :=
     initial Z /\ terminal Z.
 
-Definition has_initial_object (C : Cat) : Prop :=
+Polymorphic Definition has_initial_object (C : Cat) : Prop :=
     exists I : Ob, initial I.
 
-Definition has_terminal_object (C : Cat) : Prop :=
+Polymorphic Definition has_terminal_object (C : Cat) : Prop :=
     exists T : Ob, terminal T.
 
-Definition has_zero_object (C : Cat) : Prop :=
+Polymorphic Definition has_zero_object (C : Cat) : Prop :=
     exists Z : Ob, zero_object Z.
 
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob),

@@ -16,4 +16,4 @@ Newer todos:
 2. Paste and adjust code from the old to the new development.
 3. Maybe move the dual instance right into CatAlternative? If so, rework the proofs to use duality.
 
-Commit : Fixed import-related things. Proved duality facts about monos and epis, sections and retractions. Proved, using duality, that morphisms to terminal objects are sections, that coproduct commutes and that coprojections are sections. Moved Functor to separate file and copied theorems from the old functor. Adjusted old product and pullback code to the New development.
+Commit : Proved that Pros and Groupoid are categories (although using axiom for the second one). Defined setoid instance for homomorphisms of a groupoid, but it's useless as of now. Defined new alternative Cat which uses setoids.

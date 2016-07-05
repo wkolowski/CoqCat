@@ -54,7 +54,7 @@ refine
 intros; [destruct f, g, h | destruct f | destruct f];
 unfold FunctorComp; simpl; f_equal; apply proof_irrelevance.
 Defined.
-
+Print CAT.
 Definition full `(T : Functor) : Prop := forall (A B : @Ob C)
     (g : Hom (T A) (T B)), exists f : Hom A B, fmap f = g.
 

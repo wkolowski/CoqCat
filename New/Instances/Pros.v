@@ -1,11 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Old".
+(*Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".*)
 
 Require Import NPeano.
 Require Import Omega.
 Require Import ProofIrrelevance.
 
 Require Export Cat.
-(*Require Export CatInstances.*)
 
 Class Pros {A : Type} : Type :=
 {
@@ -36,6 +35,19 @@ Class Pros' : Type :=
 
 Definition Pros'_Pros `(_ : Pros') := pros_.
 Coercion Pros'_Pros : Pros' >-> Pros.
+
+Instance CatPros : Cat := {| Ob := Pros' |}.
+intros. exact (HomPros A B).
+simpl. intros. destruct X, X0.
+split with (fun x => f_1 (f_0 x)).
+intros; apply homo_pros1, homo_pros0. trivial.
+simpl; intro. split with (fun a => a). trivial.
+intros. destruct f, g, h; simpl. trivial.
+intros; destruct f; trivial.
+intros; destruct f; trivial.
+Qed.
+
+
 
 Instance HomPros' : @CatHom Pros'.
 split. intros. exact (HomPros A B).

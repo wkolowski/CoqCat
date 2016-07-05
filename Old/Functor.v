@@ -1,7 +1,7 @@
 Require Import Logic.ProofIrrelevance.
 
 Require Export Cat.
-Require Import BinProdCoprod.
+(*Require Import BinProdCoprod.*)
 
 Class Functor `(C : Cat) `(D : Cat) (fob : ob C -> ob D)
     `(fhom : forall {A B : ob C}, Hom A B -> Hom (fob A) (fob B)) : Type :=

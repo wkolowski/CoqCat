@@ -3,7 +3,7 @@ Require Import ProofIrrelevance.
 Require Import List.
 Require Import ZArith.
 
-Require Export CatInstances.
+(*Require Export CatInstances.*)
 
 Class Sgr {A : Type} : Type :=
 {

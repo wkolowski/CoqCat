@@ -1,8 +1,6 @@
 Require Export Coq.Setoids.Setoid.
 Require Export Coq.Logic.ProofIrrelevance.
 
-(*Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/New".*)
-
 Require Export CaseTactic.
 
 Polymorphic Class Cat : Type :=
@@ -25,17 +23,6 @@ Ltac cat_simpl := repeat cat_rw.
 Ltac cat_simpl' := repeat cat_rw'.
 Ltac cat := repeat (intros || cat_rw || auto).
 
-Instance CoqSet : Cat.
-refine
-{|
-    Ob := Set;
-    Hom := fun A B : Set => A -> B;
-    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-    id := fun (A : Set) (a : A) => a
-|};
-cat.
-Defined.
-
 Instance Dual (C : Cat) : Cat.
 refine
 {|
@@ -57,22 +44,22 @@ Theorem duality_principle : forall (P : Cat -> Prop),
 trivial.
 Qed.
 
-Definition dom (C : Cat) {A B : Ob} (_ : Hom A B) := A.
-Definition cod (C : Cat) {A B : Ob} (_ : Hom A B) := B.
+Polymorphic Definition dom (C : Cat) {A B : Ob} (_ : Hom A B) := A.
+Polymorphic Definition cod (C : Cat) {A B : Ob} (_ : Hom A B) := B.
 
-Definition End {C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
-Definition Mon {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Polymorphic Definition End {C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
+Polymorphic Definition Mon {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
-Definition Epi {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Polymorphic Definition Epi {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
-Definition Bim {C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
-Definition Sec {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Polymorphic Definition Bim {C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
+Polymorphic Definition Sec {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g = id A.
-Definition Ret {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Polymorphic Definition Ret {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f = id B.
-Definition Iso {C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
+Polymorphic Definition Iso {C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
    exists g : Hom B A, f .> g = id A /\ g .> f = id B.
-Definition Aut {C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
+Polymorphic Definition Aut {C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
 (* These are problematic as of now.
 Definition End' {C : Cat} (A : Ob) : Type := {f : Hom A A | True}.
@@ -118,8 +105,10 @@ unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
 exists g; split; assumption.
 Qed.
 
-Definition isomorphic {C : Cat} (A B : Ob) := exists f : Hom A B, Iso f.
-Definition uniquely_isomorphic {C : Cat} (A B : Ob) := exists! f : Hom A B, Iso f.
+Polymorphic Definition isomorphic {C : Cat} (A B : Ob) :=
+    exists f : Hom A B, Iso f.
+Polymorphic Definition uniquely_isomorphic {C : Cat} (A B : Ob) :=
+    exists! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
@@ -129,17 +118,17 @@ unfold uniquely_isomorphic, isomorphic.
 intros. destruct H as [f [H _]]. exists f; apply H.
 Qed.
 
-Definition balanced `(C : Cat) : Prop := forall (A B : Ob) (f : Hom A B),
-    Iso f <-> Bim f.
+Polymorphic Definition balanced `(C : Cat) : Prop :=
+    forall (A B : Ob) (f : Hom A B), Bim f -> Iso f.
 
 (* Kinds of ordinary functions. *)
-Definition injective {A B : Type} (f : A -> B) : Prop :=
+Polymorphic Definition injective {A B : Type} (f : A -> B) : Prop :=
     forall a a' : A, f a = f a' -> a = a'.
 
-Definition surjective {A B : Type} (f : A -> B) : Prop :=
+Polymorphic Definition surjective {A B : Type} (f : A -> B) : Prop :=
     forall b : B, exists a : A, f a = b.
 
-Definition bijective {A B : Type} (f : A -> B) : Prop :=
+Polymorphic Definition bijective {A B : Type} (f : A -> B) : Prop :=
     injective f /\ surjective f.
 
 (* The identity is unique. *)

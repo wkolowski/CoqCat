@@ -1,41 +1,65 @@
 Require Export Cat.
+Require Import Coq.Classes.SetoidClass.
+Require Import JMeq.
 
 Class Groupoid : Type :=
 {
     cat :> Cat;
     all_iso : forall (A B : @Ob cat) (f : Hom A B), Iso f
 }.
-Print cat.
-(*Record HomGroupoid {C : Cat} (A B : Ob) : Type :=
+
+Print JMeq.
+Search JMeq.
+
+Record HomGroupoid {C : Cat} (A B : Ob) : Type :=
 {
     f_ : Hom A B;
     is_iso : Iso f_
-}.*)
+}.
 
-Definition HomCatIso {C : Cat} (A B : Ob) := {f : Hom A B | Iso f}.
+Definition HomGrpd_Fun (C : Cat) (A B : Ob) (_ : HomGroupoid A B) := f_.
+Coercion HomGrpd_Fun : HomGroupoid >-> Funclass.
+
+Instance HomGroupoid_Setoid (C : Cat) (A B : Ob) : Setoid (HomGroupoid A B) :=
+{|
+    equiv := fun f g : HomGroupoid A B => f_ A B f = f_ A B g
+|}.
+split; trivial. split. unfold Symmetric. intros.
+rewrite H. trivial.
+unfold Transitive. intros. rewrite H, H0. trivial.
+Defined.
+
+Axiom eq_HomGroupoid : forall (C : Cat) (A B : Ob) (f g : HomGroupoid A B),
+    f = g <-> f_ A B f = f_ A B g.
+
+Theorem eq_HomGrpd' : forall (C : Cat) (A B : Ob) (f g : HomGroupoid A B),
+    f = g <-> f_ A B f = f_ A B g.
+split; intros.
+destruct f, g. simpl. injection H. trivial.
+destruct f, g. simpl in H. destruct is_iso0, is_iso1.
+generalize dependent f_0. intro.
+(*pattern f_0 at 1. rewrite H.*)
+Abort.
+
+(*Definition HomCatIso {C : Cat} (A B : Ob) := {f : Hom A B | Iso f}.
 
 Definition CompCatIso : forall (C : Cat) (X Y Z : Ob) (f : HomCatIso X Y)
     (g : HomCatIso Y Z), HomCatIso X Z.
 unfold HomCatIso; intros. destruct f as [f f_iso], g as [g g_iso].
 exists (f .> g). apply iso_comp; assumption.
-Defined.
+Defined.*)
 
 Instance CatIso (C : Cat) : Cat.
 simple refine
 {|
     Ob := @Ob C;
-    Hom := fun A B : Ob => {f : Hom A B | @Iso C A B f};
-    (*comp := CompCatIso C
-    id := _;
-    comp_assoc := _;
-    id_left := _;
-    id_right := _*)
+    Hom := HomGroupoid
 |};
-intros.
-simpl in *. destruct X as [f f_iso], X0 as [g g_iso].
+simpl; intros.
+destruct X as [f f_iso], X0 as [g g_iso].
 exists (f .> g). apply iso_comp; assumption.
-simpl. exists (id A). apply id_is_aut.
-simpl in *. unfold comp. destruct f, g, h. simpl.
-split.
-
-
+exists (id A). apply id_is_aut.
+destruct f, g, h. apply eq_HomGroupoid. simpl. cat.
+destruct f. apply eq_HomGroupoid. simpl. cat.
+destruct f. apply eq_HomGroupoid. simpl. cat.
+Defined.

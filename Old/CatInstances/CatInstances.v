@@ -1,4 +1,4 @@
-Add LoadPath "/home/zeimer/Code/Coq/Cat/Old".
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Old".
 
 Require Import ProofIrrelevance.
 

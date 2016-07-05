@@ -1,17 +1,17 @@
 Require Export Cat.
 
-Definition product (C : Cat) {A B : Ob} (P : Ob) (p1 : Hom P A)
+Polymorphic Definition product (C : Cat) {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
     exists! u : Hom X P, f = u .> p1 /\ g = u .> p2.
 
-Definition coproduct (C : Cat) {A B : Ob} (P : Ob) (iA : Hom A P)
+Polymorphic Definition coproduct (C : Cat) {A B : Ob} (P : Ob) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob) (f : Hom A X) (g : Hom B X),
     exists! u : Hom P X, f = iA .> u /\ g = iB .> u.
 
-Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob),
+Polymorphic Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob),
     exists (P : Ob) (pA : Hom P A) (pB : Hom P B), product C P pA pB.
 
-Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob),
+Polymorphic Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob),
     exists (P : Ob) (iA : Hom A P) (iB : Hom B P), coproduct C P iA iB.
 
 (*Definition has_finite_products (C : Cat) : Prop :=
@@ -48,8 +48,6 @@ intro C. rewrite <- (dual_involution C). intros.
 rewrite <- (dual_product_coproduct (Dual C)) in *.
 apply product_comm. assumption.
 Qed.
-
-Print coproduct_comm.
 
 (*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product
     definition. In case of the big product, this is not needed. *)
