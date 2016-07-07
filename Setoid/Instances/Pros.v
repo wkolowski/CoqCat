@@ -1,62 +1,83 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Old".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
 
 Require Import NPeano.
 Require Import Omega.
-Require Import ProofIrrelevance.
 
 Require Export Cat.
-(*Require Export CatInstances.*)
 
-Class Pros {A : Type} : Type :=
+(*Class Pros {A : Type} : Type :=
 {
     leq : A -> A -> Prop;
     leq_refl : forall a : A, leq a a;
     leq_trans : forall a b c : A, leq a b -> leq b c -> leq a c
+}.*)
+
+Class Pros : Type :=
+{
+    carr_ : Type;
+    leq : carr_ -> carr_ -> Prop;
+    leq_refl : forall a : carr_, leq a a;
+    leq_trans : forall a b c : carr_, leq a b -> leq b c -> leq a c
 }.
 
 Notation "a ≤ b" := (leq a b) (at level 50).
 
-Definition Pros_Sort `(_ : Pros) := A.
+Definition Pros_Sort (A : Pros) := @carr_ A.
 Coercion Pros_Sort : Pros >-> Sortclass.
 
-Class HomPros `(A : Pros) `(B : Pros) : Type :=
+(*Class HomPros `(A : Pros) `(B : Pros) : Type :=
 {
-    f_ :> A -> B;
+    f_ : A -> B;
     homo_pros : forall a a' : A, a ≤ a' -> f_ a ≤ f_ a'
-}.
+}.*)
 
-Definition HomPros_Fun `(_ : HomPros) := f_.
+Definition HomPros (A : Pros) (B : Pros) : Type :=
+    {f : A -> B | forall a a', a ≤ a' -> f a ≤ f a'}.
+
+Definition HomPros_Fun (A B : Pros) (f : HomPros A B) := proj1_sig f.
 Coercion HomPros_Fun : HomPros >-> Funclass.
 
-Class Pros' : Type :=
+
+
+(*Class HomPros (A B : Pros) : Type :=
+{
+    f_ : A -> B;
+    homo : forall a a' : A, a ≤ a' -> f_ a ≤ f_ a'
+}.
+
+Definition HomPros_Fun (A B : Pros) (f : HomPros A B) := @f_ A B f.
+Coercion HomPros_Fun : HomPros >-> Funclass.*)
+
+(*Theorem add2 : forall (A : Pros) (f : HomPros A A) (a : A), a = f a.
+trivial.
+Qed.*)
+
+(*Class Pros' : Type :=
 {
     carrier_ : Type;
     pros_ : @Pros carrier_
-}.
+}.*)
 
-Definition Pros'_Pros `(_ : Pros') := pros_.
+(*Definition Pros'_Pros `(_ : Pros') := pros_.
 Coercion Pros'_Pros : Pros' >-> Pros.
-
-Theorem add2 : forall `(A : Pros) (f : HomPros A A) (a : A), a = f a.
-trivial.
-Qed.
-
-Instance HomPros' : @CatHom Pros'.
-split. intros. exact (HomPros A B).
-Defined.
-
-Instance CompPros : @CatComp Pros' HomPros'.
-split. intros A B C f g. unfold Hom, HomPros' in *.
-split with (fun n => g (f n)).
-destruct f, g. intros. apply homo_pros1, homo_pros0. assumption.
-Defined.
-
-Instance IdPros : @CatId Pros' HomPros'.
-split. intro. split with (fun a => a). trivial.
-Defined.
-
-Instance CatPros : @Cat Pros' HomPros' CompPros IdPros.
-split; intros; destruct f; simpl; f_equal; apply proof_irrelevance.
+*)
+Print Pros_Sort.
+Instance CatPros : Cat :=
+{
+    Ob := Pros;
+    Hom := HomPros;
+    Hom_Setoid := fun A B : Pros => {| equiv := fun f g : HomPros A B =>
+        forall x : A, f x = g x |};
+    (*comp := fun (A B C : Pros) (f : Hom A B) (g : Hom B C) => f .> g*)
+}.
+split; auto; unfold Transitive; intros; rewrite H, H0; trivial.
+intros. destruct X as [f f_homo], X0 as [g g_homo].
+exists (fun a : A => g (f a)). intros. apply g_homo, f_homo. trivial.
+unfold Proper, respectful; intros. destruct x, y, x0, y0; simpl in *.
+intro. rewrite H, H0. trivial.
+intro. unfold HomPros. exists (fun a : A => a). trivial.
+destruct f, g, h; cat2.
+destruct f; cat2. destruct f; cat2.
 Defined.
 
 Instance NatLe : @Pros nat.

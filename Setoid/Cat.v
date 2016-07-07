@@ -31,34 +31,20 @@ Ltac cat_aux := repeat (simpl || split || intros || cat_simpl2 || cat_rw2 || ref
 Ltac cat_aux' := repeat (simpl || split || intros || cat_simpl2 || cat_rw2' || reflexivity || auto).
 Ltac cat2 := cat_aux || cat_aux'.
 
-(*Instance Setoid_TypeEq (A : Type) : Setoid A := {| equiv := eq |}.
-Instance Setoid_kernel (A B : Type) (f : A -> B) : Setoid A :=
+(*Instance Setoid_TypeEq (A : Type) : Setoid A := {| equiv := eq |}.*)
+Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
     {| equiv := fun a a' : A => f a = f a' |}.
 split.
 (* Reflexivity *) split.
 (* Symmetry *) unfold Symmetric. intros. rewrite H. trivial.
 (* Transitivity *) unfold Transitive. intros. rewrite H, H0. trivial.
 Defined.
-*)
-
-Instance CoqSet : Cat :=
-{|
-    Ob := Set;
-    Hom := fun A B : Set => A -> B;
-    Hom_Setoid := fun A B : Set =>
-        {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
-    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-    id := fun (A : Set) (a : A) => a
-|}.
-split; unfold Reflexive, Symmetric, Transitive; intros.
-(* Reflexivity *) trivial.
-(* Symmetry *) rewrite H; trivial.
-(* Transitivity *) rewrite H, H0; trivial.
-(* Comp is proper *) unfold Proper, respectful. simpl. intros.
-    rewrite H0. f_equal. rewrite H. trivial.
-(* Wut *) (*unfold Proper, respectful, Basics.flip, Basics.impl.
-    simpl. intros. rewrite H, H0, H1. trivial.*)
-(* Category laws *) cat2. cat2. cat2.
+Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A :=
+    {| equiv := fun a a' : A => f a == f a' |}.
+split.
+(* Reflexivity *) unfold Reflexive. reflexivity.
+(* Symmetry *) unfold Symmetric. intros. rewrite H. reflexivity.
+(* Transitivity *) unfold Transitive. intros. rewrite H, H0. reflexivity.
 Defined.
 
 Instance Dual (C : Cat) : Cat :=
@@ -368,3 +354,22 @@ split.
     destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
     exists (f .> g). apply iso_comp; assumption.
 Defined.
+
+Instance Grpd (C : Cat) : Cat :=
+{
+    Ob := @Ob C;
+    Hom := fun A B : Ob => {f : Hom A B | Iso f};
+    Hom_Setoid := fun A B : Ob =>
+        Setoid_kernel_equiv (Hom_Setoid A B) (@proj1_sig (Hom A B) Iso)
+}.
+intros. destruct X as [f f_iso], X0 as [g g_iso].
+exists (f .> g). apply iso_comp; assumption.
+unfold Proper, respectful; intros;
+destruct x, y, x0, y0; simpl in *. rewrite H, H0. reflexivity.
+intro. exists (id A). apply id_is_aut.
+intros; destruct f, g, h; cat2.
+intros; destruct f; cat2.
+intros; destruct f; cat2.
+Defined.
+
+Print Grpd.

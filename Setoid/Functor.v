@@ -9,6 +9,11 @@ Class Functor (C : Cat) (D : Cat) : Type :=
     pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
 }.
 
+Definition Functor_fob `(T : Functor) := fob.
+Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
+Coercion Functor_fob : Functor >-> Funclass.
+Coercion Functor_fmap : Functor >-> Funclass.
+
 Ltac functor_rw := rewrite pres_comp || rewrite pres_id.
 Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
 Ltac functor_simpl := repeat functor_rw.
@@ -33,21 +38,86 @@ refine
 functor.
 Defined.
 
+Definition ext_equiv {A B : Type} (f g : A -> B) : Prop :=
+    forall x : A, f x = g x.
+
 (* The term has only 93 lines, whereas in New/Functor.v, it has 1610 *)
-Instance CAT : Cat :=
+(*Instance CAT : Cat :=
 {|
     Ob := Cat;
     Hom := Functor;
     Hom_Setoid := fun C D : Cat => {| equiv := fun T S : Functor C D =>
-        @fob C D T = @fob C D S /\ JMeq (@fmap C D T) (@fmap C D S) |};
+        ext_equiv (@fob C D T) (@fob C D S) /\ JMeq (@fmap C D T) (@fmap C D S) |};
     comp := FunctorComp;
     id := IdFunctor
 |}.
 split; unfold Reflexive, Symmetric, Transitive; intros.
-split. trivial. trivial.
-destruct H. split. rewrite H. trivial.
-rewrite H0. trivial.
-destruct H, H0. split. rewrite H, H0. reflexivity.
-rewrite H1, H2. trivial.
+split; unfold ext_equiv; reflexivity.
+destruct H as [H1 H2]; split.
+unfold ext_equiv in *. intro; rewrite H1; trivial.
+rewrite H2. trivial.
+destruct H as [H1 H2], H0 as [H'1 H'2].
+unfold ext_equiv in *; split; intros.
+rewrite H1, H'1. trivial.
+rewrite H2, H'2; trivial.
+unfold Proper, respectful; intros. unfold FunctorComp; simpl.
+split. unfold ext_equiv; intros. f_equal. apply H0. rewrite H0. reflexivity.
 cat2. cat2. cat2.
-Defined.
+Defined.*)
+
+Definition full `(T : Functor) : Prop := forall (A B : @Ob C)
+    (g : Hom (T A) (T B)), exists f : Hom A B, fmap f == g.
+
+Definition faithful `(T : Functor) : Prop := forall (A B : @Ob C)
+    (f g : Hom A B), fmap f == fmap g -> f == g.
+
+Definition iso_dense `(T : Functor) : Prop := forall (Y : @Ob D),
+    exists X : @Ob C, T X ~ Y.
+
+(*Definition embedding `(T : Functor) : Prop :=
+    faithful T /\ injective fob.*)
+
+(*Theorem functor_pres_sec : forall `(T : Functor) (A B : @Ob C) (f : Hom A B),
+    Sec f -> Sec (fmap f).
+unfold Sec; intros. destruct H as (g, H). exists (fmap g).
+functor_simpl'. f_equiv. admit.
+Qed.
+
+Theorem functor_pres_ret : forall `(T : Functor) (A B : @Ob C) (f : Hom A B),
+    Ret f -> Ret (fmap f).
+unfold Ret; intros. destruct H as (g, H'). exists (fmap g).
+functor_simpl'. f_equal; assumption.
+Qed.
+
+Theorem functor_pres_iso : forall `(T : Functor) (A B : @Ob C) (f : Hom A B),
+    Iso f -> Iso (fmap f).
+intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H.
+destruct H as (H_sec, H_ret).
+split. apply functor_pres_sec; assumption.
+apply functor_pres_ret; assumption.
+Qed.
+*)
+Theorem full_faithful_refl_sec : forall `(T : Functor) (A B : @Ob C)
+    (f : Hom A B), full T -> faithful T -> Sec (fmap f) -> Sec f.
+unfold full, faithful, Sec; intros. rename H into T_full, H0 into T_faithful.
+destruct H1 as (g, H).
+destruct (T_full B A g) as [g' eq].
+exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
+rewrite <- pres_id in H. apply T_faithful in H. assumption.
+Qed.
+
+Theorem full_faithful_refl_ret : forall `(T : Functor) (A B : @Ob C)
+    (f : Hom A B), full T -> faithful T -> Ret (fmap f) -> Ret f.
+unfold full, faithful, Sec; intros. rename H into T_full, H0 into T_faithful.
+destruct H1 as (g, H). destruct (T_full B A g) as [g' eq].
+exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
+rewrite <- pres_id in H. apply T_faithful in H. assumption.
+Qed.
+
+Theorem full_faithful_refl_iso : forall `(T : Functor) (A B : @Ob C)
+    (f : Hom A B), full T -> faithful T -> Iso (fmap f) -> Iso f.
+intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H1.
+destruct H1 as (H_sec, H_ret). split.
+apply full_faithful_refl_sec with T; assumption.
+apply full_faithful_refl_ret with T; assumption.
+Qed.

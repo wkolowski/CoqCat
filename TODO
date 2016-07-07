@@ -19,4 +19,4 @@ Setoid:
 1. Adjust isomorphic, uniquely isomorphic and exists to work with setoids.
 2. Fix injective, surjective and bijective to work with equiv and fix the proofs of mon_char and epi_char.
 
-Commit : Created the Setoid "branch". Wrote the [cat2] tactic which is better (I think) than the previous [cat]. Added comp_Proper to the definition of Cat so that rewriting works. Pasted code from New/Cat to Setoid/Cat and fixed a lot of it (it was mainly about changing [=] to [==] and [trivial] to [reflexivity]).
+Commit : 
