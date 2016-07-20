@@ -15,6 +15,7 @@ Polymorphic Class Cat : Type :=
     id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
     id_right : forall (A B : Ob) (f : Hom A B), comp f (id B) == f
 }.
+Print Setoid.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
@@ -343,7 +344,7 @@ Theorem id_is_aut : forall (C : Cat) (A : Ob), Aut (id A).
 unfold Aut, Iso; intros; exists (id A); cat2.
 Qed.
 
-Instance isomorphic_equiv (cat : Cat) : Equivalence isomorphic.
+Polymorphic Instance isomorphic_equiv (cat : Cat) : Equivalence isomorphic.
 split.
 (*Case "Reflexivity".*) unfold Reflexive. intro A. unfold isomorphic.
     exists (id A). apply id_is_aut.
@@ -354,7 +355,7 @@ split.
     destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
     exists (f .> g). apply iso_comp; assumption.
 Defined.
-
+Print isomorphic_equiv.
 Instance Grpd (C : Cat) : Cat :=
 {
     Ob := @Ob C;

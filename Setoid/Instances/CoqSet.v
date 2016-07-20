@@ -30,6 +30,15 @@ split; unfold Reflexive, Symmetric, Transitive; intros.
     rewrite H0. f_equal. rewrite H. trivial.
 (* Category laws *) cat2. cat2. cat2.
 Defined.
+Print isomorphic.
+
+Polymorphic Instance Card_Setoid : Setoid Set :=
+{
+    equiv := @isomorphic CoqSet (* exists f : A -> B, bijective f*)
+}.
+apply (isomorphic_equiv CoqSet).
+split.
+unfold Reflexive. intro A. exists (fun a : A => a).
 
 (*Theorem CoqSet_mon_inj : forall (A B : Set) (nonempty : A) (f : A -> B),
     Mon f <-> injective f.
