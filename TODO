@@ -19,4 +19,4 @@ Setoid:
 1. Adjust isomorphic, uniquely isomorphic and exists to work with setoids.
 2. Fix injective, surjective and bijective to work with equiv and fix the proofs of mon_char and epi_char.
 
-Commit : 
+Commit :

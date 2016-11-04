@@ -4,10 +4,17 @@ Class Functor (C : Cat) (D : Cat) : Type :=
 {
     fob : @Ob C -> @Ob D;
     fmap : forall {A B : @Ob C}, Hom A B -> Hom (fob A) (fob B);
+    fmap_Proper :> forall A B : Ob,
+        Proper (equiv ==> equiv) (@fmap A B);
     pres_comp : forall {A B C : @Ob C} (f : Hom A B) (g : Hom B C),
-        fmap (f .> g) = fmap f .> fmap g;
-    pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
+        fmap (f .> g) == fmap f .> fmap g;
+    pres_id : forall A : @Ob C, fmap (id A) == id (fob A)
 }.
+
+Print fob.
+Arguments fob [C] [D] _ _.
+
+Print fob.
 
 Definition Functor_fob `(T : Functor) := fob.
 Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
@@ -26,44 +33,62 @@ refine
     fob := fun A : Ob => A;
     fmap := fun (A B : Ob) (f : Hom A B) => f
 |};
-trivial.
+intros; try reflexivity.
+unfold Proper. red. intros. assumption.
 Defined.
 
-Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E) : Functor C E.
+Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E)
+    : Functor C E.
 refine
 {|
-    fob := fun A : @Ob C => fob (fob A);
-    fmap := fun (A B : @Ob C) (f : Hom A B) => fmap (fmap f)
+    fob := fun A : @Ob C => fob S (@fob C D T A);
+    fmap := fun (A B : @Ob C) (f : Hom A B) =>
+        (@fmap D E S (fob T A) (fob T B) (@fmap C D T A B f))
 |};
-functor.
+destruct C, D, E, T, S; intros; simpl.
+(* Proper *) unfold Proper; red. intros. rewrite H. reflexivity.
+(* Comp *) simpl. rewrite pres_comp0; simpl.
+  rewrite pres_comp1; simpl. reflexivity.
+(* Id *) rewrite pres_id0; simpl. rewrite pres_id1; simpl.
+  reflexivity.
 Defined.
 
 Definition ext_equiv {A B : Type} (f g : A -> B) : Prop :=
     forall x : A, f x = g x.
 
 (* The term has only 93 lines, whereas in New/Functor.v, it has 1610 *)
-(*Instance CAT : Cat :=
+Instance CAT : Cat.
+refine
 {|
     Ob := Cat;
     Hom := Functor;
     Hom_Setoid := fun C D : Cat => {| equiv := fun T S : Functor C D =>
-        ext_equiv (@fob C D T) (@fob C D S) /\ JMeq (@fmap C D T) (@fmap C D S) |};
+      ext_equiv (fob T) (fob S) /\ JMeq (@fmap C D T) (@fmap C D S) |};
+        (*(forall (A B : Ob) (f : Hom A B),
+            (@fmap C D T A B f) == (@fmap C D S A B f)) |};*)
     comp := FunctorComp;
     id := IdFunctor
-|}.
-split; unfold Reflexive, Symmetric, Transitive; intros.
-split; unfold ext_equiv; reflexivity.
-destruct H as [H1 H2]; split.
-unfold ext_equiv in *. intro; rewrite H1; trivial.
-rewrite H2. trivial.
-destruct H as [H1 H2], H0 as [H'1 H'2].
-unfold ext_equiv in *; split; intros.
-rewrite H1, H'1. trivial.
-rewrite H2, H'2; trivial.
-unfold Proper, respectful; intros. unfold FunctorComp; simpl.
-split. unfold ext_equiv; intros. f_equal. apply H0. rewrite H0. reflexivity.
-cat2. cat2. cat2.
-Defined.*)
+|};
+functor. red. (* Focus 2. rewrite H.
+(* Equiv *) split; red; intros.
+  (* Refl *) split; unfold ext_equiv; reflexivity.
+  (* Sym *) destruct H as [H1 H2]; split.
+    unfold ext_equiv in *. intro; rewrite H1; trivial.
+    rewrite H2. trivial.
+  (* Trans *) destruct H as [H1 H2], H0 as [H'1 H'2].
+    unfold ext_equiv in *; split; intros.
+      rewrite H1, H'1. trivial.
+      rewrite H2, H'2; trivial.
+(* comp_Proper *) unfold Proper, respectful; intros.
+  destruct H, H0. unfold FunctorComp, ext_equiv in *; simpl. split; intros.
+    rewrite H, H0; reflexivity.
+  inversion H2. unfold fob in *.
+    unfold fmap. destruct x, y, x0, y0. 
+Focus 2. intros. simpl. split; try red; reflexivity.
+Focus 2. intros. simpl. split; try red; reflexivity.
+Focus 2. functor. intros. simpl. split; try red; reflexivity. *)
+Abort.
+
 
 Definition full `(T : Functor) : Prop := forall (A B : @Ob C)
     (g : Hom (T A) (T B)), exists f : Hom A B, fmap f == g.
