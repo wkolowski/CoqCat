@@ -1,14 +1,20 @@
-Require Import Cat.
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".
+
+Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Axiom fn_ext : forall (A B : Type) (f g : A -> B),
-    f = g <-> forall x : A, f x = g x.
+Require Export FunctionalExtensionality.
+
+Set Universe Polymorphism.
 
 Lemma const_fun : forall (A B : Set) (nonempty : A) (b b' : B),
     b = b' <-> (fun _ : A => b) = (fun _ : A => b').
-split; intros. rewrite H; trivial.
-rewrite fn_ext in H. apply H. assumption.
+Proof.
+  split; intros.
+    rewrite H; trivial. Print f_equal. Print functional_extensionality.
+    change b with ((fun _ => b) nonempty).
+    change b' with ((fun _ => b') nonempty). rewrite H. trivial.
 Qed.
 
 Instance CoqSet : Cat.
@@ -24,12 +30,15 @@ Defined.
 
 Theorem CoqSet_mon_inj : forall (A B : Set) (nonempty : A) (f : A -> B),
     Mon f <-> injective f.
-unfold Mon, injective; split; intros.
-assert (H2 : (fun _ : A => a) = (fun _ => a')).
-apply H. simpl. rewrite H0. trivial. 
-apply const_fun in H2; [assumption | assumption].
-apply fn_ext. intros. apply H. generalize x.
-rewrite <- fn_ext. apply H0.
+Proof.
+  unfold Mon, injective; split; intros.
+    assert (H2 : (fun _ : A => a) = (fun _ => a')).
+      apply H. simpl; rewrite H0. trivial.
+      apply const_fun in H2; assumption.
+    simpl in *. extensionality x. apply H.
+      change (f (g x)) with ((fun a : X => f (g a)) x).
+      change (f (h x)) with ((fun a : X => f (h a)) x).
+      rewrite H0. trivial.
 Qed.
 
 (*Theorem CoqSet_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
@@ -41,28 +50,50 @@ admit.*)
 
 Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).
-unfold product; intros.
-exists (fun x : X => (f x, g x)). split; simpl.
-split; rewrite fn_ext; trivial.
-intros. destruct H as [f_eq g_eq].
-rewrite f_eq, g_eq, fn_ext; intro; simpl.
-rewrite surjective_pairing; trivial.
+Proof.
+  unfold product; intros.
+  exists (fun x : X => (f x, g x)). split; simpl.
+    split; apply eta_expansion.
+    destruct 1 as [f_eq g_eq].
+      rewrite f_eq, g_eq. extensionality arg.
+      rewrite surjective_pairing; trivial.
 Qed.
+
+Instance CoqSet_prod' : has_products CoqSet :=
+{
+  prod' := prod;
+  proj1' := @fst;
+  proj2' := @snd
+}.
+apply CoqSet_prod.
+Defined.
 
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
-unfold coproduct; intros.
-exists (
-    fun p : A + B => match p with
+Proof.
+  unfold coproduct; intros.
+  exists
+    (fun p : A + B => match p with
         | inl a => f a
         | inr b => g b
     end).
-split; simpl.
-split; rewrite fn_ext; trivial.
-intros. destruct H as [f_eq g_eq].
-rewrite f_eq, g_eq, fn_ext; intro.
-destruct x; trivial.
+  split; simpl.
+    split; apply eta_expansion.
+    destruct 1 as [f_eq g_eq].
+      rewrite f_eq, g_eq. extensionality arg.
+      destruct arg; trivial.
 Qed.
+
+Instance CoqSet_coprod' : has_coproducts CoqSet :=
+{
+  coprod := sum;
+  coproj1 := @inl;
+  coproj2 := @inr
+}.
+apply CoqSet_coprod.
+Defined.
+
+Eval compute in coprod nat nat.
 
 (*Theorem CoqSet_epi_ret : forall (A B : Set) (f : Hom A B),
     Ret f <-> surjective f.
@@ -139,5 +170,5 @@ Theorem CoqSet_terminal_ob : forall A : Set,
 unfold is_singleton, terminal; intros.
 destruct H as [a [_ H]]. exists (fun _ : X => a).
 simpl; unfold unique; split; [trivial | intros].
-rewrite fn_ext. intros. apply H.
+extensionality arg. apply H.
 Qed.

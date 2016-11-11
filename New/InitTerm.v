@@ -1,4 +1,4 @@
-Require Export Cat.
+Require Import Cat.
 
 Polymorphic Definition initial {C : Cat} (I : Ob) : Prop :=
     forall (X : Ob), exists! f : Hom I X, True.

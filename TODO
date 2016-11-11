@@ -14,9 +14,15 @@ Old:
 New:
 2. Paste and adjust code from the old to the new development.
 3. Maybe move the dual instance right into CatAlternative? If so, rework the proofs to use duality.
+4. Remove the "Polymorphic" adnotation from definitions (used "Set Universe Polymorphsm" at the start of Cat.v already).
 
 Setoid:
 1. Adjust isomorphic, uniquely isomorphic and exists to work with setoids.
 2. Fix injective, surjective and bijective to work with equiv and fix the proofs of mon_char and epi_char.
 
-Commit :
+General:
+Create a class "has_products" which contains a function (or even a functor) that for two objects of a category returns their "canonical"
+product.
+Do the same for other constructions.
+
+Commit : 

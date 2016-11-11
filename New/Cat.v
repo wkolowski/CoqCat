@@ -1,9 +1,11 @@
 Require Export Coq.Setoids.Setoid.
 Require Export Coq.Logic.ProofIrrelevance.
 
-Require Export CaseTactic.
+(*Require Import CaseTactic.*)
 
-Polymorphic Class Cat : Type :=
+Set Universe Polymorphism.
+
+Class Cat : Type :=
 {
     Ob : Type;
     Hom : forall A B : Ob, Type;
@@ -14,6 +16,8 @@ Polymorphic Class Cat : Type :=
     id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f = f;
     id_right : forall (A B : Ob) (f : Hom A B), comp f (id B) = f
 }.
+
+Print Cat.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
@@ -35,33 +39,33 @@ cat.
 Defined.
 
 Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
-unfold Dual; intros. destruct C; simpl.
-f_equal; apply proof_irrelevance.
+Proof.
+  unfold Dual; intros. destruct C; simpl.
+  f_equal; apply proof_irrelevance.
 Qed.
 
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
-trivial.
-Qed.
+Proof. trivial. Qed.
 
-Polymorphic Definition dom (C : Cat) {A B : Ob} (_ : Hom A B) := A.
-Polymorphic Definition cod (C : Cat) {A B : Ob} (_ : Hom A B) := B.
+Definition dom (C : Cat) {A B : Ob} (_ : Hom A B) := A.
+Definition cod (C : Cat) {A B : Ob} (_ : Hom A B) := B.
 
-Polymorphic Definition End {C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
-Polymorphic Definition Mon {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition End {C : Cat} {A B : Ob} (f : Hom A B) : Prop := A = B.
+Definition Mon {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom X A), g .> f = h .> f -> g = h.
-Polymorphic Definition Epi {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Epi {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     forall (X : Ob) (g h : Hom B X), f .> g = f .> h -> g = h.
-Polymorphic Definition Bim {C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
-Polymorphic Definition Sec {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Bim {C : Cat} {A B : Ob} (f : Hom A B) : Prop := Mon f /\ Epi f.
+Definition Sec {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g = id A.
-Polymorphic Definition Ret {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
+Definition Ret {C : Cat} {A B : Ob} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f = id B.
-Polymorphic Definition Iso {C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
+Definition Iso {C : Cat} {A B : Ob} (f : Hom A B ) : Prop :=
    exists g : Hom B A, f .> g = id A /\ g .> f = id B.
-Polymorphic Definition Aut {C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
+Definition Aut {C : Cat} {A : Ob} (f : Hom A A) : Prop := Iso f.
 
-(* These are problematic as of now.
+(* These are problematic as of now. *)
 Definition End' {C : Cat} (A : Ob) : Type := {f : Hom A A | True}.
 Definition Mon' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Mon f}.
 Definition Epi' {C : Cat} (A B : Ob) : Type := {f : Hom A B | Epi f}.
@@ -78,16 +82,17 @@ Coercion Mon'_Hom : Mon' >-> Hom.
 Coercion Epi'_Hom : Epi' >-> Hom.
 Coercion Sec'_Hom : Sec' >-> Hom.
 Coercion Ret'_Hom : Ret' >-> Hom.
-*)
+
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.
-unfold Mon, Epi; split; intros.
-apply H. unfold comp, Dual in H0. assumption.
-apply H. unfold comp, Dual. assumption.
+Proof.
+  unfold Mon, Epi; split; intros.
+    apply H. unfold comp, Dual in H0. assumption.
+    apply H. unfold comp, Dual. assumption.
 Qed.
 
-Theorem dual_bim_self : forall (C : Cat) (A B : Ob) (f : Hom A B),
+Theorem dual_bim_bim : forall (C : Cat) (A B : Ob) (f : Hom A B),
     @Bim C A B f <-> @Bim (Dual C) B A f.
 intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
 repeat split; destruct H; assumption.
@@ -99,7 +104,7 @@ unfold Sec, Ret; split; intros.
 apply H. unfold Hom, comp, id, Dual in H. assumption.
 Qed.
 
-Theorem dual_iso_self : forall (C : Cat) (A B : Ob) (f : Hom A B),
+Theorem dual_iso_iso : forall (C : Cat) (A B : Ob) (f : Hom A B),
     @Iso C A B f <-> @Iso (Dual C) B A f.
 unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
 exists g; split; assumption.
@@ -245,14 +250,21 @@ rewrite <- eq1. pattern h at 2. rewrite <- eq2. cat.
 unfold Iso. exists g; split; destruct inv1; assumption.
 Qed.
 
-(*Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob),
-    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
-unfold uniquely_isomorphic; split; simpl; intros.
-unfold Iso, Dual; simpl. apply iso_inv_unique.
-destruct H as [f [[g [eq1 eq2]]]].
-exists g. split. exists f. split; assumption. intros.
-destruct H0.
-*)
+Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob),
+    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) B A.
+Proof.
+  unfold uniquely_isomorphic; split; simpl; intros.
+    destruct H as [f [[g [eq1 eq2]]]]. unfold Iso, Dual; simpl.
+    exists f; split.
+      exists g. split; auto.
+      intros. apply H. unfold Iso. destruct H0 as [h [h_eq1 h_eq2]].
+        exists h. split; auto.
+    destruct H as [f [[g [eq1 eq2]]]]. unfold Iso, Dual; simpl.
+    exists f; split.
+      exists g. split; auto.
+      intros. apply H. unfold Iso. destruct H0 as [h [h_eq1 h_eq2]].
+        exists h. split; auto.
+Qed.
 
 (* Composition theorems. *)
 Theorem mon_comp : forall (cat : Cat) (A B C : Ob) (f : Hom A B) (g : Hom B C),

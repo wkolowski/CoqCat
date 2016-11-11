@@ -1,18 +1,37 @@
 Require Export Cat.
 
-Polymorphic Definition product (C : Cat) {A B : Ob} (P : Ob) (p1 : Hom P A)
+Set Universe Polymorphism.
+
+Definition product (C : Cat) {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
     exists! u : Hom X P, f = u .> p1 /\ g = u .> p2.
 
-Polymorphic Definition coproduct (C : Cat) {A B : Ob} (P : Ob) (iA : Hom A P)
+Definition coproduct (C : Cat) {A B : Ob} (P : Ob) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob) (f : Hom A X) (g : Hom B X),
     exists! u : Hom P X, f = iA .> u /\ g = iB .> u.
 
-Polymorphic Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob),
+Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob),
     exists (P : Ob) (pA : Hom P A) (pB : Hom P B), product C P pA pB.
 
-Polymorphic Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob),
+Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob),
     exists (P : Ob) (iA : Hom A P) (iB : Hom B P), coproduct C P iA iB.
+
+Class has_products (C : Cat) : Type :=
+{
+  prod' : Ob -> Ob -> Ob;
+  proj1' : forall A B : Ob, Hom (prod' A B) A;
+  proj2' : forall A B : Ob, Hom (prod' A B) B;
+  is_prod : forall A B : Ob, product C (prod' A B) (proj1' A B) (proj2' A B)
+}.
+
+Class has_coproducts (C : Cat) : Type := 
+{
+  coprod : Ob -> Ob -> Ob;
+  coproj1 : forall A B : Ob, Hom A (coprod A B);
+  coproj2 : forall A B : Ob, Hom B (coprod A B);
+  is_coprod : forall A B : Ob,
+    coproduct C (coprod A B) (coproj1 A B) (coproj2 A B)
+}.
 
 (*Definition has_finite_products (C : Cat) : Prop :=
     has_terminal_object C /\ has_binary_products C.
@@ -33,16 +52,16 @@ Theorem product_comm : forall (C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
 unfold product in *; intros.
 destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
 exists u. split.
-Case "Universal property". split; assumption.
-Case "Uniquenes". intros. apply uniq. destruct H; split; assumption.
+(*Case "Universal property".*) split; assumption.
+(*Case "Uniquenes".*) intros. apply uniq. destruct H; split; assumption.
 Qed.
 
 Theorem coproduct_comm : forall (C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)
     (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
 unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
 exists u. split.
-Case "Universal property". split; assumption.
-Case "Uniqueness". intros. apply uniq. destruct H0; split; assumption.
+(*Case "Universal property".*) split; assumption.
+(*Case "Uniqueness".*) intros. apply uniq. destruct H0; split; assumption.
 Restart.
 intro C. rewrite <- (dual_involution C). intros.
 rewrite <- (dual_product_coproduct (Dual C)) in *.

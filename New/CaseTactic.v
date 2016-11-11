@@ -1,4 +1,6 @@
-Require String. Open Scope string_scope.
+Require String.
+
+Open Scope string_scope.
 
 Ltac move_to_top x :=
   match reverse goal with
