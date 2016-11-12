@@ -28,6 +28,50 @@ refine
 cat.
 Defined.
 
+Instance CoqSet_init : has_init CoqSet :=
+{
+  init := Empty_set
+}.
+Proof.
+  red; simpl; intro.
+  exists (fun x : Empty_set => match x with end).
+  split. trivial. intros. extensionality a. inversion a.
+Defined.
+
+Instance CoqSet_term : has_term CoqSet :=
+{
+  term := unit
+}.
+Proof.
+  red; simpl; intro.
+  exists (fun _ => tt).
+  split. trivial. intros. extensionality a. destruct (x' a). trivial.
+Defined.
+
+Eval compute in init.
+
+Theorem no_zero : ~ exists A : Set, zero_object A.
+Proof.
+  destruct 1 as [A [HI HT]].
+  apply (initial_ob_iso_unique CoqSet A init) in HI; auto.
+  apply (terminal_ob_iso_unique CoqSet A term) in HT; auto.
+  simpl in *. cut (unit ~ Empty_set). intro.
+  destruct H as [f _]. simpl in *. specialize (f tt). inversion f.
+  rewrite <- HT. auto.
+Qed.
+
+Definition is_singleton (A : Set) : Prop :=
+    exists a : A, True /\ forall (x y : A), x = y.
+
+(* Beware: requires function extensionality. *)
+Theorem CoqSet_terminal_ob : forall A : Set,
+    is_singleton A -> @terminal CoqSet A.
+unfold is_singleton, terminal; intros.
+destruct H as [a [_ H]]. exists (fun _ : X => a).
+simpl; unfold unique; split; [trivial | intros].
+extensionality arg. apply H.
+Qed.
+
 Theorem CoqSet_mon_inj : forall (A B : Set) (nonempty : A) (f : A -> B),
     Mon f <-> injective f.
 Proof.
@@ -157,18 +201,3 @@ rewrite Sets_mon_inj in H1. assumption. assumption.
 Focus 2.
 rewrite iso_iff_sec_ret. split.
 destruct H as [a b]. unfold injective, surjective in *.*)
-
-(*  Most likely there's no initial object in the category Sets, because there are
-    no functions from the empty set to itself. *)
-
-Definition is_singleton (A : Set) : Prop :=
-    exists a : A, True /\ forall (x y : A), x = y.
-
-(* Beware: requires function extensionality. *)
-Theorem CoqSet_terminal_ob : forall A : Set,
-    is_singleton A -> @terminal CoqSet A.
-unfold is_singleton, terminal; intros.
-destruct H as [a [_ H]]. exists (fun _ : X => a).
-simpl; unfold unique; split; [trivial | intros].
-extensionality arg. apply H.
-Qed.

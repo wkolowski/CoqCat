@@ -21,8 +21,5 @@ Setoid:
 2. Fix injective, surjective and bijective to work with equiv and fix the proofs of mon_char and epi_char.
 
 General:
-Create a class "has_products" which contains a function (or even a functor) that for two objects of a category returns their "canonical"
-product.
-Do the same for other constructions.
 
 Commit : 

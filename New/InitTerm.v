@@ -1,22 +1,44 @@
-Require Import Cat.
+Require Export Cat.
 
-Polymorphic Definition initial {C : Cat} (I : Ob) : Prop :=
+Set Universe Polymorphism.
+
+Definition initial {C : Cat} (I : Ob) : Prop :=
     forall (X : Ob), exists! f : Hom I X, True.
 
-Polymorphic Definition terminal {C : Cat} (T : Ob) : Prop :=
+Definition terminal {C : Cat} (T : Ob) : Prop :=
     forall (X : Ob), exists! f : Hom X T, True.
 
-Polymorphic Definition zero_object {C : Cat} (Z : Ob) : Prop :=
+Definition zero_object {C : Cat} (Z : Ob) : Prop :=
     initial Z /\ terminal Z.
 
-Polymorphic Definition has_initial_object (C : Cat) : Prop :=
+Definition has_initial_object (C : Cat) : Prop :=
     exists I : Ob, initial I.
 
-Polymorphic Definition has_terminal_object (C : Cat) : Prop :=
+Definition has_terminal_object (C : Cat) : Prop :=
     exists T : Ob, terminal T.
 
-Polymorphic Definition has_zero_object (C : Cat) : Prop :=
+Definition has_zero_object (C : Cat) : Prop :=
     exists Z : Ob, zero_object Z.
+
+Class has_init (C : Cat) : Type :=
+{
+  init : @Ob C;
+  is_initial : initial init
+}.
+
+Class has_term (C : Cat) : Type :=
+{
+  term : @Ob C;
+  is_terminal : terminal term
+}.
+
+Class has_zero (C : Cat) : Type :=
+{
+  zero : @Ob C;
+  is_zero : zero_object zero
+}.
+
+Hint Resolve is_initial is_terminal is_zero.
 
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob),
     @initial C A <-> @terminal (Dual C) A.
@@ -61,6 +83,15 @@ destruct (H A) as (id1, [_ eq1]), (H0 B) as (id2, [_ eq2]),
 exists g; unfold Iso; exists f; split.
 rewrite <- (eq1 (g .> f)); [rewrite <- (eq1 (id A)); trivial | trivial].
 rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id B)); trivial | trivial].
+(*Restart.
+intro. 
+rewrite <- (dual_involution C). pattern isomorphic at 0. rewrite dual_isomorphic. intros. simpl in *.
+SearchAbout isomorphic. unfold Iso. simpl.
+rewrite <- dual_isomorphic.
+rewrite (dual_involution C).
+rewrite <- dual_initial_terminal in *.
+change (@Ob C) with (@Ob (Dual C)) in *.
+apply (initial_ob_iso_unique (Dual C)).*)
 Qed.
 
 Theorem terminal_ob_uniquely_isomorphic : forall (C : Cat) (A B : Ob),

@@ -1,4 +1,4 @@
-(*Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".*)
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".
 
 Require Import NPeano.
 Require Import Omega.

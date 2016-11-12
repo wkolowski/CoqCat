@@ -1,4 +1,6 @@
-Require Import Cat.
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".
+
+Require Export Cat.
 
 Require Export Coq.Classes.SetoidClass.
 
@@ -7,7 +9,6 @@ Record Setoid' : Type :=
     carrier_ :> Type;
     setoid_ :> Setoid carrier_
 }.
-Print equiv.
 
 Record HomSetoid (A B : Setoid') : Type :=
 {

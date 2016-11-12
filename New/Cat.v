@@ -110,13 +110,23 @@ unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
 exists g; split; assumption.
 Qed.
 
-Polymorphic Definition isomorphic {C : Cat} (A B : Ob) :=
+Definition isomorphic {C : Cat} (A B : Ob) :=
     exists f : Hom A B, Iso f.
-Polymorphic Definition uniquely_isomorphic {C : Cat} (A B : Ob) :=
+Definition uniquely_isomorphic {C : Cat} (A B : Ob) :=
     exists! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
+
+Theorem dual_isomorphic : forall (C : Cat) (A B : Ob),
+    @isomorphic C A B <-> @isomorphic (Dual C) B A.
+Proof.
+  unfold isomorphic, Iso; simpl; split;
+  destruct 1 as [f [g [eq1 eq2]]]; eauto.
+Qed.
+
+(*Theorem dual_uniquely_isomorphic : forall *)
+
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob), A ~~ B -> A ~ B.
 unfold uniquely_isomorphic, isomorphic.

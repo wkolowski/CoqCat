@@ -1,9 +1,13 @@
-Require Import Cat.
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/New".
+
+Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
+Require Export FunctionalExtensionality.
+
 Instance CoqProp : Cat.
-simple refine
+refine
 {|
     Ob := Prop;
     Hom := fun A B : Prop => A -> B;
@@ -26,7 +30,7 @@ unfold product; intros.
 exists (fun x : X => conj (f x) (g x));
 split; [split | intros]; simpl; apply proof_irrelevance.
 Qed.
-Print or.
+
 Theorem CoqProp_coproduct_or : forall (P Q : Prop),
     coproduct CoqProp (P \/ Q) (@or_introl P Q) (@or_intror P Q).
 unfold coproduct; intros.
@@ -37,3 +41,24 @@ exists (
     end);
 split; [split | intros]; simpl; apply proof_irrelevance.
 Qed.
+
+Instance CoqProp_init : has_init CoqProp :=
+{
+  init := False
+}.
+Proof.
+  red; simpl; intro. exists (fun x : False => match x with end).
+  red; split; intros; auto. extensionality a. inversion a.
+Defined.
+
+Instance CoqProp_term : has_term CoqProp :=
+{
+  term := True
+}.
+Proof.
+  red; simpl; intro. exists (fun _ => I).
+  red; split; intros; auto. extensionality a. destruct (x' a). trivial.
+Defined.
+
+
+  
