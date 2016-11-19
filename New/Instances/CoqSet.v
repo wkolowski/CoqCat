@@ -112,6 +112,35 @@ Instance CoqSet_prod' : has_products CoqSet :=
 apply CoqSet_prod.
 Defined.
 
+Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet) CoqSet.
+refine
+{|
+  fob := fun A : Ob (CAT_prod CoqSet) => prod (fst A) (snd A);
+  fmap := fun (A B : Ob (CAT_prod CoqSet)) (f : Hom A B) =>
+    fun a : fst A * snd A => (fst f (fst a), snd f (snd a))
+|};
+functor; simpl. extensionality a. destruct a. trivial.
+Defined.
+
+Instance CoqSet_has_prod_functor : has_prod_functor CoqSet.
+refine
+{|
+  prod_functor := CoqSet_prod_functor;
+  proj1'' := fun A B : Set => @fst A B;
+  proj2'' := fun A B : Set => @snd A B
+|}.
+intros. simpl. apply CoqSet_prod.
+Defined.
+
+Eval compute in prod_functor (nat, nat).
+
+Eval compute in nat × nat. Print fmap.
+Hint Unfold CAT_prod.
+Hint Unfold Hom CAT_prod.
+Eval compute in fob prod_functor (nat, nat).
+Eval compute in fmap prod_functor (S, S).
+Eval compute in @fmap (CAT_prod CoqSet) CoqSet prod_functor (S, S) (3, 4).
+
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
 Proof.

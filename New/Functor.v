@@ -1,5 +1,7 @@
 Require Export Cat.
 
+Set Universe Polymorphism.
+
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
     fob : @Ob C -> @Ob D;
@@ -8,6 +10,9 @@ Class Functor (C : Cat) (D : Cat) : Type :=
         fmap (f .> g) = fmap f .> fmap g;
     pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
 }.
+
+(*Arguments fob [C] [D] _ _.
+Print fob.*)
 
 Definition Functor_fob `(T : Functor) := fob.
 Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
@@ -23,8 +28,8 @@ Ltac functor := repeat (split || intros || functor_simpl || cat).
 Instance IdFunctor (C : Cat) : Functor C C.
 refine
 {|
-    fob := fun A : Ob => A;
-    fmap := fun (A B : Ob) (f : Hom A B) => f
+    fob := fun A : Ob C => A;
+    fmap := fun (A B : Ob C) (f : Hom A B) => f
 |};
 trivial.
 Defined.
@@ -32,7 +37,7 @@ Defined.
 Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E) : Functor C E.
 refine
 {|
-    fob := fun A : @Ob C => S (T A);
+    fob := fun A : Ob C => S (T A);
     fmap := fun (A B : @Ob C) (f : Hom A B) => fmap (fmap f)
 |};
 functor.
