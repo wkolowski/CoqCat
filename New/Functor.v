@@ -4,18 +4,15 @@ Set Universe Polymorphism.
 
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
-    fob : @Ob C -> @Ob D;
-    fmap : forall {A B : @Ob C}, Hom A B -> Hom (fob A) (fob B);
+    fob : Ob C -> Ob D;
+    fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
     pres_comp : forall {A B C : @Ob C} (f : Hom A B) (g : Hom B C),
         fmap (f .> g) = fmap f .> fmap g;
-    pres_id : forall A : @Ob C, fmap (id A) = id (fob A)
+    pres_id : forall A : Ob C, fmap (id A) = id (fob A)
 }.
 
-(*Arguments fob [C] [D] _ _.
-Print fob.*)
-
 Definition Functor_fob `(T : Functor) := fob.
-Definition Functor_fmap `(T : Functor) {A B : @Ob C} (f : Hom A B) := fmap f.
+Definition Functor_fmap `(T : Functor) {A B : Ob C} (f : Hom A B) := fmap f.
 Coercion Functor_fob : Functor >-> Funclass.
 Coercion Functor_fmap : Functor >-> Funclass.
 

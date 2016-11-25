@@ -1,4 +1,4 @@
-Require Export Coq.Setoids.Setoid.
+Require Export Coq.Setoids.Setoid. (* For the class Equivalence *)
 Require Export Coq.Logic.ProofIrrelevance.
 
 (*Require Import CaseTactic.*)
@@ -82,7 +82,6 @@ Coercion Mon'_Hom : Mon' >-> Hom.
 Coercion Epi'_Hom : Epi' >-> Hom.
 Coercion Sec'_Hom : Sec' >-> Hom.
 Coercion Ret'_Hom : Ret' >-> Hom.
-
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.

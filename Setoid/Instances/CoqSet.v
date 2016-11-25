@@ -1,8 +1,12 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 
 Require Export Cat.
-(*Require Import InitTerm.
-Require Import BinProdCoprod.*)
+Require Export InitTerm.
+(*Require Import BinProdCoprod.*)
+
+Require Import FunctionalExtensionality.
+
+Set Universe Polymorphism.
 
 (*Axiom fn_ext : forall (A B : Type) (f g : A -> B),
     f = g <-> forall x : A, f x = g x.*)
@@ -30,15 +34,12 @@ split; unfold Reflexive, Symmetric, Transitive; intros.
     rewrite H0. f_equal. rewrite H. trivial.
 (* Category laws *) cat2. cat2. cat2.
 Defined.
-Print isomorphic.
 
-Polymorphic Instance Card_Setoid : Setoid Set :=
+Instance Card_Setoid : Setoid Set :=
 {
     equiv := @isomorphic CoqSet (* exists f : A -> B, bijective f*)
 }.
-apply (isomorphic_equiv CoqSet).
-split.
-unfold Reflexive. intro A. exists (fun a : A => a).
+Proof. apply (isomorphic_equiv CoqSet). Defined.
 
 (*Theorem CoqSet_mon_inj : forall (A B : Set) (nonempty : A) (f : A -> B),
     Mon f <-> injective f.
@@ -56,6 +57,18 @@ split; intros.
 apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
 unfold Sec, injective in *.
 admit.*)
+
+Theorem CoqSet_init : @initial CoqSet Empty_set.
+Proof.
+  red. intro. exists (fun x : Empty_set => match x with end).
+  red. split; intros; auto. extensionality a. destruct a.
+Defined.
+
+Theorem CoqSet_term : @terminal CoqSet unit.
+Proof.
+  red. intro. exists (fun _ => tt). red. split; intros; auto.
+  extensionality a. destruct (x' a). trivial.
+Defined.
 
 Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).

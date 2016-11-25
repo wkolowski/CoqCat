@@ -35,6 +35,6 @@ Proof.
   (* id_right *) split; intros; repeat destruct H; eauto.
   (* id_left *) split; intros; repeat destruct H; subst; eauto.
 Defined.
-Print product.
+
 Theorem Rel_product : forall A B : Ob Rel,
     product 

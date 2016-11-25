@@ -6,75 +6,82 @@ Require Import ProofIrrelevance.
 
 Require Export Cat.
 
-Class Pros {A : Type} : Type :=
+Class Pros : Type :=
 {
-    leq : A -> A -> Prop;
-    leq_refl : forall a : A, leq a a;
-    leq_trans : forall a b c : A, leq a b -> leq b c -> leq a c
+    carrier : Type;
+    leq : carrier -> carrier -> Prop;
+    leq_refl : forall x : carrier, leq x x;
+    leq_trans : forall x y z : carrier, leq x y -> leq y z -> leq x z
 }.
 
 Notation "a ≤ b" := (leq a b) (at level 50).
 
-Definition Pros_Sort `(_ : Pros) := A.
-Coercion Pros_Sort : Pros >-> Sortclass.
+Coercion carrier : Pros >-> Sortclass.
 
-Class HomPros `(A : Pros) `(B : Pros) : Type :=
+Definition HomPros (A : Pros) (B : Pros) : Type :=
+    {f : A -> B | forall x x' : A, leq x x' -> leq (f x) (f x')}.
+
+Definition HomPros_fun {A B : Pros} (f : HomPros A B) : A -> B :=
+    proj1_sig f.
+
+Coercion HomPros_fun : HomPros >-> Funclass.
+
+Definition HomProsComp : forall {A B C : Pros} (f : HomPros A B)
+    (g : HomPros B C), HomPros A C.
+Proof.
+  intros. unfold HomPros in *. destruct f as [f Hf], g as [g Hg].
+  exists (fun a : A => g (f a)). intros. apply Hg, Hf. auto.
+Defined.
+
+Definition HomProsId : forall (A : Pros), HomPros A A.
+Proof.
+  intros. red. exists (fun x : A => x). intros. auto.
+Defined.
+
+Hint Unfold HomPros HomProsComp HomProsId.
+
+Instance CatPros : Cat.
+refine
+{|
+    Ob := Pros;
+    Hom := HomPros; (*fun A B : Pros =>
+        {f : A -> B | forall x x' : A, leq x x' -> leq (f x) (f x')};*)
+    comp := @HomProsComp;
+    id := HomProsId
+|};
+destruct f; try destruct g, h; auto.
+Defined.
+
+Instance NatLe : Pros :=
 {
-    f_ : A -> B;
-    homo_pros : forall a a' : A, a ≤ a' -> f_ a ≤ f_ a'
+  carrier := nat;
+  leq := le
 }.
+Proof. intros. auto. intros. omega. Defined.
 
-Definition HomPros_Fun `(_ : HomPros) := f_.
-Coercion HomPros_Fun : HomPros >-> Funclass.
-
-Class Pros' : Type :=
-{
-    carrier_ : Type;
-    pros_ : @Pros carrier_
-}.
-
-Definition Pros'_Pros `(_ : Pros') := pros_.
-Coercion Pros'_Pros : Pros' >-> Pros.
-
-Instance CatPros : Cat := {| Ob := Pros' |}.
-intros. exact (HomPros A B).
-simpl. intros. destruct X, X0.
-split with (fun x => f_1 (f_0 x)).
-intros; apply homo_pros1, homo_pros0. trivial.
-simpl; intro. split with (fun a => a). trivial.
-intros. destruct f, g, h; simpl. trivial.
-intros; destruct f; trivial.
-intros; destruct f; trivial.
-Qed.
-
-
-
-Instance HomPros' : @CatHom Pros'.
-split. intros. exact (HomPros A B).
+Theorem addOne : HomPros NatLe NatLe.
+Proof.
+  split with (fun n => S n).
+  unfold NatLe, leq; intros; omega.
 Defined.
 
-Instance CompPros : @CatComp Pros' HomPros'.
-split. intros A B C f g. unfold Hom, HomPros' in *.
-split with (fun n => g (f n)).
-destruct f, g. intros. apply homo_pros1, homo_pros0. assumption.
-Defined.
+Hint Unfold comp Hom HomPros.
 
-Instance IdPros : @CatId Pros' HomPros'.
-split. intro. split with (fun a => a). trivial.
-Defined.
+(*Coercion id_coer (A B : Pros) (f : @Hom CatPros A B) : HomPros A B := f.*)
 
-Instance CatPros : @Cat Pros' HomPros' CompPros IdPros.
-split; intros; destruct f; simpl; f_equal; apply proof_irrelevance.
-Defined.
+Coercion coerr (A B : Pros) (f : @Hom CatPros A B) : HomPros A B := f.
 
-Instance NatLe : @Pros nat.
-split with le; intros; omega.
-Defined.
+Eval simpl in addOne (addOne 1).
 
-Instance addOne : HomPros NatLe NatLe.
-split with (fun n => S n).
-unfold NatLe, leq; intros; omega.
-Defined.
+Print Classes.
+Print Coercions.
+
+Print Coercion Paths Hom Funclass.
+Print Graph.
+
+Coercion c (f : Hom NatLe NatLe) : HomPros NatLe NatLe := f.
+
+Eval simpl in (addOne .> addOne) 1.
 
 Instance timesTwo : HomPros NatLe NatLe.
 split with (fun n => 2 * n).

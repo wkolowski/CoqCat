@@ -60,7 +60,9 @@ destruct (H A) as (id1, [_ eq1]), (H0 B) as (id2, [_ eq2]),
 (H B) as (f, _), (H0 A) as (g, _); clear H H0.
 exists f; unfold Iso; exists g; split.
 rewrite <- (eq1 (f .> g)); [rewrite <- (eq1 (id A)); trivial | trivial].
+  reflexivity.
 rewrite <- (eq2 (g .> f)); [rewrite <- (eq2 (id B)); trivial | trivial].
+  reflexivity.
 Qed.
 
 Theorem initial_ob_uniquely_isomorphic : forall (C : Cat) (A B : Ob C),
@@ -72,7 +74,7 @@ exists f. split. unfold Iso; exists g; split; assumption.
 intros f' iso_f'. unfold initial in *.
 destruct (H B) as []. destruct H1.
 assert (x = f). apply H2. trivial.
-rewrite <- H3. apply H2. trivial.
+rewrite <- H3. rewrite H2 with f'. reflexivity. trivial.
 Qed.
 
 Theorem terminal_ob_iso_unique : forall (C : Cat) (A B : Ob C),
@@ -81,27 +83,12 @@ unfold terminal, isomorphic; intros.
 destruct (H A) as (id1, [_ eq1]), (H0 B) as (id2, [_ eq2]),
 (H B) as (f, _), (H0 A) as (g, _); clear H H0.
 exists g; unfold Iso; exists f; split.
-rewrite <- (eq1 (g .> f)); [rewrite <- (eq1 (id A)); trivial | trivial].
-rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id B)); trivial | trivial].
-(*Restart.
-intro. 
-rewrite <- (dual_involution C). pattern isomorphic at 0. rewrite dual_isomorphic. intros. simpl in *.
-SearchAbout isomorphic. unfold Iso. simpl.
-rewrite <- dual_isomorphic.
-rewrite (dual_involution C).
-rewrite <- dual_initial_terminal in *.
-change (Ob C) with (@Ob C (Dual C)) in *.
-apply (initial_ob_iso_unique (Dual C)).*)
+rewrite <- (eq1 (g .> f)); try rewrite <- (eq1 (id A)); reflexivity.
+rewrite <- (eq2 (f .> g)); try rewrite <- (eq2 (id B)); reflexivity.
 Qed.
 
 Theorem terminal_ob_uniquely_isomorphic : forall (C : Cat) (A B : Ob C),
     terminal A -> terminal B -> A ~~ B.
-(*intro C. rewrite <- (dual_involution C). intros.
-rewrite <- (dual_initial_terminal (Dual C)) in *.
-unfold uniquely_isomorphic. unfold initial in H0.
-unfold Hom in H0. unfold Dual in H0.
-specialize (H0 A).
-*)
 unfold uniquely_isomorphic; intros.
 assert (A ~ B). apply terminal_ob_iso_unique; assumption.
 destruct H1 as [f [g [eq1 eq2]]].
@@ -109,7 +96,7 @@ exists f. split. unfold Iso; exists g; split; assumption.
 intros f' iso_f'. unfold terminal in *.
 destruct (H0 A) as []. destruct H1.
 assert (x = f). apply H2. trivial.
-rewrite <- H3. apply H2. trivial.
+rewrite <- H3. rewrite H2 with f'. reflexivity. trivial.
 Qed.
 
 Theorem zero_ob_uniquely_isomorphic : forall (C : Cat) (A B : Ob C),
@@ -123,17 +110,14 @@ Theorem mor_to_init_is_ret : forall (C : Cat) (I X : Ob C) (f : Hom X I),
 unfold initial, Ret; intros.
 destruct (H X) as (g, [_ eq1]); destruct (H I) as (idI, [_ eq2]).
 exists g.
-rewrite <- (eq2 (g .> f)); [rewrite <- (eq2 (id I)); trivial | trivial].
+rewrite <- (eq2 (g .> f)); try rewrite <- (eq2 (id I)); reflexivity.
 Qed.
 
 Theorem mor_to_term_is_sec : forall (C : Cat) (T X : Ob C) (f : Hom T X),
     terminal T -> Sec f.
-(*unfold terminal, Ret; intros.
-destruct (H X) as (g, [_ eq1]); destruct (H T) as (idT, [_ eq2]).
-exists g.
-rewrite <- (eq2 (f .> g)); [rewrite <- (eq2 (id T)); trivial | trivial].
-Restart.*)
-intro C. rewrite <- (dual_involution C). intros.
-rewrite dual_sec_ret. rewrite <- dual_initial_terminal in H.
-apply mor_to_init_is_ret. assumption.
+Proof. (* There was duality, but it doesn't work in Setoid/ *)
+  unfold terminal, Sec; intros.
+  destruct (H X) as (g, [_ eq1]); destruct (H T) as (idT, [_ eq2]).
+  exists g.
+  rewrite <- (eq2 (f .> g)); try rewrite <- (eq2 (id T)); reflexivity.
 Qed.
