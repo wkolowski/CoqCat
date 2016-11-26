@@ -37,9 +37,9 @@ Class Pros' : Type :=
 Definition Pros'_Pros `(_ : Pros') := pros_.
 Coercion Pros'_Pros : Pros' >-> Pros.
 
-Theorem add2 : forall `(A : Pros) (f : HomPros A A) (a : A), a = f a.
-trivial.
-Qed.
+(*Theorem add2 : forall `(A : Pros) (f : HomPros A A) (a : A), a = f a.
+
+Qed.*)
 
 Instance HomPros' : @CatHom Pros'.
 split. intros. exact (HomPros A B).
@@ -56,7 +56,7 @@ split. intro. split with (fun a => a). trivial.
 Defined.
 
 Instance CatPros : @Cat Pros' HomPros' CompPros IdPros.
-split; intros; destruct f; simpl; f_equal; apply proof_irrelevance.
+split; intros. destruct f; simpl; f_equal; apply proof_irrelevance.
 Defined.
 
 Instance NatLe : @Pros nat.
@@ -97,7 +97,7 @@ unfold lst; simpl; intros; omega.
 Qed.
 
 Instance HomProsCat `(A : Pros) : @CatHom A.
-split; intros a b. exact (a ≤ b).
+split. intros a b. exact (a ≤ b).
 Defined.
 
 Instance CompProsCat `(A : Pros) : @CatComp A (HomProsCat A).

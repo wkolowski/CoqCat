@@ -5,22 +5,22 @@ Require Import JMeq.
 Class Groupoid : Type :=
 {
     cat :> Cat;
-    all_iso : forall (A B : @Ob cat) (f : Hom A B), Iso f
+    all_iso : forall (A B : Ob cat) (f : Hom A B), Iso f
 }.
 
 Print JMeq.
 Search JMeq.
 
-Record HomGroupoid {C : Cat} (A B : Ob) : Type :=
+Record HomGroupoid {C : Cat} (A B : Ob C) : Type :=
 {
     f_ : Hom A B;
     is_iso : Iso f_
 }.
 
-Definition HomGrpd_Fun (C : Cat) (A B : Ob) (_ : HomGroupoid A B) := f_.
+Definition HomGrpd_Fun (C : Cat) (A B : Ob C) (_ : HomGroupoid A B) := f_.
 Coercion HomGrpd_Fun : HomGroupoid >-> Funclass.
 
-Instance HomGroupoid_Setoid (C : Cat) (A B : Ob) : Setoid (HomGroupoid A B) :=
+Instance HomGroupoid_Setoid (C : Cat) (A B : Ob C) : Setoid (HomGroupoid A B) :=
 {|
     equiv := fun f g : HomGroupoid A B => f_ A B f = f_ A B g
 |}.
@@ -29,10 +29,10 @@ rewrite H. trivial.
 unfold Transitive. intros. rewrite H, H0. trivial.
 Defined.
 
-Axiom eq_HomGroupoid : forall (C : Cat) (A B : Ob) (f g : HomGroupoid A B),
+Axiom eq_HomGroupoid : forall (C : Cat) (A B : Ob C) (f g : HomGroupoid A B),
     f = g <-> f_ A B f = f_ A B g.
 
-Theorem eq_HomGrpd' : forall (C : Cat) (A B : Ob) (f g : HomGroupoid A B),
+Theorem eq_HomGrpd' : forall (C : Cat) (A B : Ob C) (f g : HomGroupoid A B),
     f = g <-> f_ A B f = f_ A B g.
 split; intros.
 destruct f, g. simpl. injection H. trivial.

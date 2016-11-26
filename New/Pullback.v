@@ -1,10 +1,10 @@
 Require Export Cat.
 
-Definition pullback (C : Cat) {A B X : Ob} (f : Hom A X) (g : Hom B X)
-    (P : Ob) (pA : Hom P A) (pB : Hom P B) := forall (Q : Ob) (qA : Hom Q A)
+Definition pullback (C : Cat) {A B X : Ob C} (f : Hom A X) (g : Hom B X)
+    (P : Ob C) (pA : Hom P A) (pB : Hom P B) := forall (Q : Ob C) (qA : Hom Q A)
         (qB : Hom Q B), exists! u : Hom Q P, qA = u .> pA /\ qB = u .> pB.
 
-Theorem pullback_iso_unique : forall (C : Cat) (A B X P Q : Ob)
+Theorem pullback_iso_unique : forall (C : Cat) (A B X P Q : Ob C)
     (f : Hom A X) (g : Hom B X) (pA : Hom P A) (pB : Hom P B) (qA : Hom Q A)
     (qB : Hom Q B), pullback C f g P pA pB -> pullback C f g Q qA qB -> P ~ Q.
 unfold pullback, isomorphic, Iso; intros.

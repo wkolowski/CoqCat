@@ -1,7 +1,9 @@
-Add LoadPath "/home/Zeimer/Code/Coq/Cat".
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Old".
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Old/CatInstances".
 
 Require Import ProofIrrelevance.
 
+Require Export Cat.
 Require Export CatInstances.
 Require Export Pros.
 

@@ -1,4 +1,4 @@
-(*Require Export Cat.*)
+Require Export Cat.
 Require Export BinProdCoprod.
 
 Definition big_product `{C : Cat} {J : Set} {A : J -> Ob} (P : Ob)

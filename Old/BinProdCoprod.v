@@ -1,7 +1,8 @@
 Require Export Coq.Setoids.Setoid.
 
 (*Require Export InitTerm.*)
-Require Import CatAlternative.
+(*Require Import CatAlternative.*)
+Require Import Cat.
 
 Definition is_product `{C : Cat} {A B : Ob} (P : Ob) (p1 : Hom P A)
     (p2 : Hom P B) := forall (X : Ob) (f : Hom X A) (g : Hom X B),
@@ -28,16 +29,16 @@ Theorem product_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (pA : Hom P A)
 unfold is_product in *; intros.
 destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
 exists u. split.
-Case "Universal property". split; assumption.
-Case "Uniquenes". intros. apply uniq. destruct H; split; assumption.
+(* Universal property *) split; assumption.
+(* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
 Qed.
 
 Theorem coproduct_comm : forall `(C : Cat) (A B : Ob) (P : Ob) (iA : Hom A P)
     (iB : Hom B P), is_coproduct P iA iB -> is_coproduct P iB iA.
 unfold is_coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
 exists u. split.
-Case "Universal property". split; assumption.
-Case "Uniqueness". intros. apply uniq. destruct H0; split; assumption.
+(* Universal property *) split; assumption.
+(* Uniqueness *) intros. apply uniq. destruct H0; split; assumption.
 Qed.
 
 (*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product

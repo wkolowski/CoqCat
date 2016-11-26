@@ -25,7 +25,7 @@ refine
     comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
     id := fun (A : Set) (a : A) => a
 |};
-cat.
+auto.
 Defined.
 
 Instance CoqSet_init : has_init CoqSet :=

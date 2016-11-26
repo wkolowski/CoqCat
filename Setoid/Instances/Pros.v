@@ -56,10 +56,10 @@ intros. destruct X as [f f_homo], X0 as [g g_homo].
 exists (fun a : A => g (f a)). intros. apply g_homo, f_homo. trivial.
 unfold Proper, respectful; intros. destruct x, y, x0, y0; simpl in *.
 intro. rewrite H, H0. trivial.
+destruct f, g, h. simpl. cat2.
 intro. unfold HomPros. exists (fun a : A => a). trivial.
-destruct f, g, h; cat2.
 destruct f; cat2. destruct f; cat2.
-Defined.*)
+Defined.
 
 Class Pros {A : Type} : Type :=
 {
