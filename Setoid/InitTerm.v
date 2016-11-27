@@ -3,10 +3,10 @@ Require Export Cat.
 Set Universe Polymorphism.
 
 Definition initial {C : Cat} (I : Ob C) : Prop :=
-    forall (X : Ob C), exists! f : Hom I X, True.
+    forall (X : Ob C), exists!! f : Hom I X, True.
 
 Definition terminal {C : Cat} (T : Ob C) : Prop :=
-    forall (X : Ob C), exists! f : Hom X T, True.
+    forall (X : Ob C), exists!! f : Hom X T, True.
 
 Definition zero_object {C : Cat} (Z : Ob C) : Prop :=
     initial Z /\ terminal Z.
@@ -25,6 +25,8 @@ Class has_init (C : Cat) : Type :=
     init : Ob C;
     is_initial : initial init
 }.
+
+Arguments init _ [has_init].
 
 Class has_term (C : Cat) : Type :=
 {
@@ -72,8 +74,8 @@ destruct H1 as [f [g [eq1 eq2]]].
 exists f. split. unfold Iso; exists g; split; assumption.
 intros f' iso_f'. unfold initial in *.
 destruct (H B) as []. destruct H1.
-assert (x = f). apply H2. trivial.
-rewrite <- H3. rewrite H2 with f'. reflexivity. trivial.
+assert (x == f). apply H2. trivial.
+rewrite <- H3. apply H2. trivial.
 Qed.
 
 Theorem terminal_ob_iso_unique : forall (C : Cat) (A B : Ob C),
@@ -94,14 +96,15 @@ destruct H1 as [f [g [eq1 eq2]]].
 exists f. split. unfold Iso; exists g; split; assumption.
 intros f' iso_f'. unfold terminal in *.
 destruct (H0 A) as []. destruct H1.
-assert (x = f). apply H2. trivial.
-rewrite <- H3. rewrite H2 with f'. reflexivity. trivial.
+assert (x == f). apply H2. trivial.
+rewrite <- H3. apply H2. trivial.
 Qed.
 
 Theorem zero_ob_uniquely_isomorphic : forall (C : Cat) (A B : Ob C),
     zero_object A -> zero_object B -> A ~~ B.
-unfold zero_object; intros.
-destruct H, H0; apply initial_ob_uniquely_isomorphic; assumption.
+Proof.
+  unfold zero_object; intros.
+  destruct H, H0; apply initial_ob_uniquely_isomorphic; assumption.
 Qed.
 
 Theorem mor_to_init_is_ret : forall (C : Cat) (I X : Ob C) (f : Hom X I),

@@ -122,14 +122,22 @@ unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
 exists g; split; assumption.
 Qed.
 
+Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
+    : Prop := P x /\  (forall y : A, P y -> x == y).
+
+Notation "'exists' !! x : A , P" :=
+    (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
+
 Definition isomorphic {C : Cat} (A B : Ob C) :=
     exists f : Hom A B, Iso f.
 
 Definition uniquely_isomorphic {C : Cat} (A B : Ob C) :=
-    exists f : Hom A B, Iso f /\ forall g : Hom A B, Iso g -> f == g.
+    exists!! f : Hom A B, Iso f. (* /\ forall g : Hom A B, Iso g -> f == g.*)
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
+
+Hint Unfold isomorphic uniquely_isomorphic setoid_unique.
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
 unfold uniquely_isomorphic, isomorphic.

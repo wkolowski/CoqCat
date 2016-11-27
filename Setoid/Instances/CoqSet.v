@@ -61,14 +61,30 @@ admit.*)
 Theorem CoqSet_init : @initial CoqSet Empty_set.
 Proof.
   red. intro. exists (fun x : Empty_set => match x with end).
-  red. split; intros; auto. extensionality a. destruct a.
+  red. split; intros; auto. simpl. inversion x.
 Defined.
 
 Theorem CoqSet_term : @terminal CoqSet unit.
 Proof.
-  red. intro. exists (fun _ => tt). red. split; intros; auto.
-  extensionality a. destruct (x' a). trivial.
+  red. intro. exists (fun _ => tt).
+  red. split; intros; auto. simpl. intro. destruct (y x). auto.
 Defined.
+
+Instance CoqSet_has_init : has_init CoqSet :=
+{
+    init := Empty_set
+}.
+Proof. apply CoqSet_init. Defined.
+
+Instance CoqSet_has_term : has_term CoqSet :=
+{
+    term := unit
+}.
+Proof. apply CoqSet_term. Defined.
+
+Eval cbv in init CoqSet.
+
+
 
 Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).
