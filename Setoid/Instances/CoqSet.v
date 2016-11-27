@@ -4,12 +4,9 @@ Require Export Cat.
 Require Export InitTerm.
 (*Require Import BinProdCoprod.*)
 
-Require Import FunctionalExtensionality.
+(*Require Import FunctionalExtensionality.*)
 
 Set Universe Polymorphism.
-
-(*Axiom fn_ext : forall (A B : Type) (f g : A -> B),
-    f = g <-> forall x : A, f x = g x.*)
 
 (*Lemma const_fun : forall (A B : Set) (nonempty : A) (b b' : B),
     b = b' <-> (fun _ : A => b) = (fun _ : A => b').
@@ -21,18 +18,19 @@ Instance CoqSet : Cat :=
 {|
     Ob := Set;
     Hom := fun A B : Set => A -> B;
-    Hom_Setoid := fun A B : Set =>
+    HomSetoid := fun A B : Set =>
         {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
     comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
     id := fun (A : Set) (a : A) => a
 |}.
-split; unfold Reflexive, Symmetric, Transitive; intros.
-(* Reflexivity *) trivial.
-(* Symmetry *) rewrite H; trivial.
-(* Transitivity *) rewrite H, H0; trivial.
-(* Comp is proper *) unfold Proper, respectful. simpl. intros.
+Proof.
+  split; unfold Reflexive, Symmetric, Transitive; intros.
+    (* Reflexivity *) trivial.
+    (* Symmetry *) rewrite H; trivial.
+    (* Transitivity *) rewrite H, H0; trivial.
+  (* comp is proper *) unfold Proper, respectful. simpl. intros.
     rewrite H0. f_equal. rewrite H. trivial.
-(* Category laws *) cat2. cat2. cat2.
+(* Category laws *) all:cat.
 Defined.
 
 Instance Card_Setoid : Setoid Set :=
@@ -41,21 +39,23 @@ Instance Card_Setoid : Setoid Set :=
 }.
 Proof. apply (isomorphic_equiv CoqSet). Defined.
 
-(*Theorem CoqSet_mon_inj : forall (A B : Set) (nonempty : A) (f : A -> B),
-    Mon f <-> injective f.
-unfold Mon, injective; split; intros.
-assert (H2 : (fun _ : A => a) = (fun _ => a')).
-apply H. simpl. rewrite H0. trivial. 
-apply const_fun in H2; [assumption | assumption].
-apply fn_ext. intros. apply H. generalize x.
-rewrite <- fn_ext. apply H0.
-Qed.*)
+Instance SetoidTypeEq (A : Type) : Setoid A := {| equiv := eq |}.
+
+Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (nonempty : A) (f : A -> B),
+    Mon f <-> @injective A B (SetoidTypeEq A) (SetoidTypeEq B) f.
+Proof.
+  unfold Mon, injective; simpl; split; intros.
+    change (a = a') with ((fun _ => a) a = (fun _ => a') a).
+      apply H. auto.
+    apply H. apply H0.
+Qed.
 
 (*Theorem CoqSet_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
     Sec f <-> injective f.
-split; intros.
-apply Sets_mon_inj; [assumption | apply sec_is_mon; assumption].
-unfold Sec, injective in *.
+Proof.
+  split; intros.
+    apply CoqSet_mon_inj; [assumption | apply sec_is_mon; assumption].
+    unfold Sec, injective in *.
 admit.*)
 
 Theorem CoqSet_init : @initial CoqSet Empty_set.

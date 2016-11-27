@@ -1,5 +1,7 @@
 General remarks: the Old/ branch is very outdated. The New/ branch got some new cool things (initial/terminal/product/coproduct classes and also classes for their functors), but it's hard to define new categories (tried to define Sgr here and failed miserably because of equality of proofs proof irrelevance doesn't help somehow). I should move all this stuff to the Setoid/ branch. The branch NewSetoid/ got deleted, because it was just a single broken definition. Adding an additional setoid on the objects shouldn't really help (I think), because the objects don't really matter - only the morphisms do and they have got their setoid already.
 
+Beware: the indentation should be 4 spaces!
+
 All:
 
 2. Define slice categories (possibly using records). https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
@@ -14,9 +16,5 @@ All:
 18. Define (or try to construct) the product functor.
 
 Setoid:
-1. Adjust isomorphic, uniquely isomorphic and exists to work with setoids.
-2. Fix injective, surjective and bijective to work with equiv and fix the proofs of mon_char and epi_char.
-
-General:
 
 Commit : 

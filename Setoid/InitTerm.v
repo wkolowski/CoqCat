@@ -22,35 +22,34 @@ Definition has_zero_object (C : Cat) : Prop :=
 
 Class has_init (C : Cat) : Type :=
 {
-  init : Ob C;
-  is_initial : initial init
+    init : Ob C;
+    is_initial : initial init
 }.
 
 Class has_term (C : Cat) : Type :=
 {
-  term : Ob C;
-  is_terminal : terminal term
+    term : Ob C;
+    is_terminal : terminal term
 }.
 
 Class has_zero (C : Cat) : Type :=
 {
-  zero : Ob C;
-  is_zero : zero_object zero
+    zero : Ob C;
+    is_zero : zero_object zero
 }.
 
+Hint Unfold initial terminal zero_object.
 Hint Resolve is_initial is_terminal is_zero.
 
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
     @initial C A <-> @terminal (Dual C) A.
-unfold initial, terminal; split; intros.
-unfold Hom, Dual. apply H.
-unfold Hom, Dual in H. apply H.
-Qed.
+Proof. split; auto. Qed.
 
 Theorem dual_zero_self : forall (C : Cat) (A : Ob C),
     @zero_object C A <-> @zero_object (Dual C) A.
-unfold zero_object; repeat split; intros;
-destruct H; assumption.
+Proof.
+  unfold zero_object; repeat split; intros;
+  destruct H; assumption.
 Qed.
 
 Theorem initial_ob_iso_unique : forall (C : Cat) (A B : Ob C),
