@@ -2,9 +2,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 
 Require Export Cat.
 Require Export InitTerm.
-(*Require Import BinProdCoprod.*)
-
-(*Require Import FunctionalExtensionality.*)
+Require Import BinProdCoprod.
 
 Set Universe Polymorphism.
 
@@ -39,10 +37,10 @@ Instance Card_Setoid : Setoid Set :=
 }.
 Proof. apply (isomorphic_equiv CoqSet). Defined.
 
-Instance SetoidTypeEq (A : Type) : Setoid A := {| equiv := eq |}.
-
-Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (nonempty : A) (f : A -> B),
-    Mon f <-> @injective A B (SetoidTypeEq A) (SetoidTypeEq B) f.
+(*Instance SetoidTypeEq (A : Type) : Setoid A := {| equiv := eq |}.*)
+Print Setoid.
+Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
+    Mon f <-> @injective A B {| equiv := eq |} {| equiv := eq |} f.
 Proof.
   unfold Mon, injective; simpl; split; intros.
     change (a = a') with ((fun _ => a) a = (fun _ => a') a).
@@ -76,6 +74,17 @@ Instance CoqSet_has_init : has_init CoqSet :=
 }.
 Proof. apply CoqSet_init. Defined.
 
+Instance CoqSet_has_init' : has_init' CoqSet :=
+{
+    init' := Empty_set;
+    create := fun (X : Set) (e : Empty_set) => match e with end
+}.
+Proof. simpl; intros. destruct x. Defined.
+
+Arguments create _ [has_init'] _.
+
+Eval simpl in create CoqSet unit.
+
 Instance CoqSet_has_term : has_term CoqSet :=
 {
     term := unit
@@ -84,64 +93,72 @@ Proof. apply CoqSet_term. Defined.
 
 Eval cbv in init CoqSet.
 
-
+Instance CoqSet_has_term' : has_term' CoqSet :=
+{
+    term' := unit;
+    delete := fun (X : Set) (x : X) => tt
+}.
+Proof. simpl; intros. destruct (f x). trivial. Defined.
 
 Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).
-unfold product; intros.
-exists (fun x : X => (f x, g x)). split; simpl.
-split; rewrite fn_ext; trivial.
-intros. destruct H as [f_eq g_eq].
-rewrite f_eq, g_eq, fn_ext; intro; simpl.
-rewrite surjective_pairing; trivial.
+Proof.
+  unfold product; intros.
+  exists (fun x : X => (f x, g x)). repeat split; simpl; auto.
+  intros. destruct H as [f_eq g_eq]. rewrite f_eq, g_eq.
+  rewrite surjective_pairing; trivial.
 Qed.
 
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
-unfold coproduct; intros.
-exists (
-    fun p : A + B => match p with
-        | inl a => f a
-        | inr b => g b
-    end).
-split; simpl.
-split; rewrite fn_ext; trivial.
-intros. destruct H as [f_eq g_eq].
-rewrite f_eq, g_eq, fn_ext; intro.
-destruct x; trivial.
+Proof.
+  unfold coproduct; intros.
+  exists (
+      fun p : A + B => match p with
+          | inl a => f a
+          | inr b => g b
+      end).
+  repeat split; simpl; auto.
+  intros. destruct H, x; auto.
+Qed.
+Print invertible.
+Theorem CoqSet_ret_invertible : forall (A B : Set)
+    (f : Hom A B), {g : Hom B A | g .> f = id B} ->
+    invertible {| equiv := eq |} f.
+Proof.
+  intros. red.
+    destruct H as [g H]. intro. exists (g b). simpl in *.
+    change (f (g b)) with ((fun a : B => (f (g a))) b).
+    change b with ((fun a : B => a) b) at 2.
+    rewrite H. auto.
 Qed.
 
-(*Theorem CoqSet_epi_ret : forall (A B : Set) (f : Hom A B),
-    Ret f <-> surjective f.
-unfold Ret, surjective; split; intros.
-destruct H as [g eq].
-unfold comp, CompSets in *.
+Theorem CoqSet_invertible_ret : forall (A B : Set) (f : Hom A B),
+    invertible {| equiv := eq |} f -> {g : Hom B A | g .> f == id B}.
+Proof.
+  intros. red in H.
+  exists (fun b => proj1_sig (H b)). simpl.
+  intro b. destruct (H b). simpl in *. auto.
+Qed.
 
-Focus 2.
-assert (g : B -> A). intro b. specialize (H b).
-destruct H. 
-
-
-
-Theorem Sets_epi_sur : forall (A B : Set) (nonempty : A) (f : Hom A B),
-    Epi f <-> surjective f.
-unfold Epi, surjective; split; intros.
-Print ex_intro.
-unfold comp, CompSets in H.
+(*Theorem CoqSet_epi_sur : forall (A B : Set) (nonempty : A) (f : Hom A B),
+    Epi f <-> @surjective A B {| equiv := eq |} f.
+Proof.
+  unfold Epi, surjective; split; intros. simpl in *.
+  specialize (H A (id   
 assert (H' : forall (X : Set) (g h : Hom B X),
-    (fun a : A => g (f a)) = (fun a : A => h (f a)) ->
-    (fun b : B => g b) = (fun b : B => h b)).
-intros. apply H. assumption.
-
-
-Focus 2.
+    (forall a : A, (fun a : A => g (f a)) a = (fun a : A => h (f a)) a) ->
+    forall b : B, (fun b : B => g b) b = (fun b : B => h b) b).
+    intros. apply H. auto.
+  
 apply fn_ext_axiom. intro b.
 specialize (H b). destruct H as [a H]. rewrite <- H.
 unfold comp, CompSets in H0.
 generalize a. rewrite <- fn_ext_axiom. assumption.
 Qed.*)
 
-Theorem CoqSet_counterexample1 : exists (A B C : Set) (f : Hom A B) (g : Hom B C),
+Theorem CoqSet_counterexample1 :
+    exists (A B C : Set) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ (injective g).
 exists unit, bool, unit.
 exists (fun _ => true). exists (fun _ => tt).

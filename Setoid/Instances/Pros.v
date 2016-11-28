@@ -48,7 +48,7 @@ Instance CatPros : Cat :=
 {
     Ob := Pros;
     Hom := HomPros;
-    Hom_Setoid := fun A B : Pros => {| equiv := fun f g : HomPros A B =>
+    HomSetoid := fun A B : Pros => {| equiv := fun f g : HomPros A B =>
         forall x : A, f x = g x |};
 }.
 split; auto; unfold Transitive; intros; rewrite H, H0; trivial.

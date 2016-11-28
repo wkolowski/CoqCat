@@ -28,10 +28,24 @@ Class has_init (C : Cat) : Type :=
 
 Arguments init _ [has_init].
 
+Class has_init' (C : Cat) : Type :=
+{
+    init' : Ob C;
+    create : forall X : Ob C, Hom init' X;
+    cond : forall (X : Ob C) (f : Hom init' X), f == create X
+}.
+
 Class has_term (C : Cat) : Type :=
 {
     term : Ob C;
     is_terminal : terminal term
+}.
+
+Class has_term' (C : Cat) : Type :=
+{
+    term' : Ob C;
+    delete : forall X : Ob C, Hom X term';
+    condd : forall (X : Ob C) (f : Hom X term'), f == delete X
 }.
 
 Class has_zero (C : Cat) : Type :=

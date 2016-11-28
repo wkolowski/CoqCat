@@ -26,12 +26,18 @@ Notation "f .> g" := (comp f g) (at level 50).
 Hint Unfold Ob Hom.
 
 Ltac cat_id := rewrite id_left || rewrite id_right.
+Ltac cat_split := repeat
+match goal with
+    | H : exists _, _ |- _ => destruct H
+    | H : _ /\ _ |- _ => destruct H
+    | _ => split
+end.
 Ltac cat_assoc := rewrite comp_assoc.
 Ltac cat_assoc' := rewrite <- comp_assoc.
-Ltac cat_aux := repeat (simpl || split || intros || cat_id || cat_assoc ||
-    reflexivity || auto).
-Ltac cat_aux' := repeat (simpl || split || intros || cat_id || cat_assoc' ||
-    reflexivity || auto).
+Ltac cat_aux := repeat (simpl || cat_split || intros || cat_id || cat_assoc ||
+    reflexivity || subst; eauto).
+Ltac cat_aux' := repeat (simpl || cat_split || intros || cat_id || cat_assoc' ||
+    reflexivity || subst; eauto).
 Ltac cat := cat_aux || cat_aux'.
 
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
@@ -79,6 +85,10 @@ Proof.
   apply proof_irrelevance.
 Qed.*)
 
+(*Theorem duality_principle : forall (P : Cat -> Prop),
+    (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
+Proof. trivial. Qed.*)
+
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
 Proof. trivial. Qed.
@@ -93,8 +103,10 @@ Definition Sec {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g == id A.
 Definition Ret {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f == id B.
+(*Definition Ret {C : Cat} {A B : Ob C} (f : Hom A B) : Type :=
+    {g : Hom B A | g .> f == id B}.*)
 Definition Iso {C : Cat} {A B : Ob C} (f : Hom A B ) : Prop :=
-   exists g : Hom B A, f .> g == id A /\ g .> f == id B.
+    exists g : Hom B A, f .> g == id A /\ g .> f == id B.
 Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -112,8 +124,9 @@ Qed.
 
 Theorem dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Sec C A B f <-> @Ret (Dual C) B A f.
-unfold Sec, Ret; split; intros.
-apply H. unfold Hom, comp, id, Dual in H. assumption.
+Proof.
+  unfold Sec, Ret; split; intros.
+  apply H. unfold Hom, comp, id, Dual in H. assumption.
 Qed.
 
 Theorem dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -208,6 +221,9 @@ Definition injective {A B : Type} {SA : Setoid A} {SB : Setoid B}
 
 Definition surjective {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
     forall b : B, exists a : A, f a == b.
+
+Definition invertible {A B : Type} (S : Setoid B) (f : A -> B) : Type :=
+    forall b : B, {a : A | f a == b}.
 
 Definition bijective {A B : Type} {SA : Setoid A} {SB : Setoid B}
     (f : A -> B) : Prop := injective f /\ surjective f.
@@ -388,4 +404,4 @@ Proof.
   intros; destruct f; cat.
 Defined.
 
-Print Grpd.
+(*Print Grpd.*)
