@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 
 Require Export Cat.
 Require Export InitTerm.
@@ -40,9 +40,9 @@ Proof. apply (isomorphic_equiv CoqSet). Defined.
 (*Instance SetoidTypeEq (A : Type) : Setoid A := {| equiv := eq |}.*)
 Print Setoid.
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
-    Mon f <-> @injective A B {| equiv := eq |} {| equiv := eq |} f.
+    Mon f <-> @injectiveS A B {| equiv := eq |} {| equiv := eq |} f.
 Proof.
-  unfold Mon, injective; simpl; split; intros.
+  unfold Mon, injectiveS; simpl; split; intros.
     change (a = a') with ((fun _ => a) a = (fun _ => a') a).
       apply H. auto.
     apply H. apply H0.
@@ -68,11 +68,19 @@ Proof.
   red. split; intros; auto. simpl. intro. destruct (y x). auto.
 Defined.
 
-Instance CoqSet_has_init : has_init CoqSet :=
+(*Instance CoqSet_has_init : has_init CoqSet :=
 {
     init := Empty_set
 }.
 Proof. apply CoqSet_init. Defined.
+
+Instance CoqSet_has_term : has_term CoqSet :=
+{
+    term := unit
+}.
+Proof. apply CoqSet_term. Defined.
+
+Eval cbv in init CoqSet. *)
 
 Instance CoqSet_has_init' : has_init' CoqSet :=
 {
@@ -85,20 +93,24 @@ Arguments create _ [has_init'] _.
 
 Eval simpl in create CoqSet unit.
 
-Instance CoqSet_has_term : has_term CoqSet :=
-{
-    term := unit
-}.
-Proof. apply CoqSet_term. Defined.
-
-Eval cbv in init CoqSet.
-
 Instance CoqSet_has_term' : has_term' CoqSet :=
 {
     term' := unit;
     delete := fun (X : Set) (x : X) => tt
 }.
 Proof. simpl; intros. destruct (f x). trivial. Defined.
+
+Definition is_singleton (A : Set) : Prop :=
+    exists a : A, True /\ forall (x y : A), x = y.
+
+Theorem CoqSet_terminal_ob : forall A : Set,
+    is_singleton A -> @terminal CoqSet A.
+Proof.
+  unfold is_singleton, terminal; intros.
+  destruct H as [a [_ H]]. exists (fun _ : X => a).
+  simpl; unfold unique; split; [trivial | intros].
+  simpl. intros. apply H.
+Qed.
 
 Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).
@@ -121,7 +133,7 @@ Proof.
   repeat split; simpl; auto.
   intros. destruct H, x; auto.
 Qed.
-Print invertible.
+
 Theorem CoqSet_ret_invertible : forall (A B : Set)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     invertible {| equiv := eq |} f.
@@ -160,48 +172,28 @@ Qed.*)
 Theorem CoqSet_counterexample1 :
     exists (A B C : Set) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ (injective g).
-exists unit, bool, unit.
-exists (fun _ => true). exists (fun _ => tt).
-split. simpl. unfold injective; intros; trivial.
-destruct a. destruct a'. trivial.
-unfold not, injective. intros.
-specialize (H true false).
-assert (true = false). apply H. trivial.
-discriminate H0.
+Proof.
+  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
+  unfold injective, not; simpl; split; intros.
+    destruct x, y; auto.
+    specialize (H true false eq_refl). discriminate H.
 Qed.
 
-Theorem CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B) (g : Hom B C),
-    surjective (f .> g) /\ ~ (surjective f).
-exists unit, bool, unit.
-exists (fun _ => true). exists (fun _ => tt).
-split. simpl. unfold surjective. intro. exists tt.
-destruct b. trivial.
-unfold not, surjective. intro.
-specialize (H false). inversion H.
-discriminate H0.
+Theorem CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
+    (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
+Proof.
+  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
+  unfold surjective, not; simpl; split; intros.
+    exists tt. destruct b. auto.
+    destruct (H false). inversion H0.
 Qed.
 
-(*Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B)
-    (nonempty : A), Iso f <-> bijective f.
-(*unfold bijective, injective, surjective;*) split; intros.
-split; intros. rewrite iso_iff_sec_ret in H.
-destruct H as [H1 H2]. apply sec_is_mon in H1.
-rewrite Sets_mon_inj in H1. assumption. assumption.
-Focus 2.
-rewrite iso_iff_sec_ret. split.
-destruct H as [a b]. unfold injective, surjective in *.*)
-
-(*  Most likely there's no initial object in the category Sets, because there are
-    no functions from the empty set to itself. *)
-
-Definition is_singleton (A : Set) : Prop :=
-    exists a : A, True /\ forall (x y : A), x = y.
-
-(* Beware: requires function extensionality. *)
-Theorem CoqSet_terminal_ob : forall A : Set,
-    is_singleton A -> @terminal CoqSet A.
-unfold is_singleton, terminal; intros.
-destruct H as [a [_ H]]. exists (fun _ : X => a).
-simpl; unfold unique; split; [trivial | intros].
-rewrite fn_ext. intros. apply H.
-Qed.
+(* It's time to change all this shirt to be constructive and proof-relevant.
+Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B)
+    (nonempty : A), Iso f -> injective f * invertible {| equiv := eq |} f.
+Proof.
+  unfold injective, invertible, Iso; simpl; intros. split.
+    destruct H as [g [H1 H2]]. intros. rewrite <- (H1 x), <- (H1 y).
+      rewrite H. auto.
+    destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
+    destruct H as [H1 H2]. exists (fun _ => nonempty). simpl.*)

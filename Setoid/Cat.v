@@ -23,8 +23,6 @@ Arguments Ob _ : clear implicits.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
-Hint Unfold Ob Hom.
-
 Ltac cat_id := rewrite id_left || rewrite id_right.
 Ltac cat_split := repeat
 match goal with
@@ -73,17 +71,11 @@ split; unfold HomSetoid, Reflexive, Symmetric, Transitive; intros.
 (* Transitivity *) rewrite H, H0; reflexivity.
 (* Comp is proper *) unfold Proper, respectful; simpl; intros.
     destruct C. rewrite H, H0. reflexivity.
-(* Wut *) (*unfold Proper, respectful, Basics.flip, Basics.impl.
-    simpl. intros. rewrite H, H0, H1. reflexivity.*)
-(* Category laws *) cat. cat. cat.
+(* Category laws *) all: cat.
 Defined.
 
 (*Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
-Proof.
-  unfold Dual; intros. destruct C; simpl.
-  f_equal; try apply proof_irrelevance. intros.
-  apply proof_irrelevance.
-Qed.*)
+Proof.*)
 
 (*Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
@@ -111,15 +103,17 @@ Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.
-unfold Mon, Epi; split; intros.
-apply H. unfold comp, Dual in H0. assumption.
-apply H. unfold comp, Dual. assumption.
+Proof.
+  unfold Mon, Epi; split; intros.
+    apply H. unfold comp, Dual in H0. assumption.
+    apply H. unfold comp, Dual. assumption.
 Qed.
 
 Theorem dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Bim C A B f <-> @Bim (Dual C) B A f.
-intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
-repeat split; destruct H; assumption.
+Proof.
+  intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
+  repeat split; destruct H; assumption.
 Qed.
 
 Theorem dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -131,8 +125,9 @@ Qed.
 
 Theorem dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Iso C A B f <-> @Iso (Dual C) B A f.
-unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
-exists g; split; assumption.
+Proof.
+  unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
+  exists g; split; assumption.
 Qed.
 
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
@@ -145,7 +140,7 @@ Definition isomorphic {C : Cat} (A B : Ob C) :=
     exists f : Hom A B, Iso f.
 
 Definition uniquely_isomorphic {C : Cat} (A B : Ob C) :=
-    exists!! f : Hom A B, Iso f. (* /\ forall g : Hom A B, Iso g -> f == g.*)
+    exists!! f : Hom A B, Iso f.
 
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
@@ -157,8 +152,8 @@ unfold uniquely_isomorphic, isomorphic.
 intros. destruct H as [f [H _]]. exists f; apply H.
 Qed.
 
-Definition balanced `(C : Cat) : Prop :=
-    forall (A B : Ob C) (f : Hom A B), Bim f -> Iso f.
+(*Definition balanced `(C : Cat) : Prop :=
+    forall (A B : Ob C) (f : Hom A B), Bim f -> Iso f.*)
 
 (* The identity is unique. *)
 Theorem id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
@@ -215,32 +210,42 @@ Qed.
     | H : Iso ?f |- ?f .> ?g == ?f .> ?g => destruct H
 end.*)
 
-(* Kinds of ordinary functions. *)
-Definition injective {A B : Type} {SA : Setoid A} {SB : Setoid B}
+(* Kinds of ordinary functions. The suffix "S" at the end of some
+   of these stands for "Setoid". *)
+Definition injective {A B : Type} (f : A -> B) : Prop :=
+    forall x y : A, f x = f y -> x = y.
+
+Definition surjective {A B : Type} (f : A -> B) : Prop :=
+    forall b : B, exists a : A, f a = b.
+
+Definition bijective {A B : Type} (f : A -> B) : Prop :=
+    injective f /\ surjective f.
+
+Definition injectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
     (f : A -> B) : Prop := forall a a' : A, f a == f a' -> a == a'.
 
-Definition surjective {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
+Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
     forall b : B, exists a : A, f a == b.
+
+Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
+    (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
 
 Definition invertible {A B : Type} (S : Setoid B) (f : A -> B) : Type :=
     forall b : B, {a : A | f a == b}.
 
-Definition bijective {A B : Type} {SA : Setoid A} {SB : Setoid B}
-    (f : A -> B) : Prop := injective f /\ surjective f.
-
 (* Characterizations. *)
 Theorem mon_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
-    Mon f <-> forall X : Ob C, injective (fun g : Hom X A => g .> f).
+    Mon f <-> forall X : Ob C, injectiveS (fun g : Hom X A => g .> f).
 Proof.
-  unfold Mon, injective; split; intros.
+  unfold Mon, injectiveS; split; intros.
     apply H. assumption.
     apply H. assumption.
 Qed.
 
 Theorem epi_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
-    Epi f <-> forall X : Ob C, injective (fun g : Hom B X => f .> g).
+    Epi f <-> forall X : Ob C, injectiveS (fun g : Hom B X => f .> g).
 Proof.
-  unfold Epi, injective; split; intros; apply H; assumption.
+  unfold Epi, injectiveS; split; intros; apply H; assumption.
 Qed.
 
 Theorem iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),

@@ -11,42 +11,25 @@ Definition terminal {C : Cat} (T : Ob C) : Prop :=
 Definition zero_object {C : Cat} (Z : Ob C) : Prop :=
     initial Z /\ terminal Z.
 
-Definition has_initial_object (C : Cat) : Prop :=
-    exists I : Ob C, initial I.
-
-Definition has_terminal_object (C : Cat) : Prop :=
-    exists T : Ob C, terminal T.
-
-Definition has_zero_object (C : Cat) : Prop :=
-    exists Z : Ob C, zero_object Z.
-
 Class has_init (C : Cat) : Type :=
 {
     init : Ob C;
-    is_initial : initial init
+    create : forall X : Ob C, Hom init X;
+    cond : forall (X : Ob C) (f : Hom init X), f == create X
 }.
 
 Arguments init _ [has_init].
-
-Class has_init' (C : Cat) : Type :=
-{
-    init' : Ob C;
-    create : forall X : Ob C, Hom init' X;
-    cond : forall (X : Ob C) (f : Hom init' X), f == create X
-}.
+Arguments create [C] [has_init] _.
 
 Class has_term (C : Cat) : Type :=
 {
     term : Ob C;
-    is_terminal : terminal term
+    delete : forall X : Ob C, Hom X term;
+    condd : forall (X : Ob C) (f : Hom X term), f == delete X
 }.
 
-Class has_term' (C : Cat) : Type :=
-{
-    term' : Ob C;
-    delete : forall X : Ob C, Hom X term';
-    condd : forall (X : Ob C) (f : Hom X term'), f == delete X
-}.
+Arguments term _ [has_term].
+Arguments delete [C] [has_term] _.
 
 Class has_zero (C : Cat) : Type :=
 {
@@ -55,7 +38,7 @@ Class has_zero (C : Cat) : Type :=
 }.
 
 Hint Unfold initial terminal zero_object.
-Hint Resolve is_initial is_terminal is_zero.
+Hint Resolve is_zero.
 
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
     @initial C A <-> @terminal (Dual C) A.

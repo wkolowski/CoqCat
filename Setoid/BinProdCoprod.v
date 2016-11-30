@@ -1,8 +1,6 @@
 Require Export Cat.
 Require Export Functor.
 
-Open Scope type_scope.
-
 Set Universe Polymorphism.
 
 Definition product (C : Cat) {A B : Ob C} (P : Ob C) (p1 : Hom P A)
@@ -13,11 +11,11 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob C) (f : Hom A X) (g : Hom B X),
     exists!! u : Hom P X, f == iA .> u /\ g == iB .> u.
 
-Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob C),
+(*Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob C),
     exists (P : Ob C) (pA : Hom P A) (pB : Hom P B), product C P pA pB.
 
 Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob C),
-    exists (P : Ob C) (iA : Hom A P) (iB : Hom B P), coproduct C P iA iB.
+    exists (P : Ob C) (iA : Hom A P) (iB : Hom B P), coproduct C P iA iB.*)
 
 Class has_products (C : Cat) : Type :=
 {
@@ -29,7 +27,7 @@ Class has_products (C : Cat) : Type :=
 
 Definition ProdCatHom {C : Cat} (A B : Ob C * Ob C) :=
     prod (Hom (fst A) (fst B)) (Hom (snd A) (snd B)).
-Print equiv.
+
 Definition ProdCatSetoid {C : Cat} (A B : Ob C * Ob C)
     : Setoid (ProdCatHom A B).
 refine
