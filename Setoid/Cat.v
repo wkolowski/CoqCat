@@ -23,19 +23,35 @@ Arguments Ob _ : clear implicits.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
-Ltac cat_id := rewrite id_left || rewrite id_right.
+(* Moved here so that tactics work *)
+Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
+    : Prop := P x /\  (forall y : A, P y -> x == y).
+
+Notation "'exists' !! x : A , P" :=
+    (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
+
+Ltac cat_simpl := match goal with
+    | |- context [id _] =>
+        try rewrite id_left; try rewrite id_right
+    | H : context [id _] |- _ =>
+        try rewrite id_left in H; try rewrite id_right in H
+    | H : context [setoid_unique] |- _ => red in H
+    | _ => simpl in *
+end.
 Ltac cat_split := repeat
 match goal with
-    | H : exists _, _ |- _ => destruct H
     | H : _ /\ _ |- _ => destruct H
+    | H : exists _, _ |- _ => destruct H
+    | H : exists! _, _ |- _ => destruct H
+    | H : exists!! _ : _, _ |- _ => destruct H
     | _ => split
 end.
 Ltac cat_assoc := rewrite comp_assoc.
 Ltac cat_assoc' := rewrite <- comp_assoc.
-Ltac cat_aux := repeat (simpl || cat_split || intros || cat_id || cat_assoc ||
-    reflexivity || subst; eauto).
-Ltac cat_aux' := repeat (simpl || cat_split || intros || cat_id || cat_assoc' ||
-    reflexivity || subst; eauto).
+Ltac cat_aux := repeat (simpl || cat_split || intros || cat_simpl || cat_assoc ||
+    reflexivity || subst; eauto 10).
+Ltac cat_aux' := repeat (simpl || cat_split || intros || cat_simpl || cat_assoc' ||
+    reflexivity || subst; eauto 10).
 Ltac cat := cat_aux || cat_aux'.
 
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
@@ -65,21 +81,21 @@ Instance Dual (C : Cat) : Cat :=
     comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
     id := @id C
 |}.
-split; unfold HomSetoid, Reflexive, Symmetric, Transitive; intros.
-(* Reflexivity *) reflexivity.
-(* Symmetry *) rewrite H; reflexivity.
-(* Transitivity *) rewrite H, H0; reflexivity.
-(* Comp is proper *) unfold Proper, respectful; simpl; intros.
+Proof.
+  (* Equivalence *)
+  split; unfold HomSetoid, Reflexive, Symmetric, Transitive;intros.
+    (* Reflexivity *) reflexivity.
+    (* Symmetry *) rewrite H; reflexivity.
+    (* Transitivity *) rewrite H, H0; reflexivity.
+  (* Comp is proper *) unfold Proper, respectful; simpl; intros.
     destruct C. rewrite H, H0. reflexivity.
-(* Category laws *) all: cat.
+  (* Category laws *) all: cat.
 Defined.
 
 (*Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
-Proof.*)
-
-(*Theorem duality_principle : forall (P : Cat -> Prop),
-    (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
-Proof. trivial. Qed.*)
+Proof.
+  unfold Dual; destruct C; simpl; f_equal.
+    intros. *)
 
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
@@ -107,6 +123,8 @@ Proof.
   unfold Mon, Epi; split; intros.
     apply H. unfold comp, Dual in H0. assumption.
     apply H. unfold comp, Dual. assumption.
+Restart.
+  cat.
 Qed.
 
 Theorem dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -114,6 +132,8 @@ Theorem dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
 Proof.
   intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
   repeat split; destruct H; assumption.
+Restart.
+  unfold Bim; cat.
 Qed.
 
 Theorem dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -121,6 +141,8 @@ Theorem dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
 Proof.
   unfold Sec, Ret; split; intros.
   apply H. unfold Hom, comp, id, Dual in H. assumption.
+Restart.
+  cat.
 Qed.
 
 Theorem dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -128,13 +150,9 @@ Theorem dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
 Proof.
   unfold Iso; split; intros; destruct H as [g [eq1 eq2]];
   exists g; split; assumption.
+Restart.
+  unfold Iso; cat.
 Qed.
-
-Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
-    : Prop := P x /\  (forall y : A, P y -> x == y).
-
-Notation "'exists' !! x : A , P" :=
-    (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
 
 Definition isomorphic {C : Cat} (A B : Ob C) :=
     exists f : Hom A B, Iso f.
@@ -148,37 +166,40 @@ Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 Hint Unfold isomorphic uniquely_isomorphic setoid_unique.
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
-unfold uniquely_isomorphic, isomorphic.
-intros. destruct H as [f [H _]]. exists f; apply H.
+Proof.
+  unfold uniquely_isomorphic, isomorphic.
+  intros. destruct H as [f [H _]]. exists f; apply H.
+Restart.
+  unfold uniquely_isomorphic, isomorphic; cat.
 Qed.
-
-(*Definition balanced `(C : Cat) : Prop :=
-    forall (A B : Ob C) (f : Hom A B), Bim f -> Iso f.*)
 
 (* The identity is unique. *)
 Theorem id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
     (forall (B : Ob C) (f : Hom A B), idA .> f == f) -> idA == id A.
-intros.
-assert (eq1 : idA .> (id A) == id A). apply H.
-assert (eq2 : idA .> (id A) == idA). cat.
-rewrite <- eq1, eq2; reflexivity.
+Proof.
+  intros.
+  assert (eq1 : idA .> (id A) == id A). apply H.
+  assert (eq2 : idA .> (id A) == idA). cat.
+  rewrite <- eq1, eq2; reflexivity.
 Qed.
 
 Theorem id_unique_right : forall (C : Cat) (B : Ob C) (idB : Hom B B),
     (forall (A : Ob C) (f : Hom A B), f .> idB == f) -> idB == id B.
-intros.
-assert (eq1 : id B .> idB == id B). apply H.
-assert (eq2 : id B .> idB == idB); cat.
-rewrite <- eq1, eq2; reflexivity.
+Proof.
+  intros.
+  assert (eq1 : id B .> idB == id B). apply H.
+  assert (eq2 : id B .> idB == idB); cat.
+  rewrite <- eq1, eq2; reflexivity.
 Qed.
 
 (* Relations between different types of morphisms. *)
 Theorem sec_is_mon : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Sec f -> Mon f.
-intros. unfold Sec, Mon in *. intros X h1 h2 eq. destruct H as (g, H).
-assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g). rewrite eq; reflexivity.
-rewrite comp_assoc, comp_assoc in eq2. rewrite H in eq2.
-rewrite id_right, id_right in eq2. assumption.
+Proof.
+  intros; unfold Sec, Mon in *; intros X h1 h2 eq. destruct H as (g, H).
+    assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g). rewrite eq; reflexivity.
+  rewrite comp_assoc, comp_assoc in eq2. rewrite H in eq2.
+  rewrite id_right, id_right in eq2. assumption.
 Qed.
 
 Theorem ret_is_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -191,14 +212,18 @@ Qed.
 
 Theorem iso_is_sec : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f -> Sec f.
-unfold Iso, Sec; intros. destruct H as [g [eq1 eq2]].
-exists g; assumption.
+Proof.
+  unfold Iso, Sec; intros. destruct H as [g [eq1 eq2]]. exists g; assumption.
+Restart.
+  unfold Iso, Sec; cat.
 Qed.
 
 Theorem iso_is_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f -> Ret f.
-unfold Iso, Ret; intros. destruct H as [g [eq1 eq2]].
-exists g; assumption.
+Proof.
+  unfold Iso, Ret; intros. destruct H as [g [eq1 eq2]]. exists g; assumption.
+Restart.
+  unfold Iso, Ret; cat.
 Qed.
 
 (*Ltac simpl_mor := cat; match goal with
@@ -240,23 +265,26 @@ Proof.
   unfold Mon, injectiveS; split; intros.
     apply H. assumption.
     apply H. assumption.
+Restart.
+  cat.
 Qed.
 
 Theorem epi_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Epi f <-> forall X : Ob C, injectiveS (fun g : Hom B X => f .> g).
-Proof.
-  unfold Epi, injectiveS; split; intros; apply H; assumption.
-Qed.
+Proof. cat. Qed.
 
 Theorem iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Sec f /\ Ret f.
 Proof.
+  Hint Resolve iso_is_sec iso_is_ret.
+  cat.
+Restart.
   split; intros.
     split.
       apply iso_is_sec; auto.
       apply iso_is_ret; auto.
     destruct H as [[g f_sec] [h f_ret]].
-      assert (eq1 : h .> f .> g == h). cat. rewrite f_sec. cat.
+      assert (eq1 : h .> f .> g == h). rewrite comp_assoc. rewrite f_sec. cat.
       assert (eq2 : h .> f .> g == g). rewrite f_ret; cat.
       assert (eq : g == h). rewrite <- eq1, eq2. reflexivity.
       exists g. split. assumption. rewrite eq. assumption.
@@ -305,28 +333,38 @@ destruct H0.
 (* Composition theorems. *)
 Theorem mon_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
     Mon f -> Mon g -> Mon (f .> g).
-unfold Mon. intros cat A B C f g f_mon g_mon X h1 h2 H.
-apply f_mon, g_mon. cat.
+Proof.
+  unfold Mon. intros cat A B C f g f_mon g_mon X h1 h2 H.
+  apply f_mon, g_mon. cat.
+Restart.
+  unfold Mon. cat. apply H, H0. cat.
 Qed.
 
 Theorem epi_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
     Epi f -> Epi g -> Epi (f .> g).
-unfold Epi; intros cat A B C f g f_epi g_epi X h1 h2 H.
-apply g_epi, f_epi. cat.
+Proof.
+  unfold Epi; intros cat A B C f g f_epi g_epi X h1 h2 H.
+  apply g_epi, f_epi. cat.
 Qed.
+
+Hint Resolve mon_comp epi_comp.
 
 Theorem bim_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
     Bim f -> Bim g -> Bim (f .> g).
-unfold Bim; intros. destruct H, H0.
-split; [apply mon_comp; assumption | apply epi_comp; assumption].
+Proof.
+  unfold Bim; intros. destruct H, H0.
+  split; [apply mon_comp; assumption | apply epi_comp; assumption].
+Restart.
+  unfold Bim; cat.
 Qed.
 
 Theorem sec_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
     Sec f -> Sec g -> Sec (f .> g).
-intros. unfold Sec in *. destruct H0 as (h1, eq1). destruct H as (h2, eq2). 
-exists (h1 .> h2). rewrite comp_assoc.
-assert (HComp : g .> (h1 .> h2) == (g .> h1) .> h2). cat.
-rewrite HComp. rewrite eq1. cat.
+Proof.
+  intros. unfold Sec in *. destruct H0 as (h1, eq1), H as (h2, eq2). 
+  exists (h1 .> h2). rewrite comp_assoc.
+    assert (HComp : g .> (h1 .> h2) == (g .> h1) .> h2). cat.
+  rewrite HComp. rewrite eq1. cat.
 Qed.
 
 Theorem ret_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
@@ -345,16 +383,18 @@ apply iso_iff_sec_ret in H0. destruct H0 as (g_sec, g_ret).
 split; [apply sec_comp; assumption | apply ret_comp; assumption].
 Qed.
 
+Hint Resolve iso_comp.
+
 Theorem aut_comp : forall (cat : Cat) (A : Ob cat) (f : Hom A A) (g : Hom A A),
     Aut f -> Aut g -> Aut (f .> g).
-intros; apply iso_comp; assumption.
-Qed.
+Proof. unfold Aut; cat. Qed.
 
 (* Composition properties. *)
 Theorem mon_prop : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
     Mon (f .> g) -> Mon f.
-unfold Mon; intros. apply H.
-repeat rewrite <- comp_assoc. rewrite H0. reflexivity.
+Proof.
+  unfold Mon; intros. apply H. repeat rewrite <- comp_assoc.
+  rewrite H0. reflexivity.
 Qed.
 
 Theorem epi_prop : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
@@ -380,14 +420,12 @@ unfold Aut, Iso; intros; exists (id A); cat.
 Qed.
 
 Instance isomorphic_equiv (cat : Cat) : Equivalence isomorphic.
-split.
-(*Case "Reflexivity".*) unfold Reflexive. intro A. unfold isomorphic.
-    exists (id A). apply id_is_aut.
-(*Case "Symmetry".*) unfold Symmetric. intros A B iso.
-    destruct iso as [f [g [eq1 eq2]]]. unfold isomorphic. exists g.
-    unfold Iso. exists f; split; assumption.
-(*Case "Transitivity".*) unfold Transitive. intros A B C H H'.
-    destruct H as [f f_iso], H' as [g g_iso]. unfold isomorphic.
+Proof.
+  split; do 2 red; intros.
+  (* Reflexivity *) exists (id x). apply id_is_aut.
+  (* Symmetry *) destruct H as [f [g [eq1 eq2]]]. unfold Iso.
+    exists g, f; auto.
+  (* Transitivity *) destruct H as [f f_iso], H0 as [g g_iso].
     exists (f .> g). apply iso_comp; assumption.
 Defined.
 

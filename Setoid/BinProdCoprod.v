@@ -22,7 +22,8 @@ Class has_products (C : Cat) : Type :=
     prod' : Ob C -> Ob C -> Ob C;
     proj1' : forall A B : Ob C, Hom (prod' A B) A;
     proj2' : forall A B : Ob C, Hom (prod' A B) B;
-    is_prod : forall A B : Ob C, product C (prod' A B) (proj1' A B) (proj2' A B)
+    is_prod : forall A B : Ob C,
+        product C (prod' A B) (proj1' A B) (proj2' A B)
 }.
 
 Definition ProdCatHom {C : Cat} (A B : Ob C * Ob C) :=
@@ -61,8 +62,7 @@ Proof.
     destruct x, x0, y, y0; split; simpl in *; destruct H, H0;
       try rewrite H; try rewrite H0; try rewrite H1; try rewrite H2;
         reflexivity.
-(* Category axioms *)
-  all: cat.
+(* Category axioms *) all: cat.
 Defined.
 
 (*Instance CAT_prod : has_products CAT :=
@@ -75,15 +75,15 @@ Class has_prod_functor (C : Cat) : Type :=
   prod_functor : Functor (CAT_prod C) C;
   proj1'' : forall A B : Ob C, Hom (prod_functor (A, B)) A;
   proj2'' : forall A B : Ob C, Hom (prod_functor (A, B)) B;
-  is_prod' : forall A B : @Ob C,
+  is_prod' : forall A B : Ob C,
     product C (@fob (CAT_prod C) C prod_functor (A, B))
     (proj1'' A B) (proj2'' A B)
 }.
-Print fmap.
+
 Arguments fmap [C] [D] _ [A] [B] _.
-Print fmap.
+
 Notation "A × B" := (prod_functor (A, B)) (at level 40).
-Notation "f ×' g" := (fmap prod_functor f g) (at level 40). (* (fmap (f, g)) (at level 40).*)
+Notation "f ×' g" := (fmap prod_functor f g) (at level 40).
 
 Class has_coproducts (C : Cat) : Type := 
 {
@@ -94,35 +94,40 @@ Class has_coproducts (C : Cat) : Type :=
     coproduct C (coprod A B) (coproj1 A B) (coproj2 A B)
 }.
 
-(*Definition has_finite_products (C : Cat) : Prop :=
-    has_terminal_object C /\ has_binary_products C.
-
-Definition has_finite_coproducts (C : Cat) : Prop :=
-    has_initial_object C /\ has_binary_coproducts C.*)
-
 Theorem dual_product_coproduct : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
     coproduct (Dual C) P pA pB.
-unfold product, coproduct; split; intros.
-unfold Hom, Dual. apply H.
-unfold Hom, Dual in H. apply H.
+Proof.
+  unfold product, coproduct; split; intros.
+  unfold Hom, Dual. apply H.
+  unfold Hom, Dual in H. apply H.
+Restart.
+  cat.
 Qed.
 
 Theorem product_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (pA : Hom P A)
     (pB : Hom P B), product C P pA pB -> product C P pB pA.
-unfold product in *; intros.
-destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
-exists u. split.
-(*Case "Universal property".*) split; assumption.
-(*Case "Uniquenes".*) intros. apply uniq. destruct H; split; assumption.
+Proof.
+  unfold product in *; intros.
+  destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
+  exists u. split.
+    (* Universal property *) split; assumption.
+    (* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
+Restart.
+  unfold product in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
+  exists u. cat.
 Qed.
 
 Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
     (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
-unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
-exists u. split.
-(* Universal property *) split; assumption.
-(* Uniqueness *) intros. apply uniq. destruct H0; split; assumption.
+Proof.
+  unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
+  exists u. split.
+    (* Universal property *) split; assumption.
+    (* Uniqueness *) intros. apply uniq. destruct H0; split; assumption.
+Restart.
+  unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
+  exists u. cat.
 Qed.
 (*Restart.
 intro C. rewrite <- (dual_involution C). intros.

@@ -6,12 +6,6 @@ Require Import BinProdCoprod.
 
 Set Universe Polymorphism.
 
-(*Lemma const_fun : forall (A B : Set) (nonempty : A) (b b' : B),
-    b = b' <-> (fun _ : A => b) = (fun _ : A => b').
-split; intros. rewrite H; trivial.
-rewrite fn_ext in H. apply H. assumption.
-Qed.*)
-
 Instance CoqSet : Cat :=
 {|
     Ob := Set;
@@ -26,9 +20,9 @@ Proof.
     (* Reflexivity *) trivial.
     (* Symmetry *) rewrite H; trivial.
     (* Transitivity *) rewrite H, H0; trivial.
-  (* comp is proper *) unfold Proper, respectful. simpl. intros.
+  (* Composition is proper *) unfold Proper, respectful. simpl. intros.
     rewrite H0. f_equal. rewrite H. trivial.
-(* Category laws *) all:cat.
+  (* Category laws *) all:cat.
 Defined.
 
 Instance Card_Setoid : Setoid Set :=
@@ -37,8 +31,6 @@ Instance Card_Setoid : Setoid Set :=
 }.
 Proof. apply (isomorphic_equiv CoqSet). Defined.
 
-(*Instance SetoidTypeEq (A : Type) : Setoid A := {| equiv := eq |}.*)
-Print Setoid.
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> @injectiveS A B {| equiv := eq |} {| equiv := eq |} f.
 Proof.
@@ -68,34 +60,18 @@ Proof.
   red. split; intros; auto. simpl. intro. destruct (y x). auto.
 Defined.
 
-(*Instance CoqSet_has_init : has_init CoqSet :=
+Instance CoqSet_has_init : has_init CoqSet :=
 {
-    init := Empty_set
-}.
-Proof. apply CoqSet_init. Defined.
-
-Instance CoqSet_has_term : has_term CoqSet :=
-{
-    term := unit
-}.
-Proof. apply CoqSet_term. Defined.
-
-Eval cbv in init CoqSet. *)
-
-Instance CoqSet_has_init' : has_init' CoqSet :=
-{
-    init' := Empty_set;
+    init := Empty_set;
     create := fun (X : Set) (e : Empty_set) => match e with end
 }.
 Proof. simpl; intros. destruct x. Defined.
 
-Arguments create _ [has_init'] _.
-
 Eval simpl in create CoqSet unit.
 
-Instance CoqSet_has_term' : has_term' CoqSet :=
+Instance CoqSet_has_term : has_term CoqSet :=
 {
-    term' := unit;
+    term := unit;
     delete := fun (X : Set) (x : X) => tt
 }.
 Proof. simpl; intros. destruct (f x). trivial. Defined.
@@ -119,6 +95,10 @@ Proof.
   exists (fun x : X => (f x, g x)). repeat split; simpl; auto.
   intros. destruct H as [f_eq g_eq]. rewrite f_eq, g_eq.
   rewrite surjective_pairing; trivial.
+Restart.
+  unfold product; intros.
+  exists (fun x : X => (f x, g x)). cat.
+  rewrite H, H0, surjective_pairing. auto.
 Qed.
 
 Theorem CoqSet_coprod : forall (A B : Set),
@@ -132,6 +112,14 @@ Proof.
       end).
   repeat split; simpl; auto.
   intros. destruct H, x; auto.
+Restart.
+  unfold coproduct; intros.
+  exists (
+      fun p : A + B => match p with
+          | inl a => f a
+          | inr b => g b
+      end).
+  cat. destruct x; auto.
 Qed.
 
 Theorem CoqSet_ret_invertible : forall (A B : Set)

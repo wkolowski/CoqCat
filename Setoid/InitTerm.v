@@ -19,7 +19,7 @@ Class has_init (C : Cat) : Type :=
 }.
 
 Arguments init _ [has_init].
-Arguments create [C] [has_init] _.
+Arguments create _ [has_init] _.
 
 Class has_term (C : Cat) : Type :=
 {
@@ -29,7 +29,7 @@ Class has_term (C : Cat) : Type :=
 }.
 
 Arguments term _ [has_term].
-Arguments delete [C] [has_term] _.
+Arguments delete _ [has_term] _.
 
 Class has_zero (C : Cat) : Type :=
 {

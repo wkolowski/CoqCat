@@ -4,8 +4,6 @@ Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Print Setoid.
-
 Instance Rel : Cat :=
 {|
     Ob := Set;
@@ -32,16 +30,16 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Instance Rel_has_init' : has_init' Rel :=
+Instance Rel_has_init : has_init Rel :=
 {
-    init' := Empty_set;
+    init := Empty_set;
     create := fun (X : Set) (e : Empty_set) (x : X) => match e with end
 }.
 Proof. split; intros; destruct a. Defined.
 
-Instance Rel_has_term' : has_term' Rel :=
+Instance Rel_has_term : has_term Rel :=
 {
-    term' := Empty_set;
+    term := Empty_set;
     delete := fun (X : Set) (x : X) (e : Empty_set) => match e with end
 }.
 Proof. split; intros. destruct b. destruct b. Defined.
@@ -56,8 +54,13 @@ Proof.
       repeat (red || split || intros). all: try destruct a.
     exists (fun _ (e : Empty_set) => match e with end).
       repeat (red || split || intros). all: try destruct b.
+Restart.
+  repeat (red || split); simpl; intros.
+    exists (fun (e : Empty_set) _ => match e with end).
+      cat; destruct a.
+    exists (fun _ (e : Empty_set) => match e with end).
+      cat; destruct b.
 Defined.
-Print product.
 
 Inductive relprod (A B : Set) : Type :=
     | inl' : A -> relprod A B
