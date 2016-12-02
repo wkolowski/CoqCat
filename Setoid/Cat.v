@@ -40,6 +40,12 @@ Ltac cat_simpl := match goal with
 end.
 Ltac cat_split := repeat
 match goal with
+    | H : False |- _ => inversion H
+    | e : Empty_set |- _ => inversion e
+    | x : unit |- _ => destruct x
+    | x : True |- _ => destruct x
+    | H : forall _ : unit, _ |- _ => specialize (H tt)
+    | H : forall _ : True, _ |- _ => specialize (H I)
     | H : _ /\ _ |- _ => destruct H
     | H : exists _, _ |- _ => destruct H
     | H : exists! _, _ |- _ => destruct H

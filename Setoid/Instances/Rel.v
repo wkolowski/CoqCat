@@ -35,31 +35,23 @@ Instance Rel_has_init : has_init Rel :=
     init := Empty_set;
     create := fun (X : Set) (e : Empty_set) (x : X) => match e with end
 }.
-Proof. split; intros; destruct a. Defined.
+Proof. cat. Defined.
 
 Instance Rel_has_term : has_term Rel :=
 {
     term := Empty_set;
     delete := fun (X : Set) (x : X) (e : Empty_set) => match e with end
 }.
-Proof. split; intros. destruct b. destruct b. Defined.
+Proof. cat. Defined.
 
 Instance Rel_has_zero : has_zero Rel :=
 {
     zero := Empty_set
 }.
 Proof.
-  repeat (red || split); simpl; intros.
-    exists (fun (e : Empty_set) _ => match e with end).
-      repeat (red || split || intros). all: try destruct a.
-    exists (fun _ (e : Empty_set) => match e with end).
-      repeat (red || split || intros). all: try destruct b.
-Restart.
-  repeat (red || split); simpl; intros.
-    exists (fun (e : Empty_set) _ => match e with end).
-      cat; destruct a.
-    exists (fun _ (e : Empty_set) => match e with end).
-      cat; destruct b.
+  unfold zero_object, initial, terminal; cat.
+    exists (fun (e : Empty_set) _ => match e with end). cat.
+    exists (fun _ (e : Empty_set) => match e with end). cat.
 Defined.
 
 Inductive relprod (A B : Set) : Type :=

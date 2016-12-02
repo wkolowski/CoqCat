@@ -11,12 +11,6 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob C) (f : Hom A X) (g : Hom B X),
     exists!! u : Hom P X, f == iA .> u /\ g == iB .> u.
 
-(*Definition has_binary_products (C : Cat) : Prop := forall (A B : Ob C),
-    exists (P : Ob C) (pA : Hom P A) (pB : Hom P B), product C P pA pB.
-
-Definition has_binary_coproducts (C : Cat) : Prop := forall (A B : Ob C),
-    exists (P : Ob C) (iA : Hom A P) (iB : Hom B P), coproduct C P iA iB.*)
-
 Class has_products (C : Cat) : Type :=
 {
     prod' : Ob C -> Ob C -> Ob C;
@@ -121,26 +115,16 @@ Qed.
 Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
     (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
 Proof.
-  unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
-  exists u. split.
-    (* Universal property *) split; assumption.
-    (* Uniqueness *) intros. apply uniq. destruct H0; split; assumption.
-Restart.
-  unfold coproduct in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
-  exists u. cat.
+  unfold coproduct; intros. destruct (H X g f). eexists; cat.
 Qed.
-(*Restart.
-intro C. rewrite <- (dual_involution C). intros.
-rewrite <- (dual_product_coproduct (Dual C)) in *.
-apply product_comm. assumption.*)
 
 (*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product
     definition. In case of the big product, this is not needed. *)
 Theorem proj_ret : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (f : Hom A B), product C P pA pB -> Ret pA.
 Proof.
-  unfold product, Ret in *; intros.
-  destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]); clear H.
+  unfold product, Ret; intros.
+  edestruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
   exists u. rewrite eq1. reflexivity.
 Qed.
 
@@ -152,12 +136,6 @@ Proof.
   destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
   exists u. rewrite eq1. reflexivity.
 Qed.
-(* The Dual doesn't work
-intros C. rewrite <- (dual_involution C). intros.
-simpl in iA, iB. rewrite dual_sec_ret.
-rewrite <- dual_product_coproduct in H.
-apply proj_ret in H; assumption.
-Qed.*)
 
 Theorem product_iso_unique : forall (C : Cat) (A B : Ob C) (P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (Q : Ob C) (qA : Hom Q A) (qB : Hom Q B),
@@ -184,32 +162,34 @@ Qed.
 Theorem iso_prod : forall (C' : Cat) (A B C D P Q : Ob C') (pA : Hom P A)
     (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
     A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
-intros.
-unfold product, isomorphic in *.
-destruct H as (f, [f' [f_iso1 f_iso2]]), H0 as (g, [g' [g_iso1 g_iso2]]).
-destruct (H2 P (pA .> f) (pB .> g)) as (u1, [[u1_proj1 u1_proj2] uniq1]).
-destruct (H1 Q (qC .> f') (qD .> g')) as (u2, [[u2_proj1 u2_proj2] uniq2]).
-exists u1. unfold Iso. exists u2. split.
-destruct (H1 P pA pB) as (i, [_ uq]). 
-assert (i_is_id : i == id P). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- u2_proj1.
-assert (As1 : pA .> f .> f' == u1 .> qC .> f'). rewrite u1_proj1. reflexivity.
-rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso1. cat.
-cat. rewrite <- u2_proj2.
-assert (As2 : pB .> g .> g' == u1 .> qD .> g'). rewrite u1_proj2. reflexivity.
-rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso1. cat.
-destruct (H2 Q qC qD) as (i, [_ uq]).
-assert (i_is_id : i == id Q). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- u1_proj1.
-assert (As1 : qC .> f' .> f == u2 .> pA .> f). rewrite u2_proj1. reflexivity.
-rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso2. cat.
-cat. rewrite <- u1_proj2.
-assert (As2 : qD .> g' .> g == u2 .> pB .> g). rewrite u2_proj2. reflexivity.
-rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
+Proof.
+  unfold product, isomorphic; intros.
+  destruct H as (f, [f' [f_iso1 f_iso2]]), H0 as (g, [g' [g_iso1 g_iso2]]).
+  destruct (H2 P (pA .> f) (pB .> g)) as (u1, [[u1_proj1 u1_proj2] uniq1]).
+  destruct (H1 Q (qC .> f') (qD .> g')) as (u2, [[u2_proj1 u2_proj2] uniq2]).
+  unfold Iso. exists u1, u2. split.
+    destruct (H1 P pA pB) as (i, [_ uq]).
+      assert (i_is_id : i == id P). apply uq. cat.
+      rewrite <- i_is_id. symmetry. apply uq. split.
+        cat. rewrite <- u2_proj1.
+          assert (As1 : pA .> f .> f' == u1 .> qC .> f').
+            rewrite u1_proj1. reflexivity.
+          rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso1. cat.
+        cat. rewrite <- u2_proj2.
+          assert (As2 : pB .> g .> g' == u1 .> qD .> g').
+            rewrite u1_proj2. reflexivity.
+          rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso1. cat.
+    destruct (H2 Q qC qD) as (i, [_ uq]).
+      assert (i_is_id : i == id Q). apply uq. cat.
+      rewrite <- i_is_id. symmetry. apply uq. split.
+        cat. rewrite <- u1_proj1.
+          assert (As1 : qC .> f' .> f == u2 .> pA .> f).
+            rewrite u2_proj1. reflexivity.
+          rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso2. cat.
+        cat. rewrite <- u1_proj2.
+          assert (As2 : qD .> g' .> g == u2 .> pB .> g).
+            rewrite u2_proj2. reflexivity.
+          rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
 Qed.
 
 Theorem product_iso_unique2 : forall (C : Cat) (A B : Ob C) (P : Ob C)
@@ -218,6 +198,7 @@ Theorem product_iso_unique2 : forall (C : Cat) (A B : Ob C) (P : Ob C)
 Proof.
   intros. eapply iso_prod; eauto; reflexivity.
 Qed.
+
 
 (*
 Theorem prod_assoc : forall (_ : Cat) (A B C AB BC A_BC AB_C : Ob C)

@@ -3,6 +3,8 @@ Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
+(*Require Import BigProdCoprod.*)
+Require Import BigProduct2.
 
 Set Universe Polymorphism.
 
@@ -50,14 +52,12 @@ admit.*)
 
 Theorem CoqSet_init : @initial CoqSet Empty_set.
 Proof.
-  red. intro. exists (fun x : Empty_set => match x with end).
-  red. split; intros; auto. simpl. inversion x.
+  intro. exists (fun x : Empty_set => match x with end). cat.
 Defined.
 
 Theorem CoqSet_term : @terminal CoqSet unit.
 Proof.
-  red. intro. exists (fun _ => tt).
-  red. split; intros; auto. simpl. intro. destruct (y x). auto.
+  intro. exists (fun _ => tt). cat. destruct (y x). cat.
 Defined.
 
 Instance CoqSet_has_init : has_init CoqSet :=
@@ -65,7 +65,7 @@ Instance CoqSet_has_init : has_init CoqSet :=
     init := Empty_set;
     create := fun (X : Set) (e : Empty_set) => match e with end
 }.
-Proof. simpl; intros. destruct x. Defined.
+Proof. cat. Defined.
 
 Eval simpl in create CoqSet unit.
 
@@ -74,7 +74,21 @@ Instance CoqSet_has_term : has_term CoqSet :=
     term := unit;
     delete := fun (X : Set) (x : X) => tt
 }.
-Proof. simpl; intros. destruct (f x). trivial. Defined.
+Proof. cat. destruct (f x). cat. Defined.
+
+Instance CoqSet_has_all_products : has_all_products CoqSet.
+refine
+{|
+    bigProd := fun (J : Set) (A : J -> Ob CoqSet) =>
+        forall j : J, A j;
+    bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
+        fun (f : forall j : J, A j) => f j
+|}.
+Proof.
+  unfold big_product; simpl; intros.
+  exists (fun (x : X) (j : J) => f j x).
+  cat. extensionality a. cat.
+Defined.
 
 Definition is_singleton (A : Set) : Prop :=
     exists a : A, True /\ forall (x y : A), x = y.
@@ -86,6 +100,9 @@ Proof.
   destruct H as [a [_ H]]. exists (fun _ : X => a).
   simpl; unfold unique; split; [trivial | intros].
   simpl. intros. apply H.
+Restart.
+  unfold is_singleton, terminal; intros.
+  destruct H as [a [_ H]]. exists (fun _ : X => a). cat.
 Qed.
 
 Theorem CoqSet_prod : forall (A B : Set),
@@ -176,7 +193,7 @@ Proof.
     destruct (H false). inversion H0.
 Qed.
 
-(* It's time to change all this shirt to be constructive and proof-relevant.
+(* It's time to change all this shit to be constructive and proof-relevant.
 Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B)
     (nonempty : A), Iso f -> injective f * invertible {| equiv := eq |} f.
 Proof.
