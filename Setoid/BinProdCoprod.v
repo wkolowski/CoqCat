@@ -66,12 +66,25 @@ Defined.
 
 Class has_prod_functor (C : Cat) : Type :=
 {
-  prod_functor : Functor (CAT_prod C) C;
-  proj1'' : forall A B : Ob C, Hom (prod_functor (A, B)) A;
-  proj2'' : forall A B : Ob C, Hom (prod_functor (A, B)) B;
-  is_prod' : forall A B : Ob C,
-    product C (@fob (CAT_prod C) C prod_functor (A, B))
-    (proj1'' A B) (proj2'' A B)
+    prod_functor : Functor (CAT_prod C) C;
+    proj1'' : forall A B : Ob C, Hom (prod_functor (A, B)) A;
+    proj2'' : forall A B : Ob C, Hom (prod_functor (A, B)) B;
+    is_prod' : forall A B : Ob C,
+      product C (@fob (CAT_prod C) C prod_functor (A, B))
+      (proj1'' A B) (proj2'' A B)
+}.
+
+Class has_better_prod_functor (C : Cat) : Type :=
+{
+    prod_functor' : Functor (CAT_prod C) C;
+    proj1''' : forall A B : Ob C, Hom (prod_functor' (A, B)) A;
+    proj2''' : forall A B : Ob C, Hom (prod_functor' (A, B)) B;
+    diag : forall X : Ob C, Hom X (@fob (CAT_prod C) C prod_functor' (X, X));
+    is_prod'' : forall (A B X : Ob C) (f : Hom X A) (g : Hom X B),
+        f == diag X .> @fmap _ _ prod_functor' (X, X) (A, B) (f, g)
+        .> proj1''' A B /\
+        g == diag X .> @fmap _ _ prod_functor' (X, X) (A, B) (f, g)
+        .> proj2''' A B;
 }.
 
 Arguments fmap [C] [D] _ [A] [B] _.
@@ -81,11 +94,25 @@ Notation "f ×' g" := (fmap prod_functor f g) (at level 40).
 
 Class has_coproducts (C : Cat) : Type := 
 {
-  coprod : Ob C -> Ob C -> Ob C;
-  coproj1 : forall A B : Ob C, Hom A (coprod A B);
-  coproj2 : forall A B : Ob C, Hom B (coprod A B);
-  is_coprod : forall A B : Ob C,
-    coproduct C (coprod A B) (coproj1 A B) (coproj2 A B)
+    coprod : Ob C -> Ob C -> Ob C;
+    coproj1 : forall A B : Ob C, Hom A (coprod A B);
+    coproj2 : forall A B : Ob C, Hom B (coprod A B);
+    is_coprod : forall A B : Ob C,
+        coproduct C (coprod A B) (coproj1 A B) (coproj2 A B)
+}.
+
+Class has_coprod_functor (C : Cat) : Type :=
+{
+    coprod_functor : Functor (CAT_prod C) C;
+    coproj1' : forall X Y : Ob C, Hom X (coprod_functor (X, Y));
+    coproj2' : forall X Y : Ob C, Hom Y (coprod_functor (X, Y));
+    codiag : forall X : Ob C, Hom (coprod_functor (X, X)) X;
+    is_coprod' : forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
+        f == coproj1' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
+        .> codiag X
+        /\
+        g == coproj2' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
+        .> codiag X
 }.
 
 Theorem dual_product_coproduct : forall (C : Cat) (A B P : Ob C)

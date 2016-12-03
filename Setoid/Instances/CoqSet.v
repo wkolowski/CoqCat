@@ -3,7 +3,6 @@ Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
-(*Require Import BigProdCoprod.*)
 Require Import BigProduct2.
 
 Set Universe Polymorphism.
@@ -118,6 +117,38 @@ Restart.
   rewrite H, H0, surjective_pairing. auto.
 Qed.
 
+Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet) CoqSet.
+refine
+{|
+  fob := fun A : Ob (CAT_prod CoqSet) => prod (fst A) (snd A);
+  fmap := fun (A B : Ob (CAT_prod CoqSet)) (f : Hom A B) =>
+    fun a : fst A * snd A => (fst f (fst a), snd f (snd a))
+|}.
+Proof.
+  repeat red. intros. simpl in *. destruct H. rewrite H, H0. auto.
+  functor.
+  functor. destruct x. auto.
+Defined.
+
+Instance CoqSet_has_prod_functor : has_prod_functor CoqSet.
+refine
+{|
+  prod_functor := CoqSet_prod_functor;
+  proj1'' := fun A B : Set => @fst A B;
+  proj2'' := fun A B : Set => @snd A B
+|}.
+Proof. intros. apply CoqSet_prod. Defined.
+
+Instance CoqSet_has_better_prod_functor : has_better_prod_functor CoqSet.
+refine
+{|
+    prod_functor' := CoqSet_prod_functor;
+    proj1''' := @fst;
+    proj2''' := @snd;
+    diag := fun (X : Set) (x : X) => (x, x)
+|}.
+Proof. cat. Defined.
+
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
 Proof.
@@ -138,6 +169,34 @@ Restart.
       end).
   cat. destruct x; auto.
 Qed.
+
+Instance CoqSet_coprod_functor : Functor (CAT_prod CoqSet) CoqSet.
+refine
+{|
+    fob := fun X : Ob (CAT_prod CoqSet) => sum (fst X) (snd X);
+    fmap := fun (X Y : Ob (CAT_prod CoqSet)) (f : Hom X Y) =>
+        fun (x : sum (fst X) (snd X)) => match x with
+            | inl x1 => inl (fst f x1)
+            | inr y1 => inr (snd f y1)
+        end
+|}.
+Proof.
+  repeat red; simpl. destruct 1. destruct x0; [rewrite H| rewrite H0]; auto.
+  all: simpl; destruct x; cat.
+Defined.
+
+Instance CoqSet_has_coprod_functor : has_coprod_functor CoqSet.
+refine
+{|
+    coprod_functor := CoqSet_coprod_functor;
+    coproj1' := @inl;
+    coproj2' := @inr;
+    codiag := fun (X : Set) (x : X + X) => match x with
+        | inl xl => xl
+        | inr xr => xr
+    end
+|}.
+Proof. cat. Defined.
 
 Theorem CoqSet_ret_invertible : forall (A B : Set)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->

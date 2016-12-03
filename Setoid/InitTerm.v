@@ -15,7 +15,7 @@ Class has_init (C : Cat) : Type :=
 {
     init : Ob C;
     create : forall X : Ob C, Hom init X;
-    cond : forall (X : Ob C) (f : Hom init X), f == create X
+    is_initial : forall (X : Ob C) (f : Hom init X), f == create X
 }.
 
 Arguments init _ [has_init].
@@ -25,7 +25,7 @@ Class has_term (C : Cat) : Type :=
 {
     term : Ob C;
     delete : forall X : Ob C, Hom X term;
-    condd : forall (X : Ob C) (f : Hom X term), f == delete X
+    is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
 }.
 
 Arguments term _ [has_term].
@@ -36,6 +36,15 @@ Class has_zero (C : Cat) : Type :=
     zero : Ob C;
     is_zero : zero_object zero
 }.
+
+Class has_zero' (C : Cat) : Type :=
+{
+    zero_is_initial :> has_init C;
+    zero_is_terminal :> has_term C;
+    initial_is_terminal : init C = term C
+}.
+
+Definition zero' (C : Cat) {has_zero0 : has_zero' C} : Ob C := init C.
 
 Hint Unfold initial terminal zero_object.
 Hint Resolve is_zero.

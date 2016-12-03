@@ -1,22 +1,25 @@
 Require Export Cat.
+Require Export InitTerm.
 Require Export BinProdCoprod.
 
 Set Universe Polymorphism.
 
 Definition big_product {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
-    (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C) (j : J)
-    (f : Hom X (A j)), exists!! u : Hom X P, f == u .> p j.
+    (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C)
+    (f : forall j : J, Hom X (A j)),
+    exists!! u : Hom X P, forall j : J, f j == u .> p j.
 
 Definition big_coproduct {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
-    (i : forall j : J, Hom (A j) P) := forall (X : Ob C) (j : J)
-    (f : Hom (A j) X), exists!! u : Hom P X, f == i j .> u.
+    (i : forall j : J, Hom (A j) P) : Prop := forall (X : Ob C)
+    (f : forall j : J, Hom (A j) X),
+    exists!! u : Hom P X, forall j : J, f j == i j .> u.
 
-Theorem big_proj_ret : forall (C : Cat) (J : Set) (A : J -> Ob C)
+(*Theorem big_proj_ret : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j)),
     big_product P p -> forall j : J, Ret (p j).
 Proof.
   unfold big_product, Ret; intros.
-  destruct (H (A j) j (id (A j))) as (u, [eq uniq]).
+  destruct (H (A j) (fun j' : J => id (A j))) as (u, [eq uniq]).
   exists u. rewrite eq. reflexivity.
 Qed.
 
@@ -28,6 +31,7 @@ Proof.
   destruct (H (A j) j (id (A j))) as (u, [eq uniq]); clear H.
   exists u. rewrite <- eq. reflexivity.
 Qed.
+*)
 
 Class has_all_products (C : Cat) : Type :=
 {
@@ -40,7 +44,7 @@ Class has_all_products (C : Cat) : Type :=
 
 (*  The dummy variable j here is needed to make sure J is inhabited. Otherwise
     this theorem degenerates to the empty case. *)
-Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
+(*Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j))
     (q : forall j : J, Hom Q (A j)) (j : J),
     big_product P p -> big_product Q q -> P ~ Q.
@@ -86,24 +90,43 @@ Theorem big_product_iso_unique' : forall (C : Cat) (J : Set) (A : J -> Ob C)
 intros.
 apply big_product_iso_unique2 with J A A p q; try reflexivity; assumption.
 Qed.
-
-(*  This probably won't work, because we don't have enough morphisms to
-    instantiate the definition of the product. *)
-(*Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
-    (pB : Hom P B), is_product P pA pB <-> exists (f : bool -> Ob C)
+*)
+Print big_product.
+(* 
+    @big_product C bool (fun b : bool => if b then A else B) P
+    (fun b : bool => if b then (if b then pA else pB) else (if b then pB else pA)).
+*)
+Program Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
+    (pB : Hom P B), product C P pA pB <-> exists (f : bool -> Ob C)
     (p : forall b : bool, Hom P (f b)),
     f true = A /\ f false = B /\ big_product P p.
-unfold is_product, big_product; split; intros.
-assert (H' : exists f : bool -> Ob C, f true = A /\ f false = B).
-exists (fix f (b : bool) := if b then A else B). split; trivial.
-destruct H' as [f [eq1 eq2]].
-exists f.
-assert (p : forall b : bool, Hom P (f b)). destruct b.
-rewrite eq1. exact pA. rewrite eq2. exact pB.
-exists p. split; try split; try assumption. intros.
-assert (pA' : Hom P A). rewrite <- eq1. apply (p true).
-assert (pB' : Hom P B). rewrite <- eq2. apply (p false).
-destruct j.*)
+Proof.
+  unfold product, big_product; simpl; split; intros.
+
+(*    exists (fun b : bool => if b then A else B).
+    assert (p : {f : forall b : bool, Hom P (if b then A else B) |
+      f true = pA /\ f false = pB}).
+      exists (fun b : bool => if b then pA else pA).
+    exists p. repeat split; auto; intros.
+      destruct (H X (f true) (f false)) as [u [[eq1 eq2] unique]].
+      exists u. split; intros. destruct j.
+*)
+
+(*    assert (H' : exists f : bool -> Ob C, f true = A /\ f false = B).
+      exists (fix f (b : bool) := if b then A else B). auto.
+    destruct H' as [f [eq1 eq2]]. exists f.
+      assert (p : forall b : bool, Hom P (f b)). destruct b.
+        rewrite eq1. exact pA.
+        rewrite eq2. exact pB.
+      exists p. split; try split; try assumption. intros.
+        assert (fXA : Hom X A). rewrite <- eq1. apply (f0 true).
+        assert (fXB : Hom X B). rewrite <- eq2. apply (f0 false).
+        destruct (H X fXA fXB) as [u [[u_eq1 u_eq2] u_unique]].
+        exists u. red. split; intros. destruct j.
+          auto.
+
+*)
+Abort.
 
 (*Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C) (P : Ob C)
     (f : J -> J) (p : forall j : J, Hom P (A j))
@@ -119,24 +142,27 @@ destruct (H0 X (f j') f0).
 Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
     big_product (A tt) (fun _ : unit => id (A tt)).
 Proof.
-  unfold big_product; intros. exists f; split; intros; cat.
-Restart.
-  red. eexists. cat.
+  unfold big_product; intros. exists (f tt). cat.
 Qed.
 
 Theorem unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
     big_coproduct (A tt) (fun _ : unit => id (A tt)).
 Proof.
-  unfold big_coproduct; intros. exists f; split; intros; cat.
-Restart.
-  red. eexists. cat.
+  unfold big_coproduct; intros. exists (f tt). cat.
 Qed.
 
-(* WARNING: ANY OBJECT IS NULLARY PRODUCT *)
 Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
     (p : forall j : Empty_set, Hom T (A j)),
-    (*terminal_object T ->*) big_product T p.
+    terminal T -> big_product T p.
 Proof.
-  unfold big_product. inversion j.
+  unfold big_product, terminal; intros.
+  destruct (H X) as [u [_ unique]]. exists u. cat.
 Qed.
 
+Theorem nullary_coprod : forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
+    (p : forall j : Empty_set, Hom (A j) I),
+    initial I -> big_coproduct I p.
+Proof.
+  unfold big_coproduct, initial; intros.
+  destruct (H X) as [u [_ unique]]. exists u. cat.
+Qed.

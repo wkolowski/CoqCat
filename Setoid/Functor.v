@@ -2,6 +2,8 @@ Require Export Cat.
 
 Require Export FunctionalExtensionality.
 
+Set Universe Polymorphism.
+
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
     fob : Ob C -> Ob D;

@@ -4,6 +4,8 @@ Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
+Open Scope type_scope.
+
 Instance Rel : Cat :=
 {|
     Ob := Set;
@@ -54,6 +56,15 @@ Proof.
     exists (fun _ (e : Empty_set) => match e with end). cat.
 Defined.
 
+Instance Rel_has_zero' : has_zero' Rel :=
+{
+    zero_is_initial := Rel_has_init;
+    zero_is_terminal := Rel_has_term
+}.
+Proof. cat. Defined.
+
+Eval cbn in zero' Rel.
+
 Inductive relprod (A B : Set) : Type :=
     | inl' : A -> relprod A B
     | inr' : B -> relprod A B
@@ -64,52 +75,23 @@ Arguments inr' [A] [B] _.
 Arguments pair' [A] [B] _ _.
 
 Theorem Rel_product : forall A B : Ob Rel,
-    product Rel (relprod A B)
-      (fun (p : relprod A B) (a : A) =>
-        p = inl' a \/ exists b : B, p = pair' a b)
-      (fun (p : relprod A B) (b : B) =>
-        p = inr' b \/ exists a : A, p = pair' a b).
-Proof.
-  unfold product; simpl; intros A B X R S.
-  exists (fun (x : X) (p : relprod A B) => match p with
-    | inl' a => R x a
-    | inr' b => S x b
-    | pair' a b => R x a /\ S x b
-  end).
-  repeat red. do 2 split. intros x a. split; intros.
-    exists (inl' a). split; auto.
-    destruct H. destruct x0. destruct H, H0. inversion H0; subst. auto.
-      destruct H0. inversion H0.
-    destruct H as [_ [F | [b0 F]]]; inversion F.
-    destruct H as [[HR HS] [HF | [b0 H]]]. inversion HF.
-      inversion H; subst. auto.
-  intros x b. split; intros.
-    exists (inr' b). split; auto.
-    destruct H, x0. destruct H, H0; inversion H0. inversion H1.
-    destruct H, H0. inversion H0; subst; auto. destruct H0. inversion H0.
-    repeat destruct H; destruct H0. inversion H0.
-      destruct H0. inversion H0; subst; auto.
-  destruct H, b; intros.
-    rewrite H in H1. destruct H1 as [b [H2 [H3 | H4]]].
-      subst. auto.
-      destruct H4. destruct b; inversion H1. subst.
-
-Theorem Rel_product : forall A B : Ob Rel,
     product Rel (A + B) (fun (p : A + B) (a : A) => p = inl a)
       (fun (p : A + B) (b : B) => p = inr b).
 Proof.
-  unfold product; simpl; intros.
-  exists 
-
-Theorem Rel_product : forall A B : Ob Rel,
-    product Rel (A * B) (fun (p : A * B) (a : A) => fst p = a)
-      (fun (p : A * B) (b : B) => snd p = b).
-Proof.
-  unfold product; simpl; intros.
-  exists (fun (x : X) (p : A * B) => f x (fst p) /\ g x (snd p)).
-  repeat red; repeat split; intros.
-  Focus 2. repeat destruct H. rewrite H0 in H. auto.
-  Focus 3. repeat destruct H. rewrite H0 in H1. auto.
-  Focus 3. destruct H, H0. destruct (H a (fst b)), (H1 a (snd b)).
-    destruct (H3 H0). destruct H7. destruct (H5 H2). destruct H9.
-    destruct b. simpl in *. destruct x, x0. simpl in *.  
+  unfold product; simpl. intros A B X R S.
+  exists (fun (x : X) (ab : A + B) => match ab with
+      | inl a => R x a
+      | inr b => S x b
+  end).
+  repeat (red || split); intros.
+    exists (inl b). split; auto.
+    destruct H, x, H; inversion H0; subst; auto.
+    exists (inr b). split; auto.
+    destruct H, x, H; inversion H0; subst; auto.
+    destruct H. destruct b.
+      destruct (H a a0). destruct (H2 H0). destruct H4; subst. auto.
+      destruct (H1 a b). destruct (H2 H0). destruct H4; subst. auto.
+    destruct H, b.
+      destruct (H a a0). apply H3. eauto.
+      destruct (H1 a b). apply H3. eauto.
+Defined.
