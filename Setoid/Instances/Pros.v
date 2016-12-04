@@ -17,6 +17,8 @@ Class Pros : Type :=
     leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
 }.
 
+Hint Resolve leq_refl leq_trans.
+
 Coercion carrier : Pros >-> Sortclass.
 
 (*Arguments carr_ _ : clear implicits.*)
@@ -106,6 +108,17 @@ Proof.
       apply NPeano.Nat.add_le_mono. all: apply IHa; auto.
 Defined.
 
+Instance NatDiv : Pros :=
+{
+    carrier := nat;
+    leq := fun n m : nat => exists k : nat, n * k = m
+}.
+Proof.
+  exists 1. omega.
+  destruct 1 as [k1 H1], 1 as [k2 H2].
+    exists (k1 * k2). rewrite mult_assoc. rewrite H1, H2. trivial.
+Defined.
+
 (*Theorem Pros_mon_inj : forall (A B : Pros) (f : Hom A B),
     Mon f <-> injective f.
 unfold Mon, injective; split; intros.
@@ -180,18 +193,50 @@ Proof. red. exists snd. simpl. destruct 1. auto. Defined.
 
 Coercion id (X : Pros) : Ob ProsCat := X.
 
-Program Instance Pros_has_prod : has_products ProsCat :=
+Instance Lexicographic (X Y : Pros) : Pros :=
 {
-    prod' := prod''
+    carrier := X * Y;
+    leq := fun x y : X * Y => leq (fst x) (fst y) \/
+        ((fst x = fst y) /\ leq (snd x) (snd y))
 }.
-Next Obligation. exact (proj1'' A B). Defined.
-Next Obligation. exact (proj2'' A B). Defined.
-Next Obligation.
+Proof.
+  left. apply leq_refl.
+  intros. destruct H, H0; try destruct H; try destruct H0.
+    left. eauto.
+    left. rewrite <- H0. auto.
+    left. rewrite H. auto.
+    right. split; try rewrite H; eauto.
+Defined.
+
+Definition lex_proj1 (X Y : Pros) : ProsHom (Lexicographic X Y) X.
+Proof.
+  red. exists fst. destruct a, a', 1; simpl in *; auto.
+  destruct H. rewrite H. auto.
+Defined.
+
+Definition lex_proj2 (X Y : Pros) : ProsHom (Lexicographic X Y) Y.
+Proof.
+  red. exists snd. destruct a, a', 1; simpl in *; auto.
+Abort.
+
+Instance Pros_has_prod : has_products ProsCat :=
+{
+    prod' := prod'';
+    proj1' := proj1'';
+    proj2' := proj2''
+}.
+Proof.
   repeat red; simpl; intros. unfold ProsHom.
-  cut ({f0 : X -> prod'' A B | forall a a' : X, a ≤ a' -> f0 a ≤ f0 a'}).
-  Focus 2. exists (fun x : X => (f x, g x)). split; simpl; intros;
-    destruct f, g; auto.
-    (*intro u. exists u. repeat split; repeat red.
-      unfold ProsComp; destruct f, g; try destruct u; simpl; intros.
-        destruct A, B, X. simpl in *. eauto. apply leq_antisym.
-    intro. destruct (x1 x2)*)
+  assert (h' : {h : X -> prod'' A B |
+                (forall x x' : X, x ≤ x' -> h x ≤ h x') &
+                (forall x : X, f x = fst (h x)) /\
+                (forall x : X, g x = snd (h x))}).
+    exists (fun x : X => (f x, g x)); destruct f, g; simpl in *;
+      split; auto.
+  destruct h' as [h H [eq1 eq2]]. exists (exist _ h H).
+  repeat (red || split || simpl); intros; auto.
+  destruct y as [h' H']; simpl in *. destruct H0.
+  rewrite surjective_pairing at 1; rewrite surjective_pairing. f_equal.
+    rewrite <- H0, eq1. auto.
+    rewrite <- H1, eq2. auto.
+Defined.

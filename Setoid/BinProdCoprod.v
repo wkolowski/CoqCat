@@ -20,7 +20,7 @@ Class has_products (C : Cat) : Type :=
         product C (prod' A B) (proj1' A B) (proj2' A B)
 }.
 
-Definition ProdCatHom {C : Cat} (A B : Ob C * Ob C) :=
+Coercion ProdCatHom {C : Cat} (A B : Ob C * Ob C) :=
     prod (Hom (fst A) (fst B)) (Hom (snd A) (snd B)).
 
 Definition ProdCatSetoid {C : Cat} (A B : Ob C * Ob C)
@@ -59,11 +59,6 @@ Proof.
 (* Category axioms *) all: cat.
 Defined.
 
-(*Instance CAT_prod : has_products CAT :=
-{
-  prod' := 
-}.*)
-
 Class has_prod_functor (C : Cat) : Type :=
 {
     prod_functor : Functor (CAT_prod C) C;
@@ -73,7 +68,10 @@ Class has_prod_functor (C : Cat) : Type :=
       product C (@fob (CAT_prod C) C prod_functor (A, B))
       (proj1'' A B) (proj2'' A B)
 }.
-
+(*Coercion ProdHom_to_ProdCatHom {C : Cat} (X Y Z W : Ob C)
+    (f : Hom X Y) (g : Hom Z W) := 
+*)
+Arguments fmap [C] [D] _ [A] [B] _. Print ProdCatHom.
 Class has_better_prod_functor (C : Cat) : Type :=
 {
     prod_functor' : Functor (CAT_prod C) C;
@@ -85,12 +83,12 @@ Class has_better_prod_functor (C : Cat) : Type :=
         .> proj1''' A B /\
         g == diag X .> @fmap _ _ prod_functor' (X, X) (A, B) (f, g)
         .> proj2''' A B;
+(* TODO : Uniqueness *)
 }.
 
-Arguments fmap [C] [D] _ [A] [B] _.
-
+(* TODO: Fix notations. 
 Notation "A × B" := (prod_functor (A, B)) (at level 40).
-Notation "f ×' g" := (fmap prod_functor f g) (at level 40).
+Notation "f ×' g" := (fmap prod_functor f g) (at level 40). *)
 
 Class has_coproducts (C : Cat) : Type := 
 {
@@ -135,8 +133,7 @@ Proof.
     (* Universal property *) split; assumption.
     (* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
 Restart.
-  unfold product in *; intros. destruct (H X g f) as (u, [[eq1 eq2] uniq]).
-  exists u. cat.
+  unfold product in *; intros. destruct (H X g f); eexists; cat.
 Qed.
 
 Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)

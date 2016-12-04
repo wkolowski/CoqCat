@@ -74,6 +74,13 @@ Arguments inl' [A] [B] _.
 Arguments inr' [A] [B] _.
 Arguments pair' [A] [B] _ _.
 
+Ltac solve :=
+match goal with
+    | H : _ /\ _ |- _ => destruct H
+    | H : exists _, _ |- _ => destruct H
+    | _ => try subst; eauto
+end.
+
 Theorem Rel_product : forall A B : Ob Rel,
     product Rel (A + B) (fun (p : A + B) (a : A) => p = inl a)
       (fun (p : A + B) (b : B) => p = inr b).
@@ -84,14 +91,37 @@ Proof.
       | inr b => S x b
   end).
   repeat (red || split); intros.
-    exists (inl b). split; auto.
+    exists (inl b). auto.
     destruct H, x, H; inversion H0; subst; auto.
-    exists (inr b). split; auto.
+    exists (inr b). auto.
     destruct H, x, H; inversion H0; subst; auto.
-    destruct H. destruct b.
-      destruct (H a a0). destruct (H2 H0). destruct H4; subst. auto.
-      destruct (H1 a b). destruct (H2 H0). destruct H4; subst. auto.
+    destruct H, b. 
+      destruct (H a a0), (H2 H0), H4; subst. auto.
+      destruct (H1 a b), (H2 H0), H4; subst. auto.
     destruct H, b.
       destruct (H a a0). apply H3. eauto.
       destruct (H1 a b). apply H3. eauto.
 Defined.
+
+Theorem Rel_coproduct : forall A B : Ob Rel,
+    coproduct Rel (A + B) (fun (a : A) (p : A + B) => p = inl a)
+      (fun (b : B) (p : A + B) => p = inr b).
+Proof.
+  unfold coproduct; simpl. intros A B X R S.
+  exists (fun (ab : A + B) (x : X) => match ab with
+      | inl a => R a x
+      | inr b => S b x
+  end).
+  repeat (red || split); intros.
+    exists (inl a). auto.
+    destruct H, x, H; inversion H; subst; auto.
+    exists (inr a). auto.
+    destruct H, x, H; inversion H; subst; auto.
+    destruct H, a.
+      destruct (H a b), (H2 H0), H4; subst. auto.
+      destruct (H1 b0 b), (H2 H0), H4; subst. auto.
+    destruct H, a.
+      destruct (H a b). apply H3. eauto.
+      destruct (H1 b0 b). apply H3. eauto.
+Defined.
+
