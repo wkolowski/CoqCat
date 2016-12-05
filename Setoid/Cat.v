@@ -38,7 +38,7 @@ Ltac cat_simpl := match goal with
     | H : context [setoid_unique] |- _ => red in H
     | _ => simpl in *
 end.
-Ltac cat_split := repeat
+Ltac cat_split := unfold setoid_unique in *; simpl in *; repeat
 match goal with
     | H : False |- _ => inversion H
     | e : Empty_set |- _ => inversion e
@@ -98,8 +98,14 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-(*Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
+(*Lemma cat_eq : forall C C' : Cat,
+    JMeq (Ob C) (Ob C') -> JMeq C C'.
 Proof.
+  destruct C, C'; simpl; intros. rewrite H. simpl in *.
+
+Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
+Proof.
+  unfold Dual. destruct C. f_equal. split. cat.
   unfold Dual; destruct C; simpl; f_equal.
     intros. *)
 

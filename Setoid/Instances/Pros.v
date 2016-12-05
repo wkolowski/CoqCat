@@ -37,7 +37,7 @@ split; intros. rewrite H. trivial.
 rewrite H. trivial.
 Qed.
 
-Definition ProsHom (A : Pros) (B : Pros) : Type :=
+Definition ProsHom (A B : Pros) : Type :=
     {f : A -> B | forall a a', a ≤ a' -> f a ≤ f a'}.
 
 Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B) : A -> B := proj1_sig f.
@@ -68,7 +68,7 @@ Proof.
   (* Equivalence *) cat. red; intros. rewrite H, H0. auto.
   (* Proper *) repeat red; simpl; intros. unfold ProsComp;
     destruct x, x0, y, y0; simpl in *. rewrite H, H0. auto.
-  (* Category laws *) all: unfold ProsComp, ProsId; intros;
+  (* Category laws *) all: intros;
   repeat match goal with
       | f : ProsHom ?A ?B |- _ => destruct f
   end; simpl; auto.

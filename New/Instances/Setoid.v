@@ -10,6 +10,8 @@ Record Setoid' : Type :=
     setoid_ :> Setoid carrier_
 }.
 
+Print equiv.
+
 Record HomSetoid (A B : Setoid') : Type :=
 {
     f_ : A -> B;

@@ -65,15 +65,6 @@ Proof. cat. Defined.
 
 Eval cbn in zero' Rel.
 
-Inductive relprod (A B : Set) : Type :=
-    | inl' : A -> relprod A B
-    | inr' : B -> relprod A B
-    | pair' : A -> B -> relprod A B.
-
-Arguments inl' [A] [B] _.
-Arguments inr' [A] [B] _.
-Arguments pair' [A] [B] _ _.
-
 Ltac solve :=
 match goal with
     | H : _ /\ _ |- _ => destruct H
@@ -124,4 +115,14 @@ Proof.
       destruct (H a b). apply H3. eauto.
       destruct (H1 b0 b). apply H3. eauto.
 Defined.
+
+Hint Resolve Rel_product Rel_coproduct.
+
+Theorem Rel_biproduct : forall A B : Ob Rel,
+    biproduct' Rel (A + B)
+      (fun (p : A + B) (a : A) => p = inl a)
+      (fun (p : A + B) (b : B) => p = inr b)      
+      (fun (a : A) (p : A + B) => p = inl a)
+      (fun (b : B) (p : A + B) => p = inr b).
+Proof. cat. Defined.
 
