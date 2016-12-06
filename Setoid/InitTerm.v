@@ -33,21 +33,21 @@ Arguments delete _ [has_term] _.
 
 Class has_zero (C : Cat) : Type :=
 {
-    zero : Ob C;
-    is_zero : zero_object zero
-}.
-
-Class has_zero' (C : Cat) : Type :=
-{
     zero_is_initial :> has_init C;
     zero_is_terminal :> has_term C;
     initial_is_terminal : init C = term C
 }.
 
-Definition zero' (C : Cat) {has_zero0 : has_zero' C} : Ob C := init C.
+Definition zero_ob (C : Cat) {has_zero0 : has_zero C} : Ob C := init C.
+Definition zero_mor (C : Cat) {has_zero0 : has_zero C}
+    (X Y : Ob C) : Hom X Y.
+Proof.
+  pose (f := delete C X). pose (g := create C Y).
+  rewrite initial_is_terminal in g. exact (f .> g).
+Defined.
 
 Hint Unfold initial terminal zero_object.
-Hint Resolve is_initial is_terminal is_zero unique_iso_is_iso.
+Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso.
 
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
     @initial C A <-> @terminal (Dual C) A.

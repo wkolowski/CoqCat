@@ -3,6 +3,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
+Require Import BigProdCoprod.
 
 Open Scope type_scope.
 
@@ -48,22 +49,10 @@ Proof. cat. Defined.
 
 Instance Rel_has_zero : has_zero Rel :=
 {
-    zero := Empty_set
-}.
-Proof.
-  unfold zero_object, initial, terminal; cat.
-    exists (fun (e : Empty_set) _ => match e with end). cat.
-    exists (fun _ (e : Empty_set) => match e with end). cat.
-Defined.
-
-Instance Rel_has_zero' : has_zero' Rel :=
-{
     zero_is_initial := Rel_has_init;
     zero_is_terminal := Rel_has_term
 }.
 Proof. cat. Defined.
-
-Eval cbn in zero' Rel.
 
 Ltac solve :=
 match goal with
@@ -92,6 +81,16 @@ Proof.
     destruct H, b.
       destruct (H a a0). apply H3. eauto.
       destruct (H1 a b). apply H3. eauto.
+Restart.
+  unfold product; simpl. intros A B X R S.
+  exists (fun (x : X) (ab : A + B) => match ab with
+      | inl a => R x a
+      | inr b => S x b
+  end).
+  repeat (red || split); intros.
+    all: try eexists; cat.
+    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
+    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
 Defined.
 
 Theorem Rel_coproduct : forall A B : Ob Rel,
@@ -104,16 +103,9 @@ Proof.
       | inr b => S b x
   end).
   repeat (red || split); intros.
-    exists (inl a). auto.
-    destruct H, x, H; inversion H; subst; auto.
-    exists (inr a). auto.
-    destruct H, x, H; inversion H; subst; auto.
-    destruct H, a.
-      destruct (H a b), (H2 H0), H4; subst. auto.
-      destruct (H1 b0 b), (H2 H0), H4; subst. auto.
-    destruct H, a.
-      destruct (H a b). apply H3. eauto.
-      destruct (H1 b0 b). apply H3. eauto.
+    all: try eexists; cat.
+    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
+    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
 Defined.
 
 Hint Resolve Rel_product Rel_coproduct.
@@ -126,3 +118,44 @@ Theorem Rel_biproduct : forall A B : Ob Rel,
       (fun (b : B) (p : A + B) => p = inr b).
 Proof. cat. Defined.
 
+Print has_all_products.
+
+Instance Rel_has_all_products : has_all_products Rel :=
+{
+    bigProd := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
+    bigProj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
+        fun (p : {j : J & A j}) (x : A j) => projT1 p = j /\ JMeq (projT2 p) x
+}.
+Proof.
+  unfold big_product; simpl; intros.
+  exists (fun (x : X) (s : {j : J & A j}) => f (projT1 s) x (projT2 s)).
+  cat.
+    exists (existT A j b). simpl. auto.
+    destruct b. simpl in *. destruct (H x a a0).
+      destruct (H1 H0). destruct x0. cat.
+    destruct b. simpl in *. destruct (H x a a0). cat.
+Defined.
+
+Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
+{
+    bigCoprod := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
+    bigCoproj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
+        fun (x : A j) (p : {j : J & A j}) => projT1 p = j /\ JMeq (projT2 p) x
+}.
+Proof.
+  unfold big_coproduct; simpl; intros.
+  exists (fun (s : {j : J & A j}) (x : X) => f (projT1 s) (projT2 s) x).
+  cat.
+    exists (existT A j a). simpl. auto.
+    destruct a. simpl in *. destruct (H x a b).
+      destruct (H1 H0). destruct x0. cat.
+    destruct a. simpl in *. destruct (H x a b).
+      apply H2. eexists. cat.
+Defined.
+
+Instance Rel_has_all_biproducts : has_all_biproducts Rel :=
+{
+    bigProduct := Rel_has_all_products;
+    bigCoproduct := Rel_has_all_coproducts
+}.
+Proof. cat. Defined.

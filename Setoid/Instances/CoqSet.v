@@ -3,7 +3,7 @@ Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
-Require Import BigProduct2.
+Require Import BigProdCoprod.
 
 Set Universe Polymorphism.
 
@@ -49,16 +49,6 @@ Proof.
     unfold Sec, injective in *.
 admit.*)
 
-Theorem CoqSet_init : @initial CoqSet Empty_set.
-Proof.
-  intro. exists (fun x : Empty_set => match x with end). cat.
-Defined.
-
-Theorem CoqSet_term : @terminal CoqSet unit.
-Proof.
-  intro. exists (fun _ => tt). cat. destruct (y x). cat.
-Defined.
-
 Instance CoqSet_has_init : has_init CoqSet :=
 {
     init := Empty_set;
@@ -66,28 +56,12 @@ Instance CoqSet_has_init : has_init CoqSet :=
 }.
 Proof. cat. Defined.
 
-Eval simpl in create CoqSet unit.
-
 Instance CoqSet_has_term : has_term CoqSet :=
 {
     term := unit;
     delete := fun (X : Set) (x : X) => tt
 }.
 Proof. cat. destruct (f x). cat. Defined.
-
-Instance CoqSet_has_all_products : has_all_products CoqSet.
-refine
-{|
-    bigProd := fun (J : Set) (A : J -> Ob CoqSet) =>
-        forall j : J, A j;
-    bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-        fun (f : forall j : J, A j) => f j
-|}.
-Proof.
-  unfold big_product; simpl; intros.
-  exists (fun (x : X) (j : J) => f j x).
-  cat. extensionality a. cat.
-Defined.
 
 Definition is_singleton (A : Set) : Prop :=
     exists a : A, True /\ forall (x y : A), x = y.
@@ -149,6 +123,20 @@ refine
 |}.
 Proof. cat. Defined.
 
+Instance CoqSet_has_all_products : has_all_products CoqSet.
+refine
+{|
+    bigProd := fun (J : Set) (A : J -> Ob CoqSet) =>
+        forall j : J, A j;
+    bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
+        fun (f : forall j : J, A j) => f j
+|}.
+Proof.
+  unfold big_product; simpl; intros.
+  exists (fun (x : X) (j : J) => f j x).
+  cat. extensionality a. cat.
+Defined.
+
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
 Proof.
@@ -197,6 +185,19 @@ refine
     end
 |}.
 Proof. cat. Defined.
+
+Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
+{
+    bigCoprod := fun (J : Set) (A : J -> Ob CoqSet) =>
+        {j : J & A j};
+    bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
+        fun (x : A j) => existT A j x
+}.
+Proof.
+  unfold big_coproduct; simpl; intros.
+  exists (fun (v : {j : J & A j}) => f (projT1 v) (projT2 v)).
+  cat. destruct x. cat.
+Defined.
 
 Theorem CoqSet_ret_invertible : forall (A B : Set)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->

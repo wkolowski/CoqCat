@@ -14,6 +14,11 @@ Definition big_coproduct {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
     (f : forall j : J, Hom (A j) X),
     exists!! u : Hom P X, forall j : J, f j == i j .> u.
 
+Definition big_biproduct {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
+    (proj : forall j : J, Hom P (A j))
+    (coproj : forall j : J, Hom (A j) P) : Prop :=
+        big_product P proj /\ big_coproduct P coproj.
+
 (*Theorem big_proj_ret : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j)),
     big_product P p -> forall j : J, Ret (p j).
@@ -42,34 +47,52 @@ Class has_all_products (C : Cat) : Type :=
         big_product (bigProd J A) (bigProj J A)
 }.
 
-(*  The dummy variable j here is needed to make sure J is inhabited. Otherwise
-    this theorem degenerates to the empty case. *)
-(*Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
+Class has_all_coproducts (C : Cat) : Type :=
+{
+    bigCoprod : forall J : Set, (J -> Ob C) -> Ob C;
+    bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
+        Hom (A j) (bigCoprod J A);
+    is_big_coproduct : forall (J : Set) (A : J -> Ob C),
+        big_coproduct (bigCoprod J A) (bigCoproj J A)
+}.
+
+Class has_all_biproducts (C : Cat) : Type :=
+{
+    bigProduct :> has_all_products C;
+    bigCoproduct :> has_all_coproducts C;
+    product_is_coproduct : forall (J : Set) (A : J -> Ob C),
+        bigProd J A = bigCoprod J A
+}.
+
+Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j))
-    (q : forall j : J, Hom Q (A j)) (j : J),
+    (q : forall j : J, Hom Q (A j)),
     big_product P p -> big_product Q q -> P ~ Q.
 Proof.
   unfold big_product; intros.
-  unfold isomorphic. destruct (H0 P j (p j)) as [u1 [eq1 uniq1]],
-  (H Q j (q j)) as [u2 [eq2 uniq2]].
+  unfold isomorphic. destruct (H0 P p) as [u1 [eq1 uniq1]],
+  (H Q q) as [u2 [eq2 uniq2]].
   exists u1. unfold Iso. exists u2. split.
-    destruct (H P j (p j)) as [i [eq_id uniq_id]].
+    destruct (H P p) as [i [eq_id uniq_id]].
       assert (i_is_id : i == id P). apply uniq_id. cat.
-      rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
-      rewrite <- eq2. assumption.
-    destruct (H0 Q j (q j)) as [i [eq_id uniq_id]].
+      rewrite <- i_is_id. symmetry. apply uniq_id. intro.
+      rewrite comp_assoc. rewrite <- eq2. auto.
+    destruct (H0 Q q) as [i [eq_id uniq_id]].
       assert (i_is_id : i == id Q). apply uniq_id. cat.
-      rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
-      rewrite <- eq1. assumption.
+      rewrite <- i_is_id. symmetry. apply uniq_id. intro.
+      rewrite comp_assoc. rewrite <- eq1. auto.
 Qed.
 
-Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set) (A B : J -> Ob C)
-    (P Q : Ob C) (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j))
-    (j : J), (forall j : J, A j ~ B j) ->
+(*Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
+    (A B : J -> Ob C) (P Q : Ob C)
+    (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j)),
+    (forall j : J, A j ~ B j) ->
     big_product P p -> big_product Q q -> P ~ Q.
-unfold big_product; intros.
-destruct (H j) as [f [g [iso1 iso2]]].
-unfold isomorphic. destruct (H1 P j (p j .> f)) as [u1 [eq1 uniq1]],
+Proof.
+  unfold big_product; intros.
+  assert (f : forall j : J, Hom P (A j)).
+    intro. destruct (H j) as [f [g [iso1 iso2]]].
+unfold isomorphic. destruct (H1 P (fun j => p j .> H j)) as [u1 [eq1 uniq1]],
 (H0 Q j (q j .> g)) as [u2 [eq2 uniq2]].
 exists u1. unfold Iso. exists u2. split.
 destruct (H0 P j (p j)) as [i [eq_id uniq_id]].
@@ -82,20 +105,15 @@ assert (i_is_id : i == id Q). apply uniq_id. cat.
 rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
 rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
 rewrite iso2. cat.
-Qed.
+Qed.*)
 
-Theorem big_product_iso_unique' : forall (C : Cat) (J : Set) (A : J -> Ob C)
+(*Theorem big_product_iso_unique' : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (A j))
     (j : J), big_product P p -> big_product Q q -> P ~ Q.
 intros.
 apply big_product_iso_unique2 with J A A p q; try reflexivity; assumption.
-Qed.
-*)
-Print big_product.
-(* 
-    @big_product C bool (fun b : bool => if b then A else B) P
-    (fun b : bool => if b then (if b then pA else pB) else (if b then pB else pA)).
-*)
+Qed.*)
+
 Program Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
     (pB : Hom P B), product C P pA pB <-> exists (f : bool -> Ob C)
     (p : forall b : bool, Hom P (f b)),
@@ -139,18 +157,6 @@ destruct H' as (j', proof).
 destruct (H0 X (f j') f0).
 *)
 
-Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
-    big_product (A tt) (fun _ : unit => id (A tt)).
-Proof.
-  unfold big_product; intros. exists (f tt). cat.
-Qed.
-
-Theorem unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
-    big_coproduct (A tt) (fun _ : unit => id (A tt)).
-Proof.
-  unfold big_coproduct; intros. exists (f tt). cat.
-Qed.
-
 Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
     (p : forall j : Empty_set, Hom T (A j)),
     terminal T -> big_product T p.
@@ -164,5 +170,18 @@ Theorem nullary_coprod : forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
     initial I -> big_coproduct I p.
 Proof.
   unfold big_coproduct, initial; intros.
-  destruct (H X) as [u [_ unique]]. exists u. cat.
+  edestruct H. eexists. cat.
 Qed.
+
+Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
+    big_product (A tt) (fun _ : unit => id (A tt)).
+Proof.
+  unfold big_product; intros. exists (f tt). cat.
+Qed.
+
+Theorem unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
+    big_coproduct (A tt) (fun _ : unit => id (A tt)).
+Proof.
+  unfold big_coproduct; intros. exists (f tt). cat.
+Qed.
+
