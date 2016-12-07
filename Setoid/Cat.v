@@ -31,11 +31,16 @@ Notation "'exists' !! x : A , P" :=
     (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
 
 Ltac cat_simpl := match goal with
-    | |- context [id _] =>
+    (*| |- context [id _] =>
         try rewrite id_left; try rewrite id_right
     | H : context [id _] |- _ =>
-        try rewrite id_left in H; try rewrite id_right in H
+        try rewrite id_left in H; try rewrite id_right in H*)
+    | |- context [id _ .> _] => rewrite id_left
+    | |- context [_ .> id _] => rewrite id_right
+    | H : context [id _ .> _] |- _ => rewrite id_left in H
+    | H : context [_ .> id _] |- _ => rewrite id_right in H
     | H : context [setoid_unique] |- _ => red in H
+    (*| H : ?f == id _ |- context [?f] => rewrite H*) (* Breaks something *)
     | _ => simpl in *
 end.
 Ltac cat_split := unfold setoid_unique in *; simpl in *; repeat
@@ -109,6 +114,8 @@ Proof.
   unfold Dual; destruct C; simpl; f_equal.
     intros. *)
 
+Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
+
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
 Proof. trivial. Qed.
@@ -128,6 +135,8 @@ Definition Ret {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
 Definition Iso {C : Cat} {A B : Ob C} (f : Hom A B ) : Prop :=
     exists g : Hom B A, f .> g == id A /\ g .> f == id B.
 Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
+
+Hint Unfold End Mon Epi Bim Sec Ret Iso Aut.
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.
@@ -189,19 +198,13 @@ Qed.
 Theorem id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
     (forall (B : Ob C) (f : Hom A B), idA .> f == f) -> idA == id A.
 Proof.
-  intros.
-  assert (eq1 : idA .> (id A) == id A). apply H.
-  assert (eq2 : idA .> (id A) == idA). cat.
-  rewrite <- eq1, eq2; reflexivity.
+  intros. specialize (H A (id A)). cat.
 Qed.
 
 Theorem id_unique_right : forall (C : Cat) (B : Ob C) (idB : Hom B B),
     (forall (A : Ob C) (f : Hom A B), f .> idB == f) -> idB == id B.
 Proof.
-  intros.
-  assert (eq1 : id B .> idB == id B). apply H.
-  assert (eq2 : id B .> idB == idB); cat.
-  rewrite <- eq1, eq2; reflexivity.
+  intros. specialize (H B (id B)). cat.
 Qed.
 
 (* Relations between different types of morphisms. *)
@@ -209,17 +212,18 @@ Theorem sec_is_mon : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Sec f -> Mon f.
 Proof.
   intros; unfold Sec, Mon in *; intros X h1 h2 eq. destruct H as (g, H).
-    assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g). rewrite eq; reflexivity.
-  rewrite comp_assoc, comp_assoc in eq2. rewrite H in eq2.
-  rewrite id_right, id_right in eq2. assumption.
+  assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g).
+    rewrite eq; reflexivity.
+  do 2 rewrite comp_assoc in eq2. rewrite H in eq2. cat.
 Qed.
 
 Theorem ret_is_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Ret f -> Epi f.
-intros. unfold Ret, Epi in *. intros X h1 h2 eq. destruct H as (g, H).
-assert (eq2 : g .> (f .> h1) == g .> (f .> h2)). rewrite eq; reflexivity. 
-rewrite <- comp_assoc, <- comp_assoc in eq2. rewrite H in eq2.
-rewrite id_left, id_left in eq2. assumption.
+Proof.
+  intros. unfold Ret, Epi in *. intros X h1 h2 eq. destruct H as (g, H).
+  assert (eq2 : g .> (f .> h1) == g .> (f .> h2)).
+    rewrite eq; reflexivity.
+  do 2 rewrite <- comp_assoc in eq2. rewrite H in eq2. cat.
 Qed.
 
 Theorem iso_is_sec : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -288,9 +292,6 @@ Proof. cat. Qed.
 Theorem iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Sec f /\ Ret f.
 Proof.
-  Hint Resolve iso_is_sec iso_is_ret.
-  cat.
-Restart.
   split; intros.
     split.
       apply iso_is_sec; auto.
@@ -320,7 +321,7 @@ exists g. split. Focus 2. assumption.
 apply H. rewrite comp_assoc. rewrite eq. cat.
 Qed.
 
-Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+(*Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> (exists g : Hom B A, (f .> g == id A /\ g .> f == id B) /\
     forall g' : Hom B A, f .> g' == id A /\ g' .> f == id B -> g == g').
 split; intros; unfold Iso in H. destruct H as (g, [inv1 inv2]).
@@ -331,15 +332,33 @@ assert (eq2 : h .> f .> g == h). rewrite comp_assoc, inv1. cat.
 rewrite <- eq1, eq2. reflexivity.
 unfold Iso. destruct H as [g [[eq1 eq2] H]].
 exists g; split; assumption.
+Qed.*)
+
+Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+    Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
+Proof.
+  unfold Iso; split; intros.
+    destruct H as [g [inv1 inv2]]. exists g. cat. (* HERE cat worked, but now doesn't *)
+      assert (eq1 : y .> f .> g == g). rewrite H0. cat.
+      assert (eq2 : y .> f .> g == y). rewrite comp_assoc, inv1. cat.
+      rewrite <- eq1, eq2. reflexivity.
+    destruct H as [g [[eq1 eq2] H]].
+      exists g. cat.
 Qed.
+
+Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
+    @isomorphic C A B <-> @isomorphic (Dual C) B A.
+Proof.
+  unfold isomorphic; simpl; split; intros;
+  destruct H as [f [g [eq1 eq2]]]; exists f; red; cat.
+Defined.
 
 (*Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
     @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
-unfold uniquely_isomorphic; split; simpl; intros.
-unfold Iso, Dual; simpl. apply iso_inv_unique.
-destruct H as [f [[g [eq1 eq2]]]].
-exists g. split. exists f. split; assumption. intros.
-destruct H0.
+Proof.
+  unfold uniquely_isomorphic, Dual, Iso; simpl; split; intros.
+    destruct H as [f [[g [eq1 eq2]]]].
+      exists g. cat. specialize (H x).
 *)
 
 (* Composition theorems. *)
@@ -428,8 +447,7 @@ exists (h .> f). cat.
 Qed.
 
 Theorem id_is_aut : forall (C : Cat) (A : Ob C), Aut (id A).
-unfold Aut, Iso; intros; exists (id A); cat.
-Qed.
+Proof. unfold Aut, Iso; intros; exists (id A); cat. Qed.
 
 Instance isomorphic_equiv (cat : Cat) : Equivalence isomorphic.
 Proof.
@@ -458,5 +476,3 @@ Proof.
   intros; destruct f; cat.
   intros; destruct f; cat.
 Defined.
-
-(*Print Grpd.*)

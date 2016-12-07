@@ -11,14 +11,14 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob C) (f : Hom A X) (g : Hom B X),
     exists!! u : Hom P X, f == iA .> u /\ g == iB .> u.
 
-Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
+(*Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
     forall (X : Ob C) (fXA : Hom X A) (fXB : Hom X B) (fAX : Hom A X)
         (fBX : Hom B X), exists!! u1 : Hom X P, exists!! u2 : Hom P X,
         fXA == u1 .> pA /\ fXB == u1 .> pB /\
-        fAX == iA .> u2 /\ fBX == iB .> u2.
+        fAX == iA .> u2 /\ fBX == iB .> u2.*)
 
-Definition biproduct' (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
+Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
     product C P pA pB /\ coproduct C P iA iB.
 
@@ -68,6 +68,42 @@ Proof.
       try rewrite H; try rewrite H0; try rewrite H1; try rewrite H2;
         reflexivity.
 (* Category axioms *) all: cat.
+Defined.
+
+Coercion ProdCatHom' {C D : Cat} (X Y : Ob C * Ob D) :=
+    prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
+
+Definition ProdCatSetoid' {C D : Cat} (X Y : Ob C * Ob D)
+    : Setoid (ProdCatHom' X Y).
+refine
+{|
+    equiv := fun f g : ProdCatHom' X Y =>
+        @equiv (@Hom C (fst X) (fst Y)) (@HomSetoid C (fst X) (fst Y))
+        (fst f) (fst g) /\
+        @equiv (@Hom D (snd X) (snd Y)) (@HomSetoid D (snd X) (snd Y))
+        (snd f) (snd g)
+|}.
+Proof.
+  split; red; intros; split; try destruct H; try destruct H0;
+  try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
+Defined.
+
+Instance CAT_prod' (C : Cat) (D : Cat) : Cat :=
+{
+    Ob := Ob C * Ob D;
+    Hom := ProdCatHom';
+    HomSetoid := ProdCatSetoid';
+    comp := fun (X Y Z : Ob C * Ob D)
+        (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
+        (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
+        (fst f .> fst g, snd f .> snd g);
+    id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
+}.
+Proof.
+  (* Proper *) cat.
+    rewrite H, H0. reflexivity.
+    rewrite H1, H2. reflexivity.
+  (* Category laws *) all: cat.
 Defined.
 
 Class has_prod_functor (C : Cat) : Type :=
@@ -135,18 +171,18 @@ Restart.
   cat.
 Qed.
 
-Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
+(*Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
     biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
 Proof.
   unfold biproduct; repeat (red || split); simpl; intros;
   specialize (H X fAX fBX fXA fXB); repeat (cat || eexists || apply H0).
-Qed.
+Qed.*)
 
-Theorem dual_biproduct'_self : forall (C : Cat) (A B P : Ob C)
+Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct' C P pA pB iA iB <-> biproduct' (Dual C) P iA iB pA pB.
-Proof. unfold biproduct'. cat. Qed.
+    biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
+Proof. unfold biproduct. cat. Qed.
 
 Theorem product_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (pA : Hom P A)
     (pB : Hom P B), product C P pA pB -> product C P pB pA.
@@ -164,14 +200,18 @@ Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
     (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
 Proof.
   unfold coproduct; intros. destruct (H X g f). eexists; cat.
+Restart. (* Duality! *)
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- (dual_product_coproduct (Dual C)) in *.
+  apply product_comm. assumption.
 Qed.
 
 Hint Resolve product_comm coproduct_comm.
 
 Theorem biprod_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct' C P pA pB iA iB -> biproduct' C P pB pA iB iA.
-Proof. unfold biproduct'. cat. Qed.
+    biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
+Proof. unfold biproduct. cat. Qed.
 
 (*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product
     definition. In case of the big product, this is not needed. *)
@@ -192,7 +232,7 @@ Proof.
   exists u. rewrite eq1. reflexivity.
 Qed.
 
-Theorem product_iso_unique : forall (C : Cat) (A B : Ob C) (P : Ob C)
+(*Theorem product_iso_unique : forall (C : Cat) (A B : Ob C) (P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (Q : Ob C) (qA : Hom Q A) (qB : Hom Q B),
     product C P pA pB -> product C Q qA qB -> P ~ Q.
 intros.
@@ -212,10 +252,11 @@ rewrite <- i_is_id.
 symmetry. apply uq. split.
 cat. rewrite <- iso_pA. assumption.
 cat. rewrite <- iso_pB. assumption.
-Qed.
+Qed.*)
 
-Theorem iso_prod : forall (C' : Cat) (A B C D P Q : Ob C') (pA : Hom P A)
-    (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
+(* Before rename: iso_prod *)
+Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
+    (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
     A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
 Proof.
   unfold product, isomorphic; intros.
@@ -247,22 +288,45 @@ Proof.
           rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
 Qed.
 
-Theorem product_iso_unique2 : forall (C : Cat) (A B : Ob C) (P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (Q : Ob C) (qA : Hom Q A) (qB : Hom Q B),
+(*Theorem product_iso' : forall (C : Cat) (A B P Q : Ob C)
+    (pA : Hom P A) (pB : Hom P B) (qA : Hom Q A) (qB : Hom Q B),
     product C P pA pB -> product C Q qA qB -> P ~ Q.
 Proof.
-  intros. eapply iso_prod; eauto; reflexivity.
-Qed.
+  intros. eapply product_iso; eauto; reflexivity.
+Qed.*)
 
-Theorem iso_biprod' : forall (C' : Cat) (A B C D P Q : Ob C')
+Theorem coproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
+    (iA : Hom A P) (iB : Hom B P) (jC : Hom C Q) (jD : Hom D Q),
+    A ~ C -> B ~ D -> coproduct C' P iA iB -> coproduct C' Q jC jD -> P ~ Q.
+Proof.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- (dual_product_coproduct (Dual C)) in *.
+  rewrite dual_isomorphic_self in *.
+  eapply product_iso. exact H. exact H0. exact H2. exact H1.
+Defined.
+
+(*Theorem coproduct_iso' : forall (C : Cat) (A B P Q : Ob C)
+    (iA : Hom A P) (iB : Hom B P) (jA : Hom A Q) (jB : Hom B Q),
+    coproduct C P iA iB -> coproduct C Q jA jB -> P ~ Q.
+Proof.
+  intros. eapply coproduct_iso; eauto; reflexivity.
+Qed.*)
+
+Theorem biproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
     (qC : Hom Q C) (qD : Hom Q D) (jC : Hom C Q) (jD : Hom D Q),
     A ~ C -> B ~ D ->
-    biproduct' C' P pA pB iA iB -> biproduct' C' Q qC qD jC jD -> P ~ Q.
+    biproduct C' P pA pB iA iB -> biproduct C' Q qC qD jC jD -> P ~ Q.
 Proof.
-  unfold biproduct'. cat. Check iso_prod.
-  apply (iso_prod C' A B C D P Q pA pB qC qD H H0 H1 H2).
+  unfold biproduct. cat.
+  apply (product_iso C' A B C D P Q pA pB qC qD H H0 H1 H2).
 Qed.
+
+(*Theorem biproduct_iso' : forall (C : Cat) (A B P Q : Ob C)
+    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
+    (qC : Hom Q C) (qD : Hom Q D) (jC : Hom C Q) (jD : Hom D Q),
+*)
+
 (*
 Theorem prod_assoc : forall (_ : Cat) (A B C AB BC A_BC AB_C : Ob C)
     (pAB_A : Hom AB A) (pAB_B : Hom AB B) (pBC_B : Hom BC B) (pBC_C : Hom BC C)
