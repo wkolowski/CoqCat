@@ -4,6 +4,7 @@ Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
+Require Import Equalizer.
 
 Set Universe Polymorphism.
 
@@ -262,3 +263,29 @@ Proof.
       rewrite H. auto.
     destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
     destruct H as [H1 H2]. exists (fun _ => nonempty). simpl.*)
+
+Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
+{
+    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        {x : X | f x = g x};
+    eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        fun (x : {x : X | f x = g x}) => proj1_sig x
+}.
+Proof.
+  unfold equalizer; simpl; split; intros.
+    destruct x; simpl. auto. Print sig.
+    exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
+    cat. specialize (H0 x). destruct (y x). simpl in *. subst.
+    f_equal. apply proof_irrelevance.
+Defined.
+
+Print has_coequalizers.
+Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
+{
+    coeq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        {y : Y | forall x : X, f x = y /\ g x = y} | exists {x : X | 
+    coeq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        fun (y : Y) => tt
+}.
+Proof.
+  unfold coequalizer. cat. 
