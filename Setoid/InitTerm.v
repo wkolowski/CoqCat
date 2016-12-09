@@ -11,6 +11,17 @@ Definition terminal {C : Cat} (T : Ob C) : Prop :=
 Definition zero_object {C : Cat} (Z : Ob C) : Prop :=
     initial Z /\ terminal Z.
 
+Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
+    @initial C A <-> @terminal (Dual C) A.
+Proof. split; auto. Qed.
+
+Theorem dual_zero_self : forall (C : Cat) (A : Ob C),
+    @zero_object C A <-> @zero_object (Dual C) A.
+Proof.
+  unfold zero_object; repeat split; intros;
+  destruct H; assumption.
+Qed.
+
 Class has_init (C : Cat) : Type :=
 {
     init : Ob C;
@@ -49,18 +60,7 @@ Defined.
 Hint Unfold initial terminal zero_object.
 Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso.
 
-Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
-    @initial C A <-> @terminal (Dual C) A.
-Proof. split; auto. Qed.
-
-Theorem dual_zero_self : forall (C : Cat) (A : Ob C),
-    @zero_object C A <-> @zero_object (Dual C) A.
-Proof.
-  unfold zero_object; repeat split; intros;
-  destruct H; assumption.
-Qed.
-
-Theorem initial_unique_iso : forall (C : Cat) (A B : Ob C),
+Theorem initial_uiso : forall (C : Cat) (A B : Ob C),
     initial A -> initial B -> A ~~ B.
 Proof.
   unfold uniquely_isomorphic, isomorphic, initial; intros.
@@ -71,13 +71,13 @@ Proof.
     rewrite <- (HB (id B)); try symmetry; auto.
 Qed.
 
-Hint Resolve initial_unique_iso.
+Hint Resolve initial_uiso.
 
 Theorem initial_iso : forall (C : Cat) (A B : Ob C),
     initial A -> initial B -> A ~ B.
 Proof. auto. Defined.
 
-Theorem terminal_unique_iso : forall (C : Cat) (A B : Ob C),
+Theorem terminal_uiso : forall (C : Cat) (A B : Ob C),
     terminal A -> terminal B -> A ~~ B.
 Proof.
   unfold uniquely_isomorphic, isomorphic, terminal; intros.
@@ -86,9 +86,13 @@ Proof.
   exists g; red. split; auto. exists f; split.
     rewrite <- (HA (id A)); try symmetry; auto.
     rewrite <- (HB (id B)); try symmetry; auto.
+Restart.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- dual_initial_terminal in *.
+  rewrite dual_unique_iso_self. cat.
 Qed.
 
-Hint Resolve terminal_unique_iso.
+Hint Resolve terminal_uiso.
 
 Theorem terminal_iso : forall (C : Cat) (A B : Ob C),
     terminal A -> terminal B -> A ~ B.
@@ -113,7 +117,7 @@ Proof.
 Qed.
 
 (* There was duality, but it doesn't work in Setoid/ *)
-Theorem mor_to_term_is_sec : forall (C : Cat) (T X : Ob C) (f : Hom T X),
+Theorem mor_from_term_is_sec : forall (C : Cat) (T X : Ob C) (f : Hom T X),
     terminal T -> Sec f.
 Proof.
   unfold terminal, Sec; intros.

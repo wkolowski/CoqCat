@@ -99,17 +99,6 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-(*Lemma cat_eq : forall C C' : Cat,
-    JMeq (Ob C) (Ob C') -> JMeq C C'.
-Proof.
-  destruct C, C'; simpl; intros. rewrite H. simpl in *.
-
-Theorem dual_involution : forall (C : Cat), Dual (Dual C) = C.
-Proof.
-  unfold Dual. destruct C. f_equal. split. cat.
-  unfold Dual; destruct C; simpl; f_equal.
-    intros. *)
-
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
 
 Theorem duality_principle : forall (P : Cat -> Prop),
@@ -126,8 +115,6 @@ Definition Sec {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
     exists g : Hom B A, f .> g == id A.
 Definition Ret {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
     exists g : Hom B A, g .> f == id B.
-(*Definition Ret {C : Cat} {A B : Ob C} (f : Hom A B) : Type :=
-    {g : Hom B A | g .> f == id B}.*)
 Definition Iso {C : Cat} {A B : Ob C} (f : Hom A B ) : Prop :=
     exists g : Hom B A, f .> g == id A /\ g .> f == id B.
 Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
@@ -171,6 +158,18 @@ Restart.
   unfold Iso; cat.
 Qed.
 
+Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+    Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
+Proof.
+  unfold Iso; split; intros.
+    destruct H as [g [inv1 inv2]]. exists g. cat. (* HERE cat worked, but now doesn't *)
+      assert (eq1 : y .> f .> g == g). rewrite H0. cat.
+      assert (eq2 : y .> f .> g == y). rewrite comp_assoc, inv1. cat.
+      rewrite <- eq1, eq2. reflexivity.
+    destruct H as [g [[eq1 eq2] H]].
+      exists g. cat.
+Qed.
+
 Definition isomorphic {C : Cat} (A B : Ob C) :=
     exists f : Hom A B, Iso f.
 
@@ -181,6 +180,28 @@ Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 
 Hint Unfold isomorphic uniquely_isomorphic setoid_unique.
+
+Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
+    @isomorphic C A B <-> @isomorphic (Dual C) B A.
+Proof.
+  unfold isomorphic; simpl; split; intros;
+  destruct H as [f [g [eq1 eq2]]]; exists f; red; cat.
+Defined.
+
+Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
+    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
+Proof. (* It works, but is slow — dunno why
+  unfold uniquely_isomorphic, Dual. simpl; split; intros.
+    destruct H as [f [f_iso H]].
+      rewrite iso_inv_unique in f_iso. unfold Iso.
+        destruct f_iso as [g [[eq1 eq2] unique]].
+        exists g. cat. apply unique; rewrite (H x); cat.
+    destruct H as [f [f_iso H]].
+      rewrite iso_inv_unique in f_iso. unfold Iso.
+        destruct f_iso as [g [[eq1 eq2] unique]].
+        exists g. cat. apply unique; rewrite (H x); cat.
+Defined. *)
+Admitted.
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
 Proof.
@@ -316,46 +337,6 @@ unfold Iso, Sec, Epi in *. destruct H as [H [g eq]].
 exists g. split. Focus 2. assumption.
 apply H. rewrite comp_assoc. rewrite eq. cat.
 Qed.
-
-(*Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
-    Iso f <-> (exists g : Hom B A, (f .> g == id A /\ g .> f == id B) /\
-    forall g' : Hom B A, f .> g' == id A /\ g' .> f == id B -> g == g').
-split; intros; unfold Iso in H. destruct H as (g, [inv1 inv2]).
-exists g. split. split; assumption.
-intros h H; destruct H as (iso1, iso2).
-assert (eq1 : h .> f .> g == g). rewrite iso2. cat.
-assert (eq2 : h .> f .> g == h). rewrite comp_assoc, inv1. cat.
-rewrite <- eq1, eq2. reflexivity.
-unfold Iso. destruct H as [g [[eq1 eq2] H]].
-exists g; split; assumption.
-Qed.*)
-
-Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
-    Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
-Proof.
-  unfold Iso; split; intros.
-    destruct H as [g [inv1 inv2]]. exists g. cat. (* HERE cat worked, but now doesn't *)
-      assert (eq1 : y .> f .> g == g). rewrite H0. cat.
-      assert (eq2 : y .> f .> g == y). rewrite comp_assoc, inv1. cat.
-      rewrite <- eq1, eq2. reflexivity.
-    destruct H as [g [[eq1 eq2] H]].
-      exists g. cat.
-Qed.
-
-Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
-    @isomorphic C A B <-> @isomorphic (Dual C) B A.
-Proof.
-  unfold isomorphic; simpl; split; intros;
-  destruct H as [f [g [eq1 eq2]]]; exists f; red; cat.
-Defined.
-
-(*Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
-    @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
-Proof.
-  unfold uniquely_isomorphic, Dual, Iso; simpl; split; intros.
-    destruct H as [f [[g [eq1 eq2]]]].
-      exists g. cat. specialize (H x).
-*)
 
 (* Composition theorems. *)
 Theorem mon_comp : forall (cat : Cat) (A B C : Ob cat) (f : Hom A B) (g : Hom B C),
