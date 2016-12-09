@@ -12,10 +12,19 @@ Definition coequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' ->
     exists!! u : Hom Q Q', q .> u == q'.
 
+Definition biequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X) (q : Hom Y E) : Prop :=
+    equalizer C f g E e /\ coequalizer C f g E q.
+
 Theorem dual_equalizer_coequalizer : forall (C : Cat) (X Y E : Ob C)
     (f g : Hom X Y) (e : Hom E X),
     @equalizer C X Y f g E e <-> @coequalizer (Dual C) Y X f g E e.
 Proof. unfold equalizer, coequalizer. cat. Qed.
+
+Theorem dual_biqualizer_self : forall (C : Cat) (X Y E : Ob C)
+    (f g : Hom X Y) (e : Hom E X) (q : Hom Y E),
+    @biequalizer C X Y f g E e q <-> @biequalizer (Dual C) Y X f g E q e.
+Proof. unfold biequalizer, equalizer, coequalizer. cat. Qed.
 
 Class has_equalizers (C : Cat) : Type :=
 {
@@ -31,6 +40,14 @@ Class has_coequalizers (C : Cat) : Type :=
     coeq_mor : forall (X Y : Ob C) (f g : Hom X Y), Hom Y (coeq_ob X Y f g);
     is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
         coequalizer C f g (coeq_ob X Y f g) (coeq_mor X Y f g)
+}.
+
+Class has_biequalizers (C : Cat) : Type :=
+{
+    has_equalizers' :> has_equalizers C;
+    has_coequalizers' :> has_coequalizers C;
+    equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
+        eq_ob X Y f g = coeq_ob X Y f g
 }.
 
 Theorem equalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
@@ -63,3 +80,10 @@ Proof.
   exact H0. exact H.
 Defined.
 
+Theorem biequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E E' : Ob C) (e : Hom E X) (q : Hom Y E) (e' : Hom E' X) (q' : Hom Y E'),
+    biequalizer C f g E e q -> biequalizer C f g E' e' q' -> E ~ E'.
+Proof.
+  unfold biequalizer; intros. destruct H, H0.
+  eapply equalizer_iso; eauto.
+Qed.

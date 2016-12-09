@@ -31,16 +31,11 @@ Notation "'exists' !! x : A , P" :=
     (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
 
 Ltac cat_simpl := match goal with
-    (*| |- context [id _] =>
-        try rewrite id_left; try rewrite id_right
-    | H : context [id _] |- _ =>
-        try rewrite id_left in H; try rewrite id_right in H*)
     | |- context [id _ .> _] => rewrite id_left
     | |- context [_ .> id _] => rewrite id_right
     | H : context [id _ .> _] |- _ => rewrite id_left in H
     | H : context [_ .> id _] |- _ => rewrite id_right in H
     | H : context [setoid_unique] |- _ => red in H
-    (*| H : ?f == id _ |- context [?f] => rewrite H*) (* Breaks something *)
     | _ => simpl in *
 end.
 Ltac cat_split := unfold setoid_unique in *; simpl in *; repeat
@@ -48,6 +43,7 @@ match goal with
     | H : False |- _ => inversion H
     | e : Empty_set |- _ => inversion e
     | x : unit |- _ => destruct x
+    | |- context [@eq unit ?a ?b] => destruct a, b (* added 9.12.2016 *)
     | x : True |- _ => destruct x
     | H : forall _ : unit, _ |- _ => specialize (H tt)
     | H : forall _ : True, _ |- _ => specialize (H I)

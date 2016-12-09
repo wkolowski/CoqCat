@@ -1,20 +1,22 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
 
-Instance HomProsCat `(A : Pros) : @CatHom A.
-split; intros a b. exact (a ≤ b).
-Defined.
+Require Export Cat.
+Require Export InitTerm.
+Require Export BinProdCoprod.
 
-Instance CompProsCat `(A : Pros) : @CatComp A (HomProsCat A).
-split; unfold Hom, HomProsCat; intros.
-apply leq_trans with B; assumption.
-Defined.
+Require Export Pros.
 
-Instance IdProsCat `(A : Pros) : @CatId A (HomProsCat A).
-split; unfold Hom, HomProsCat; intros.
-apply leq_refl.
-Defined.
+Set Universe Polymorphism.
 
-Instance CatProsCat `(A : Pros) :
-    @Cat A (HomProsCat A) (CompProsCat A) (IdProsCat A).
-split; unfold Hom, HomProsCat, comp, CompProsCat;
-intros; apply proof_irrelevance.
-Defined.
+Instance DeloopPros (P : Pros) : Cat :=
+{
+    Ob := carrier;
+    Hom := leq;
+    HomSetoid := fun (X Y : carrier) =>
+      {| equiv := fun f g : X ≤ Y => True |}; (* Proof irrelevance *)
+    comp := leq_trans;
+    id := leq_refl
+}.
+Proof. all: cat. Defined.
+

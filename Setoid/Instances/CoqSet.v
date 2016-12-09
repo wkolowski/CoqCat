@@ -62,7 +62,7 @@ Instance CoqSet_has_term : has_term CoqSet :=
     term := unit;
     delete := fun (X : Set) (x : X) => tt
 }.
-Proof. cat. destruct (f x). cat. Defined.
+Proof. cat. Defined.
 
 Definition is_singleton (A : Set) : Prop :=
     exists a : A, True /\ forall (x y : A), x = y.
@@ -279,13 +279,15 @@ Proof.
     f_equal. apply proof_irrelevance.
 Defined.
 
-Print has_coequalizers.
-Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
+(* Not sure if it's even true *)
+(*Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
 {
     coeq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        {y : Y | forall x : X, f x = y /\ g x = y} | exists {x : X | 
-    coeq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        fun (y : Y) => tt
+        {T : Set & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
+    (*coeq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>*)
+        
 }.
 Proof.
-  unfold coequalizer. cat. 
+  simpl; intros X Y f g y. exists {A : {y : Y | 
+  unfold coequalizer; simpl; intros. cat. f_equal.
+*)

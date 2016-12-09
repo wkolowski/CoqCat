@@ -51,3 +51,41 @@ Proof.
     | f : SgrHom _ _ |- _ => destruct f
   end; simpl; auto.
 Defined.
+
+Instance Sgr_init : Sgr :=
+{
+    carrier := Empty_set;
+    op := fun (e : Empty_set) _ => match e with end
+}.
+Proof. cat. Defined.
+
+Definition Sgr_create (X : Sgr) : Hom Sgr_init X.
+Proof.
+  repeat red. exists (fun e : Sgr_init => match e with end). cat.
+Defined.
+
+Instance Sgr_has_init : has_init SgrCat :=
+{
+    init := Sgr_init;
+    create := Sgr_create
+}.
+Proof. cat. Defined.
+
+Instance Sgr_term : Sgr :=
+{
+    carrier := unit;
+    op := fun _ _ => tt
+}.
+Proof. cat. Defined.
+
+Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
+Proof.
+  repeat red; simpl. exists (fun _ => tt). auto.
+Defined.
+
+Instance Sgr_has_term : has_term SgrCat :=
+{
+    term := Sgr_term;
+    delete := Sgr_delete
+}.
+Proof. cat. Defined.
