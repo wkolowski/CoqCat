@@ -23,6 +23,8 @@ Arguments Ob _ : clear implicits.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
+Hint Resolve comp_Proper comp_assoc id_left id_right.
+
 (* Moved here so that tactics work *)
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
     : Prop := P x /\  (forall y : A, P y -> x == y).
