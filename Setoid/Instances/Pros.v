@@ -21,20 +21,18 @@ Hint Resolve leq_refl leq_trans.
 
 Coercion carrier : Pros >-> Sortclass.
 
-(*Arguments carr_ _ : clear implicits.*)
+Ltac destr_pros :=
+match goal with
+  | P : Pros |- _ => destruct P; destr_pros
+  | _ => idtac
+end; simpl in *.
 
 Notation "x ≤ y" := (leq x y) (at level 40).
 
-(*Instance SetoidPros : Setoid Pros :=
-{
-    equiv := fun A B : Pros => JMeq (@leq A) (@leq B)
-}.
-cat. red. intros. destruct x, y, z; simpl in *. rewrite H, H0. trivial.
-Defined.*)
-
 Theorem eq_JMeq : forall (A : Type) (a a' : A), JMeq a a' <-> a = a'.
-split; intros. rewrite H. trivial.
-rewrite H. trivial.
+Proof.
+  split; intros. rewrite H. trivial.
+  rewrite H. trivial.
 Qed.
 
 Definition ProsHom (A B : Pros) : Type :=
@@ -42,6 +40,15 @@ Definition ProsHom (A B : Pros) : Type :=
 
 Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B) : A -> B := proj1_sig f.
 Coercion ProsHom_Fun : ProsHom >-> Funclass.
+
+Ltac destr_proshom :=
+match goal with
+  | f : ProsHom _ _ |- _ => destruct f; destr_proshom
+  | f : Hom _ _ |- _ => destruct f; destr_proshom
+  | _ => idtac
+end; simpl in *.
+
+Ltac pros := cat.
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
     : ProsHom A C.
@@ -65,13 +72,10 @@ Instance ProsCat : Cat :=
     id := ProsId
 }.
 Proof.
-  (* Equivalence *) cat. red; intros. rewrite H, H0. auto.
-  (* Proper *) repeat red; simpl; intros. unfold ProsComp;
-    destruct x, x0, y, y0; simpl in *. rewrite H, H0. auto.
-  (* Category laws *) all: intros;
-  repeat match goal with
-      | f : ProsHom ?A ?B |- _ => destruct f
-  end; simpl; auto.
+  (* Equivalence *) cat; red; intros. rewrite H, H0. auto.
+  (* Proper *) repeat red; simpl; intros. destr_proshom.
+    rewrite H, H0. auto.
+  (* Category laws *) all: intros; destr_proshom; pros.
 Defined.
 
 Instance NatLe : Pros :=
@@ -128,43 +132,41 @@ rewrite fn_ext_pros; intro x. apply H.
 generalize x; rewrite fn_ext_pros in H0. assumption.
 admit.*)
 
-Instance init' : Pros :=
+Instance Pros_init : Pros :=
 {
     carrier := Empty_set;
     leq := fun (x y : Empty_set) => match x with end
 }.
 Proof. all: destruct a. Defined.
 
-Definition create' (X : Pros) : ProsHom init' X.
+Definition Pros_create (X : Pros) : ProsHom Pros_init X.
 Proof.
-  red. exists (fun (e : init') => match e with end). destruct a.
+  red. exists (fun (e : Pros_init) => match e with end). destruct a.
 Defined.
 
 Instance Pros_has_init : has_init ProsCat :=
 {
-    init := init';
-    create := create'
+    init := Pros_init;
+    create := Pros_create
 }.
-Proof. repeat red. destruct x. Defined.
+Proof. pros. Defined.
 
-Instance term' : Pros :=
+Instance Pros_term : Pros :=
 {
     carrier := unit;
     leq := fun _ _ => True
 }.
 Proof. all: auto. Defined.
 
-Definition delete' (X : Pros) : ProsHom X term'.
+Definition Pros_delete (X : Pros) : ProsHom X Pros_term.
 Proof. red. exists (fun _ => tt). simpl. auto. Defined.
 
 Instance Pros_has_term : has_term ProsCat :=
 {
-    term := term';
-    delete := delete'
+    term := Pros_term;
+    delete := Pros_delete
 }.
-Proof. simpl; intros; destruct (f x); auto. Defined.
-
-Print term.
+Proof. pros. Defined.
 
 Eval compute in term ProsCat.
 
@@ -183,6 +185,8 @@ Proof.
   unfold leq; destruct X, Y; simpl. destruct 1, 1. split.
     eapply leq_trans0; eauto.
     eapply leq_trans1; eauto.
+Restart.
+  all: pros.
 Defined.
 
 Definition proj1'' (X Y : Pros) : ProsHom (prod'' X Y) X.
