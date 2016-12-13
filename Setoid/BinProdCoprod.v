@@ -11,13 +11,6 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
     (iB : Hom B P) := forall (X : Ob C) (f : Hom A X) (g : Hom B X),
     exists!! u : Hom P X, f == iA .> u /\ g == iB .> u.
 
-(*Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
-    (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
-    forall (X : Ob C) (fXA : Hom X A) (fXB : Hom X B) (fAX : Hom A X)
-        (fBX : Hom B X), exists!! u1 : Hom X P, exists!! u2 : Hom P X,
-        fXA == u1 .> pA /\ fXB == u1 .> pB /\
-        fAX == iA .> u2 /\ fBX == iB .> u2.*)
-
 Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
     product C P pA pB /\ coproduct C P iA iB.

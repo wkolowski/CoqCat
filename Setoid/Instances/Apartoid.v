@@ -184,4 +184,3 @@ Proof.
   unfold product; simpl; intros. exists (Apartoid_diag' X A B f g).
   cat. destruct f, g, y; simpl in *. rewrite H, H0. destruct (x2 x). auto.
 Defined.
-

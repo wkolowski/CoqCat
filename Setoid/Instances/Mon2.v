@@ -68,7 +68,7 @@ Ltac mon := cat; repeat mon_simpl;
 match goal with
   | |- (_, _) = _ => f_equal
   | _ => cat
-end; cat.  
+end; cat.
 
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {

@@ -40,6 +40,7 @@ Ltac cat_simpl := match goal with
     | H : context [setoid_unique] |- _ => red in H
     | _ => simpl in *
 end.
+
 Ltac cat_split := unfold setoid_unique in *; simpl in *; repeat
 match goal with
     | H : False |- _ => inversion H

@@ -16,10 +16,38 @@ Class Sgr : Type :=
     assoc : forall x y z : carrier, op x (op y z) = op (op x y) z
 }.
 
-Ltac sgr_assoc := repeat rewrite assoc.
-Ltac sgr := sgr_assoc; eauto.
-
 Coercion carrier : Sgr >-> Sortclass.
+
+Hint Resolve assoc.
+
+Ltac sgr_simpl :=
+match goal with
+  (* Associativity — not sure if it even works. *)
+  | H : context [?op _ (?op _ _)] |- _ => rewrite assoc in H
+  | H : context [?op (?op _ _) _] |- _ => rewrite assoc in H
+  | |- context [?op _ (?op _ _)] => rewrite assoc
+  | |- context [?op (?op _ _) _] => rewrite assoc
+  (* Homomorphisms *)
+  | f : ?X -> ?Y, X_op : ?X -> ?X -> ?X, Y_op : ?Y -> ?Y -> ?Y,
+    H : forall x x' : ?X, ?f (?X_op x x') = ?Y_op (?f x) (?f x')
+    |- context [?f (?X_op _ _)] => rewrite H
+  | _ => idtac
+end; repeat red; simpl in *; intros.
+
+Ltac sgrob S := try intros until S;
+match type of S with
+  | Sgr => 
+    let a := fresh S "_carrier" in
+    let b := fresh S "_op" in
+    let c := fresh S "_assoc" in destruct S as [a b c]
+  | Ob _ => progress simpl in S; sgrob S
+end; sgr_simpl.
+
+Ltac sgrobs := repeat
+match goal with
+  | S : Sgr |- _ => sgrob S
+  | S : Ob _ |- _ => sgrob S
+end; sgr_simpl.
 
 Definition SgrHom (A B : Sgr) : Type :=
     {f : A -> B | forall x y : A, f (op x y) = op (f x) (f y)}.
@@ -27,37 +55,49 @@ Definition SgrHom (A B : Sgr) : Type :=
 Definition SgrHom_Fun (A B : Sgr) (f : SgrHom A B) : A -> B := proj1_sig f.
 Coercion SgrHom_Fun : SgrHom >-> Funclass.
 
+Ltac sgrhom f := try intros until f;
+match type of f with
+  | SgrHom _ _ =>
+      let a := fresh f "_pres_op" in destruct f as [?f a]
+  | Hom _ _ => progress simpl in f; sgrhom f
+end; sgr_simpl.
+
+Ltac sgrhoms := intros; repeat
+match goal with
+  | f : SgrHom _ _ |- _ => sgrhom f
+  | f : Hom _ _ |- _ => sgrhom f
+  | _ => idtac
+end; sgr_simpl.
+
+Ltac sgr' := repeat (sgr_simpl || sgrobs || sgrhoms || cat).
+Ltac sgr := try (sgr'; fail).
+
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x = g x
 }.
-Proof. cat. red. intros. rewrite H, H0. auto. Defined.
+Proof. sgr'. rewrite H, H0. sgr. Defined.
 
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
 Proof.
-  red. destruct f as [f Hf], g as [g Hg].
-  exists (fun a : A => g (f a)). intros. rewrite Hf, Hg. auto.
+  sgr_simpl. exists (fun a : A => g (f a)). sgr.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
-Proof. red. exists (fun a : A => a). auto. Defined.
+Proof. sgr_simpl. exists (fun a : A => a). sgr. Defined.
 
 Instance SgrCat : Cat :=
 {
     Ob := Sgr;
     Hom := SgrHom;
-    HomSetoid := SgrHomSetoid;(*fun X Y : Sgr =>
-        {| equiv := fun f g : SgrHom X Y => forall x : X, f x = g x |};*)
+    HomSetoid := SgrHomSetoid;
     comp := SgrComp;
     id := SgrId
 }.
 Proof.
-  (* Proper *) repeat red; intros. destruct x, y, x0, y0; cat.
-    rewrite H, H0. auto.
-  (* Category laws *) all: intros; repeat match goal with
-    | f : SgrHom _ _ |- _ => destruct f
-  end; simpl; auto.
+  (* Proper *) sgr'. rewrite H, H0. sgr.
+  (* Category laws *) all: sgr.
 Defined.
 
 Instance Sgr_init : Sgr :=
@@ -65,11 +105,11 @@ Instance Sgr_init : Sgr :=
     carrier := Empty_set;
     op := fun (e : Empty_set) _ => match e with end
 }.
-Proof. cat. Defined.
+Proof. sgr. Defined.
 
 Definition Sgr_create (X : Sgr) : Hom Sgr_init X.
 Proof.
-  repeat red. exists (fun e : Sgr_init => match e with end). cat.
+  sgr_simpl. exists (fun e : Sgr_init => match e with end). sgr.
 Defined.
 
 Instance Sgr_has_init : has_init SgrCat :=
@@ -77,18 +117,18 @@ Instance Sgr_has_init : has_init SgrCat :=
     init := Sgr_init;
     create := Sgr_create
 }.
-Proof. cat. Defined.
+Proof. sgr. Defined.
 
 Instance Sgr_term : Sgr :=
 {
     carrier := unit;
     op := fun _ _ => tt
 }.
-Proof. cat. Defined.
+Proof. sgr. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  repeat red; simpl. exists (fun _ => tt). auto.
+  sgr_simpl. exists (fun _ => tt). sgr.
 Defined.
 
 Instance Sgr_has_term : has_term SgrCat :=
@@ -96,7 +136,7 @@ Instance Sgr_has_term : has_term SgrCat :=
     term := Sgr_term;
     delete := Sgr_delete
 }.
-Proof. cat. Defined.
+Proof. sgr. Defined.
 
 Instance Sgr_prod (X Y : Sgr) : Sgr := {}.
 Proof.
@@ -107,20 +147,18 @@ Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prod X Y) X.
 Proof.
-  repeat red. exists fst. destruct x, y. sgr.
+  sgr_simpl. exists fst. destruct x, y. sgr.
 Defined.
 
 Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prod X Y) Y.
 Proof.
-  repeat red. exists snd. destruct x, y. sgr.
+  sgr_simpl. exists snd. destruct x, y. sgr.
 Defined.
 
 Definition Sgr_diag (X Y Z : Sgr) (f : SgrHom X Y) (g : SgrHom X Z)
     : SgrHom X (Sgr_prod Y Z).
 Proof.
-  red. exists (fun x : X => (f x, g x)).
-  destruct f as [f Hf], g as [g Hg]; simpl in *.
-  intros. rewrite Hf, Hg. auto.
+  sgr_simpl. exists (fun x : X => (f x, g x)). sgr.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=
@@ -130,12 +168,11 @@ Instance Sgr_has_products : has_products SgrCat :=
     proj2' := Sgr_proj2
 }.
 Proof.
-  repeat red; simpl; intros. exists (Sgr_diag X A B f g).
-  cat. destruct f as [f Hf], g as [g Hg], y as [y Hy]; simpl in *.
-  rewrite H, H0. destruct (y x). auto.
+  sgr_simpl. exists (Sgr_diag X A B f g).
+  sgr'. rewrite H, H0. destruct (y x). auto.
 Defined.
 
-Instance Sgr_coprod (X Y : Sgr) : Sgr :=
+Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
     carrier := sum X Y;
 }.
@@ -143,35 +180,16 @@ Proof.
   destruct 1 as [x | y], 1 as [x' | y'].
     left. exact (op x x').
     left. exact x.
-    left. exact x'. (*left. exact x'.*)
+    left. exact x'.
     right. exact (op y y').
   destruct x, y, z; sgr.
 Defined.
 
-Definition Sgr_coproj1 (X Y : Sgr) : SgrHom X (Sgr_coprod X Y).
-Proof. red. exists inl. sgr. Defined.
+Definition Sgr_inl (X Y : Sgr) : SgrHom X (Sgr_sum X Y).
+Proof. sgr_simpl. exists inl. sgr. Defined.
 
-Definition Sgr_coproj2 (X Y : Sgr) : SgrHom Y (Sgr_coprod X Y).
-Proof. red. exists inr. sgr. Defined.
-
-(*Definition Sgr_codiag (X Y Z : Sgr) (f : SgrHom X Z) (g : SgrHom Y Z)
-    : SgrHom (Sgr_coprod X Y) Z.
-Proof.
-  repeat red. exists (fun p : X + Y =>
-  match p with
-    | inl x => f x
-    | inr y => g y
-  end); destruct x, y, f, g; simpl; auto.
-
-Instance Sgr_has_coproducts : has_coproducts SgrCat :=
-{
-    coprod := Sgr_coprod;
-    coproj1 := Sgr_coproj1;
-    coproj2 := Sgr_coproj2
-}.
-Proof.
-  repeat red. destruct f as [f Hf], g as [g Hg]. simpl.*)
-
+Definition Sgr_inr (X Y : Sgr) : SgrHom Y (Sgr_sum X Y).
+Proof. sgr_simpl. exists inr. sgr. Defined.
 
 Instance Sgr_sumprod (X Y : Sgr) : Sgr :=
 {
@@ -191,27 +209,8 @@ Proof.
   destruct x, y, z; sgr.
 Defined.
 
-Definition Sgr_coproj1' (X Y : Sgr) : SgrHom X (Sgr_sumprod X Y).
-Proof. red. exists (@inl' X Y). sgr. Defined.
+Definition Sgr_inl' (X Y : Sgr) : SgrHom X (Sgr_sumprod X Y).
+Proof. sgr_simpl. exists (@inl' X Y). sgr. Defined.
 
-Definition Sgr_coproj2' (X Y : Sgr) : SgrHom Y (Sgr_sumprod X Y).
-Proof. red. exists (@inr' X Y). sgr. Defined.
-
-(*Definition Sgr_codiag' (X Y Z : Sgr) (f : SgrHom X Z) (g : SgrHom Y Z)
-    : SgrHom (Sgr_sumprod X Y) Z.
-Proof.
-  red. exists (fun p : sumprod X Y =>
-  match p with
-    | inl' x => f x
-    | inr' y => g y
-    | pair' x y => op (g y) (f x)
-  end).
-  destruct x, y, f as [f Hf], g as [g Hg]; simpl in *.
-    sgr.
-    sgr.
-    rewrite Hf. sgr.
-    Focus 2. sgr.
-    Focus 2. rewrite Hg. sgr.
-    
-  repeat rewrite Hf; repeat rewrite Hg; sgr.
-    rewrite Hf. auto.*)
+Definition Sgr_inr' (X Y : Sgr) : SgrHom Y (Sgr_sumprod X Y).
+Proof. sgr_simpl. exists (@inr' X Y). sgr. Defined.
