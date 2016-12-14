@@ -5,58 +5,61 @@ Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Require Export Mon1.
+Require Export Mon.
 
 Set Universe Polymorphism.
 
 Class Grp : Type :=
 {
-    carrier :> Mon;
-    inv : carrier -> carrier;
-    inv_l : forall x : carrier, op (inv x) x = neutr;
-    inv_r : forall x : carrier, op x (inv x) = neutr
+    mon :> Mon;
+    inv : mon -> mon;
+    inv_l : forall x : mon, op (inv x) x = neutr;
+    inv_r : forall x : mon, op x (inv x) = neutr
 }.
-  
+
 Hint Resolve inv_l inv_r.
 
-Coercion carrier : Grp >-> Mon.
+Coercion mon : Grp >-> Mon.
 
-Theorem inv_involutive : forall (G : Grp) (g : G),
-    inv (inv g) = g.
-Proof.
-  intros. assert (H : op (inv (inv g)) (inv g) = neutr); auto.
-  assert (H' : op (op (inv (inv g)) (inv g)) g = g).
-    rewrite H. auto.
-  rewrite <- assoc in H'. rewrite inv_l in H'. rewrite <- H' at 2. auto.
-Qed.
+Ltac grp_simpl := simpl; intros;
+try match goal with
+  (* There's a group that wasn't destructed. *)
+  (*| H : context [?op (?inv ?x) ?x] |- _ => rewrite inv_l in H
+  | H : context [?op ?x (?inv ?x)] |- _ => rewrite inv_r in H*)
+  | |- context [?op (?inv ?x) ?x] => rewrite inv_l
+  | |- context [?op ?x (?inv ?x)] => rewrite inv_r
+  (* There's some group that was destructed. *)
+  | inv_l : forall g : _, ?op (?inv g) g = ?neutr |- _ =>
+    try match goal with
+      (*| H : context [?op (?inv ?x) ?x] |- _ => rewrite inv_l in H*)
+      | |- context [?op (?inv ?x) ?x] => rewrite inv_l
+    end
+  | inv_r : forall g : _, ?op g (?inv g) = ?neutr |- _ =>
+    try match goal with
+      (*| H : context [?op ?x (?inv ?x)] |- _ => rewrite inv_r in H*)
+      | |- context [?op ?x (?inv ?x)] => rewrite inv_r
+    end
+end; mon_simpl.
 
-Theorem inv_op : forall (G : Grp) (a b : G),
-    inv (op a b) = op (inv b) (inv a).
-Proof.
-Abort.
-
-
-Theorem inv_neutr : forall (G : Grp), inv neutr = neutr.
-Proof.
-Abort.
-  
-Ltac grp_simpl :=
-match goal with
-  | H : context [op (inv ?x) ?x] |- _ => rewrite inv_l in H
-  | H : context [op ?x (inv ?x)] |- _ => rewrite inv_r in H
-  | |- context [op (inv ?x) ?x] => rewrite inv_l
-  | |- context [op ?x (inv ?x)] => rewrite inv_r
-  | _ => idtac
+Ltac grpob G := try intros until G;
+match type of G with
+  | Grp =>
+    let a := fresh G "_inv" in 
+    let b := fresh G "_inv_l" in
+    let c := fresh G "_inv_r" in destruct G as [G a b c]
+  | Ob _ => progress simpl in G; grpob G
 end.
 
-Ltac destr_grp :=
+Ltac grpob' G := grpob G; monob' G.
+
+Ltac grpobs_template tac := repeat
 match goal with
-  | G : Grp |- _ => destruct G as [G ? ? ?];
-    destruct G as [G ? ? ?]; destruct G; destr_grp
-  | _ => idtac
+  | G : Grp |- _ => tac G
+  | G : Ob _ |- _ => tac G
 end.
 
-Ltac grp := mon; repeat grp_simpl; mon.
+Ltac grpobs := grpobs_template grpob.
+Ltac grpobs' := grpobs_template grpob'.
 
 Definition GrpHom (X Y : Grp) : Type := 
     {f : MonHom X Y | forall x : X, f (inv x) = inv (f x)}.
@@ -65,12 +68,26 @@ Definition GrpHom_MonHom (X Y : Grp) (f : GrpHom X Y)
     : MonHom X Y := proj1_sig f.
 Coercion GrpHom_MonHom : GrpHom >-> MonHom.
 
-Ltac destr_grphom :=
-match goal with
-  | f : GrpHom _ _ |- _ => destruct f as [[[f ?] ?] ?]; destr_grphom
-  | f : Hom _ _ |- _ => destruct f as [[[f ?] ?] ?]; destr_grphom
-  | _ => idtac
+Ltac grphom f :=
+match type of f with
+  | GrpHom _ _ =>
+    let a := fresh f "_pres_inv" in destruct f as [f a]
+  | Hom _ _ => progress simpl in f; grphom f
 end; simpl in *.
+
+Ltac grphom' f := grphom f; monhom' f.
+
+Ltac grphoms_template tac := intros; repeat
+match goal with
+  | f : GrpHom _ _ |- _ => tac f
+  | f : Hom _ _ |- _ => tac f
+end; grp_simpl.
+
+Ltac grphoms := grphoms_template grphom.
+Ltac grphoms' := grphoms_template grphom'.
+
+Ltac grp' := repeat (grp_simpl || grpobs || grphoms || mon).
+Ltac grp := try (grp'; fail).
 
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
@@ -101,60 +118,94 @@ Instance GrpCat : Cat :=
 Proof.
   (* Proper *) repeat red; intros. destruct x, y, x0, y0; cat.
     eapply (@comp_Proper MonCat); auto.
-  (* Category laws *) all: intros; destr_grphom; grp.
+  (* Category laws *) all: intros; grphoms'; grp.
 Defined.
+
+Theorem inv_involutive : forall (G : Grp) (g : G),
+    inv (inv g) = g.
+Proof.
+  intros. assert (H : op (op (inv (inv g)) (inv g)) g = g).
+    grp_simpl. auto.
+  rewrite <- assoc in H. rewrite inv_l in H. rewrite neutr_r in H. auto.
+Qed.
+
+Theorem neutr_unique_l : forall (G : Grp) (e : G),
+    (forall g : G, op e g = g) -> e = neutr.
+Proof.
+  intros. assert (op e neutr = e). grp.
+  assert (op e neutr = neutr). apply H.
+  rewrite H0 in H1. auto.
+Defined.
+
+Theorem neutr_unique_r : forall (G : Grp) (e : G),
+    (forall g : G, op g e = g) -> e = neutr.
+Proof.
+  intros.
+  assert (op neutr e = e). grp.
+  assert (op neutr e = neutr). apply H.
+  rewrite H0 in H1. auto.
+Defined.
+
+Theorem inv_op : forall (G : Grp) (a b : G),
+    inv (op a b) = op (inv b) (inv a).
+Proof.
+  intros.
+  assert (forall x y : G, op (op x y) (inv (op x y)) = neutr). auto.
+  assert (forall x y : G, op (op x y) (op (inv y) (inv x)) = neutr).
+    intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
+    rewrite neutr_l. auto.
+  replace (inv (op a b)) with (op (inv (op a b)) neutr); auto.
+    rewrite <- (H0 a b). rewrite assoc. rewrite inv_l. auto.
+Defined.
+
+Theorem inv_neutr : forall (G : Grp), inv neutr = neutr.
+Proof.
+  intros. apply neutr_unique_l. intro.
+  rewrite <- inv_involutive at 1. rewrite inv_op.
+  rewrite inv_involutive. rewrite neutr_r. apply inv_involutive.
+Defined.
+
+Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr.
 
 Instance Grp_zero : Grp :=
 {
-    carrier := Mon_init;
+    mon := Mon_init;
     inv := fun _ => tt
 }.
 Proof. all: grp. Defined.
 
 Definition Grp_create (X : Grp) : Hom Grp_zero X.
 Proof.
-  repeat red. exists (Mon_create X). grp. simpl.
+  repeat red. exists (Mon_create X). grp_simpl. auto.
 Defined.
-(*
-Instance Mon_has_init : has_init MonCat :=
-{
-    init := Mon_init;
-    create := Mon_create
-}.
-Proof. destruct f. mon. Defined.
 
-Instance Mon_term : Mon :=
+Instance Grp_has_init : has_init GrpCat :=
 {
-    sgr := Sgr_term;
-    neutr := tt
+    init := Grp_zero;
+    create := Grp_create
 }.
-Proof. all: mon. Defined.
+Proof. grpobs; grphoms'. destruct x. auto. Defined.
 
-Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
+Definition Grp_delete (X : Grp) : Hom X Grp_zero.
 Proof.
-  repeat red; simpl. exists (fun _ => tt). auto.
+  do 3 red. exists (Mon_delete X). grp.
 Defined.
 
-Definition Mon_delete (X : Mon) : Hom X Mon_term.
-Proof.
-  do 3 red. exists (Mon_Sgr_delete X). simpl. auto.
-Defined.
-
-Instance Mon_has_term : has_term MonCat :=
+Instance Grp_has_term : has_term GrpCat :=
 {
-    term := Mon_term;
-    delete := Mon_delete
+    term := Grp_zero;
+    delete := Grp_delete
 }.
-Proof. mon. Defined.
+Proof. grp. Defined.
 
-Instance Mon_has_zero : has_zero MonCat :=
+Instance Grp_has_zero : has_zero GrpCat :=
 {
-    zero_is_initial := Mon_has_init;
-    zero_is_terminal := Mon_has_term
+    zero_is_initial := Grp_has_init;
+    zero_is_terminal := Grp_has_term
 }.
-Proof. cat. Defined.
+Proof. grp. Defined.
 
-Instance Mon_prod (X Y : Mon) : Mon :=
+(*Instance Mon_prod (X Y : Mon) : Mon :=
 {
     sgr := Sgr_prod X Y;
     neutr := (neutr, neutr);

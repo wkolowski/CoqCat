@@ -22,24 +22,26 @@ Hint Resolve assoc.
 
 Ltac sgr_simpl :=
 match goal with
-  (* Associativity — not sure if it even works. *)
+  (* Associativity — it works. *)
   | H : context [?op _ (?op _ _)] |- _ => rewrite assoc in H
   | H : context [?op (?op _ _) _] |- _ => rewrite assoc in H
   | |- context [?op _ (?op _ _)] => rewrite assoc
   | |- context [?op (?op _ _) _] => rewrite assoc
   (* Homomorphisms *)
-  | f : ?X -> ?Y, X_op : ?X -> ?X -> ?X, Y_op : ?Y -> ?Y -> ?Y,
-    H : forall x x' : ?X, ?f (?X_op x x') = ?Y_op (?f x) (?f x')
-    |- context [?f (?X_op _ _)] => rewrite H
+  | f : ?X -> ?Y, X_op : ?X -> ?X -> ?X, pres_op :
+    forall x x' : ?X, ?f (?X_op x x') = ?Y_op (?f x) (?f x') |- _ =>
+    match goal with
+      | H : context [?f (?X_op _ _)] |- _ => rewrite pres_op in H
+      | |- context [?f (?X_op _ _)] => rewrite pres_op
+    end
   | _ => idtac
 end; repeat red; simpl in *; intros.
 
 Ltac sgrob S := try intros until S;
 match type of S with
   | Sgr => 
-    let a := fresh S "_carrier" in
-    let b := fresh S "_op" in
-    let c := fresh S "_assoc" in destruct S as [a b c]
+    let a := fresh S "_op" in
+    let b := fresh S "_assoc" in destruct S as [S a b]
   | Ob _ => progress simpl in S; sgrob S
 end; sgr_simpl.
 
@@ -142,7 +144,7 @@ Instance Sgr_prod (X Y : Sgr) : Sgr := {}.
 Proof.
   exact (prod X Y).
   destruct 1, 1. exact (op c c1, op c0 c2).
-  destruct x, y, z. sgr.
+  destruct x, y, z. sgr'.
 Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prod X Y) X.

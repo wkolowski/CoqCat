@@ -9,7 +9,8 @@ Require Export Sgr.
 
 Set Universe Polymorphism.
 
-(* This implementation won't use Sgr directly, only for coercions. *)
+(* This implementation won't use Sgr directly, only for coercions.
+   It's kind of pointless and I dislike it now. *)
 Class Mon : Type :=
 {
     carrier : Type;
@@ -32,11 +33,18 @@ Coercion Mon_to_Sgr : Mon >-> Sgr.
 
 Ltac mon_simpl :=
 match goal with
-  | H : context [op neutr _] |- _ => rewrite neutr_l in H
-  | H : context [op _ neutr] |- _ => rewrite neutr_r in H
-  | |- context [op neutr _] => rewrite neutr_l
-  | |- context [op _ neutr] => rewrite neutr_r
-end.
+  (* Associativity — not sure if it even works. *)
+  | H : context [?op _ (?op _ _)] |- _ => rewrite assoc in H
+  | H : context [?op (?op _ _) _] |- _ => rewrite assoc in H
+  | |- context [?op _ (?op _ _)] => rewrite assoc
+  | |- context [?op (?op _ _) _] => rewrite assoc
+  (* Homomorphisms *)
+  | f : ?X -> ?Y, X_op : ?X -> ?X -> ?X, Y_op : ?Y -> ?Y -> ?Y,
+    H : forall x x' : ?X, ?f (?X_op x x') = ?Y_op (?f x) (?f x')
+    |- context [?f (?X_op _ _)] => rewrite H
+  | _ => idtac
+end; repeat red; simpl in *; intros.
+
 
 Ltac destr_mon :=
 match goal with
