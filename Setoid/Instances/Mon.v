@@ -30,7 +30,9 @@ match goal with
   | |- context [?op _ neutr] => rewrite neutr_r
   | f : ?X -> ?Y, X_neutr : ?X, pres_neutr : ?f ?X_neutr = ?neutr2 |- _ =>
     match goal with
-      | H : context [f ?neutr1] |- _ => rewrite pres_neutr in H
+      (* This can't be here because H gets rewritten in itself and thus
+         effectively destroyed. *)
+      (*| H : context [f ?neutr1] |- _ => rewrite pres_neutr in H*)
       | |- context [?f ?neutr1] => rewrite pres_neutr
     end
   (* Homomorphisms *)
@@ -215,7 +217,7 @@ Instance Mon_has_products : has_products MonCat :=
     proj1' := Mon_proj1;
     proj2' := Mon_proj2
 }.
-Proof. 
-  mon_simpl. exists (Mon_diag _ _ _ f g). mon'.
+Proof. (* mon_simpl seems too slow here *)
+  repeat red. intros. exists (Mon_diag _ _ _ f g). mon'.
   rewrite H, H0. destruct (y x). auto.
 Defined.

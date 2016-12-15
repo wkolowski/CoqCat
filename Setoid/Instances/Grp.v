@@ -39,6 +39,11 @@ try match goal with
       (*| H : context [?op ?x (?inv ?x)] |- _ => rewrite inv_r in H*)
       | |- context [?op ?x (?inv ?x)] => rewrite inv_r
     end
+  (* Homomorphisms preserve inv. *)
+  | (*f : ?X -> ?Y,*) pres_inv : forall g : _, ?f (?inv1 g) = ?inv2 (?f g)  |- _ =>
+    match goal with
+      | |- context [?f (?inv _)] => rewrite pres_inv
+    end
 end; mon_simpl.
 
 Ltac grpob G := try intros until G;
@@ -86,7 +91,7 @@ end; grp_simpl.
 Ltac grphoms := grphoms_template grphom.
 Ltac grphoms' := grphoms_template grphom'.
 
-Ltac grp' := repeat (grp_simpl || grpobs || grphoms || mon).
+Ltac grp' := repeat (grp_simpl || grpobs' || grphoms' || mon').
 Ltac grp := try (grp'; fail).
 
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
@@ -205,38 +210,39 @@ Instance Grp_has_zero : has_zero GrpCat :=
 }.
 Proof. grp. Defined.
 
-(*Instance Mon_prod (X Y : Mon) : Mon :=
+Instance Grp_prod (X Y : Grp) : Grp :=
 {
-    sgr := Sgr_prod X Y;
-    neutr := (neutr, neutr);
+    mon := Mon_prod X Y;
+    inv := fun p : X * Y => (inv (fst p), inv (snd p));
 }.
-Proof. all: destruct a; mon. Defined.
+Proof. all: destruct x; grp. Defined.
 
-Definition Mon_proj1 (X Y : Mon) : Hom (Mon_prod X Y) X.
+Definition Grp_proj1 (X Y : Grp) : Hom (Grp_prod X Y) X.
 Proof.
-  repeat red; simpl. exists (Sgr_proj1 X Y). simpl. auto.
+  grp_simpl. exists (Mon_proj1 X Y). grp.
 Defined.
 
-Definition Mon_proj2 (X Y : Mon) : Hom (Mon_prod X Y) Y.
+Definition Grp_proj2 (X Y : Grp) : Hom (Grp_prod X Y) Y.
 Proof.
-  repeat red; simpl. exists (Sgr_proj2 X Y). simpl. auto.
+  grp_simpl. exists (Mon_proj2 X Y). grp.
 Defined.
 
-Definition Mon_diag (X Y Z : Mon) (f : MonHom X Y) (g : MonHom X Z)
-    : MonHom X (Mon_prod Y Z).
+Definition Grp_diag (X Y Z : Grp) (f : Hom X Y) (g : Hom X Z)
+    : Hom X (Grp_prod Y Z).
 Proof.
-  red; simpl. exists (Sgr_diag _ _ _ f g).
-  destruct f, g; simpl. mon.
+  grp_simpl. exists (Mon_diag _ _ _ f g).
+  grphoms'. grp_simpl. auto.
 Defined.
 
-Instance Mon_has_products : has_products MonCat :=
+Instance Grp_has_products : has_products GrpCat :=
 {
-    prod' := Mon_prod;
-    proj1' := Mon_proj1;
-    proj2' := Mon_proj2
+    prod' := Grp_prod;
+    proj1' := Grp_proj1;
+    proj2' := Grp_proj2
 }.
 Proof.
-  repeat red; simpl; intros. exists (Mon_diag _ _ _ f g). cat.
-  destruct f, g, y; simpl in *. destruct x0, x1, x2; simpl in *.
-  rewrite H, H0. destruct (x2 x). auto.
-Defined.*)
+  grp_simpl. exists (Grp_diag _ _ _ f g). grp_simpl. repeat split.
+    intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
+Defined.
+
+Instance 

@@ -17,23 +17,35 @@ Class Pros : Type :=
     leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
 }.
 
+Notation "x ≤ y" := (leq x y) (at level 40).
+
 Hint Resolve leq_refl leq_trans.
 
 Coercion carrier : Pros >-> Sortclass.
 
-Ltac destr_pros :=
-match goal with
-  | P : Pros |- _ => destruct P; destr_pros
-  | _ => idtac
+(*Ltac pros_simpl := repeat (red || split); simpl.*)
+Ltac pros_simpl := repeat (red || split).
+
+Ltac prosob P := try intros until P;
+match type of P with
+  | Pros =>
+    let a := fresh P "_leq" in
+    let b := fresh P "_leq_refl" in
+    let c := fresh P "_leq_trans" in destruct P as [P a b c]
+  | Ob _ => progress simpl in P; prosob P
 end; simpl in *.
 
-Notation "x ≤ y" := (leq x y) (at level 40).
+Ltac prosobs := repeat
+match goal with
+  | P : Pros |- _ => prosob P
+  | X : Ob _ |- _ => prosob X
+end.
 
-Theorem eq_JMeq : forall (A : Type) (a a' : A), JMeq a a' <-> a = a'.
+(*Theorem eq_JMeq : forall (A : Type) (a a' : A), JMeq a a' <-> a = a'.
 Proof.
   split; intros. rewrite H. trivial.
   rewrite H. trivial.
-Qed.
+Qed.*)
 
 Definition ProsHom (A B : Pros) : Type :=
     {f : A -> B | forall a a', a ≤ a' -> f a ≤ f a'}.
@@ -41,41 +53,46 @@ Definition ProsHom (A B : Pros) : Type :=
 Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B) : A -> B := proj1_sig f.
 Coercion ProsHom_Fun : ProsHom >-> Funclass.
 
-Ltac destr_proshom :=
-match goal with
-  | f : ProsHom _ _ |- _ => destruct f; destr_proshom
-  | f : Hom _ _ |- _ => destruct f; destr_proshom
-  | _ => idtac
+Ltac proshom f := try intros until f;
+match type of f with
+  | ProsHom _ _ =>
+    let a := fresh f "_pres_leq" in destruct f as [f a]
+  | Hom _ _ => progress simpl in f; proshom f
 end; simpl in *.
 
-Ltac pros := cat.
+Ltac proshoms := repeat
+match goal with
+  | f : ProsHom _ _ |- _ => proshom f
+  | f : Hom _ _ |- _ => proshom f
+end.
+
+Ltac pros' := repeat (pros_simpl || prosobs || proshoms || cat || omega).
+Ltac pros := try (pros'; fail).
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
     : ProsHom A C.
 Proof.
-  destruct f as [f Hf], g as [g Hg]. red.
-  exists (fun a : A => g (f a)). intros. apply Hg. apply Hf. auto.
+  proshoms. exists (fun a : A => g (f a)). pros.
 Defined.
 
 Definition ProsId (A : Pros) : ProsHom A A.
 Proof.
-  red. exists (fun a : A => a). auto.
+  pros_simpl. exists (fun a : A => a). pros.
 Defined.
 
 Instance ProsCat : Cat :=
 {
     Ob := Pros;
     Hom := ProsHom;
-    HomSetoid := fun A B : Pros => {| equiv := fun f g : ProsHom A B =>
-        forall x : A, f x = g x |};
+    HomSetoid := fun A B : Pros =>
+      {| equiv := fun f g : ProsHom A B => forall x : A, f x = g x |};
     comp := ProsComp;
     id := ProsId
 }.
 Proof.
-  (* Equivalence *) cat; red; intros. rewrite H, H0. auto.
-  (* Proper *) repeat red; simpl; intros. destr_proshom.
-    rewrite H, H0. auto.
-  (* Category laws *) all: intros; destr_proshom; pros.
+  (* Equivalence *) pros'. rewrite H, H0. auto.
+  (* Proper *) pros'. rewrite H, H0. auto.
+  (* Category laws *) all: pros.
 Defined.
 
 Instance NatLe : Pros :=
@@ -83,16 +100,22 @@ Instance NatLe : Pros :=
     carrier := nat;
     leq := le
 }.
-Proof. all: intros; omega. Defined.
+Proof. all: pros. Defined.
 
 Definition addOne : ProsHom NatLe NatLe.
 Proof.
-  red. exists (fun n => S n). simpl; intros; omega.
+  red. exists (fun n => S n). pros.
 Defined.
 
 Definition timesTwo : ProsHom NatLe NatLe.
 Proof.
-  red. exists (fun n => 2 * n). simpl; intros; omega.
+  red. exists (fun n => 2 * n). pros.
+Restart.
+  red. exists (fun n => 2 * n).
+  induction 1; simpl in *.
+    apply le_refl.
+    do 2 rewrite <- plus_n_O in *. rewrite (plus_comm m _).
+    simpl. do 2 apply le_S. assumption.
 Defined.
 
 Definition lst (A : Pros) (a : A) : Prop := forall a' : A, a ≤ a'.
@@ -123,14 +146,42 @@ Proof.
     exists (k1 * k2). rewrite mult_assoc. rewrite H1, H2. trivial.
 Defined.
 
-(*Theorem Pros_mon_inj : forall (A B : Pros) (f : Hom A B),
+Definition const (X Y : Pros) (y : Y) : ProsHom X Y.
+Proof.
+  red. exists (fun _ => y). pros.
+Defined.
+
+Theorem Pros_mon_inj : forall (X Y : Pros) (f : ProsHom X Y),
     Mon f <-> injective f.
-unfold Mon, injective; split; intros.
-(* Trivial: use the property that Pros is a contruct over Set. *)
-Focus 2.
-rewrite fn_ext_pros; intro x. apply H.
-generalize x; rewrite fn_ext_pros in H0. assumption.
-admit.*)
+Proof.
+  unfold Mon, injective; split; intros.
+    specialize (H NatLe (const _ _ x) (const _ _ y)).
+      proshoms. apply H; auto. exact 0.
+    simpl. intro. apply H. proshoms. auto.
+Defined.
+
+(*Coercion id (X : Pros) : Ob ProsCat := X.*)
+
+Theorem Pros_epi_sur : forall (X Y : Pros) (f : ProsHom X Y),
+    Epi f <-> surjective f.
+Proof.
+  unfold Epi, surjective; split; intros.
+    specialize (H Y (@id ProsCat Y) (const _ _ b)).
+    proshoms.
+  Focus 2.
+    proshoms. intro. destruct (H x). rewrite <- H1. auto.
+Abort.
+
+Theorem Pros_sec_inj : forall (X Y : Pros) (f : ProsHom X Y),
+    Sec f <-> injective f.
+Proof.
+  unfold Sec, injective; split; intros.
+    destruct H as [g g_inv]. proshoms.
+      replace x with (g (f x)); auto.
+      replace y with (g (f y)); auto.
+      rewrite H0. auto.
+Abort.
+
 
 Instance Pros_init : Pros :=
 {
@@ -159,7 +210,9 @@ Instance Pros_term : Pros :=
 Proof. all: auto. Defined.
 
 Definition Pros_delete (X : Pros) : ProsHom X Pros_term.
-Proof. red. exists (fun _ => tt). simpl. auto. Defined.
+Proof.
+  red. exists (fun _ => tt). pros.
+Defined.
 
 Instance Pros_has_term : has_term ProsCat :=
 {
@@ -168,14 +221,12 @@ Instance Pros_has_term : has_term ProsCat :=
 }.
 Proof. pros. Defined.
 
-Eval compute in term ProsCat.
-
-Definition product_leq {A B : Type} (leqA : A -> A -> Prop)
+(*Definition Pros_prod_leq {A B : Type} (leqA : A -> A -> Prop)
     (leqB : B -> B -> Prop) (p : A * B) (q : A * B) : Prop := match p, q with
         | (a, b), (a', b') => leqA a a' /\ leqB b b'
-    end.
+    end.*)
 
-Instance prod'' (X Y : Pros) : Pros :=
+Instance Pros_prod (X Y : Pros) : Pros :=
 {
     carrier := X * Y;
     leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
@@ -189,13 +240,29 @@ Restart.
   all: pros.
 Defined.
 
-Definition proj1'' (X Y : Pros) : ProsHom (prod'' X Y) X.
-Proof. red. exists fst. simpl. destruct 1. auto. Defined.
+Definition Pros_proj1 (X Y : Pros) : ProsHom (Pros_prod X Y) X.
+Proof. red. exists fst. destruct 1. auto. Defined.
 
-Definition proj2'' (X Y : Pros) : ProsHom (prod'' X Y) Y.
-Proof. red. exists snd. simpl. destruct 1. auto. Defined.
+Definition Pros_proj2 (X Y : Pros) : ProsHom (Pros_prod X Y) Y.
+Proof. red. exists snd. destruct 1. auto. Defined.
 
-Coercion id (X : Pros) : Ob ProsCat := X.
+Definition Pros_diag {X Y Z : Pros} (f : ProsHom X Y) (g : ProsHom X Z)
+    : ProsHom X (Pros_prod Y Z).
+Proof.
+  red. exists (fun x : X => (f x, g x)). pros.
+Defined.
+
+
+Instance Pros_has_prod : has_products ProsCat :=
+{
+    prod' := Pros_prod;
+    proj1' := Pros_proj1;
+    proj2' := Pros_proj2
+}.
+Proof.
+  pros_simpl; intros. exists (Pros_diag f g). pros_simpl; intros.
+  pros'. rewrite H, H0. destruct (y x). auto.
+Defined.
 
 Instance Lexicographic (X Y : Pros) : Pros :=
 {
@@ -212,7 +279,7 @@ Proof.
     right. split; try rewrite H; eauto.
 Defined.
 
-Definition lex_proj1 (X Y : Pros) : ProsHom (Lexicographic X Y) X.
+(*Definition lex_proj1 (X Y : Pros) : ProsHom (Lexicographic X Y) X.
 Proof.
   red. exists fst. destruct a, a', 1; simpl in *; auto.
   destruct H. rewrite H. auto.
@@ -221,26 +288,6 @@ Defined.
 Definition lex_proj2 (X Y : Pros) : ProsHom (Lexicographic X Y) Y.
 Proof.
   red. exists snd. destruct a, a', 1; simpl in *; auto.
-Abort.
+  destruct H.
+Abort.*)
 
-Instance Pros_has_prod : has_products ProsCat :=
-{
-    prod' := prod'';
-    proj1' := proj1'';
-    proj2' := proj2''
-}.
-Proof.
-  repeat red; simpl; intros. unfold ProsHom.
-  assert (h' : {h : X -> prod'' A B |
-                (forall x x' : X, x ≤ x' -> h x ≤ h x') &
-                (forall x : X, f x = fst (h x)) /\
-                (forall x : X, g x = snd (h x))}).
-    exists (fun x : X => (f x, g x)); destruct f, g; simpl in *;
-      split; auto.
-  destruct h' as [h H [eq1 eq2]]. exists (exist _ h H).
-  repeat (red || split || simpl); intros; auto.
-  destruct y as [h' H']; simpl in *. destruct H0.
-  rewrite surjective_pairing at 1; rewrite surjective_pairing. f_equal.
-    rewrite <- H0, eq1. auto.
-    rewrite <- H1, eq2. auto.
-Defined.
