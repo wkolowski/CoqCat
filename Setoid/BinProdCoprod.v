@@ -14,78 +14,42 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
 Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
     product C P pA pB /\ coproduct C P iA iB.
+Print setoid_unique.
 
-Class has_products (C : Cat) : Type :=
-{
-    prod' : Ob C -> Ob C -> Ob C;
-    proj1' : forall A B : Ob C, Hom (prod' A B) A;
-    proj2' : forall A B : Ob C, Hom (prod' A B) B;
-    is_prod : forall A B : Ob C,
-        product C (prod' A B) (proj1' A B) (proj2' A B)
-}.
+Definition product_skolem (C : Cat) {A B : Ob C} (P : Ob C)
+    (p1 : Hom P A) (p2 : Hom P B)
+    (diag : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
+    forall (X : Ob C) (f : Hom X A) (g : Hom X B),
+    setoid_unique (fun d => f == d .> p1 /\ g == d .> p2) (diag f g).
 
-Coercion ProdCatHom {C : Cat} (A B : Ob C * Ob C) :=
-    prod (Hom (fst A) (fst B)) (Hom (snd A) (snd B)).
+Definition coproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
+    (p1 : Hom A P) (p2 : Hom B P)
+    (codiag : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
+    forall (X : Ob C) (f : Hom A X) (g : Hom B X),
+    setoid_unique (fun d => f == p1 .> d /\ g == p2 .> d) (codiag f g).
 
-Definition ProdCatSetoid {C : Cat} (A B : Ob C * Ob C)
-    : Setoid (ProdCatHom A B).
-refine
-{|
-    equiv := fun f g : ProdCatHom A B =>
-        @equiv (@Hom C (fst A) (fst B)) (@HomSetoid C (fst A) (fst B))
-        (fst f) (fst g) /\
-        @equiv (@Hom C (snd A) (snd B)) (@HomSetoid C (snd A) (snd B))
-        (snd f) (snd g)
-|}.
-Proof.
-  split; red; intros; split; try destruct H; try destruct H0;
-  try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
-Defined.
-
-Instance CAT_prod (C : Cat) : Cat.
-refine
-{|
-    Ob := Ob C * Ob C;
-    Hom := ProdCatHom;
-    HomSetoid := ProdCatSetoid;
-    comp := fun (A B C : Ob C * Ob C)
-        (f : Hom (fst A) (fst B) * Hom (snd A) (snd B))
-        (g : Hom (fst B) (fst C) * Hom (snd B) (snd C)) =>
-        (fst f .> fst g, snd f .> snd g);
-    id := fun A : Ob C * Ob C => (id (fst A), id (snd A))
-|}.
-Proof.
-(* Composition respects equivalence *)
-  do 3 red; unfold equiv, ProdCatSetoid; intros.
-    destruct x, x0, y, y0; split; simpl in *; destruct H, H0;
-      try rewrite H; try rewrite H0; try rewrite H1; try rewrite H2;
-        reflexivity.
-(* Category axioms *) all: cat.
-Defined.
-
-Coercion ProdCatHom' {C D : Cat} (X Y : Ob C * Ob D) :=
+Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
-Definition ProdCatSetoid' {C D : Cat} (X Y : Ob C * Ob D)
-    : Setoid (ProdCatHom' X Y).
-refine
-{|
-    equiv := fun f g : ProdCatHom' X Y =>
-        @equiv (@Hom C (fst X) (fst Y)) (@HomSetoid C (fst X) (fst Y))
-        (fst f) (fst g) /\
-        @equiv (@Hom D (snd X) (snd Y)) (@HomSetoid D (snd X) (snd Y))
-        (snd f) (snd g)
-|}.
+Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)
+    : Setoid (ProdCatHom X Y) :=
+{
+  equiv := fun f g : ProdCatHom X Y =>
+    @equiv (@Hom C (fst X) (fst Y)) (@HomSetoid C (fst X) (fst Y))
+    (fst f) (fst g) /\
+    @equiv (@Hom D (snd X) (snd Y)) (@HomSetoid D (snd X) (snd Y))
+    (snd f) (snd g)
+}.
 Proof.
   split; red; intros; split; try destruct H; try destruct H0;
   try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
 Defined.
 
-Instance CAT_prod' (C : Cat) (D : Cat) : Cat :=
+Instance CAT_prod (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
-    Hom := ProdCatHom';
-    HomSetoid := ProdCatSetoid';
+    Hom := ProdCatHom;
+    HomSetoid := ProdCatSetoid;
     comp := fun (X Y Z : Ob C * Ob D)
         (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
         (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
@@ -101,30 +65,28 @@ Defined.
 
 Class has_prod_functor (C : Cat) : Type :=
 {
-    prod_functor : Functor (CAT_prod C) C;
+    prod_functor : Functor (CAT_prod C C) C;
     proj1'' : forall A B : Ob C, Hom (prod_functor (A, B)) A;
     proj2'' : forall A B : Ob C, Hom (prod_functor (A, B)) B;
     is_prod' : forall A B : Ob C,
-      product C (@fob (CAT_prod C) C prod_functor (A, B))
+      product C (@fob (CAT_prod C C) C prod_functor (A, B))
       (proj1'' A B) (proj2'' A B)
 }.
-(*Coercion ProdHom_to_ProdCatHom {C : Cat} (X Y Z W : Ob C)
-    (f : Hom X Y) (g : Hom Z W) := 
-*)
-Arguments fmap [C] [D] _ [A] [B] _. Print ProdCatHom.
-Class has_better_prod_functor (C : Cat) : Type :=
+
+Class has_products (C : Cat) : Type :=
 {
-    prod_functor' : Functor (CAT_prod C) C;
-    proj1''' : forall A B : Ob C, Hom (prod_functor' (A, B)) A;
-    proj2''' : forall A B : Ob C, Hom (prod_functor' (A, B)) B;
-    diag : forall X : Ob C, Hom X (@fob (CAT_prod C) C prod_functor' (X, X));
-    is_prod'' : forall (A B X : Ob C) (f : Hom X A) (g : Hom X B),
-        f == diag X .> @fmap _ _ prod_functor' (X, X) (A, B) (f, g)
-        .> proj1''' A B /\
-        g == diag X .> @fmap _ _ prod_functor' (X, X) (A, B) (f, g)
-        .> proj2''' A B;
-(* TODO : Uniqueness *)
+    prodob : Ob C -> Ob C -> Ob C;
+    p1 : forall A B : Ob C, Hom (prodob A B) A;
+    p2 : forall A B : Ob C, Hom (prodob A B) B;
+    diag : forall (A B X : Ob C) (f : Hom X A) (g : Hom X B),
+      Hom X (prodob A B);
+    is_product : forall (A B : Ob C),
+      product_skolem C (prodob A B) (p1 A B) (p2 A B) (diag A B);
 }.
+
+(*Definition fmap_prod {C : Cat} {hp : has_products C} {X X' Y Y' : Ob C}
+    (f : Hom X Y) (g : Hom X' Y') : Hom (prodob X X') (prodob Y Y')
+  := (@diag C hp _ _ _ (p1 X X' .> f) (p2 X X' .> g)).*)
 
 (* TODO: Fix notations. 
 Notation "A × B" := (prod_functor (A, B)) (at level 40).
@@ -135,22 +97,24 @@ Class has_coproducts (C : Cat) : Type :=
     coprod : Ob C -> Ob C -> Ob C;
     coproj1 : forall A B : Ob C, Hom A (coprod A B);
     coproj2 : forall A B : Ob C, Hom B (coprod A B);
+    codiag : forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
+      Hom (coprod A B) X;
     is_coprod : forall A B : Ob C,
-        coproduct C (coprod A B) (coproj1 A B) (coproj2 A B)
+      coproduct_skolem C (coprod A B) (coproj1 A B) (coproj2 A B) (codiag A B)
 }.
 
 Class has_coprod_functor (C : Cat) : Type :=
 {
-    coprod_functor : Functor (CAT_prod C) C;
+    coprod_functor : Functor (CAT_prod C C) C;
     coproj1' : forall X Y : Ob C, Hom X (coprod_functor (X, Y));
     coproj2' : forall X Y : Ob C, Hom Y (coprod_functor (X, Y));
-    codiag : forall X : Ob C, Hom (coprod_functor (X, X)) X;
+    codiag' : forall X : Ob C, Hom (coprod_functor (X, X)) X;
     is_coprod' : forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
         f == coproj1' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
-        .> codiag X
+        .> codiag' X
         /\
         g == coproj2' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
-        .> codiag X
+        .> codiag' X
 }.
 
 Theorem dual_product_coproduct : forall (C : Cat) (A B P : Ob C)
@@ -163,14 +127,6 @@ Proof.
 Restart.
   cat.
 Qed.
-
-(*Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
-Proof.
-  unfold biproduct; repeat (red || split); simpl; intros;
-  specialize (H X fAX fBX fXA fXB); repeat (cat || eexists || apply H0).
-Qed.*)
 
 Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
@@ -225,29 +181,6 @@ Proof.
   exists u. rewrite eq1. reflexivity.
 Qed.
 
-(*Theorem product_iso_unique : forall (C : Cat) (A B : Ob C) (P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (Q : Ob C) (qA : Hom Q A) (qB : Hom Q B),
-    product C P pA pB -> product C Q qA qB -> P ~ Q.
-intros.
-unfold product, isomorphic in *.
-destruct (H0 P pA pB) as (u1, [[iso_pA iso_pB] unique1]);
-destruct (H Q qA qB) as (u2, [[iso_qA iso_qB] unique2]).
-exists u1. unfold Iso. exists u2. split.
-destruct (H P pA pB) as (i, [[i_iso1 i_iso2] uq]).
-assert (i_is_id : i == id P). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- iso_qA. assumption.
-cat. rewrite <- iso_qB. assumption.
-destruct (H0 Q qA qB) as (i, [[i_iso1 i_iso2] uq]).
-assert (i_is_id : i == id Q). apply uq. cat.
-rewrite <- i_is_id.
-symmetry. apply uq. split.
-cat. rewrite <- iso_pA. assumption.
-cat. rewrite <- iso_pB. assumption.
-Qed.*)
-
-(* Before rename: iso_prod *)
 Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
     A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
@@ -281,13 +214,6 @@ Proof.
           rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
 Qed.
 
-(*Theorem product_iso' : forall (C : Cat) (A B P Q : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (qA : Hom Q A) (qB : Hom Q B),
-    product C P pA pB -> product C Q qA qB -> P ~ Q.
-Proof.
-  intros. eapply product_iso; eauto; reflexivity.
-Qed.*)
-
 Theorem coproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (iA : Hom A P) (iB : Hom B P) (jC : Hom C Q) (jD : Hom D Q),
     A ~ C -> B ~ D -> coproduct C' P iA iB -> coproduct C' Q jC jD -> P ~ Q.
@@ -298,13 +224,6 @@ Proof.
   eapply product_iso. exact H. exact H0. exact H2. exact H1.
 Defined.
 
-(*Theorem coproduct_iso' : forall (C : Cat) (A B P Q : Ob C)
-    (iA : Hom A P) (iB : Hom B P) (jA : Hom A Q) (jB : Hom B Q),
-    coproduct C P iA iB -> coproduct C Q jA jB -> P ~ Q.
-Proof.
-  intros. eapply coproduct_iso; eauto; reflexivity.
-Qed.*)
-
 Theorem biproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
     (qC : Hom Q C) (qD : Hom Q D) (jC : Hom C Q) (jD : Hom D Q),
@@ -314,11 +233,6 @@ Proof.
   unfold biproduct. cat.
   apply (product_iso C' A B C D P Q pA pB qC qD H H0 H1 H2).
 Qed.
-
-(*Theorem biproduct_iso' : forall (C : Cat) (A B P Q : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
-    (qC : Hom Q C) (qD : Hom Q D) (jC : Hom C Q) (jD : Hom D Q),
-*)
 
 (*
 Theorem prod_assoc : forall (_ : Cat) (A B C AB BC A_BC AB_C : Ob C)

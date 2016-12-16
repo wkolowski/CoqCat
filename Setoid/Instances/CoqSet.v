@@ -92,11 +92,11 @@ Restart.
   rewrite H, H0, surjective_pairing. auto.
 Qed.
 
-Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet) CoqSet.
+Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
 refine
 {|
-  fob := fun A : Ob (CAT_prod CoqSet) => prod (fst A) (snd A);
-  fmap := fun (A B : Ob (CAT_prod CoqSet)) (f : Hom A B) =>
+  fob := fun A : Ob (CAT_prod CoqSet CoqSet) => prod (fst A) (snd A);
+  fmap := fun (A B : Ob (CAT_prod CoqSet CoqSet)) (f : Hom A B) =>
     fun a : fst A * snd A => (fst f (fst a), snd f (snd a))
 |}.
 Proof.
@@ -114,7 +114,7 @@ refine
 |}.
 Proof. intros. apply CoqSet_prod. Defined.
 
-Instance CoqSet_has_better_prod_functor : has_better_prod_functor CoqSet.
+(*Instance CoqSet_has_better_prod_functor : has_better_prod_functor CoqSet.
 refine
 {|
     prod_functor' := CoqSet_prod_functor;
@@ -122,7 +122,19 @@ refine
     proj2''' := @snd;
     diag := fun (X : Set) (x : X) => (x, x)
 |}.
-Proof. cat. Defined.
+Proof. cat. Defined.*)
+
+Definition CoqSet_diag (X : Set) (x : X) : X * X := (x, x).
+
+Instance CoqSet_has_products : has_products CoqSet :=
+{
+    prodob := prod;
+    p1 := @fst;
+    p2 := @snd;
+    diag := fun (A B X : Ob CoqSet) (f : Hom X A) (g : Hom X B) =>
+      fun x : X => (f x, g x)
+}.
+Proof. cat. rewrite H, H0. destruct (y x). auto. Defined. 
 
 Instance CoqSet_has_all_products : has_all_products CoqSet.
 refine
@@ -159,11 +171,11 @@ Restart.
   cat. destruct x; auto.
 Qed.
 
-Instance CoqSet_coprod_functor : Functor (CAT_prod CoqSet) CoqSet.
+Instance CoqSet_coprod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
 refine
 {|
-    fob := fun X : Ob (CAT_prod CoqSet) => sum (fst X) (snd X);
-    fmap := fun (X Y : Ob (CAT_prod CoqSet)) (f : Hom X Y) =>
+    fob := fun X : Ob (CAT_prod CoqSet CoqSet) => sum (fst X) (snd X);
+    fmap := fun (X Y : Ob (CAT_prod CoqSet CoqSet)) (f : Hom X Y) =>
         fun (x : sum (fst X) (snd X)) => match x with
             | inl x1 => inl (fst f x1)
             | inr y1 => inr (snd f y1)
@@ -174,7 +186,20 @@ Proof.
   all: simpl; destruct x; cat.
 Defined.
 
-Instance CoqSet_has_coprod_functor : has_coprod_functor CoqSet.
+Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
+{
+    coprod := sum;
+    coproj1 := @inl;
+    coproj2 := @inr;
+    codiag := fun (A B X : Ob CoqSet) (f : Hom A X) (g : Hom B X) =>
+      fun p : A + B => match p with
+        | inl a => f a
+        | inr b => g b
+      end
+}.
+Proof. cat. destruct x; auto. Defined.
+
+(*Instance CoqSet_has_coprod_functor : has_coprod_functor CoqSet.
 refine
 {|
     coprod_functor := CoqSet_coprod_functor;
@@ -185,7 +210,7 @@ refine
         | inr xr => xr
     end
 |}.
-Proof. cat. Defined.
+Proof. cat. Defined.*)
 
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {

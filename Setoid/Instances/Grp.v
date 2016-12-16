@@ -244,5 +244,3 @@ Proof.
   grp_simpl. exists (Grp_diag _ _ _ f g). grp_simpl. repeat split.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.
-
-Instance 

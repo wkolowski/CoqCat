@@ -252,16 +252,15 @@ Proof.
   red. exists (fun x : X => (f x, g x)). pros.
 Defined.
 
-
-Instance Pros_has_prod : has_products ProsCat :=
+Instance Pros_has_products : has_products ProsCat :=
 {
-    prod' := Pros_prod;
-    proj1' := Pros_proj1;
-    proj2' := Pros_proj2
+    prodob := Pros_prod;
+    p1 := Pros_proj1;
+    p2 := Pros_proj2
 }.
 Proof.
   pros_simpl; intros. exists (Pros_diag f g). pros_simpl; intros.
-  pros'. rewrite H, H0. destruct (y x). auto.
+  pros'. pros'. pros'. rewrite H, H0. destruct (y x). auto.
 Defined.
 
 Instance Lexicographic (X Y : Pros) : Pros :=
