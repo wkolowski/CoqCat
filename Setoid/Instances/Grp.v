@@ -227,8 +227,8 @@ Proof.
   grp_simpl. exists (Mon_proj2 X Y). grp.
 Defined.
 
-Definition Grp_diag (X Y Z : Grp) (f : Hom X Y) (g : Hom X Z)
-    : Hom X (Grp_prod Y Z).
+Definition Grp_diag (A B X : Grp) (f : Hom X A) (g : Hom X B)
+    : Hom X (Grp_prod A B).
 Proof.
   grp_simpl. exists (Mon_diag _ _ _ f g).
   grphoms'. grp_simpl. auto.
@@ -236,11 +236,12 @@ Defined.
 
 Instance Grp_has_products : has_products GrpCat :=
 {
-    prod' := Grp_prod;
-    proj1' := Grp_proj1;
-    proj2' := Grp_proj2
+    prodob := Grp_prod;
+    proj1 := Grp_proj1;
+    proj2 := Grp_proj2;
+    diag := Grp_diag
 }.
 Proof.
-  grp_simpl. exists (Grp_diag _ _ _ f g). grp_simpl. repeat split.
+  grp_simpl. repeat split.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.

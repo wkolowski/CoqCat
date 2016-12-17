@@ -4,56 +4,63 @@ Require Export BinProdCoprod.
 
 Set Universe Polymorphism.
 
-Definition big_product {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
+Definition big_product (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C)
     (f : forall j : J, Hom X (A j)),
     exists!! u : Hom X P, forall j : J, f j == u .> p j.
 
-Definition big_coproduct {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
+Definition big_coproduct (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (i : forall j : J, Hom (A j) P) : Prop := forall (X : Ob C)
     (f : forall j : J, Hom (A j) X),
     exists!! u : Hom P X, forall j : J, f j == i j .> u.
 
-Definition big_biproduct {C : Cat} {J : Set} {A : J -> Ob C} (P : Ob C)
+Definition big_biproduct (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (proj : forall j : J, Hom P (A j))
     (coproj : forall j : J, Hom (A j) P) : Prop :=
-        big_product P proj /\ big_coproduct P coproj.
+        big_product C P proj /\ big_coproduct C P coproj.
 
-(*Theorem big_proj_ret : forall (C : Cat) (J : Set) (A : J -> Ob C)
-    (P : Ob C) (p : forall j : J, Hom P (A j)),
-    big_product P p -> forall j : J, Ret (p j).
-Proof.
-  unfold big_product, Ret; intros.
-  destruct (H (A j) (fun j' : J => id (A j))) as (u, [eq uniq]).
-  exists u. rewrite eq. reflexivity.
-Qed.
+Definition big_product_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
+    (proj : forall j : J, Hom P (A j))
+    (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+      : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)) (j : J), 
+        setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j)
+          (diag X f).
 
-Theorem big_inj_sec : forall (C : Cat) (J : Set) (A : J -> Ob C)
-    (P : Ob C) (i : forall j : J, Hom (A j) P),
-    big_coproduct P i -> forall j : J, Sec (i j).
-Proof.
-  unfold big_coproduct, Sec in *; intros.
-  destruct (H (A j) j (id (A j))) as (u, [eq uniq]); clear H.
-  exists u. rewrite <- eq. reflexivity.
-Qed.
-*)
+Definition big_coproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
+    (coproj : forall j : J, Hom (A j) P)
+    (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
+      : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X) (j : J), 
+        setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d)
+          (codiag X f).
+
+Definition big_biproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
+    (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
+    (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+    (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
+    : Prop :=
+      big_product_skolem C P proj diag /\
+      big_coproduct_skolem C P coproj codiag.
 
 Class has_all_products (C : Cat) : Type :=
 {
-    bigProd : forall J : Set, (J -> Ob C) -> Ob C;
+    bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
     bigProj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (bigProd J A) (A j);
+        Hom (bigProdOb J A) (A j);
+    bigDiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
     is_big_product : forall (J : Set) (A : J -> Ob C),
-        big_product (bigProd J A) (bigProj J A)
+        big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
 }.
 
 Class has_all_coproducts (C : Cat) : Type :=
 {
-    bigCoprod : forall J : Set, (J -> Ob C) -> Ob C;
+    bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
     bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (A j) (bigCoprod J A);
+        Hom (A j) (bigCoprodOb J A);
+    bigCodiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
     is_big_coproduct : forall (J : Set) (A : J -> Ob C),
-        big_coproduct (bigCoprod J A) (bigCoproj J A)
+        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
 }.
 
 Class has_all_biproducts (C : Cat) : Type :=
@@ -61,13 +68,13 @@ Class has_all_biproducts (C : Cat) : Type :=
     bigProduct :> has_all_products C;
     bigCoproduct :> has_all_coproducts C;
     product_is_coproduct : forall (J : Set) (A : J -> Ob C),
-        bigProd J A = bigCoprod J A
+        bigProdOb J A = bigCoprodOb J A
 }.
 
 Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j))
     (q : forall j : J, Hom Q (A j)),
-    big_product P p -> big_product Q q -> P ~ Q.
+    big_product C P p -> big_product C Q q -> P ~ Q.
 Proof.
   unfold big_product; intros.
   unfold isomorphic. destruct (H0 P p) as [u1 [eq1 uniq1]],
@@ -83,11 +90,12 @@ Proof.
       rewrite comp_assoc. rewrite <- eq1. auto.
 Qed.
 
-(*Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
+(* Error: Case analysis on sort Type is not allowed for inductive definition ex.
+Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
     (A B : J -> Ob C) (P Q : Ob C)
     (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j)),
     (forall j : J, A j ~ B j) ->
-    big_product P p -> big_product Q q -> P ~ Q.
+    big_product C P p -> big_product C Q q -> P ~ Q.
 Proof.
   unfold big_product; intros.
   assert (f : forall j : J, Hom P (A j)).
@@ -107,17 +115,10 @@ rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
 rewrite iso2. cat.
 Qed.*)
 
-(*Theorem big_product_iso_unique' : forall (C : Cat) (J : Set) (A : J -> Ob C)
-    (P Q : Ob C) (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (A j))
-    (j : J), big_product P p -> big_product Q q -> P ~ Q.
-intros.
-apply big_product_iso_unique2 with J A A p q; try reflexivity; assumption.
-Qed.*)
-
-Program Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
-    (pB : Hom P B), product C P pA pB <-> exists (f : bool -> Ob C)
-    (p : forall b : bool, Hom P (f b)),
-    f true = A /\ f false = B /\ big_product P p.
+Program Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
+    (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
+    exists (f : bool -> Ob C) (p : forall b : bool, Hom P (f b)),
+    f true = A /\ f false = B /\ big_product C P p.
 Proof.
   unfold product, big_product; simpl; split; intros.
 
@@ -146,20 +147,9 @@ Proof.
 *)
 Abort.
 
-(*Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C) (P : Ob C)
-    (f : J -> J) (p : forall j : J, Hom P (A j))
-    (p' : forall j : J, Hom P (A (f j))),
-    bijective f -> big_product P p -> big_product P p'.
-unfold bijective, injective, surjective, big_product; intros.
-destruct H as [inj sur].
-assert (H' : exists j' : J, f j' = j). apply sur.
-destruct H' as (j', proof).
-destruct (H0 X (f j') f0).
-*)
-
 Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
     (p : forall j : Empty_set, Hom T (A j)),
-    terminal T -> big_product T p.
+    terminal T -> big_product C T p.
 Proof.
   unfold big_product, terminal; intros.
   destruct (H X) as [u [_ unique]]. exists u. cat.
@@ -167,21 +157,32 @@ Qed.
 
 Theorem nullary_coprod : forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
     (p : forall j : Empty_set, Hom (A j) I),
-    initial I -> big_coproduct I p.
+    initial I -> big_coproduct C I p.
 Proof.
   unfold big_coproduct, initial; intros.
   edestruct H. eexists. cat.
 Qed.
 
 Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
-    big_product (A tt) (fun _ : unit => id (A tt)).
+    big_product C (A tt) (fun _ : unit => id (A tt)).
 Proof.
   unfold big_product; intros. exists (f tt). cat.
 Qed.
 
 Theorem unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
-    big_coproduct (A tt) (fun _ : unit => id (A tt)).
+    big_coproduct C (A tt) (fun _ : unit => id (A tt)).
 Proof.
   unfold big_coproduct; intros. exists (f tt). cat.
 Qed.
 
+(* Case analysis on sort Prop bla bla...
+Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C) (P : Ob C)
+    (f : J -> J) (p : forall j : J, Hom P (A j))
+    (p' : forall j : J, Hom P (A (f j))),
+    bijective f -> big_product C P p -> big_product C P p'.
+Proof.
+  unfold bijective, injective, surjective, big_product; intros.
+  destruct H as [inj sur].
+  assert (forall j : J, Hom X (A j)).
+    intro.
+*)

@@ -87,3 +87,28 @@ Proof.
   unfold biequalizer; intros. destruct H, H0.
   eapply equalizer_iso; eauto.
 Qed.
+
+Theorem equalizer_is_mono : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X), equalizer C f g E e -> Mon e.
+Proof.
+  unfold equalizer, Mon. intros.
+  rename X0 into Z. rename g0 into h'.
+  destruct H as [eq H].
+  destruct (H Z (h .> e)) as [u Hh].
+    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+  destruct (H Z (h' .> e)) as [u' Hh'].
+    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+  destruct Hh, Hh'. assert (u' == u).
+    apply H4. rewrite H1, H0. reflexivity.
+  specialize (H2 h); specialize (H4 h').
+  rewrite <- H2, <- H4; try assumption; reflexivity.
+Defined.
+
+Theorem coequalizer_is_epi : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (Q : Ob C) (q : Hom Y Q), coequalizer C f g Q q -> Epi q.
+Proof.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- dual_mon_epi.
+  rewrite <- dual_equalizer_coequalizer in *.
+  eapply equalizer_is_mono. eauto.
+Defined.

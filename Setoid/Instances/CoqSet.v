@@ -105,6 +105,7 @@ Proof.
   functor. destruct x. auto.
 Defined.
 
+(* Outdated
 Instance CoqSet_has_prod_functor : has_prod_functor CoqSet.
 refine
 {|
@@ -112,43 +113,35 @@ refine
   proj1'' := fun A B : Set => @fst A B;
   proj2'' := fun A B : Set => @snd A B
 |}.
-Proof. intros. apply CoqSet_prod. Defined.
-
-(*Instance CoqSet_has_better_prod_functor : has_better_prod_functor CoqSet.
-refine
-{|
-    prod_functor' := CoqSet_prod_functor;
-    proj1''' := @fst;
-    proj2''' := @snd;
-    diag := fun (X : Set) (x : X) => (x, x)
-|}.
-Proof. cat. Defined.*)
+Proof. intros. apply CoqSet_prod. Defined.*)
 
 Definition CoqSet_diag (X : Set) (x : X) : X * X := (x, x).
 
 Instance CoqSet_has_products : has_products CoqSet :=
 {
-    prodob := prod;
-    p1 := @fst;
-    p2 := @snd;
+    prodOb := prod;
+    proj1 := @fst;
+    proj2 := @snd;
     diag := fun (A B X : Ob CoqSet) (f : Hom X A) (g : Hom X B) =>
       fun x : X => (f x, g x)
 }.
 Proof. cat. rewrite H, H0. destruct (y x). auto. Defined. 
-
-Instance CoqSet_has_all_products : has_all_products CoqSet.
-refine
-{|
-    bigProd := fun (J : Set) (A : J -> Ob CoqSet) =>
+Print bigDiag.
+Instance CoqSet_has_all_products : has_all_products CoqSet :=
+{
+    bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
         forall j : J, A j;
     bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-        fun (f : forall j : J, A j) => f j
-|}.
+        fun (f : forall j : J, A j) => f j;
+    bigDiag := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+        (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
+}.
 Proof.
   unfold big_product; simpl; intros.
-  exists (fun (x : X) (j : J) => f j x).
   cat. extensionality a. cat.
 Defined.
+
+Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.
 
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
@@ -188,7 +181,7 @@ Defined.
 
 Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
 {
-    coprod := sum;
+    coprodOb := sum;
     coproj1 := @inl;
     coproj2 := @inr;
     codiag := fun (A B X : Ob CoqSet) (f : Hom A X) (g : Hom B X) =>
@@ -211,17 +204,18 @@ refine
     end
 |}.
 Proof. cat. Defined.*)
-
+Print bigCodiag.
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {
-    bigCoprod := fun (J : Set) (A : J -> Ob CoqSet) =>
+    bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) =>
         {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-        fun (x : A j) => existT A j x
+        fun (x : A j) => existT A j x;
+    bigCodiag := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+        (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
+          f (projT1 p) (projT2 p)
 }.
 Proof.
-  unfold big_coproduct; simpl; intros.
-  exists (fun (v : {j : J & A j}) => f (projT1 v) (projT2 v)).
   cat. destruct x. cat.
 Defined.
 

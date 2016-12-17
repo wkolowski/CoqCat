@@ -14,19 +14,24 @@ Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
 Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
     (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
     product C P pA pB /\ coproduct C P iA iB.
-Print setoid_unique.
 
 Definition product_skolem (C : Cat) {A B : Ob C} (P : Ob C)
     (p1 : Hom P A) (p2 : Hom P B)
     (diag : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
     forall (X : Ob C) (f : Hom X A) (g : Hom X B),
-    setoid_unique (fun d => f == d .> p1 /\ g == d .> p2) (diag f g).
+    setoid_unique (fun d : Hom X P => f == d .> p1 /\ g == d .> p2) (diag f g).
 
 Definition coproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
     (p1 : Hom A P) (p2 : Hom B P)
     (codiag : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
     forall (X : Ob C) (f : Hom A X) (g : Hom B X),
-    setoid_unique (fun d => f == p1 .> d /\ g == p2 .> d) (codiag f g).
+    setoid_unique (fun d : Hom P X => f == p1 .> d /\ g == p2 .> d) (codiag f g).
+
+Definition biproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
+    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
+    (diag : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
+    (codiag : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
+    product_skolem C P pA pB (@diag) /\ coproduct_skolem C P iA iB (@codiag).
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
@@ -63,29 +68,19 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Class has_prod_functor (C : Cat) : Type :=
-{
-    prod_functor : Functor (CAT_prod C C) C;
-    proj1'' : forall A B : Ob C, Hom (prod_functor (A, B)) A;
-    proj2'' : forall A B : Ob C, Hom (prod_functor (A, B)) B;
-    is_prod' : forall A B : Ob C,
-      product C (@fob (CAT_prod C C) C prod_functor (A, B))
-      (proj1'' A B) (proj2'' A B)
-}.
-
 Class has_products (C : Cat) : Type :=
 {
-    prodob : Ob C -> Ob C -> Ob C;
-    p1 : forall A B : Ob C, Hom (prodob A B) A;
-    p2 : forall A B : Ob C, Hom (prodob A B) B;
+    prodOb : Ob C -> Ob C -> Ob C;
+    proj1 : forall A B : Ob C, Hom (prodOb A B) A;
+    proj2 : forall A B : Ob C, Hom (prodOb A B) B;
     diag : forall (A B X : Ob C) (f : Hom X A) (g : Hom X B),
-      Hom X (prodob A B);
+      Hom X (prodOb A B);
     is_product : forall (A B : Ob C),
-      product_skolem C (prodob A B) (p1 A B) (p2 A B) (diag A B);
+      product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (diag A B);
 }.
 
 (*Definition fmap_prod {C : Cat} {hp : has_products C} {X X' Y Y' : Ob C}
-    (f : Hom X Y) (g : Hom X' Y') : Hom (prodob X X') (prodob Y Y')
+    (f : Hom X Y) (g : Hom X' Y') : Hom (prodOb X X') (prodOb Y Y')
   := (@diag C hp _ _ _ (p1 X X' .> f) (p2 X X' .> g)).*)
 
 (* TODO: Fix notations. 
@@ -94,27 +89,13 @@ Notation "f ×' g" := (fmap prod_functor f g) (at level 40). *)
 
 Class has_coproducts (C : Cat) : Type := 
 {
-    coprod : Ob C -> Ob C -> Ob C;
-    coproj1 : forall A B : Ob C, Hom A (coprod A B);
-    coproj2 : forall A B : Ob C, Hom B (coprod A B);
+    coprodOb : Ob C -> Ob C -> Ob C;
+    coproj1 : forall A B : Ob C, Hom A (coprodOb A B);
+    coproj2 : forall A B : Ob C, Hom B (coprodOb A B);
     codiag : forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
-      Hom (coprod A B) X;
+      Hom (coprodOb A B) X;
     is_coprod : forall A B : Ob C,
-      coproduct_skolem C (coprod A B) (coproj1 A B) (coproj2 A B) (codiag A B)
-}.
-
-Class has_coprod_functor (C : Cat) : Type :=
-{
-    coprod_functor : Functor (CAT_prod C C) C;
-    coproj1' : forall X Y : Ob C, Hom X (coprod_functor (X, Y));
-    coproj2' : forall X Y : Ob C, Hom Y (coprod_functor (X, Y));
-    codiag' : forall X : Ob C, Hom (coprod_functor (X, X)) X;
-    is_coprod' : forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
-        f == coproj1' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
-        .> codiag' X
-        /\
-        g == coproj2' A B .> @fmap _ _ coprod_functor (A, B) (X, X) (f, g)
-        .> codiag' X
+      coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (codiag A B)
 }.
 
 Theorem dual_product_coproduct : forall (C : Cat) (A B P : Ob C)
@@ -161,25 +142,6 @@ Theorem biprod_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
     biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
 Proof. unfold biproduct. cat. Qed.
-
-(*  A weird auxiliary (f : Hom A B) is needed here to instantiate the product
-    definition. In case of the big product, this is not needed. *)
-Theorem proj_ret : forall (C : Cat) (A B P : Ob C) (pA : Hom P A)
-    (pB : Hom P B) (f : Hom A B), product C P pA pB -> Ret pA.
-Proof.
-  unfold product, Ret; intros.
-  edestruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
-  exists u. rewrite eq1. reflexivity.
-Qed.
-
-(*  The f : Hom B A is auxiliary as in the case of the product. *)
-Theorem coproj_sec : forall (C : Cat) (A B P : Ob C) (iA : Hom A P) (iB : Hom B P)
-    (f : Hom B A), coproduct C P iA iB -> Sec iA.
-Proof.
-  unfold Sec, coproduct in *; intros.
-  destruct (H A (id A) f) as (u, [[eq1 eq2] uniq]).
-  exists u. rewrite eq1. reflexivity.
-Qed.
 
 Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),

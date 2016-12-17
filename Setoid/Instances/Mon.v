@@ -205,19 +205,20 @@ Proof.
   mon_simpl. exists (Sgr_proj2 X Y). mon.
 Defined.
 
-Definition Mon_diag (X Y Z : Mon) (f : MonHom X Y) (g : MonHom X Z)
-    : MonHom X (Mon_prod Y Z).
+Definition Mon_diag (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
+    : MonHom X (Mon_prod A B).
 Proof.
   mon_simpl. exists (Sgr_diag _ _ _ f g). mon.
 Defined.
 
 Instance Mon_has_products : has_products MonCat :=
 {
-    prod' := Mon_prod;
-    proj1' := Mon_proj1;
-    proj2' := Mon_proj2
+    prodob := Mon_prod;
+    proj1 := Mon_proj1;
+    proj2 := Mon_proj2;
+    diag := Mon_diag
 }.
 Proof. (* mon_simpl seems too slow here *)
-  repeat red. intros. exists (Mon_diag _ _ _ f g). mon'.
+  repeat red. intros. mon'.
   rewrite H, H0. destruct (y x). auto.
 Defined.
