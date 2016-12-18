@@ -35,17 +35,11 @@ match type of P with
   | Ob _ => progress simpl in P; prosob P
 end; simpl in *.
 
-Ltac prosobs := repeat
+Ltac prosobs := intros; repeat
 match goal with
   | P : Pros |- _ => prosob P
   | X : Ob _ |- _ => prosob X
 end.
-
-(*Theorem eq_JMeq : forall (A : Type) (a a' : A), JMeq a a' <-> a = a'.
-Proof.
-  split; intros. rewrite H. trivial.
-  rewrite H. trivial.
-Qed.*)
 
 Definition ProsHom (A B : Pros) : Type :=
     {f : A -> B | forall a a', a ≤ a' -> f a ≤ f a'}.
@@ -60,7 +54,7 @@ match type of f with
   | Hom _ _ => progress simpl in f; proshom f
 end; simpl in *.
 
-Ltac proshoms := repeat
+Ltac proshoms := intros; repeat
 match goal with
   | f : ProsHom _ _ |- _ => proshom f
   | f : Hom _ _ |- _ => proshom f
@@ -254,9 +248,9 @@ Defined.
 
 Instance Pros_has_products : has_products ProsCat :=
 {
-    prodob := Pros_prod;
-    p1 := Pros_proj1;
-    p2 := Pros_proj2
+    prodOb := Pros_prod;
+    proj1 := Pros_proj1;
+    proj2 := Pros_proj2
 }.
 Proof.
   pros_simpl; intros. exists (Pros_diag f g). pros_simpl; intros.

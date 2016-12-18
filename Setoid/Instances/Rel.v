@@ -19,12 +19,8 @@ Instance Rel : Cat :=
     id := fun (A : Set) => fun (a1 a2 : A) => a1 = a2
 |}.
 Proof.
-  (* Equivalence *) split.
-    (* Reflexivity *) red. tauto.
-    (* Symmetry *) red. intuition; [rewrite H | rewrite <- H]; auto.
-    (* Transitivity *) red. intuition.
-      rewrite <- H0, <- H. assumption.
-      rewrite H, H0. assumption.
+  (* Equivalence *) cat; try (rewrite H; try rewrite H0; auto; fail);
+    try (try rewrite <- H0; rewrite <- H; auto; fail).
   (* Proper *) simpl; split; intros.
     (* -> *) destruct H1 as [b' [Hx Hx0]]. rewrite H in Hx.
       rewrite H0 in Hx0. eauto.
@@ -111,7 +107,7 @@ Defined.
 Hint Resolve Rel_product Rel_coproduct.
 
 Theorem Rel_biproduct : forall A B : Ob Rel,
-    biproduct' Rel (A + B)
+    biproduct Rel (A + B)
       (fun (p : A + B) (a : A) => p = inl a)
       (fun (p : A + B) (b : B) => p = inr b)      
       (fun (a : A) (p : A + B) => p = inl a)
@@ -122,15 +118,17 @@ Print has_all_products.
 
 Instance Rel_has_all_products : has_all_products Rel :=
 {
-    bigProd := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
+    bigProdOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
     bigProj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
-        fun (p : {j : J & A j}) (x : A j) => projT1 p = j /\ JMeq (projT2 p) x
+        fun (p : {j : J & A j}) (x : A j) => projT1 p = j /\ JMeq (projT2 p) x;
+    bigDiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
+      (f : forall j : J, Hom X (A j)) (x : X) (p : {j : J & A j}) =>
+        f (projT1 p) x (projT2 p)
 }.
 Proof.
   unfold big_product; simpl; intros.
-  exists (fun (x : X) (s : {j : J & A j}) => f (projT1 s) x (projT2 s)).
   cat.
-    exists (existT A j b). simpl. auto.
+    exists (existT A j0 b). simpl. auto.
     destruct b. simpl in *. destruct (H x a a0).
       destruct (H1 H0). destruct x0. cat.
     destruct b. simpl in *. destruct (H x a a0). cat.
@@ -138,15 +136,17 @@ Defined.
 
 Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
 {
-    bigCoprod := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
+    bigCoprodOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
-        fun (x : A j) (p : {j : J & A j}) => projT1 p = j /\ JMeq (projT2 p) x
+        fun (x : A j) (p : {j : J & A j}) => projT1 p = j /\ JMeq (projT2 p) x;
+    bigCodiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
+      (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) (x : X) =>
+        f (projT1 p) (projT2 p) x
 }.
 Proof.
   unfold big_coproduct; simpl; intros.
-  exists (fun (s : {j : J & A j}) (x : X) => f (projT1 s) (projT2 s) x).
   cat.
-    exists (existT A j a). simpl. auto.
+    exists (existT A j0 a). simpl. auto.
     destruct a. simpl in *. destruct (H x a b).
       destruct (H1 H0). destruct x0. cat.
     destruct a. simpl in *. destruct (H x a b).

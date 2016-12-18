@@ -10,11 +10,55 @@ Class Setoid' : Type :=
     carrier :> Type;
     setoid :> Setoid carrier
 }.
+Print Setoid. Print Equivalence.
+Ltac setoidob S := try intros until S;
+match type of S with
+  | Setoid =>
+    let a := fresh S "_equiv" in
+    let b := fresh S "_equiv_refl" in
+    let c := fresh S "_equiv_sym" in
+    let d := fresh S "_equiv_trans" in destruct S as [a [b c d]];
+      red in a; red in b; red in c; red in d
+  | Setoid' =>
+    let a := fresh S "_equiv" in
+    let b := fresh S "_equiv_refl" in
+    let c := fresh S "_equiv_sym" in
+    let d := fresh S "_equiv_trans" in destruct S as [S [a [b c d]]];
+      red in a; red in b; red in c; red in d
+  | Ob _ => progress simpl in S; setoidob S
+end.
+
+Ltac setoidobs := intros; repeat
+match goal with
+  | S : Setoid |- _ => setoidob S
+  | S : Setoid' |- _ => setoidob S
+  | S : Ob _ |- _ => setoidob S
+end.
 
 Coercion carrier : Setoid' >-> Sortclass.
 
 Definition SetoidHom (X Y : Setoid') : Type := {f: X -> Y |
     Proper ((@equiv _ (@setoid X)) ==> (@equiv _ (@setoid Y))) f}.
+
+Ltac setoidhom f := try intros until f;
+match type of f with
+  | SetoidHom _ _ =>
+    let a := fresh f "_pres_equiv" in destruct f as [f a];
+      repeat red in a
+  | Hom _ _ => progress simpl in f; setoidhom f
+end.
+
+Ltac setoidhoms := intros; repeat
+match goal with
+  | f : SetoidHom _ _ |- _ => setoidhom f
+  | f : Hom _ _ |- _ => setoidhom f
+end.
+
+Ltac setoid_simpl := repeat (red || split || simpl in * || intros).
+Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
+
+Ltac setoid' := repeat (setoid_simpl || cat || setoidhoms || setoidobs).
+Ltac setoid := try (setoid'; fail).
 
 Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
     := proj1_sig f.
@@ -23,15 +67,12 @@ Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
 Definition SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
     (g : SetoidHom Y Z) : SetoidHom X Z.
 Proof.
-  destruct f as [f Hf], g as [g Hg]; red.
-  exists (fun x : X => g (f x)). repeat red in Hf, Hg.
-  repeat red; destruct X, Y, Z; simpl in *. destruct setoid1, setoid2.
-  intros. apply Hg. apply Hf. assumption.
+  setoid. exists (fun x : X => g (f x)). setoid.
 Defined.
 
 Definition SetoidId (X : Setoid') : SetoidHom X X.
 Proof.
-  exists (fun x : X => x). repeat red. cat.
+  setoid_simpl. exists (fun x : X => x). setoid.
 Defined.
 
 Instance CoqSetoid : Cat :=
@@ -45,17 +86,14 @@ Instance CoqSetoid : Cat :=
     id := SetoidId
 |}.
 Proof.
-  (* Equivalence *) cat; red; intros; try rewrite H; try rewrite H0;
-    try reflexivity.
-  (* Proper *) repeat red; intros. destruct A, B, C, x, y, x0, y0.
-    destruct setoid0, setoid1, setoid2. simpl in *. rewrite H, H0.
-    reflexivity.
-  (* Category laws *) all: intros; repeat match goal with
-    | f : SetoidHom _ _ |- _ => destruct f
-  end; cat.
+  (* Equivalence *) setoid.
+  (* Proper *) setoid.
+  (* Category laws *) all: setoid.
+Restart.
+  all: setoid.
 Defined.
 
-Instance CoqSet_coequalizer_Setoid (X Y : Setoid') (f g : SetoidHom X Y) :
+Instance CoqSetoid_coequalizer_Setoid (X Y : Setoid') (f g : SetoidHom X Y) :
     Setoid Y :=
 {
     equiv := fun y y' : Y =>
@@ -67,42 +105,39 @@ Instance CoqSet_coequalizer_Setoid (X Y : Setoid') (f g : SetoidHom X Y) :
       @equiv _ (@setoid Y) y y'
 }.
 Proof.
-  cat; red.
-    intro y. right. reflexivity.
-    intros y y'; destruct 1 as [[x [eq1 [eq2 eq3]]] | H].
+  setoid_simpl.
+    right. reflexivity.
+    rename x into y'. destruct H as [[x [eq1 [eq2 eq3]]] | H].
       left. exists x. repeat split. rewrite <- eq3. assumption.
         rewrite eq3. assumption. symmetry. assumption.
       right. symmetry. assumption.
-    intros y1 y2 y3; destruct 1 as [[x [eq1 [eq2 eq3]]] | H];
-    destruct 1 as [[x' [eq1' [eq2' eq3']]] | H'].
+    rename x into y2; rename z into y3;
+    destruct H as [[x [eq1 [eq2 eq3]]] | H];
+    destruct H0 as [[x' [eq1' [eq2' eq3']]] | H'].
       right. rewrite eq3. assumption.
       left. exists x. split; try rewrite <- H'; auto.
       left. exists x'. split; rewrite H; auto.
       right. rewrite H; auto.
+Restart.
+  setoid_simpl; try destruct H; try destruct H0; setoid.
 Defined.
 
-Instance CoqSet_coeq_ob (X Y : Setoid') (f g : SetoidHom X Y) :
+Instance CoqSetoid_coeq_ob (X Y : Setoid') (f g : SetoidHom X Y) :
     Setoid' :=
 {
     carrier := Y;
-    setoid := CoqSet_coequalizer_Setoid X Y f g 
+    setoid := CoqSetoid_coequalizer_Setoid X Y f g 
 }.
 
-Definition CoqSet_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
-    : SetoidHom Y (CoqSet_coeq_ob X Y f g).
+Definition CoqSetoid_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
+    : SetoidHom Y (CoqSetoid_coeq_ob X Y f g).
 Proof.
-  red. exists (fun y : Y => y). repeat red; intros.
-  right. assumption.
+  setoid_simpl. exists (fun y : Y => y). setoid.
 Defined.
 
 Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
 {
-    coeq_ob := CoqSet_coeq_ob;
-    coeq_mor := CoqSet_coeq_mor
+    coeq_ob := CoqSetoid_coeq_ob;
+    coeq_mor := CoqSetoid_coeq_mor
 }.
 Proof.
-  unfold coequalizer; split; intros.
-    destruct X, Y, f as [f Hf], g as [g Hg]; simpl in *; intro x.
-      left. exists x. repeat split; try reflexivity.
-      repeat red in p; repeat red in p0.
-    Focus 2. 
