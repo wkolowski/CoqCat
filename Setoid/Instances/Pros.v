@@ -23,8 +23,7 @@ Hint Resolve leq_refl leq_trans.
 
 Coercion carrier : Pros >-> Sortclass.
 
-(*Ltac pros_simpl := repeat (red || split); simpl.*)
-Ltac pros_simpl := repeat (red || split).
+Ltac pros_simpl := repeat (simpl in * || red || split).
 
 Ltac prosob P := try intros until P;
 match type of P with
@@ -60,7 +59,7 @@ match goal with
   | f : Hom _ _ |- _ => proshom f
 end.
 
-Ltac pros' := repeat (pros_simpl || prosobs || proshoms || cat || omega).
+Ltac pros' := repeat (pros_simpl || proshoms || prosobs || cat || omega).
 Ltac pros := try (pros'; fail).
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
@@ -176,7 +175,6 @@ Proof.
       rewrite H0. auto.
 Abort.
 
-
 Instance Pros_init : Pros :=
 {
     carrier := Empty_set;
@@ -215,11 +213,6 @@ Instance Pros_has_term : has_term ProsCat :=
 }.
 Proof. pros. Defined.
 
-(*Definition Pros_prod_leq {A B : Type} (leqA : A -> A -> Prop)
-    (leqB : B -> B -> Prop) (p : A * B) (q : A * B) : Prop := match p, q with
-        | (a, b), (a', b') => leqA a a' /\ leqB b b'
-    end.*)
-
 Instance Pros_prod (X Y : Pros) : Pros :=
 {
     carrier := X * Y;
@@ -240,8 +233,8 @@ Proof. red. exists fst. destruct 1. auto. Defined.
 Definition Pros_proj2 (X Y : Pros) : ProsHom (Pros_prod X Y) Y.
 Proof. red. exists snd. destruct 1. auto. Defined.
 
-Definition Pros_diag {X Y Z : Pros} (f : ProsHom X Y) (g : ProsHom X Z)
-    : ProsHom X (Pros_prod Y Z).
+Definition Pros_diag {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B)
+    : ProsHom X (Pros_prod A B).
 Proof.
   red. exists (fun x : X => (f x, g x)). pros.
 Defined.
@@ -250,37 +243,26 @@ Instance Pros_has_products : has_products ProsCat :=
 {
     prodOb := Pros_prod;
     proj1 := Pros_proj1;
-    proj2 := Pros_proj2
+    proj2 := Pros_proj2;
+    diag := @Pros_diag
 }.
 Proof.
-  pros_simpl; intros. exists (Pros_diag f g). pros_simpl; intros.
-  pros'. pros'. pros'. rewrite H, H0. destruct (y x). auto.
+  pros'. rewrite H, H0. destruct (y x). auto.
 Defined.
 
-Instance Lexicographic (X Y : Pros) : Pros :=
+Instance Pros_lexicographic (X Y : Pros) : Pros :=
 {
     carrier := X * Y;
-    leq := fun x y : X * Y => leq (fst x) (fst y) \/
-        ((fst x = fst y) /\ leq (snd x) (snd y))
+    leq := fun x y : X * Y => (leq (fst x) (fst y) /\ x <> y) \/
+        (fst x = fst y /\ leq (snd x) (snd y))
 }.
 Proof.
-  left. apply leq_refl.
+  right. auto.
   intros. destruct H, H0; try destruct H; try destruct H0.
-    left. eauto.
+    left. split.
+      eapply leq_trans; eauto.
+      intro; subst.  apply H2.
     left. rewrite <- H0. auto.
     left. rewrite H. auto.
     right. split; try rewrite H; eauto.
 Defined.
-
-(*Definition lex_proj1 (X Y : Pros) : ProsHom (Lexicographic X Y) X.
-Proof.
-  red. exists fst. destruct a, a', 1; simpl in *; auto.
-  destruct H. rewrite H. auto.
-Defined.
-
-Definition lex_proj2 (X Y : Pros) : ProsHom (Lexicographic X Y) Y.
-Proof.
-  red. exists snd. destruct a, a', 1; simpl in *; auto.
-  destruct H.
-Abort.*)
-
