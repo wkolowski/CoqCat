@@ -54,7 +54,14 @@ Instance CAT_prod (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
     Hom := ProdCatHom;
-    HomSetoid := ProdCatSetoid;
+    HomSetoid := ProdCatSetoid; (*fun X Y : Ob C * Ob D =>
+    {|
+      equiv := fun f g : ProdCatHom X Y =>
+      @equiv (@Hom C (fst X) (fst Y)) (@HomSetoid C (fst X) (fst Y))
+      (fst f) (fst g) /\
+      @equiv (@Hom D (snd X) (snd Y)) (@HomSetoid D (snd X) (snd Y))
+      (snd f) (snd g)
+    |};*)
     comp := fun (X Y Z : Ob C * Ob D)
         (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
         (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
@@ -73,15 +80,46 @@ Class has_products (C : Cat) : Type :=
     prodOb : Ob C -> Ob C -> Ob C;
     proj1 : forall A B : Ob C, Hom (prodOb A B) A;
     proj2 : forall A B : Ob C, Hom (prodOb A B) B;
-    diag : forall (A B X : Ob C) (f : Hom X A) (g : Hom X B),
+    diag : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
       Hom X (prodOb A B);
+    diag_Proper : forall (A B X : Ob C),
+      Proper (equiv ==> equiv ==> equiv) (@diag A B X);
     is_product : forall (A B : Ob C),
-      product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (diag A B);
+      product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@diag A B)
 }.
 
-(*Definition fmap_prod {C : Cat} {hp : has_products C} {X X' Y Y' : Ob C}
+Class has_prod_functor (C : Cat) (hp : has_products C) : Type :=
+{
+    prod_functor : Functor (CAT_prod C C) C;
+    fob_is_prodOb : forall X : Ob (CAT_prod C C),
+      fob X = prodOb (fst X) (snd X)
+}.
+
+
+Definition fmap_prod {C : Cat} {hp : has_products C} {X X' Y Y' : Ob C}
     (f : Hom X Y) (g : Hom X' Y') : Hom (prodOb X X') (prodOb Y Y')
-  := (@diag C hp _ _ _ (p1 X X' .> f) (p2 X X' .> g)).*)
+  := (diag (proj1 X X' .> f) (proj2 X X' .> g)).
+
+Instance ProductFunctor {C : Cat} (hp : has_products C) :
+    Functor (CAT_prod C C) C :=
+{
+    fob := fun P : Ob (CAT_prod C C) => prodOb (fst P) (snd P);
+    fmap := fun (X Y : Ob (CAT_prod C C)) (f : Hom X Y) =>
+      fmap_prod (fst f) (snd f)
+}.
+Proof.
+  do 2 red; simpl; intros. destruct H. destruct hp; simpl;
+    rewrite H, H0. reflexivity.
+  Focus 2. (* Proof by diagram chasing *)
+    destruct A as [A1 A2]; simpl. unfold fmap_prod.
+    destruct hp; simpl in *. unfold product_skolem in *.
+    red in is_product0. specialize (is_product0 _ _ _ (proj3 A1 A2 .> id A1)
+      (proj4 A1 A2 .> id A2)). destruct is_product0. destruct H.
+    specialize (H0 (id _)). apply H0. split; cat.
+  destruct A as [A1 A2], B as [B1 B2], C0 as [C1 C2]; simpl in *.
+    destruct f as [f1 f2], g as [g1 g2], hp; simpl in *; intros.
+    unfold product_skolem in *. specialize (is_product0 
+Abort.
 
 (* TODO: Fix notations. 
 Notation "A × B" := (prod_functor (A, B)) (at level 40).
