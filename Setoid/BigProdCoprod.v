@@ -2,8 +2,6 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Set Universe Polymorphism.
-
 Definition big_product (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C)
     (f : forall j : J, Hom X (A j)),
@@ -40,36 +38,6 @@ Definition big_biproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     : Prop :=
       big_product_skolem C P proj diag /\
       big_coproduct_skolem C P coproj codiag.
-
-Class has_all_products (C : Cat) : Type :=
-{
-    bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
-    bigProj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (bigProdOb J A) (A j);
-    bigDiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
-    is_big_product : forall (J : Set) (A : J -> Ob C),
-        big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
-}.
-
-Class has_all_coproducts (C : Cat) : Type :=
-{
-    bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
-    bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (A j) (bigCoprodOb J A);
-    bigCodiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
-    is_big_coproduct : forall (J : Set) (A : J -> Ob C),
-        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
-}.
-
-Class has_all_biproducts (C : Cat) : Type :=
-{
-    bigProduct :> has_all_products C;
-    bigCoproduct :> has_all_coproducts C;
-    product_is_coproduct : forall (J : Set) (A : J -> Ob C),
-        bigProdOb J A = bigCoprodOb J A
-}.
 
 Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j))
@@ -115,36 +83,12 @@ rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
 rewrite iso2. cat.
 Qed.*)
 
-Program Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
+Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
     exists (f : bool -> Ob C) (p : forall b : bool, Hom P (f b)),
     f true = A /\ f false = B /\ big_product C P p.
 Proof.
-  unfold product, big_product; simpl; split; intros.
-
-(*    exists (fun b : bool => if b then A else B).
-    assert (p : {f : forall b : bool, Hom P (if b then A else B) |
-      f true = pA /\ f false = pB}).
-      exists (fun b : bool => if b then pA else pA).
-    exists p. repeat split; auto; intros.
-      destruct (H X (f true) (f false)) as [u [[eq1 eq2] unique]].
-      exists u. split; intros. destruct j.
-*)
-
-(*    assert (H' : exists f : bool -> Ob C, f true = A /\ f false = B).
-      exists (fix f (b : bool) := if b then A else B). auto.
-    destruct H' as [f [eq1 eq2]]. exists f.
-      assert (p : forall b : bool, Hom P (f b)). destruct b.
-        rewrite eq1. exact pA.
-        rewrite eq2. exact pB.
-      exists p. split; try split; try assumption. intros.
-        assert (fXA : Hom X A). rewrite <- eq1. apply (f0 true).
-        assert (fXB : Hom X B). rewrite <- eq2. apply (f0 false).
-        destruct (H X fXA fXB) as [u [[u_eq1 u_eq2] u_unique]].
-        exists u. red. split; intros. destruct j.
-          auto.
-
-*)
+  (* Hard and buggy *)
 Abort.
 
 Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
@@ -186,3 +130,33 @@ Proof.
   assert (forall j : J, Hom X (A j)).
     intro.
 *)
+
+Class has_all_products (C : Cat) : Type :=
+{
+    bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
+    bigProj : forall (J : Set) (A : J -> Ob C) (j : J),
+        Hom (bigProdOb J A) (A j);
+    bigDiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
+    is_big_product : forall (J : Set) (A : J -> Ob C),
+        big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
+}.
+
+Class has_all_coproducts (C : Cat) : Type :=
+{
+    bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
+    bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
+        Hom (A j) (bigCoprodOb J A);
+    bigCodiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
+    is_big_coproduct : forall (J : Set) (A : J -> Ob C),
+        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
+}.
+
+Class has_all_biproducts (C : Cat) : Type :=
+{
+    bigProduct :> has_all_products C;
+    bigCoproduct :> has_all_coproducts C;
+    product_is_coproduct : forall (J : Set) (A : J -> Ob C),
+        bigProdOb J A = bigCoprodOb J A
+}.

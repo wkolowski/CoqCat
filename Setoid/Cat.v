@@ -2,7 +2,7 @@ Require Export Coq.Classes.SetoidClass.
 Require Export Coq.Logic.ProofIrrelevance.
 Require Export JMeq.
 
-Set Universe Polymorphism.
+Global Set Universe Polymorphism.
 
 Class Cat : Type :=
 {
@@ -193,8 +193,9 @@ Defined.
 
 Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
     @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
-Proof. (* It works, but is slow — dunno why
-  unfold uniquely_isomorphic, Dual. simpl; split; intros.
+Proof.
+  (* It works, but it's slow — I don't know why. *)
+  (*unfold uniquely_isomorphic, Dual. simpl; split; intros.
     destruct H as [f [f_iso H]].
       rewrite iso_inv_unique in f_iso. unfold Iso.
         destruct f_iso as [g [[eq1 eq2] unique]].
@@ -437,22 +438,4 @@ Proof.
     exists g, f; auto.
   (* Transitivity *) destruct H as [f f_iso], H0 as [g g_iso].
     exists (f .> g). apply iso_comp; assumption.
-Defined.
-
-Instance Grpd (C : Cat) : Cat :=
-{
-    Ob := Ob C;
-    Hom := fun A B : Ob C => {f : Hom A B | Iso f};
-    HomSetoid := fun A B : Ob C =>
-        Setoid_kernel_equiv (HomSetoid A B) (@proj1_sig (Hom A B) Iso)
-}.
-Proof.
-  intros. destruct X as [f f_iso], X0 as [g g_iso].
-    exists (f .> g). apply iso_comp; assumption.
-  unfold Proper, respectful; intros;
-    destruct x, y, x0, y0; simpl in *. rewrite H, H0. reflexivity.
-  intros; destruct f, g, h; cat.  
-  intro. exists (id A). apply id_is_aut.
-  intros; destruct f; cat.
-  intros; destruct f; cat.
 Defined.

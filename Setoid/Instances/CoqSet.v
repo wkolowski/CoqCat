@@ -6,8 +6,6 @@ Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
 
-Set Universe Polymorphism.
-
 Instance CoqSet : Cat :=
 {|
     Ob := Set;
@@ -92,6 +90,21 @@ Restart.
   rewrite H, H0, surjective_pairing. auto.
 Qed.
 
+Definition CoqSet_diag (X : Set) (x : X) : X * X := (x, x).
+
+Instance CoqSet_has_products : has_products CoqSet :=
+{
+    prodOb := prod;
+    proj1 := @fst;
+    proj2 := @snd;
+    diag := fun (A B X : Ob CoqSet) (f : Hom X A) (g : Hom X B) =>
+      fun x : X => (f x, g x)
+}.
+Proof.
+  repeat red; simpl; intros. rewrite H, H0. auto.
+  cat. rewrite H, H0. destruct (y x). auto.
+Defined.
+
 Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
 refine
 {|
@@ -105,28 +118,6 @@ Proof.
   functor. destruct x. auto.
 Defined.
 
-(* Outdated
-Instance CoqSet_has_prod_functor : has_prod_functor CoqSet.
-refine
-{|
-  prod_functor := CoqSet_prod_functor;
-  proj1'' := fun A B : Set => @fst A B;
-  proj2'' := fun A B : Set => @snd A B
-|}.
-Proof. intros. apply CoqSet_prod. Defined.*)
-
-Definition CoqSet_diag (X : Set) (x : X) : X * X := (x, x).
-
-Instance CoqSet_has_products : has_products CoqSet :=
-{
-    prodOb := prod;
-    proj1 := @fst;
-    proj2 := @snd;
-    diag := fun (A B X : Ob CoqSet) (f : Hom X A) (g : Hom X B) =>
-      fun x : X => (f x, g x)
-}.
-Proof. cat. rewrite H, H0. destruct (y x). auto. Defined. 
-Print bigDiag.
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -190,21 +181,11 @@ Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
         | inr b => g b
       end
 }.
-Proof. cat. destruct x; auto. Defined.
+Proof.
+  all: repeat red; cat;
+  match goal with | x : _ + _ |- _ => destruct x end; cat.
+Defined.
 
-(*Instance CoqSet_has_coprod_functor : has_coprod_functor CoqSet.
-refine
-{|
-    coprod_functor := CoqSet_coprod_functor;
-    coproj1' := @inl;
-    coproj2' := @inr;
-    codiag := fun (X : Set) (x : X + X) => match x with
-        | inl xl => xl
-        | inr xr => xr
-    end
-|}.
-Proof. cat. Defined.*)
-Print bigCodiag.
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {
     bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) =>

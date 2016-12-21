@@ -103,20 +103,3 @@ Instance Pos_has_products : has_products PosCat :=
     diag := @Pros_diag
 }.
 Proof. pos'. cat. rewrite H, H0. destruct (y x); auto. Defined.
-
-Instance Pros_lexicographic (X Y : Pos) : Pros :=
-{
-    carrier := X * Y;
-    leq := fun p1 p2 : X * Y => (fst p1 ≤ fst p2 /\ p1 <> p2) \/
-      (fst p1 = fst p2 /\ snd p1 ≤ snd p2)
-}.
-Proof.
-  right. auto.
-  intros. destruct H, H0; try destruct H; try destruct H0.
-    left; split.
-      eapply leq_trans; eauto.
-      intro; subst. destruct b, c; simpl in *. apply H2.
-    left. rewrite <- H0. auto.
-    left. rewrite H. auto.
-    right. split; try rewrite H; eauto.
-Defined.

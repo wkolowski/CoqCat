@@ -14,7 +14,7 @@ Class Apartoid : Type :=
     neq_sym : forall x y : carrier, neq x y -> neq y x;
     weird : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
-
+Print Apartoid.
 Coercion carrier : Apartoid >-> Sortclass.
 
 Hint Resolve neq_irrefl neq_sym weird.

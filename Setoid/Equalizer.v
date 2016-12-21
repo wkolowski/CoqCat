@@ -1,7 +1,5 @@
 Require Export Cat.
 
-Set Universe Polymorphism.
-
 Definition equalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) : Prop := e .> f == e .> g /\
     forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g ->

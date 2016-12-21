@@ -1,7 +1,5 @@
 Require Export Cat.
 
-Set Universe Polymorphism.
-
 Definition pullback (C : Cat) {A B X : Ob C} (f : Hom A X) (g : Hom B X)
     (P : Ob C) (pA : Hom P A) (pB : Hom P B) := forall (Q : Ob C) (qA : Hom Q A)
         (qB : Hom Q B), exists!! u : Hom Q P, qA == u .> pA /\ qB == u .> pB.

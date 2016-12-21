@@ -1,7 +1,5 @@
 Require Export Cat.
 
-Set Universe Polymorphism.
-
 Definition initial {C : Cat} (I : Ob C) : Prop :=
     forall (X : Ob C), exists!! f : Hom I X, True.
 
