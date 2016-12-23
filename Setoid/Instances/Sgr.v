@@ -157,21 +157,22 @@ Proof.
   sgr_simpl. exists snd. destruct x, y. sgr.
 Defined.
 
-Definition Sgr_diag (X Y Z : Sgr) (f : SgrHom X Y) (g : SgrHom X Z)
-    : SgrHom X (Sgr_prod Y Z).
+Definition Sgr_diag (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
+    : SgrHom X (Sgr_prod A B).
 Proof.
   sgr_simpl. exists (fun x : X => (f x, g x)). sgr.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=
 {
-    prod' := Sgr_prod;
-    proj1' := Sgr_proj1;
-    proj2' := Sgr_proj2
+    prodOb := Sgr_prod;
+    proj1 := Sgr_proj1;
+    proj2 := Sgr_proj2;
+    diag := Sgr_diag
 }.
 Proof.
-  sgr_simpl. exists (Sgr_diag X A B f g).
-  sgr'. rewrite H, H0. destruct (y x). auto.
+  sgr_simpl. rewrite H, H0. auto.
+  sgr_simpl. sgr'. rewrite H, H0. destruct (y x). auto.
 Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
@@ -192,6 +193,20 @@ Proof. sgr_simpl. exists inl. sgr. Defined.
 
 Definition Sgr_inr (X Y : Sgr) : SgrHom Y (Sgr_sum X Y).
 Proof. sgr_simpl. exists inr. sgr. Defined.
+
+(* Neither sum nor sumprod is a coproduct in Sgr. Rather it's
+   the free product. *)
+
+(*Definition Sgr_codiag (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
+    : SgrHom (Sgr_sum A B) X.
+Proof.
+  red. exists (fun p : A + B =>
+  match p with
+    | inl a => f a
+    | inr b => g b
+  end).
+  destruct x, y; destruct f, g; simpl; auto.  
+*)
 
 Instance Sgr_sumprod (X Y : Sgr) : Sgr :=
 {
@@ -216,3 +231,22 @@ Proof. sgr_simpl. exists (@inl' X Y). sgr. Defined.
 
 Definition Sgr_inr' (X Y : Sgr) : SgrHom Y (Sgr_sumprod X Y).
 Proof. sgr_simpl. exists (@inr' X Y). sgr. Defined.
+
+(*Definition Sgr_codiag' (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
+    : SgrHom (Sgr_sumprod A B) X.
+Proof.
+  red. exists (fun p : sumprod A B =>
+  match p with
+    | inl' a => f a
+    | inr' b => g b
+    | pair' a b => op (f a) (g b)
+  end).
+  destruct x, y. simpl. auto.*)
+
+(*Instance Sgr_has_coproducts : has_coproducts SgrCat :=
+{
+    coprodOb := Sgr_sum;
+    coproj1 := Sgr_inl;
+    coproj2 := Sgr_inr;
+    codiag := Sgr_codiag;
+}.*)

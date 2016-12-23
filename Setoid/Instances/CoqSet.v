@@ -118,6 +118,7 @@ Proof.
   functor. destruct x. auto.
 Defined.
 
+(* Beware! Requires functional extensionality. *)
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -128,8 +129,10 @@ Instance CoqSet_has_all_products : has_all_products CoqSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  unfold big_product; simpl; intros.
-  cat. extensionality a. cat.
+  (* Proper *) intros. simpl. intro. simpl in H.
+    Require Import FunctionalExtensionality. extensionality j. auto.
+  (* Universal property *) unfold big_product; simpl; intros.
+    cat. extensionality a. cat.
 Defined.
 
 Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.
@@ -197,6 +200,7 @@ Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
+  simpl; intros.
   cat. destruct x. cat.
 Defined.
 
@@ -254,15 +258,26 @@ Proof.
     destruct (H false). inversion H0.
 Qed.
 
-(* It's time to change all this shit to be constructive and proof-relevant.
-Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B)
-    (nonempty : A), Iso f -> injective f * invertible {| equiv := eq |} f.
+(* It's time to change all this shit to be constructive and proof-relevant. *)
+Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
+    Iso f -> injective f /\ surjective f.
 Proof.
-  unfold injective, invertible, Iso; simpl; intros. split.
-    destruct H as [g [H1 H2]]. intros. rewrite <- (H1 x), <- (H1 y).
-      rewrite H. auto.
+  unfold injective, surjective, Iso; simpl; intros. split; intros.
+    destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
+      rewrite H0. auto.
     destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
-    destruct H as [H1 H2]. exists (fun _ => nonempty). simpl.*)
+Defined.
+
+(* Case analysis on sort Set. *)
+(*Theorem CoqSet_iso_bin_conv : forall (A B : Set) (f : Hom A B),
+    injective f -> surjective f -> Iso f.
+Proof.
+  unfold injective, surjective, Iso. intros.
+  assert (g : B -> A).
+    intro b. Focus 2.
+    exists g. simpl; split; intros.
+      destruct (H0 (f x)).
+*)
 
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {

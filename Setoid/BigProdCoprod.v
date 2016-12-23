@@ -138,6 +138,9 @@ Class has_all_products (C : Cat) : Type :=
         Hom (bigProdOb J A) (A j);
     bigDiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
+    bigDiag_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
+      (forall j : J, f j == g j) -> bigDiag J A X f == bigDiag J A X g;
     is_big_product : forall (J : Set) (A : J -> Ob C),
         big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
 }.
@@ -149,6 +152,9 @@ Class has_all_coproducts (C : Cat) : Type :=
         Hom (A j) (bigCoprodOb J A);
     bigCodiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
+    bigCodiag_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
+      (forall j : J, f j == g j) -> bigCodiag J A X f == bigCodiag J A X g;
     is_big_coproduct : forall (J : Set) (A : J -> Ob C),
         big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
 }.

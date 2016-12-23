@@ -150,14 +150,7 @@ Proof.
   apply H. auto.
 Defined.
 
-(*Definition Apartoid_diag (X : Apartoid)
-    : ApartoidHom X (Apartoid_prod X X).
-Proof.
-  red. exists (fun x : X => (x, x)). unfold not; intros.
-  inversion H0; simpl in *; auto.
-Defined.*)
-
-Definition Apartoid_mor_pair (X X' Y Y' : Apartoid)
+(*Definition Apartoid_mor_pair (X X' Y Y' : Apartoid)
     (f : ApartoidHom X X') (g : ApartoidHom Y Y')
     : ApartoidHom (Apartoid_prod X Y) (Apartoid_prod X' Y').
 Proof.
@@ -166,6 +159,7 @@ Proof.
    simpl in *. specialize (Hf x x'); specialize (Hg y y').
   intro. destruct H0; [eapply Hf | eapply Hg]; auto.
 Defined.
+*)
 
 Definition Apartoid_diag (A B X : Apartoid)
     (f : ApartoidHom X A) (g : ApartoidHom X B)
@@ -180,12 +174,13 @@ Defined.
 
 Instance Apartoid_has_products : has_products ApartoidCat :=
 {
-    prodob := Apartoid_prod;
+    prodOb := Apartoid_prod;
     proj1 := Apartoid_proj1;
     proj2 := Apartoid_proj2;
     diag := Apartoid_diag
 }.
 Proof.
+  repeat red; simpl; intros. rewrite H, H0. auto.
   unfold product; simpl; intros. cat. destruct f, g, y; simpl in *.
-  rewrite H, H0. destruct (x2 x). auto.
+    rewrite H, H0. destruct (x2 x). auto.
 Defined.
