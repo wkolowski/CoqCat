@@ -102,4 +102,6 @@ Instance Pos_has_products : has_products PosCat :=
     proj2 := Pros_proj2;
     diag := @Pros_diag
 }.
-Proof. pos'. cat. rewrite H, H0. destruct (y x); auto. Defined.
+Proof.
+  all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.
+Defined.

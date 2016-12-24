@@ -247,22 +247,5 @@ Instance Pros_has_products : has_products ProsCat :=
     diag := @Pros_diag
 }.
 Proof.
-  pros'. rewrite H, H0. destruct (y x). auto.
-Defined.
-
-Instance Pros_lexicographic (X Y : Pros) : Pros :=
-{
-    carrier := X * Y;
-    leq := fun x y : X * Y => (leq (fst x) (fst y) /\ x <> y) \/
-        (fst x = fst y /\ leq (snd x) (snd y))
-}.
-Proof.
-  right. auto.
-  intros. destruct H, H0; try destruct H; try destruct H0.
-    left. split.
-      eapply leq_trans; eauto.
-      intro; subst.  apply H2.
-    left. rewrite <- H0. auto.
-    left. rewrite H. auto.
-    right. split; try rewrite H; eauto.
+  all: pros'; try rewrite H, H0; try destruct (y x); auto.
 Defined.

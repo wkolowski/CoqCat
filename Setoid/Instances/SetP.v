@@ -62,37 +62,46 @@ match p with
     | _ => None
 end.
 
+Definition SetP_diag (A B X : Set) (f : Hom X A) (g : Hom X B)
+    : Hom X (sumprod A B) := fun x : X =>
+match f x, g x with
+    | None, None => None
+    | Some a, None => Some (inl' a)
+    | None, Some b => Some (inr' b)
+    | Some a, Some b => Some (pair' a b)
+end.
+
 Instance SetP_has_products : has_products SetP :=
 {
-  prod' := sumprod;
-  proj1' := SetP_proj1;
-  proj2' := SetP_proj2
+    prodOb := sumprod;
+    proj1 := SetP_proj1;
+    proj2 := SetP_proj2;
+    diag := SetP_diag
 }.
 Proof.
-  red. intros. exists (fun x : X =>
-  match f x, g x with
-      | None, None => None
-      | Some a, None => Some (inl' a)
-      | None, Some b => Some (inr' b)
-      | Some a, Some b => Some (pair' a b)
-  end).
-  repeat split; simpl; intros.
+  all: unfold SetP_diag; repeat (red || split); simpl; intros; cat.
+    rewrite H, H0. auto.
     destruct (f x), (g x); auto.
     destruct (f x), (g x); auto.
-    destruct H as [Hf Hg]. rewrite Hf, Hg.
-      destruct (y x); try destruct s; simpl; auto.
+    rewrite H, H0; destruct (y x); try destruct s; auto.
 Defined.
+
+Definition SetP_codiag (A B X : Ob SetP) (f : Hom A X) (g : Hom B X)
+    : Hom (sum A B) X := fun p : A + B =>
+match p with
+    | inl a => f a
+    | inr b => g b
+end.
 
 Instance SetP_has_coproducts : has_coproducts SetP :=
 {
-    coprod := sum;
+    coprodOb := sum;
     coproj1 := fun (A B : Set) (a : A) => Some (inl a);
     coproj2 := fun (A B : Set) (b : B) => Some (inr b);
+    codiag := SetP_codiag
 }.
 Proof.
-  red; intros. exists (fun x : A + B =>
-  match x with
-      | inl a => f a
-      | inr b => g b
-  end). cat. destruct x; cat.
+  repeat red; simpl; intros. unfold SetP_codiag.
+    destruct x1; try rewrite H; try rewrite H0; auto.
+  cat. destruct x; cat.
 Defined.

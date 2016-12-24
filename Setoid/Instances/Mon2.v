@@ -168,21 +168,26 @@ Proof.
   repeat red; simpl. exists snd. mon.
 Defined.
 
-Definition Mon_diag (X Y Z : Mon) (f : MonHom X Y) (g : MonHom X Z)
-    : MonHom X (Mon_prod Y Z).
+Definition Mon_diag (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
+    : MonHom X (Mon_prod A B).
 Proof.
-  red; simpl. exists (fun x : X => (f x, g x)).
-  destr_monhom; mon.
+  red; simpl. exists (fun x : X => (f x, g x)). split.
+    destruct f, g. mon.
+    destruct f, g. mon.
 Defined.
 
 Instance Mon_has_products : has_products MonCat :=
 {
-    prod' := Mon_prod;
-    proj1' := Mon_proj1;
-    proj2' := Mon_proj2
+    prodOb := Mon_prod;
+    proj1 := Mon_proj1;
+    proj2 := Mon_proj2;
+    diag := Mon_diag
 }.
 Proof.
-  repeat red; simpl; intros. exists (Mon_diag _ _ _ f g).
-  repeat (red || split); intros; destr_monhom; simpl in *; auto.
-  destruct H; rewrite H, H0. destruct (y x). mon.
+  repeat (red || split); intros.
+    simpl in *. destruct x, y, x0, y0. destruct A, B, X. simpl in *.
+  destruct a, a0, a1, a2. simpl. rewrite H, H0. auto.
+  repeat red; simpl; intros.
+    repeat (red || split); intros; destr_monhom; simpl in *; auto.
+    destruct H; rewrite H, H0. destruct (y x). mon.
 Defined.

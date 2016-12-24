@@ -140,4 +140,4 @@ Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
     coeq_ob := CoqSetoid_coeq_ob;
     coeq_mor := CoqSetoid_coeq_mor
 }.
-Proof.
+Proof. (* TODO *)

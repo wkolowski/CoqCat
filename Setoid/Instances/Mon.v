@@ -213,12 +213,13 @@ Defined.
 
 Instance Mon_has_products : has_products MonCat :=
 {
-    prodob := Mon_prod;
+    prodOb := Mon_prod;
     proj1 := Mon_proj1;
     proj2 := Mon_proj2;
     diag := Mon_diag
 }.
-Proof. (* mon_simpl seems too slow here *)
+Proof.
+  mon.
   repeat red. intros. mon'.
-  rewrite H, H0. destruct (y x). auto.
+    rewrite H, H0. destruct (y x). auto.
 Defined.

@@ -200,8 +200,7 @@ Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  simpl; intros.
-  cat. destruct x. cat.
+  all: cat. destruct x. cat.
 Defined.
 
 Theorem CoqSet_ret_invertible : forall (A B : Set)

@@ -126,7 +126,7 @@ Instance Rel_has_all_products : has_all_products Rel :=
         f (projT1 p) x (projT2 p)
 }.
 Proof.
-  unfold big_product; simpl; intros.
+  cat.
   cat.
     exists (existT A j0 b). simpl. auto.
     destruct b. simpl in *. destruct (H x a a0).
@@ -144,7 +144,7 @@ Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
         f (projT1 p) (projT2 p) x
 }.
 Proof.
-  unfold big_coproduct; simpl; intros.
+  cat.
   cat.
     exists (existT A j0 a). simpl. auto.
     destruct a. simpl in *. destruct (H x a b).

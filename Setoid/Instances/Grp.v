@@ -236,12 +236,14 @@ Defined.
 
 Instance Grp_has_products : has_products GrpCat :=
 {
-    prodob := Grp_prod;
+    prodOb := Grp_prod;
     proj1 := Grp_proj1;
     proj2 := Grp_proj2;
     diag := Grp_diag
 }.
 Proof.
+  grp_simpl. grphoms'. rewrite H, H0. auto.
   grp_simpl. repeat split.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.
+

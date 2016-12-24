@@ -194,7 +194,7 @@ Proof.
   (* Universal property *) unfold big_product_skolem; simpl; intros.
     repeat (red || split).
       intro. apply extEq_ext. intro. auto.
-      intros. apply extEq_ext. intro.
+      intros. apply extEq_ext. intro. Print extEq. apply extEq_unext.
       
 Defined.
 
