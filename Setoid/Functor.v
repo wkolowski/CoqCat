@@ -1,6 +1,6 @@
 Require Export Cat.
 
-Require Export FunctionalExtensionality.
+Require Export Equivalences.
 
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
@@ -13,12 +13,8 @@ Class Functor (C : Cat) (D : Cat) : Type :=
     pres_id : forall A : Ob C, fmap (id A) == id (fob A)
 }.
 
-Print fob.
-
-Definition Functor_fob `(T : Functor) := fob.
-Definition Functor_fmap `(T : Functor) {A B : Ob C} (f : Hom A B) := fmap f.
-Coercion Functor_fob : Functor >-> Funclass.
-Coercion Functor_fmap : Functor >-> Funclass.
+Arguments fob [C] [D] _ _.
+Arguments fmap [C] [D] _ [A] [B] _.
 
 Ltac functor_rw := rewrite pres_comp || rewrite pres_id.
 Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
@@ -28,36 +24,36 @@ Ltac functor := repeat (split || intros || functor_simpl || cat).
 
 Definition full {C D : Cat} (T : Functor C D) : Prop :=
     forall (A B : Ob C)
-    (g : Hom (T A) (T B)), exists f : Hom A B, fmap f == g.
+    (g : Hom (fob T A) (fob T B)), exists f : Hom A B, fmap T f == g.
 
 Definition faithful {C D : Cat} (T : Functor C D) : Prop :=
-    forall (A B : Ob C) (f g : Hom A B), fmap f == fmap g -> f == g.
+    forall (A B : Ob C) (f g : Hom A B), fmap T f == fmap T g -> f == g.
 
 Definition iso_dense {C D : Cat} (T : Functor C D) : Prop :=
-    forall (Y : Ob D), exists X : Ob C, T X ~ Y.
+    forall (Y : Ob D), exists X : Ob C, fob T X ~ Y.
 
 Definition embedding `(T : Functor) : Prop :=
-    faithful T /\ injective fob.
+    faithful T /\ injective (fob T).
 
 Theorem functor_pres_sec : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Sec f -> Sec (fmap f).
+    Sec f -> Sec (fmap T f).
 Proof.
-  unfold Sec; intros. destruct H as (g, H). exists (fmap g).
+  unfold Sec; intros. destruct H as (g, H). exists (fmap T g).
   functor_simpl'. f_equiv. assumption.
 Qed.
 
 Theorem functor_pres_ret : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Ret f -> Ret (fmap f).
+    Ret f -> Ret (fmap T f).
 Proof.
-  unfold Ret; intros. destruct H as (g, H'). exists (fmap g).
+  unfold Ret; intros. destruct H as (g, H'). exists (fmap T g).
   functor_simpl'. f_equiv. assumption.
 Restart.
-  unfold Ret; cat. exists (fmap x). rewrite <- pres_comp. rewrite H.
+  unfold Ret; cat. exists (fmap T x). rewrite <- pres_comp. rewrite H.
   functor.
 Qed.
 
 Theorem functor_pres_iso : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Iso f -> Iso (fmap f).
+    Iso f -> Iso (fmap T f).
 Proof.
   intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H.
   destruct H as (H_sec, H_ret). split.
@@ -66,7 +62,7 @@ Proof.
 Qed.
 
 Theorem full_faithful_refl_sec : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Sec (fmap f) -> Sec f.
+    (f : Hom A B), full T -> faithful T -> Sec (fmap T f) -> Sec f.
 Proof.
   unfold full, faithful, Sec; intros.
   rename H into T_full, H0 into T_faithful.
@@ -77,7 +73,7 @@ Proof.
 Qed.
 
 Theorem full_faithful_refl_ret : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Ret (fmap f) -> Ret f.
+    (f : Hom A B), full T -> faithful T -> Ret (fmap T f) -> Ret f.
 Proof.
   unfold full, faithful, Sec; intros.
   rename H into T_full, H0 into T_faithful.
@@ -87,7 +83,7 @@ Proof.
 Qed.
 
 Theorem full_faithful_refl_iso : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Iso (fmap f) -> Iso f.
+    (f : Hom A B), full T -> faithful T -> Iso (fmap T f) -> Iso f.
 Proof.
   intros. rewrite iso_iff_sec_ret in *.
   destruct H1 as (H_sec, H_ret). split.
@@ -98,9 +94,8 @@ Qed.
 Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E)
     : Functor C E :=
 {
-    fob := fun A : Ob C => fob S (fob T A); (*fob S (@fob C D T A);*)
-    fmap := fun (A B : Ob C) (f : Hom A B) =>
-        S (T f) (*(fmap S (T A) (T B) (@fmap C D T A B f))*)
+    fob := fun A : Ob C => fob S (fob T A);
+    fmap := fun (A B : Ob C) (f : Hom A B) => fmap S (fmap T f)
 }.
 Proof.
   all: functor.
@@ -116,25 +111,21 @@ Proof.
   all: functor. repeat red. cat.
 Defined.
 
-(* The term has only 93 lines, whereas in New/Functor.v, it has 1610 *)
 Instance CAT : Cat :=
 {
     Ob := Cat;
     Hom := Functor;
     HomSetoid := fun C D : Cat =>
       {| equiv := fun T S : Functor C D =>
-        (forall X : Ob C, T X = S X) /\
-        forall (A B : Ob C) (f : Hom A B),
-          JMeq (@fmap C D T A B f) (@fmap C D S A B f) |};
-        (*(forall (A B : Ob) (f : Hom A B),
-            (@fmap C D T A B f) == (@fmap C D S A B f)) |};*)
+        depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S) |};
     comp := FunctorComp;
     id := FunctorId
 }.
 Proof.
-  all: functor. rewrite H, H0. auto. rewrite H2, H1.
-  unfold equiv, ext_equiv in *. destruct H, H0.
-    intros. simpl. rewrite H, H0. reflexivity.
-  unfold equiv, ext_equiv in *. destruct H, H0.
-    simpl in *. rewrite H2.
-Abort. *)
+  (* Equivalence *) repeat (red || split); try destruct H; auto;
+  try destruct H0; auto; eapply depExtEq_trans; eauto.
+  (* Proper *) repeat red; simpl; intros. destruct H, H0. split.
+    solve_depExtEq.
+    destruct x, y, x0, y0; simpl in *. solve_depExtEq.
+  (* Category laws *) all: cat.
+Defined.
