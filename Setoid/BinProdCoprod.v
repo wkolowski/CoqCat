@@ -203,6 +203,66 @@ Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     : Hom (prodOb X X') (prodOb Y Y') :=
       (diag (proj1 X X' .> f) (proj2 X X' .> g)).
 
+Theorem ProductFunctor_fmap_Proper : forall (C : Cat)
+    (hp : has_products C) (X X' Y Y' : Ob C) (f : Hom X Y) (g : Hom X' Y'),
+    Proper ((@equiv _ (HomSetoid X Y))  ==>
+      (@equiv _ (HomSetoid X' Y'))  ==>
+      (@equiv _ (HomSetoid (prodOb X X') (prodOb Y Y'))))
+      (@ProductFunctor_fmap C hp X X' Y Y').
+Proof.
+  repeat red; simpl; intros. destruct hp; simpl.
+    rewrite H, H0. reflexivity.
+Qed.
+
+Theorem ProductFunctor_fmap_pres_id : forall (C : Cat)
+    (hp : has_products C) (X Y : Ob C),
+    ProductFunctor_fmap (id X) (id Y) == id (prodOb X Y).
+Proof.
+  destruct hp; simpl in *; intros.
+    unfold product_skolem in *.
+    specialize (is_product0 _ _ _
+      (proj3 X Y .> id X) (proj4 X Y .> id Y)).
+    destruct is_product0 as [[H1 H2] H3].
+    specialize (H3 (id _)). apply H3. split; cat.
+Defined.
+
+Theorem ProductFunctor_fmap_pres_comp : forall (C : Cat)
+    (hp : has_products C) (A1 A2 B1 B2 C1 C2 : Ob C)
+    (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
+    ProductFunctor_fmap (f1 .> g1) (f2 .> g2) ==
+    ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.
+Proof.
+  destruct hp; simpl in *.
+    unfold product_skolem in *; intros.
+    pose (isp1 := is_product0).
+    pose (isp2 := is_product0).
+    pose (isp3 := is_product0).
+    specialize (isp1 _ _ _
+      (proj3 A1 A2 .> f1 .> g1)
+      (proj4 A1 A2 .> f2 .> g2)).
+    specialize (isp2 _ _ _
+      (proj3 A1 A2 .> f1)
+      (proj4 A1 A2 .> f2)).
+    specialize (isp3 _ _ _
+      (proj3 B1 B2 .> g1)
+      (proj4 B1 B2 .> g2)).
+    destruct
+      isp1 as [[H11 H12] H13],
+      isp2 as [[H21 H22] H23],
+      isp3 as [[H31 H32] H33]; simpl in *.
+    specialize (H13 (
+      diag0 _ _ _ (proj3 A1 A2 .> f1) (proj4 A1 A2 .> f2)
+      .>
+      diag0 _ _ _ (proj3 B1 B2 .> g1) (proj4 B1 B2 .> g2))).
+    specialize (H23 (diag0 _ _ _
+      (proj3 A1 A2 .> f1) (proj4 A1 A2 .> f2))).
+    specialize (H33 (diag0 _ _ _
+      (proj3 B1 B2 .> g1) (proj4 B1 B2 .> g2))).
+    repeat rewrite <- comp_assoc in *. apply H13. split.
+      rewrite H21 at 1. rewrite comp_assoc. rewrite H31 at 1. cat.
+      rewrite H22 at 1. rewrite comp_assoc. rewrite H32 at 1. cat.
+Defined.
+
 Instance ProductFunctor {C : Cat} (hp : has_products C) :
     Functor (CAT_prod C C) C :=
 {
@@ -211,43 +271,10 @@ Instance ProductFunctor {C : Cat} (hp : has_products C) :
       ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  do 2 red; simpl; intros. destruct H. destruct hp; simpl;
+  do 2 red; simpl; intros. destruct H, hp; simpl.
     rewrite H, H0. reflexivity.
-  destruct A as [A1 A2], B as [B1 B2], C0 as [C1 C2], hp; simpl in *.
-    unfold product_skolem in *; intros.
-    pose (isp1 := is_product0).
-    pose (isp2 := is_product0).
-    pose (isp3 := is_product0).
-    specialize (isp1 _ _ _
-      (proj3 A1 A2 .> fst f .> fst g)
-      (proj4 A1 A2 .> snd f .> snd g)).
-    specialize (isp2 _ _ _
-      (proj3 A1 A2 .> fst f)
-      (proj4 A1 A2 .> snd f)).
-    specialize (isp3 _ _ _
-      (proj3 B1 B2 .> fst g)
-      (proj4 B1 B2 .> snd g)).
-    destruct
-      isp1 as [[H11 H12] H13],
-      isp2 as [[H21 H22] H23],
-      isp3 as [[H31 H32] H33]; simpl in *.
-    specialize (H13 (
-      diag0 _ _ _ (proj3 A1 A2 .> fst f) (proj4 A1 A2 .> snd f)
-      .>
-      diag0 _ _ _ (proj3 B1 B2 .> fst g) (proj4 B1 B2 .> snd g))).
-    specialize (H23 (diag0 _ _ _
-      (proj3 A1 A2 .> fst f) (proj4 A1 A2 .> snd f))).
-    specialize (H33 (diag0 _ _ _
-      (proj3 B1 B2 .> fst g) (proj4 B1 B2 .> snd g))).
-    repeat rewrite <- comp_assoc in *. apply H13. split.
-      rewrite H21. rewrite comp_assoc. rewrite H31. cat.
-      rewrite H22. rewrite comp_assoc. rewrite H32. cat.
-  destruct A as [A1 A2], hp; simpl in *.
-    unfold product_skolem in *.
-    specialize (is_product0 _ _ _
-      (proj3 A1 A2 .> id A1) (proj4 A1 A2 .> id A2)).
-    destruct is_product0 as [[H1 H2] H3].
-    specialize (H3 (id _)). apply H3. split; cat.
+  intros. apply ProductFunctor_fmap_pres_comp.
+  intros. apply ProductFunctor_fmap_pres_id.
 Qed.
 
 Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
