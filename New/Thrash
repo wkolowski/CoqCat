@@ -1,3 +1,0 @@
-
-Definition dom (C : Cat) {A B : Ob C} (_ : Hom A B) := A.
-Definition cod (C : Cat) {A B : Ob C} (_ : Hom A B) := B.
