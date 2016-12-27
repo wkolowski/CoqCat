@@ -16,11 +16,8 @@ Instance CoqSet : Cat :=
     id := fun (A : Set) (a : A) => a
 |}.
 Proof.
-  split; unfold Reflexive, Symmetric, Transitive; intros.
-    (* Reflexivity *) trivial.
-    (* Symmetry *) rewrite H; trivial.
-    (* Transitivity *) rewrite H, H0; trivial.
-  (* Composition is proper *) unfold Proper, respectful. simpl. intros.
+  (* Equivalence *) solve_equiv.
+  (* Composition is proper *) proper.
     rewrite H0. f_equal. rewrite H. trivial.
   (* Category laws *) all:cat.
 Defined.

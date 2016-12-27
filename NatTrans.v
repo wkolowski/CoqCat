@@ -67,7 +67,7 @@ Proof.
   unfold natural_isomorphism; split; simpl; intros.
     destruct H as [β [Η1 Η2]]. red. exists (component β X). auto.
     assert (componentβ : forall X : Ob C, Hom (fob G X) (fob F X)).
-      destruct α; simpl in H. intro. (*destruct (H X). TODO *)
+      destruct α; simpl in H. intro. destruct (H X). TODO *)
 Abort.
 Print has_products.
 Print Functor.
