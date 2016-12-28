@@ -51,6 +51,40 @@ end.
 Ltac rw_assoc := rewrite comp_assoc.
 Ltac rw_assoc' := rewrite <- comp_assoc.
 
+Ltac proper :=
+match goal with
+    | |- context [Proper] => unfold Proper, respectful; simpl; intros; proper
+    | H : ?a == ?b |- _ => try rewrite H; clear H; proper
+    | |- ?a == ?a => reflexivity
+    | _ => idtac
+end.
+
+Ltac my_simpl := simpl in *; repeat
+match goal with
+    | H : False |- _ => inversion H
+    | e : Empty_set |- _ => inversion e
+    | x : True |- _ => destruct x
+    | x : unit |- _ => destruct x
+    | |- context [@eq unit ?a ?b] => destruct a, b
+    | H : forall _ : unit, _ |- _ => specialize (H tt)
+    | H : forall _ : True, _ |- _ => specialize (H I)
+    | H : _ /\ _ |- _ => destruct H
+    | |- _ /\ _ => split
+    | |- _ <-> _ => split
+    | H : exists x, _ |- _ => destruct H
+    | H : exists! x, _ |- _ => destruct H
+    | H : exists!! x : _, _ |- _ => destruct H; unfold setoid_unique in *
+    | H : {_ | _} |- _ => destruct H
+    | H : {_ : _ | _} |- _ => destruct H
+    | H : {_ : _ & _} |- _ => destruct H
+    | H : {! _ : _ | _ !} |- _ => destruct H
+    | H : {! _ : _ & _ !} |- _ => destruct H
+    | H : context [setoid_unique] |- _ => red in H
+    | H : context [setoid_unique_t] |- _ => destruct H
+    | |- context [setoid_unique] => split
+    | |- context [setoid_unique_t] => split
+end.
+
 Ltac solve_equiv := intros; repeat
 match goal with
     | |- context [Equivalence] => split; red; intros
@@ -73,43 +107,12 @@ match goal with
     | H : forall _, ?a _ == ?b _ |- ?b _ == ?a _ => rewrite H; reflexivity
     | H : forall _, ?a _ == ?b _, H' : forall _, ?b _ == ?c _
       |- ?a _ == ?c _ => rewrite H, H'; reflexivity
-    | _ => auto
+    | _ => my_simpl; eauto
 end.
 
-Ltac proper :=
-match goal with
-    | |- context [Proper] => unfold Proper, respectful; simpl; intros; proper
-    | H : ?a == ?b |- _ => try rewrite H; clear H; proper
-    | |- ?a == ?a => reflexivity
-    | _ => idtac
-end.
-
-Ltac cat_simpl := (*unfold setoid_unique in *;*) simpl in *; repeat
-match goal with
-    | H : False |- _ => inversion H
-    | e : Empty_set |- _ => inversion e
-    | x : True |- _ => destruct x
-    | x : unit |- _ => destruct x
-    | |- context [@eq unit ?a ?b] => destruct a, b
-    | H : forall _ : unit, _ |- _ => specialize (H tt)
-    | H : forall _ : True, _ |- _ => specialize (H I)
-    | H : _ /\ _ |- _ => destruct H
-    | H : exists x, _ |- _ => destruct H
-    | H : exists! x, _ |- _ => destruct H
-    | H : exists!! x : _, _ |- _ => destruct H; unfold setoid_unique in *
-    | H : {_ | _} |- _ => destruct H
-    | H : {_ : _ | _} |- _ => destruct H
-    | H : {_ : _ & _} |- _ => destruct H
-    | H : {! _ : _ | _ !} |- _ => destruct H
-    | H : {! _ : _ & _ !} |- _ => destruct H
-    | H : context [setoid_unique] |- _ => red in H
-    | H : context [setoid_unique_t] |- _ => destruct H
-    | _ => split
-end.
-
-Ltac cat_aux := repeat (cat_simpl || intros || rw_id || rw_assoc ||
+Ltac cat_aux := repeat (my_simpl || intros || rw_id || rw_assoc ||
     reflexivity || subst; eauto (*10*)).
-Ltac cat_aux' := repeat (cat_simpl || intros || rw_id || rw_assoc' ||
+Ltac cat_aux' := repeat (my_simpl || intros || rw_id || rw_assoc' ||
     reflexivity || subst; eauto (*10*)).
 Ltac cat := cat_aux || cat_aux'.
 
@@ -450,7 +453,7 @@ Qed.
 Theorem id_is_aut : forall (C : Cat) (X : Ob C), Aut C (id X).
 Proof. unfold Aut, Iso; intros; exists (id X); cat. Defined.
 
-Instance isomorphic_equiv (C : Cat) : Equivalence (isomorphic C).
+(*Instance isomorphic_equiv (C : Cat) : Equivalence (isomorphic C).
 Proof.
   split; do 2 red; intros.
   (* Reflexivity *) exists (id x). apply id_is_aut.
@@ -458,4 +461,4 @@ Proof.
     exists g, f; auto.
   (* Transitivity *) destruct H as [f f_iso], H0 as [g g_iso].
     exists (f .> g). apply iso_comp; assumption.
-Defined.
+Defined.*)

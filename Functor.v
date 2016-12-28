@@ -22,74 +22,65 @@ Ltac functor_simpl := repeat functor_rw.
 Ltac functor_simpl' := repeat functor_rw'.
 Ltac functor := repeat (split || intros || functor_simpl || cat).
 
-Definition full {C D : Cat} (T : Functor C D) : Prop :=
+Definition full {C D : Cat} (T : Functor C D) : Type :=
     forall (A B : Ob C)
-    (g : Hom (fob T A) (fob T B)), exists f : Hom A B, fmap T f == g.
+    (g : Hom (fob T A) (fob T B)), {f : Hom A B | fmap T f == g}.
 
 Definition faithful {C D : Cat} (T : Functor C D) : Prop :=
     forall (A B : Ob C) (f g : Hom A B), fmap T f == fmap T g -> f == g.
 
-Definition iso_dense {C D : Cat} (T : Functor C D) : Prop :=
-    forall (Y : Ob D), exists X : Ob C, fob T X ~ Y.
+Definition iso_dense {C D : Cat} (T : Functor C D) : Type :=
+    forall (Y : Ob D), {X : Ob C & fob T X ~ Y}.
 
-Definition embedding `(T : Functor) : Prop :=
+Definition embedding {C D : Cat} (T : Functor C D) : Prop :=
     faithful T /\ injective (fob T).
 
-Theorem functor_pres_sec : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Sec f -> Sec (fmap T f).
+Theorem functor_pres_sec : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y), Sec C f -> Sec D (fmap T f).
 Proof.
-  unfold Sec; intros. destruct H as (g, H). exists (fmap T g).
-  functor_simpl'. f_equiv. assumption.
-Qed.
+  destruct 1 as [g g_sec]. red. exists (fmap T g).
+  rewrite <- pres_comp, <- pres_id. f_equiv. assumption.
+Defined.
 
-Theorem functor_pres_ret : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Ret f -> Ret (fmap T f).
+Theorem functor_pres_ret : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y), Ret C f -> Ret D (fmap T f).
 Proof.
-  unfold Ret; intros. destruct H as (g, H'). exists (fmap T g).
-  functor_simpl'. f_equiv. assumption.
-Restart.
-  unfold Ret; cat. exists (fmap T x). rewrite <- pres_comp. rewrite H.
-  functor.
-Qed.
+  destruct 1 as [g g_ret]. red. exists (fmap T g).
+  rewrite <- pres_comp, <- pres_id. f_equiv. assumption.
+Defined.
 
-Theorem functor_pres_iso : forall `(T : Functor) (A B : Ob C) (f : Hom A B),
-    Iso f -> Iso (fmap T f).
-Proof.
-  intros. rewrite iso_iff_sec_ret. rewrite iso_iff_sec_ret in H.
-  destruct H as (H_sec, H_ret). split.
-    apply functor_pres_sec; assumption.
-    apply functor_pres_ret; assumption.
-Qed.
+Hint Resolve functor_pres_sec functor_pres_ret.
 
-Theorem full_faithful_refl_sec : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Sec (fmap T f) -> Sec f.
-Proof.
-  unfold full, faithful, Sec; intros.
-  rename H into T_full, H0 into T_faithful.
-  destruct H1 as (g, H).
-  destruct (T_full B A g) as [g' eq].
-  exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
-  rewrite <- pres_id in H. apply T_faithful in H. assumption.
-Qed.
+Theorem functor_pres_iso : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y), Iso C f -> Iso D (fmap T f).
+Proof. auto. Defined.
 
-Theorem full_faithful_refl_ret : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Ret (fmap T f) -> Ret f.
+Theorem full_faithful_refl_sec : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y),
+    full T -> faithful T -> Sec D (fmap T f) -> Sec C f.
 Proof.
-  unfold full, faithful, Sec; intros.
-  rename H into T_full, H0 into T_faithful.
-  destruct H1 as (g, H). destruct (T_full B A g) as [g' eq].
-  exists g'. rewrite <- eq in H. rewrite <- pres_comp in H.
-  rewrite <- pres_id in H. apply T_faithful in H. assumption.
-Qed.
+  unfold full, faithful; do 6 intro; intros T_full T_faithful.
+  destruct 1 as [Tg Tg_sec], (T_full Y X Tg) as [g eq]. red.
+  exists g. apply T_faithful. rewrite pres_comp, pres_id, eq. auto.
+Defined.
 
-Theorem full_faithful_refl_iso : forall `(T : Functor) (A B : Ob C)
-    (f : Hom A B), full T -> faithful T -> Iso (fmap T f) -> Iso f.
+Theorem full_faithful_refl_ret : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y),
+    full T -> faithful T -> Ret D (fmap T f) -> Ret C f.
 Proof.
-  intros. rewrite iso_iff_sec_ret in *.
-  destruct H1 as (H_sec, H_ret). split.
-  apply full_faithful_refl_sec with T; assumption.
-  apply full_faithful_refl_ret with T; assumption.
-Qed.
+  unfold full, faithful; do 6 intro; intros T_full T_faithful.
+  destruct 1 as [Tg Tg_ret], (T_full Y X Tg) as [g eq]. red.
+  exists g. apply T_faithful. rewrite pres_comp, pres_id, eq. auto.
+Defined.
+
+Hint Resolve full_faithful_refl_sec full_faithful_refl_ret.
+
+Theorem full_faithful_refl_iso : forall (C D : Cat) (T : Functor C D)
+    (X Y : Ob C) (f : Hom X Y),
+    full T -> faithful T -> Iso D (fmap T f) -> Iso C f.
+Proof.
+  intros. apply iso_is_sec_ret; eauto.
+Defined.
 
 Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E)
     : Functor C E :=
@@ -98,8 +89,8 @@ Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E)
     fmap := fun (A B : Ob C) (f : Hom A B) => fmap S (fmap T f)
 }.
 Proof.
-  all: functor.
-  (* Proper *) unfold Proper; red. intros. rewrite H. reflexivity.
+  (* Proper *) proper.
+  (* Functor laws *) all: functor.
 Defined.
 
 Instance FunctorId (C : Cat) : Functor C C :=
@@ -108,7 +99,8 @@ Instance FunctorId (C : Cat) : Functor C C :=
     fmap := fun (A B : Ob C) (f : Hom A B) => f
 }.
 Proof.
-  all: functor. repeat red. cat.
+  (* Proper *) proper.
+  (* Functors laws *) all: functor.
 Defined.
 
 Instance CAT : Cat :=
@@ -122,10 +114,7 @@ Instance CAT : Cat :=
     id := FunctorId
 }.
 Proof.
-  (* Equivalence *) repeat (red || split); try destruct H; auto;
-  try destruct H0; auto; eapply depExtEq_trans; eauto.
-  (* Proper *) repeat red; simpl; intros. destruct H, H0. split.
-    solve_depExtEq.
-    destruct x, y, x0, y0; simpl in *. solve_depExtEq.
+  (* Equivalence *) solve_equiv.
+  (* Proper *) proper. my_simpl; solve_depExtEq.
   (* Category laws *) all: cat.
 Defined.

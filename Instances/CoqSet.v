@@ -17,16 +17,9 @@ Instance CoqSet : Cat :=
 |}.
 Proof.
   (* Equivalence *) solve_equiv.
-  (* Composition is proper *) proper.
-    rewrite H0. f_equal. rewrite H. trivial.
-  (* Category laws *) all:cat.
+  (* Composition is proper *) proper. rewrite H, H0. trivial.
+  (* Category laws *) all: cat.
 Defined.
-
-Instance Card_Setoid : Setoid Set :=
-{
-    equiv := @isomorphic CoqSet (* exists f : A -> B, bijective f*)
-}.
-Proof. apply (isomorphic_equiv CoqSet). Defined.
 
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> @injectiveS A B {| equiv := eq |} {| equiv := eq |} f.
