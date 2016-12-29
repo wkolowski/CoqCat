@@ -114,7 +114,6 @@ Proof.
   rewrite <- (eq2 (g .> f)); try rewrite <- (eq2 (id I)); reflexivity.
 Qed.
 
-(* There was duality, but it doesn't work in Setoid/ *)
 Theorem mor_from_term_is_sec : forall (C : Cat) (T X : Ob C) (f : Hom T X),
     terminal T -> Sec f.
 Proof.

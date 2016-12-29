@@ -58,17 +58,27 @@ Proof.
       rewrite comp_assoc. rewrite <- eq1. auto.
 Qed.
 
-(* Error: Case analysis on sort Type is not allowed for inductive definition ex.
+(* Error: Case analysis on sort Type is not allowed for inductive definition ex.*)
 Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
     (A B : J -> Ob C) (P Q : Ob C)
     (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j)),
     (forall j : J, A j ~ B j) ->
     big_product C P p -> big_product C Q q -> P ~ Q.
 Proof.
-  unfold big_product; intros.
-  assert (f : forall j : J, Hom P (A j)).
-    intro. destruct (H j) as [f [g [iso1 iso2]]].
-unfold isomorphic. destruct (H1 P (fun j => p j .> H j)) as [u1 [eq1 uniq1]],
+  unfold big_product; intros. red in H.
+  assert (f : forall j : J, {f : Hom (A j) (B j) | Iso f}).
+    intro. apply constructive_indefinite_description. exact (H j).
+  assert (g : forall j : J, {g : Hom (B j) (A j) | Iso g}).
+    intro. specialize (f j). destruct f as [f Hf].
+    red in Hf. apply constructive_indefinite_description in Hf.
+    destruct Hf as [g [eq1 eq2]]. exists g. cat.
+  assert (f' : {f : forall j : J, Hom (A j) (B j) | forall j : J, Iso (f j)}).
+    exists (fun j : J => proj1_sig
+      (constructive_indefinite_description _ (H j))).
+    intro. destruct (constructive_indefinite_description _ (H j)). cat.
+(* TODO *)  
+assert (g' : 
+  red. destruct (H1 P (fun j => p j .> g j)) as [u1 [eq1 uniq1]],
 (H0 Q j (q j .> g)) as [u2 [eq2 uniq2]].
 exists u1. unfold Iso. exists u2. split.
 destruct (H0 P j (p j)) as [i [eq_id uniq_id]].
@@ -119,16 +129,35 @@ Proof.
   unfold big_coproduct; intros. exists (f tt). cat.
 Qed.
 
-(* Case analysis on sort Prop bla bla...
-Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C) (P : Ob C)
-    (f : J -> J) (p : forall j : J, Hom P (A j))
+(* Dependent type bullshit. This is harder than I thought.
+Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C)
+    (P : Ob C) (f : J -> J) (p : forall j : J, Hom P (A j))
     (p' : forall j : J, Hom P (A (f j))),
+    (forall j : J, p' j = p (f j)) ->
     bijective f -> big_product C P p -> big_product C P p'.
 Proof.
-  unfold bijective, injective, surjective, big_product; intros.
-  destruct H as [inj sur].
-  assert (forall j : J, Hom X (A j)).
-    intro.
+  unfold bijective, injective, surjective, big_product.
+  destruct 2 as [inj sur]; intros.
+  assert (g : {g : J -> J |
+    (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
+    exists (fun j : J => proj1_sig (constructive_indefinite_description _ (sur j))).
+    split; intros.
+      destruct (constructive_indefinite_description _ (sur j)). auto.
+      destruct (constructive_indefinite_description _ (sur (f j))). auto.
+  destruct g as [g [g_inv1 g_inv2]].
+(*  assert (h : forall j : J, {h : Hom X (A j) |
+  JMeq h (f0 (g j))}).
+    intro. pose (h := f0 (g j)). rewrite (g_inv1 j) in h.
+    exists h.*)
+  assert (h : {h : forall j : J, Hom X (A (f (g j))) |
+  (forall j : J, h j = f0 (g j))}).
+    exists (fun j : J => f0 (g j)). auto.
+  destruct h as [h eq].
+  specialize (H0 X h).
+  assert (h' : {h' : forall j : J, Hom X (A j) |
+    forall j : J, JMeq (h' j) (h j)}).
+    exists (fun j : J => h j). intro. rewrite <- (g_inv1 j). exact (h j).
+  destruct (H0 X h') as [u H']. exists u. cat. rewrite H.
 *)
 
 Class has_all_products (C : Cat) : Type :=

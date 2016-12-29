@@ -32,10 +32,10 @@ Instance Card_Setoid : Setoid Set :=
 Proof. apply (isomorphic_equiv CoqSet). Defined.
 
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
-    Mon f <-> @injectiveS A B {| equiv := eq |} {| equiv := eq |} f.
+    Mon f <-> injective f.
 Proof.
-  unfold Mon, injectiveS; simpl; split; intros.
-    change (a = a') with ((fun _ => a) a = (fun _ => a') a).
+  unfold Mon, injective; simpl; split; intros.
+    change (x = y) with ((fun _ => x) x = (fun _ => y) x).
       apply H. auto.
     apply H. apply H0.
 Qed.
@@ -44,9 +44,67 @@ Qed.
     Sec f <-> injective f.
 Proof.
   split; intros.
-    apply CoqSet_mon_inj; [assumption | apply sec_is_mon; assumption].
+    apply CoqSet_mon_inj. apply sec_is_mon. assumption.
     unfold Sec, injective in *.
 admit.*)
+
+(* Looks like it doesn't hold constructively. *)
+Theorem CoqSet_epi_sur : forall (A B : Set) (nonempty : A) (f : Hom A B),
+    Epi f <-> surjective f.
+Proof.
+  unfold Epi, surjective; split; intros. simpl in *.
+  Focus 2. simpl in *. intro. destruct (H x). rewrite <- H1. auto.
+  specialize (H B (fun b : B => f nonempty) (fun _ => b)). simpl in H.
+  exists nonempty. apply H. intro.
+Abort.
+
+Theorem CoqSet_ret_sur : forall (X Y : Set) (f : Hom X Y),
+    Ret f <-> surjective f.
+Proof.
+  unfold Ret, surjective; simpl; split; intros.
+    destruct H as [g eq]. exists (g b). apply eq.
+    exists (
+    fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
+      intro y. destruct (constructive_indefinite_description _ (H y)).
+      simpl. assumption.
+Defined.
+
+Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
+    Iso f <-> bijective f.
+Proof.
+  unfold bijective, injective, surjective, Iso; simpl; split; intros.
+    split; intros.
+      destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
+        rewrite H0. auto.
+      destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
+Restart.
+  split; intros.
+    red. rewrite iso_iff_mon_ret in H. destruct H. split.
+      rewrite <- CoqSet_mon_inj. assumption.
+      rewrite <- CoqSet_ret_sur. assumption.
+    destruct H. rewrite iso_iff_mon_ret. split.
+      rewrite CoqSet_mon_inj. assumption.
+      rewrite CoqSet_ret_sur. assumption.
+Defined.
+
+(*Theorem CoqSet_ret_invertible : forall (A B : Set)
+    (f : Hom A B), {g : Hom B A | g .> f = id B} ->
+    invertible {| equiv := eq |} f.
+Proof.
+  intros. red.
+    destruct H as [g H]. intro. exists (g b). simpl in *.
+    change (f (g b)) with ((fun a : B => (f (g a))) b).
+    change b with ((fun a : B => a) b) at 2.
+    rewrite H. auto.
+Qed.
+
+Theorem CoqSet_invertible_ret : forall (A B : Set) (f : Hom A B),
+    invertible {| equiv := eq |} f -> {g : Hom B A | g .> f == id B}.
+Proof.
+  intros. red in H.
+  exists (fun b => proj1_sig (H b)). simpl.
+  intro b. destruct (H b). simpl in *. auto.
+Qed.*)
 
 Instance CoqSet_has_init : has_init CoqSet :=
 {
@@ -203,41 +261,6 @@ Proof.
   all: cat. destruct x. cat.
 Defined.
 
-Theorem CoqSet_ret_invertible : forall (A B : Set)
-    (f : Hom A B), {g : Hom B A | g .> f = id B} ->
-    invertible {| equiv := eq |} f.
-Proof.
-  intros. red.
-    destruct H as [g H]. intro. exists (g b). simpl in *.
-    change (f (g b)) with ((fun a : B => (f (g a))) b).
-    change b with ((fun a : B => a) b) at 2.
-    rewrite H. auto.
-Qed.
-
-Theorem CoqSet_invertible_ret : forall (A B : Set) (f : Hom A B),
-    invertible {| equiv := eq |} f -> {g : Hom B A | g .> f == id B}.
-Proof.
-  intros. red in H.
-  exists (fun b => proj1_sig (H b)). simpl.
-  intro b. destruct (H b). simpl in *. auto.
-Qed.
-
-(*Theorem CoqSet_epi_sur : forall (A B : Set) (nonempty : A) (f : Hom A B),
-    Epi f <-> @surjective A B {| equiv := eq |} f.
-Proof.
-  unfold Epi, surjective; split; intros. simpl in *.
-  specialize (H A (id   
-assert (H' : forall (X : Set) (g h : Hom B X),
-    (forall a : A, (fun a : A => g (f a)) a = (fun a : A => h (f a)) a) ->
-    forall b : B, (fun b : B => g b) b = (fun b : B => h b) b).
-    intros. apply H. auto.
-  
-apply fn_ext_axiom. intro b.
-specialize (H b). destruct H as [a H]. rewrite <- H.
-unfold comp, CompSets in H0.
-generalize a. rewrite <- fn_ext_axiom. assumption.
-Qed.*)
-
 Theorem CoqSet_counterexample1 :
     exists (A B C : Set) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ (injective g).
@@ -256,27 +279,6 @@ Proof.
     exists tt. destruct b. auto.
     destruct (H false). inversion H0.
 Qed.
-
-(* It's time to change all this shit to be constructive and proof-relevant. *)
-Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
-    Iso f -> injective f /\ surjective f.
-Proof.
-  unfold injective, surjective, Iso; simpl; intros. split; intros.
-    destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
-      rewrite H0. auto.
-    destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
-Defined.
-
-(* Case analysis on sort Set. *)
-(*Theorem CoqSet_iso_bin_conv : forall (A B : Set) (f : Hom A B),
-    injective f -> surjective f -> Iso f.
-Proof.
-  unfold injective, surjective, Iso. intros.
-  assert (g : B -> A).
-    intro b. Focus 2.
-    exists g. simpl; split; intros.
-      destruct (H0 (f x)).
-*)
 
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {

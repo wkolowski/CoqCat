@@ -1,6 +1,8 @@
 Require Export Coq.Classes.SetoidClass.
-Require Export Coq.Logic.ProofIrrelevance.
+(*Require Export Coq.Logic.ProofIrrelevance.*)
 Require Export JMeq.
+
+Require Export Coq.Logic.IndefiniteDescription.
 
 Global Set Universe Polymorphism.
 
@@ -12,7 +14,7 @@ Class Cat : Type :=
     comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
     comp_Proper :> forall A B C : Ob,
         Proper (equiv ==> equiv ==> equiv) (@comp A B C);
-    comp_assoc : forall (A B C D : Ob) (f : Hom A B) (g : Hom B C)
+    comp_assoc : forall {A B C D : Ob} (f : Hom A B) (g : Hom B C)
         (h : Hom C D), comp (comp f g) h == comp f (comp g h);
     id : forall A : Ob, Hom A A;
     id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
@@ -20,6 +22,7 @@ Class Cat : Type :=
 }.
 
 Arguments Ob _ : clear implicits.
+Print comp_assoc.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
@@ -204,7 +207,7 @@ Proof.
       rewrite iso_inv_unique in f_iso. unfold Iso.
         destruct f_iso as [g [[eq1 eq2] unique]].
         exists g. cat. apply unique; rewrite (H x); cat.
-Defined. *)
+Time Qed. *)
 Admitted.
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.

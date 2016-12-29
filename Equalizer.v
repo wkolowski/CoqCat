@@ -52,7 +52,7 @@ Theorem equalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X),
     equalizer C f g E e -> equalizer C f g E' e' -> E ~ E'.
 Proof.
-  unfold equalizer; intros. destruct H, H0.
+  unfold equalizer; intros. destruct H, H0. Print Iso.
   destruct (H1 E' e' H0) as [h [eq unique]].
   destruct (H2 E e H) as [h' [eq' unique']].
   red. exists h'. red. exists h. split.
