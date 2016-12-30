@@ -58,7 +58,6 @@ Proof.
       rewrite comp_assoc. rewrite <- eq1. auto.
 Qed.
 
-(* Error: Case analysis on sort Type is not allowed for inductive definition ex.*)
 Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
     (A B : J -> Ob C) (P Q : Ob C)
     (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j)),
@@ -66,40 +65,41 @@ Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
     big_product C P p -> big_product C Q q -> P ~ Q.
 Proof.
   unfold big_product; intros. red in H.
-  assert (f : forall j : J, {f : Hom (A j) (B j) | Iso f}).
-    intro. apply constructive_indefinite_description. exact (H j).
-  assert (g : forall j : J, {g : Hom (B j) (A j) | Iso g}).
-    intro. specialize (f j). destruct f as [f Hf].
-    red in Hf. apply constructive_indefinite_description in Hf.
-    destruct Hf as [g [eq1 eq2]]. exists g. cat.
-  assert (f' : {f : forall j : J, Hom (A j) (B j) | forall j : J, Iso (f j)}).
-    exists (fun j : J => proj1_sig
-      (constructive_indefinite_description _ (H j))).
-    intro. destruct (constructive_indefinite_description _ (H j)). cat.
-(* TODO *)  
-assert (g' : 
-  red. destruct (H1 P (fun j => p j .> g j)) as [u1 [eq1 uniq1]],
-(H0 Q j (q j .> g)) as [u2 [eq2 uniq2]].
-exists u1. unfold Iso. exists u2. split.
-destruct (H0 P j (p j)) as [i [eq_id uniq_id]].
-assert (i_is_id : i == id P). apply uniq_id. cat.
-rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
-rewrite <- eq2. rewrite <- comp_assoc. rewrite <- eq1. cat.
-rewrite iso1. cat.
-destruct (H1 Q j (q j)) as [i [eq_id uniq_id]].
-assert (i_is_id : i == id Q). apply uniq_id. cat.
-rewrite <- i_is_id. symmetry. apply uniq_id. rewrite comp_assoc.
-rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
-rewrite iso2. cat.
-Qed.*)
+  assert (f : forall j : J, {f : Hom (A j) (B j) &
+    {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).
+    intro. specialize (H j). apply constructive_indefinite_description in H.
+    destruct H as [f f_iso]. exists f.
+    red in f_iso. apply constructive_indefinite_description in f_iso.
+    destruct f_iso as [g [eq1 eq2]]. exists g. auto.
+  assert (f' : {f : forall j : J, Hom (A j) (B j) &
+    {g : forall j : J, Hom (B j) (A j) |
+      (forall j : J, f j .> g j == id (A j)) /\
+      (forall j : J, g j .> f j == id (B j))}}).
+    exists (fun j : J => projT1 (f j)).
+    exists (fun j : J => proj1_sig (projT2 (f j))).
+    split; intro; destruct (f j) as [f' [g' [eq1 eq2]]]; cat.
+  destruct f' as [f' [g' [iso1 iso2]]].
+  red. destruct (H1 P (fun j => p j .> f' j)) as [u1 [eq1 uniq1]],
+    (H0 Q (fun j : J => (q j .> g' j))) as [u2 [eq2 uniq2]].
+  exists u1. red. exists u2. split.
+    destruct (H0 P (fun j : J => (p j))) as [i [eq_id uniq_id]].
+      assert (i_is_id : i == id P). apply uniq_id. cat.
+      rewrite <- i_is_id. symmetry. apply uniq_id. intro. cat.
+      rewrite <- eq2. rewrite <- comp_assoc. rewrite <- eq1. cat.
+      rewrite iso1. cat.
+    destruct (H1 Q (fun j : J => q j)) as [i [eq_id uniq_id]].
+      assert (i_is_id : i == id Q). apply uniq_id. cat.
+      rewrite <- i_is_id. symmetry. apply uniq_id. cat.
+      rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
+      rewrite iso2. cat.
+Defined.
 
+(* Hard and buggy
 Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
     exists (f : bool -> Ob C) (p : forall b : bool, Hom P (f b)),
     f true = A /\ f false = B /\ big_product C P p.
-Proof.
-  (* Hard and buggy *)
-Abort.
+Proof. *)
 
 Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
     (p : forall j : Empty_set, Hom T (A j)),

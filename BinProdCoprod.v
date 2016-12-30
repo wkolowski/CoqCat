@@ -163,6 +163,9 @@ Class has_biproducts (C : Cat) : Type :=
       prodOb X Y = coprodOb X Y
 }.
 
+Coercion products : has_biproducts >-> has_products.
+Coercion coproducts : has_biproducts >-> has_coproducts.
+
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
@@ -192,7 +195,7 @@ Instance CAT_prod (C : Cat) (D : Cat) : Cat :=
     id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
 }.
 Proof.
-  (* Proper *) cat.
+  (* Proper *) proper; my_simpl.
     rewrite H, H0. reflexivity.
     rewrite H1, H2. reflexivity.
   (* Category laws *) all: cat.
@@ -270,7 +273,7 @@ Instance ProductFunctor {C : Cat} (hp : has_products C) :
     fmap := fun (X Y : Ob (CAT_prod C C)) (f : Hom X Y) =>
       ProductFunctor_fmap (fst f) (snd f)
 }.
-Proof.
+Proof. Print Functor.
   do 2 red; simpl; intros. destruct H, hp; simpl.
     rewrite H, H0. reflexivity.
   intros. apply ProductFunctor_fmap_pres_comp.
@@ -331,6 +334,40 @@ Proof.
     specialize (H3 (id _)). apply H3. split; cat.
 Qed.
 
-(* TODO: Fix notations. 
-Notation "A × B" := (prod_functor (A, B)) (at level 40).
-Notation "f ×' g" := (fmap prod_functor f g) (at level 40). *)
+(* TODO *)
+Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
+Notation "f ×' g" := (fmap ProductFunctor f g) (at level 40).
+
+Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
+    : has_coproducts (Dual C) :=
+{
+    coprodOb := @prodOb C hp;
+    coproj1 := @proj1 C hp;
+    coproj2 := @proj2 C hp;
+    codiag := @diag C hp
+}.
+Proof.
+  (* Proper *) simpl. apply diag_Proper.
+  (* Coproduct laws *) apply (@is_product C hp).
+Defined.
+
+Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
+    : has_products (Dual C) :=
+{
+    prodOb := @coprodOb C hp;
+    proj1 := @coproj1 C hp;
+    proj2 := @coproj2 C hp;
+    diag := @codiag C hp;
+}.
+Proof.
+  (* Proper *) simpl. apply codiag_Proper.
+  (* Products laws *) apply (@is_coproduct C hp).
+Defined.
+
+Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
+    : has_biproducts (Dual C) :=
+{
+    products := Dual_has_products C hp;
+    coproducts := Dual_has_coproducts C hp;
+}.
+Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.

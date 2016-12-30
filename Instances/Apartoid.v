@@ -1,10 +1,12 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+(*Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".*)
 
 Require Export Coq.Classes.SetoidClass.
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
+
+(* TODO: Write tactics likes those in Mon.v. Use solve_equiv and proper. *)
 
 Class Apartoid : Type :=
 {
@@ -14,7 +16,7 @@ Class Apartoid : Type :=
     neq_sym : forall x y : carrier, neq x y -> neq y x;
     weird : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
-Print Apartoid.
+
 Coercion carrier : Apartoid >-> Sortclass.
 
 Hint Resolve neq_irrefl neq_sym weird.
@@ -61,8 +63,8 @@ Instance ApartoidCat : Cat :=
     id := ApartoidId
 }.
 Proof.
-  (* Equivalence *) cat. red. intros. rewrite H, H0. auto.
-  (* Proper *) repeat red; intros. destruct x, y, x0, y0; simpl in *.
+  (* Equivalence *) solve_equiv.
+  (* Proper *) proper. destruct x, y, x0, y0; simpl in *.
     rewrite H, H0. auto.
   (* Category laws *) all: intros; repeat match goal with
     | f : ApartoidHom _ _ |- _ => destruct f
@@ -180,7 +182,7 @@ Instance Apartoid_has_products : has_products ApartoidCat :=
     diag := Apartoid_diag
 }.
 Proof.
-  repeat red; simpl; intros. rewrite H, H0. auto.
-  unfold product; simpl; intros. cat. destruct f, g, y; simpl in *.
-    rewrite H, H0. destruct (x2 x). auto.
+  (* Proper *) proper. rewrite H, H0. reflexivity.
+  (* Products law *) unfold product_skolem; cat.
+    destruct f, g, y; simpl in *. rewrite H, H0. destruct (x2 x). auto.
 Defined.

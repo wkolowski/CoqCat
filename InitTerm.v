@@ -47,6 +47,9 @@ Class has_zero (C : Cat) : Type :=
     initial_is_terminal : init C = term C
 }.
 
+Coercion zero_is_initial : has_zero >-> has_init.
+Coercion zero_is_terminal : has_zero >-> has_term.
+
 Definition zero_ob (C : Cat) {has_zero0 : has_zero C} : Ob C := init C.
 Definition zero_mor (C : Cat) {has_zero0 : has_zero C}
     (X Y : Ob C) : Hom X Y.
@@ -121,3 +124,24 @@ Proof.
   destruct (H X) as (g, [_ eq1]), (H T) as (idT, [_ eq2]). exists g.
   rewrite <- (eq2 (f .> g)); try rewrite <- (eq2 (id T)); reflexivity.
 Qed.
+
+Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
+{
+    term := init C;
+    delete := @create C hi
+}.
+Proof. cat. Defined.
+
+Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
+{
+    init := term C;
+    create := @delete C ht
+}.
+Proof. cat. Defined.
+
+Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
+{
+    zero_is_initial := Dual_has_init C hz;
+    zero_is_terminal := Dual_has_term C hz
+}.
+Proof. cat. Defined. 

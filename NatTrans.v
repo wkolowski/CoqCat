@@ -103,23 +103,20 @@ Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
     fmap := fun (X Y : Ob C) (f : Hom X Y) =>
       ProductFunctor_fmap (fmap F f) (fmap G f)
 }.
-Proof. Print ProductFunctor.
+Proof.
   repeat red; intros. destruct hp. simpl in *.
     rewrite H. reflexivity.
-  intros. destruct F, G. simpl in *.
-    apply (@fmap_Proper (ProductFunctor hp)).
-    pose (H := ProductFunctor_fmap_pres_comp).
-    destruct hp. simpl in *. rewrite pres_comp0.
-    Print ProductFunctor.
-   apply ProductFunctor_fmap_pres_comp.
-  intros. apply ProductFunctor_fmap_pres_id.
-Qed.
-  
+  intros. pose (H := ProductFunctor_fmap_pres_comp D hp).
+    destruct F, G, hp. simpl in *.
+    rewrite pres_comp, pres_comp0, H. reflexivity.
+  intros. pose (H := ProductFunctor_fmap_pres_id D hp).
+    destruct F, G, hp. simpl in *.
+    rewrite pres_id, pres_id0, H. reflexivity.
+Defined.
 
-
-Instance has_products {C D : Cat} {hp : has_products D}
+(* TODO *)
+(*Instance has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 Proof.
   esplit. all: admit.
-      
-    
+*)

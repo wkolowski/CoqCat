@@ -1,10 +1,13 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+(*Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".*)
 
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
+
+Require Import ProofIrrelevance.
+Require Import FunctionalExtensionality.
 
 Instance CoqSet : Cat :=
 {|
@@ -16,20 +19,10 @@ Instance CoqSet : Cat :=
     id := fun (A : Set) (a : A) => a
 |}.
 Proof.
-  split; unfold Reflexive, Symmetric, Transitive; intros.
-    (* Reflexivity *) trivial.
-    (* Symmetry *) rewrite H; trivial.
-    (* Transitivity *) rewrite H, H0; trivial.
-  (* Composition is proper *) unfold Proper, respectful. simpl. intros.
-    rewrite H0. f_equal. rewrite H. trivial.
-  (* Category laws *) all:cat.
+  (* Equivalence *) solve_equiv.
+  (* Composition is proper *) proper. rewrite H, H0. auto.
+  (* Category laws *) all: cat.
 Defined.
-
-Instance Card_Setoid : Setoid Set :=
-{
-    equiv := @isomorphic CoqSet (* exists f : A -> B, bijective f*)
-}.
-Proof. apply (isomorphic_equiv CoqSet). Defined.
 
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> injective f.
@@ -38,7 +31,7 @@ Proof.
     change (x = y) with ((fun _ => x) x = (fun _ => y) x).
       apply H. auto.
     apply H. apply H0.
-Qed.
+Defined.
 
 (*Theorem CoqSet_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
     Sec f <-> injective f.
@@ -159,8 +152,8 @@ Instance CoqSet_has_products : has_products CoqSet :=
       fun x : X => (f x, g x)
 }.
 Proof.
-  repeat red; simpl; intros. rewrite H, H0. auto.
-  cat. rewrite H, H0. destruct (y x). auto.
+  (* Proper *) proper. rewrite H, H0. auto.
+  (* Product law *) red; cat. rewrite H, H0. destruct (y x). auto.
 Defined.
 
 Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
@@ -187,10 +180,8 @@ Instance CoqSet_has_all_products : has_all_products CoqSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) intros. simpl. intro. simpl in H.
-    Require Import FunctionalExtensionality. extensionality j. auto.
-  (* Universal property *) unfold big_product; simpl; intros.
-    cat. extensionality a. cat.
+  (* Proper *) cat. extensionality j. auto.
+  (* Universal property *) red; cat. extensionality a. auto.
 Defined.
 
 Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.
@@ -258,7 +249,7 @@ Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  all: cat. destruct x. cat.
+  all: try red; cat.
 Defined.
 
 Theorem CoqSet_counterexample1 :
@@ -289,7 +280,7 @@ Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 }.
 Proof.
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. Print sig.
+    destruct x; simpl. auto.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
