@@ -6,15 +6,18 @@ Fix:
 6. Refactor Monads.v: move the Maybe monad to CoqSet.
 
 General:
-1. Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?)
+1. Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
 3. Implement concrecete categories and use them for theorems about individual categories.
 4. Implement better pullbacks and pushouts.
 6. Implement limits and colimits.
 7. Implement monoidal categories.
 8. Implement enriched categories.
+9. Implement some examples of functors (like the Hom functor).
 
 Instances:
 2. Define slice categories: https://en.wikiversity.org/wiki/Introduction_to_Category_Theory/Categories#Identities_for_Free_Categories
 3. Define linear orders.
 4. There's a problem: is lexicographic order even a proset?
-5. Prove Setoid has coequalizers (or doesn't it?).
+
+Remarks:
+1. Looks like Apartoid should have coequalizers, but CoqSet shouldn't.
