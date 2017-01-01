@@ -21,3 +21,13 @@ Instances:
 
 Remarks:
 1. Looks like Apartoid should have coequalizers, but CoqSet shouldn't.
+2. Reminder for later:
+(* Things can be done this way too. *)
+Instance Apartoid_has_init' : has_init ApartoidCat := {}.
+Proof.
+  refine {| carrier := Empty_set;
+      neq := fun (e : Empty_set) _ => match e with end |}; cat.
+  repeat red; simpl in *; intros.
+    exists (fun e : Empty_set => match e with end). destruct x.
+    cat.
+Defined.

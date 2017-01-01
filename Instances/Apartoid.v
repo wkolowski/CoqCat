@@ -1,25 +1,40 @@
-(*Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".*)
-
 Require Export Coq.Classes.SetoidClass.
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
-
-(* TODO: Write tactics likes those in Mon.v. Use solve_equiv and proper. *)
+Require Import Equalizer.
 
 Class Apartoid : Type :=
 {
     carrier : Type;
     neq : carrier -> carrier -> Prop;
-    neq_irrefl : forall x y : carrier, ~ neq x x;
+    neq_irrefl : forall x : carrier, ~ neq x x;
     neq_sym : forall x y : carrier, neq x y -> neq y x;
-    weird : forall x y z : carrier, neq x y -> neq z x \/ neq z y
+    neq_cotrans : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
 
 Coercion carrier : Apartoid >-> Sortclass.
 
-Hint Resolve neq_irrefl neq_sym weird.
+Notation "x # y" := (neq x y) (at level 40).
+
+Hint Resolve neq_irrefl neq_sym neq_cotrans.
+
+Ltac apartoidob A := try intros until A;
+match type of A with
+  | Apartoid =>
+    let a := fresh A "_neq" in
+    let b := fresh A "_neq_irrefl" in
+    let c := fresh A "_neq_sym" in
+    let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
+  | Ob _ => progress simpl in A; apartoidob A
+end.
+
+Ltac apartoidobs := intros; repeat
+match goal with
+  | A : Apartoid |- _ => apartoidob A
+  | X : Ob _ |- _ => apartoidob X
+end.
 
 (*Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
 {
@@ -34,12 +49,22 @@ Defined.*)
 Definition ApartoidHom (X Y : Apartoid) : Type :=
     {f : X -> Y | forall x x' : X, ~ neq x x' -> ~ neq (f x) (f x')}.
 
-Definition ApartoidHomInj (X Y : Apartoid) : Type :=
-    {f : X -> Y | forall x x' : X, neq x x' -> neq (f x) (f x')}.
-
 Definition ApartoidHom_Fun {X Y : Apartoid} (f : ApartoidHom X Y) : X -> Y
     := proj1_sig f.
 Coercion ApartoidHom_Fun : ApartoidHom >-> Funclass.
+
+Ltac apartoidhom f := try intros until f;
+match type of f with
+  | ApartoidHom _ _ =>
+    let a := fresh f "_pres_equiv" in destruct f as [f a]
+  | Hom _ _ => progress simpl in f; apartoidhom f
+end.
+
+Ltac apartoidhoms := intros; repeat
+match goal with
+  | f : ApartoidHom _ _ |- _ => apartoidhom f
+  | f : Hom _ _ |- _ => apartoidhom f
+end.
 
 Definition ApartoidComp (X Y Z : Apartoid) (f : ApartoidHom X Y)
     (g : ApartoidHom Y Z) : ApartoidHom X Z.
@@ -53,22 +78,62 @@ Proof.
   red. exists (fun x : X => x). auto.
 Defined.
 
+Ltac apartoid_simpl := repeat (red || split || simpl in * || intros).
+Ltac apartoid_simpl' := repeat (apartoid_simpl || apartoidhoms || apartoidobs).
+
+Ltac apartoid_neq := repeat
+match goal with
+    | H : _ \/ _ |- _ => destruct H
+    | H : ?neq ?x ?x, irrefl : forall x : _, ~ ?neq x x |- False =>
+        eapply irrefl; eauto
+    | pres_equiv : forall x x' : _, ~ ?A_neq x x' -> ~ ?B_neq (?f x) (?f x'),
+      H : ~ ?A_neq ?x ?x', H' : ?B_neq (?f ?x) (?f ?x') |- False =>
+      eapply pres_equiv; eauto
+    | H : ?P, H' : ~ ?P |- False =>
+        eapply H'; eauto
+    | H : ?P ?x, H' : forall x : _, ~ ?P x |- False =>
+        eapply H'; eauto
+    | H : ?P (?f _) (?g _), H' : forall x : _, ~ ?P (?f _) (?g _) |- False =>
+      try (eapply H'; eauto; fail)
+    | _ => cat
+end.
+
+Ltac apartoid' :=
+repeat (apartoid_simpl || apartoid_neq || apartoidobs || apartoidhoms || apartoid_neq;
+match goal with
+    | |- context [Equivalence] => solve_equiv
+    | |- context [Proper] => proper
+    | |- False => apartoid_neq
+    | _ => eauto
+end; eauto).
+Ltac apartoid := try (apartoid'; eauto; fail).
+
+Theorem contrapositive : forall P Q : Prop, (P -> Q) -> (~Q -> ~P).
+Proof.
+  intros. intro. apply H0. apply H. apply H1.
+Qed.
+
 Instance ApartoidCat : Cat :=
 {
     Ob := Apartoid;
     Hom := ApartoidHom;
     HomSetoid := fun X Y : Apartoid =>
-        {| equiv := fun f g : ApartoidHom X Y => forall x : X, f x = g x |};
+      {| equiv := fun f g : ApartoidHom X Y =>
+        forall x : X, ~ f x # g x |};
     comp := ApartoidComp;
     id := ApartoidId
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Proper *) proper. destruct x, y, x0, y0; simpl in *.
-    rewrite H, H0. auto.
-  (* Category laws *) all: intros; repeat match goal with
-    | f : ApartoidHom _ _ |- _ => destruct f
-  end; simpl; auto.
+  (* Equivalence *) solve_equiv; apartoid'.
+    eapply H. apply Y_neq_sym. eauto.
+    destruct (Y_neq_cotrans _ _ (y x0) H1).
+      eapply H. apply Y_neq_sym. eauto.
+      eapply H0. apply Y_neq_sym. eauto.
+  (* Proper *) apartoid'.
+    apply (C_neq_cotrans _ _ (y0 (x x1))) in H1. destruct H1.
+      eapply H0. eauto.
+      eapply (y0_pres_equiv _ _ (H x1)). assumption.
+  (* Category laws *) all: apartoid.
 Defined.
 
 Instance Apartoid_init : Apartoid :=
@@ -76,11 +141,11 @@ Instance Apartoid_init : Apartoid :=
     carrier := Empty_set;
     neq := fun (e : Empty_set) _ => match e with end
 }.
-Proof. all: destruct x. Defined.
+Proof. all: apartoid. Defined.
 
 Definition Apartoid_create (X : Apartoid) : ApartoidHom Apartoid_init X.
 Proof.
-  red; simpl. exists (fun (e : Empty_set) => match e with end). destruct x.
+  red. exists (fun (e : Empty_set) => match e with end). apartoid.
 Defined.
 
 Instance Apartoid_has_init : has_init ApartoidCat :=
@@ -88,19 +153,21 @@ Instance Apartoid_has_init : has_init ApartoidCat :=
     init := Apartoid_init;
     create := Apartoid_create
 }.
-Proof. cat. Defined.
+Proof. apartoid. Defined.
 
 (* Things can be done this way too. *)
 Instance Apartoid_has_init' : has_init ApartoidCat := {}.
 Proof.
   refine {| carrier := Empty_set;
-      neq := fun (e : Empty_set) _ => match e with end |}; cat.
-  repeat red; simpl in *; intros.
-    exists (fun e : Empty_set => match e with end). destruct x.
-    cat.
+      neq := fun (e : Empty_set) _ => match e with end |}; apartoid.
+  apartoid_simpl.
+    exists (fun e : Empty_set => match e with end). apartoid.
+  apartoid.
+Restart.
+  refine {| carrier := Empty_set;
+    neq := fun (e : Empty_set) _ => match e with end |}.
+  all: apartoid'. exists (fun e : Empty_set => match e with end). apartoid.
 Defined.
-
-Eval cbn in init ApartoidCat.
 
 Instance Apartoid_term : Apartoid :=
 {
@@ -119,70 +186,146 @@ Instance Apartoid_has_term : has_term ApartoidCat :=
     term := Apartoid_term;
     delete := Apartoid_delete
 }.
-Proof. cat. Defined.
+Proof. apartoid. Defined.
 
-Instance Apartoid_prod (X Y : Apartoid) : Apartoid :=
+Instance Apartoid_prodOb (X Y : Apartoid) : Apartoid :=
 {
     carrier := prod X Y;
     neq := fun (p1 : prod X Y) (p2 : prod X Y) =>
       neq (fst p1) (fst p2) \/ neq (snd p1) (snd p2)
 }.
 Proof.
-  all: cat; destruct x, y; try destruct z; simpl in *.
-    destruct 1.
-      apply (@neq_irrefl X c); auto.
-      apply (@neq_irrefl Y c0); auto.
-    destruct H; auto.
-    destruct H.
-      destruct (weird _ _ c3 H); auto.
-      destruct (weird _ _ c4 H); auto.
+  all: destruct x; try destruct y; try destruct z; apartoid.
+  apartoid_simpl; destruct H.
+    destruct (neq_cotrans _ _ c3 H); auto.
+    destruct (neq_cotrans _ _ c4 H); auto.
 Defined.
 
 Definition Apartoid_proj1 (X Y : Apartoid)
-    : ApartoidHom (Apartoid_prod X Y) X.
+    : ApartoidHom (Apartoid_prodOb X Y) X.
 Proof.
-  red. exists fst. intros. destruct x, x'; simpl in *. intro.
-  apply H. auto.
+  red. exists fst. apartoid.
 Defined.
 
 Definition Apartoid_proj2 (X Y : Apartoid)
-    : ApartoidHom (Apartoid_prod X Y) Y.
+    : ApartoidHom (Apartoid_prodOb X Y) Y.
 Proof.
-  red. exists snd. intros. destruct x, x'; simpl in *. intro.
-  apply H. auto.
+  red. exists snd. apartoid.
 Defined.
-
-(*Definition Apartoid_mor_pair (X X' Y Y' : Apartoid)
-    (f : ApartoidHom X X') (g : ApartoidHom Y Y')
-    : ApartoidHom (Apartoid_prod X Y) (Apartoid_prod X' Y').
-Proof.
-  red. exists (fun p : X * Y => (f (fst p), g (snd p))).
-  intros. destruct x as [x y], x' as [x' y'], f as [f Hf], g as [g Hg];
-   simpl in *. specialize (Hf x x'); specialize (Hg y y').
-  intro. destruct H0; [eapply Hf | eapply Hg]; auto.
-Defined.
-*)
 
 Definition Apartoid_diag (A B X : Apartoid)
     (f : ApartoidHom X A) (g : ApartoidHom X B)
-    : ApartoidHom X (Apartoid_prod A B).
+    : ApartoidHom X (Apartoid_prodOb A B).
 Proof.
-  red. exists (fun x : X => (f x, g x)). intros.
-  intro. simpl in *. destruct f as [f Hf], g as [g Hg].
-  destruct H0; simpl in *.
-    eapply Hf; eauto.
-    eapply Hg; eauto.
+  red. exists (fun x : X => (f x, g x)). apartoid.
 Defined.
 
 Instance Apartoid_has_products : has_products ApartoidCat :=
 {
-    prodOb := Apartoid_prod;
+    prodOb := Apartoid_prodOb;
     proj1 := Apartoid_proj1;
     proj2 := Apartoid_proj2;
     diag := Apartoid_diag
 }.
 Proof.
-  (* Proper *) proper. rewrite H, H0. reflexivity.
-  (* Products law *) unfold product_skolem; cat.
-    destruct f, g, y; simpl in *. rewrite H, H0. destruct (x2 x). auto.
+  (* Proper *) apartoid.
+  (* Products law *) apartoid.
 Defined.
+
+Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=
+{
+    carrier := X + Y;
+    neq := fun p1 p2 : X + Y =>
+      match p1, p2 with
+        | inl x, inl x' => neq x x'
+        | inr y, inr y' => neq y y'
+        | _, _ => True
+      end
+}.
+Proof.
+  all: intros; repeat
+  match goal with
+    | x : _ + _ |- _ => destruct x
+    | _ => apartoid
+  end.
+Defined.
+
+Definition Apartoid_coproj1 (X Y : Apartoid)
+    : ApartoidHom X (Apartoid_coprodOb X Y).
+Proof.
+  red. exists inl. apartoid.
+Defined.
+
+Definition Apartoid_coproj2 (X Y : Apartoid)
+    : ApartoidHom Y (Apartoid_coprodOb X Y).
+Proof.
+  red. exists inr. apartoid.
+Defined.
+
+Definition Apartoid_codiag (A B X : Apartoid)
+    (f : ApartoidHom A X) (g : ApartoidHom B X)
+    : ApartoidHom (Apartoid_coprodOb A B) X.
+Proof.
+  red. exists (fun p : A + B =>
+    match p with
+      | inl a => f a
+      | inr b => g b
+    end).
+  destruct x, x'; apartoid.
+Defined.
+
+Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
+{
+    coprodOb := Apartoid_coprodOb;
+    coproj1 := Apartoid_coproj1;
+    coproj2 := Apartoid_coproj2;
+    codiag := Apartoid_codiag
+}.
+Proof.
+  (* Proper *) proper. destruct x1; apartoid.
+  (* Product law *) red; apartoid'. destruct x; apartoid.
+Defined.
+
+Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
+    : Apartoid :=
+{
+    carrier := {x : X | ~ (f x) # (g x)};
+    neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
+      proj1_sig p1 # proj1_sig p2
+}.
+Proof. all: apartoid. Defined.
+
+Definition Apartoid_eq_mor {X Y : Apartoid} (f g : ApartoidHom X Y)
+    : ApartoidHom (Apartoid_eq_ob f g) X.
+Proof.
+  red. unfold Apartoid_eq_ob. simpl. exists (@proj1_sig _ _).
+  apartoid.
+Defined.
+
+Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
+{
+    eq_ob := @Apartoid_eq_ob;
+    eq_mor := @Apartoid_eq_mor;
+}.
+Proof.
+  red; split; intros.
+    apartoid.
+    exists (eq_trick2 f g).
+
+
+
+Record RatT : Type :=
+{
+    up : nat;
+    down : nat;
+    cond : down <> 0
+}.
+
+Instance Q : Apartoid :=
+{
+    carrier := RatT;
+    neq := fun p q : RatT => up p * down q <> up q * down p
+}.
+Proof.
+  all: apartoid'. destruct x, y, z. simpl in *.
+  left. intro. apply H. omega.
