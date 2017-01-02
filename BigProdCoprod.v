@@ -20,14 +20,14 @@ Definition big_biproduct (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
 Definition big_product_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (proj : forall j : J, Hom P (A j))
     (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
-      : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)) (j : J), 
+      : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)), 
         setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j)
           (diag X f).
 
 Definition big_coproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (coproj : forall j : J, Hom (A j) P)
     (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
-      : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X) (j : J), 
+      : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X), 
         setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d)
           (codiag X f).
 

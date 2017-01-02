@@ -6,6 +6,7 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 Require Export Equalizer.
+Require Export BigProdCoprod.
 
 Class Setoid' : Type :=
 {
@@ -14,6 +15,7 @@ Class Setoid' : Type :=
 }.
 
 Coercion carrier : Setoid' >-> Sortclass.
+Coercion setoid : Setoid' >-> Setoid.
 
 Ltac setoidob S := try intros until S;
 match type of S with
@@ -42,6 +44,10 @@ end.
 Definition SetoidHom (X Y : Setoid') : Type := {f : X -> Y |
     Proper ((@equiv _ (@setoid X)) ==> (@equiv _ (@setoid Y))) f}.
 
+Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
+    := proj1_sig f.
+Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
+
 Ltac setoidhom f := try intros until f;
 match type of f with
   | SetoidHom _ _ =>
@@ -61,10 +67,6 @@ Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
 
 Ltac setoid' := repeat (setoid_simpl || cat || setoidhoms || setoidobs).
 Ltac setoid := try (setoid'; fail).
-
-Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
-    := proj1_sig f.
-Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
 
 Definition SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
     (g : SetoidHom Y Z) : SetoidHom X Z.
@@ -374,3 +376,70 @@ Proof.
         eapply Q'_equiv_trans; eauto.
     exists (trick X Y Q' f g q' H). setoid'.
 Defined.
+
+Print has_all_products.
+
+Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
+{
+    carrier := forall j : J, A j;
+    setoid := {| equiv := fun f g : forall j : J, A j =>
+      forall j : J, @equiv _ (A j) (f j) (g j) |}
+}.
+Proof.
+  split; red; intros; try rewrite H; try rewrite H0; reflexivity.
+Defined.
+
+Definition CoqSetoid_bigProj {J : Set} (A : J -> Setoid') (j : J)
+    : SetoidHom (CoqSetoid_bigProdOb A) (A j).
+Proof.
+  red. exists (fun (f : forall j : J, A j) => f j).
+  proper. rewrite H. reflexivity.
+Defined.
+
+Definition CoqSetoid_bigDiag {J : Set} {A : J -> Setoid'} {X : Setoid'}
+    (f : forall j : J, SetoidHom X (A j))
+    : SetoidHom X (CoqSetoid_bigProdOb A).
+Proof.
+  red. exists (fun x : X => (fun j : J => f j x)).
+  do 2 red; simpl; intros. destruct (f j) as [g g_proper];
+  do 2 red in g_proper; simpl. apply g_proper. assumption.
+Defined.
+
+Instance CoqSetoid_has_all_products : has_all_products CoqSetoid :=
+{
+    bigProdOb := @CoqSetoid_bigProdOb;
+    bigProj := @CoqSetoid_bigProj;
+    bigDiag := @CoqSetoid_bigDiag
+}.
+Proof.
+  simpl; intros; eauto.
+  unfold big_product_skolem; red; simpl; split; intros;
+  try reflexivity; eauto.
+Defined.
+
+Print has_all_coproducts.
+
+Inductive equiv_hetero {A : Type} (S : Setoid A)
+    : forall (B : Type), A -> B -> Prop :=
+    | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S A x y.
+
+Hint Constructors equiv_hetero.
+
+(* TODO *)
+Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
+{
+    carrier := {j : J & A j};
+    setoid := {| equiv := fun x y : {j : J & A j} =>
+      projT1 x = projT1 y /\
+      equiv_hetero (A (projT1 x)) (A (projT1 y)) (projT2 x) (projT2 y) |}
+}.
+Proof.
+  split; red; destruct x; try destruct y; try destruct z;
+  simpl; intros.
+    split; auto. constructor. reflexivity.
+    destruct H; subst. split; auto. inversion H0; subst.
+      constructor. destruct (existT _ (A x0) y). simpl in *.
+    Print sigT.
+    Focus 2. destruct H, H0; split.
+      rewrite H, H0. auto.
+      
