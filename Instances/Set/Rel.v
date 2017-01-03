@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -19,12 +19,12 @@ Instance Rel : Cat :=
     id := fun (A : Set) => fun (a1 a2 : A) => a1 = a2
 |}.
 Proof.
-  (* Equivalence *) cat; try (rewrite H; try rewrite H0; auto; fail);
+  (* Equivalence *) solve_equiv; try (rewrite H; try rewrite H0; auto; fail);
     try (try rewrite <- H0; rewrite <- H; auto; fail).
-  (* Proper *) simpl; split; intros.
-    (* -> *) destruct H1 as [b' [Hx Hx0]]. rewrite H in Hx.
+  (* Proper *) proper; split.
+    (* -> *) destruct 1 as [b' [Hx Hx0]]. rewrite H in Hx.
       rewrite H0 in Hx0. eauto.
-    (* <- *) destruct H1 as [b' [Hy Hy0]]. rewrite <- H in Hy.
+    (* <- *) destruct 1 as [b' [Hy Hy0]]. rewrite <- H in Hy.
       rewrite <- H0 in Hy0. eauto.
   (* Category laws *) all: cat.
 Defined.
@@ -112,9 +112,7 @@ Theorem Rel_biproduct : forall A B : Ob Rel,
       (fun (p : A + B) (b : B) => p = inr b)      
       (fun (a : A) (p : A + B) => p = inl a)
       (fun (b : B) (p : A + B) => p = inr b).
-Proof. cat. Defined.
-
-Print has_all_products.
+Proof. red; cat. Defined.
 
 Instance Rel_has_all_products : has_all_products Rel :=
 {
@@ -126,12 +124,11 @@ Instance Rel_has_all_products : has_all_products Rel :=
         f (projT1 p) x (projT2 p)
 }.
 Proof.
-  cat.
-  cat.
-    exists (existT A j0 b). simpl. auto.
-    destruct b. simpl in *. destruct (H x a a0).
-      destruct (H1 H0). destruct x0. cat.
-    destruct b. simpl in *. destruct (H x a a0). cat.
+  (* bigDiag is proper *) cat.
+  (* Product law *) red; cat; simpl in *.
+    exists (existT A j b); simpl. auto.
+    destruct (H x a a0), (H1 H0), x0; simpl in *. cat.
+    destruct (H x a a0); simpl in *. cat.
 Defined.
 
 Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
@@ -144,13 +141,11 @@ Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
         f (projT1 p) (projT2 p) x
 }.
 Proof.
-  cat.
-  cat.
-    exists (existT A j0 a). simpl. auto.
-    destruct a. simpl in *. destruct (H x a b).
-      destruct (H1 H0). destruct x0. cat.
-    destruct a. simpl in *. destruct (H x a b).
-      apply H2. eexists. cat.
+  (* bigCodiag is proper *) cat.
+  (* Coproduct law *) red; cat; simpl in *.
+    exists (existT A j a); simpl. auto.
+    destruct (H x a b), (H1 H0), x0. cat.
+    destruct (H x a b). apply H2. eexists. cat.
 Defined.
 
 Instance Rel_has_all_biproducts : has_all_biproducts Rel :=

@@ -1,4 +1,4 @@
-Require Export Coq.Classes.SetoidClass.
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -310,11 +310,12 @@ Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 Proof.
   red; split; intros.
     apartoid.
-    exists (eq_trick2 f g).
+(*    exists (eq_trick2 f g).*)
+Abort.
 
 
 
-Record RatT : Type :=
+(*Record RatT : Type :=
 {
     up : nat;
     down : nat;
@@ -328,4 +329,4 @@ Instance Q : Apartoid :=
 }.
 Proof.
   all: apartoid'. destruct x, y, z. simpl in *.
-  left. intro. apply H. omega.
+  left. intro. apply H. omega.*)

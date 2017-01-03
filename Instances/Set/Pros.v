@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Import NPeano.
 Require Import Omega.
@@ -6,8 +6,6 @@ Require Import Omega.
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
-
-Set Universe Polymorphism.
 
 Class Pros : Type :=
 {

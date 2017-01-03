@@ -1,5 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Import NPeano.
 
@@ -7,9 +6,7 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Require Export Pros.
-
-Set Universe Polymorphism.
+Require Export Instances.Set.Pros.
 
 Class Pos : Type :=
 {
@@ -43,7 +40,7 @@ Ltac posobs' := posobs_template posob'.
 
 Notation "'PosHom' X Y" := (ProsHom X Y) (at level 40, only parsing).
 
-Ltac pos' := repeat (pos_simpl; try proshoms; try posobs).
+Ltac pos' := repeat (pos_simpl; try proshoms; try posobs; pros).
 Ltac pos := try (pos'; fail).
 
 (*Definition PosComp := ProsComp.

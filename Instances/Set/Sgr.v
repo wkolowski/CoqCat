@@ -1,13 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
-
-Require Export Sumprod.
-
-Set Universe Polymorphism.
 
 Class Sgr : Type :=
 {
@@ -78,7 +73,7 @@ Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x = g x
 }.
-Proof. sgr'. rewrite H, H0. sgr. Defined.
+Proof. solve_equiv. Defined.
 
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.

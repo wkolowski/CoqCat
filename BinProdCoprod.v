@@ -273,7 +273,7 @@ Instance ProductFunctor {C : Cat} (hp : has_products C) :
     fmap := fun (X Y : Ob (CAT_prod C C)) (f : Hom X Y) =>
       ProductFunctor_fmap (fst f) (snd f)
 }.
-Proof. Print Functor.
+Proof.
   do 2 red; simpl; intros. destruct H, hp; simpl.
     rewrite H, H0. reflexivity.
   intros. apply ProductFunctor_fmap_pres_comp.

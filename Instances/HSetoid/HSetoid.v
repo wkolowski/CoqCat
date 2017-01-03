@@ -1,3 +1,5 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+
 Require Export Cat.
 
 Class HSetoid : Type :=

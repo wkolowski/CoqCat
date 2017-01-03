@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 

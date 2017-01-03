@@ -1,6 +1,4 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-
-Require Export Coq.Classes.SetoidClass.
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
@@ -377,8 +375,6 @@ Proof.
     exists (trick X Y Q' f g q' H). setoid'.
 Defined.
 
-Print has_all_products.
-
 Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
     carrier := forall j : J, A j;
@@ -392,8 +388,7 @@ Defined.
 Definition CoqSetoid_bigProj {J : Set} (A : J -> Setoid') (j : J)
     : SetoidHom (CoqSetoid_bigProdOb A) (A j).
 Proof.
-  red. exists (fun (f : forall j : J, A j) => f j).
-  proper. rewrite H. reflexivity.
+  red. exists (fun (f : forall j : J, A j) => f j). proper.
 Defined.
 
 Definition CoqSetoid_bigDiag {J : Set} {A : J -> Setoid'} {X : Setoid'}
@@ -417,8 +412,6 @@ Proof.
   try reflexivity; eauto.
 Defined.
 
-Print has_all_coproducts.
-
 Inductive equiv_hetero {A : Type} (S : Setoid A)
     : forall (B : Type), A -> B -> Prop :=
     | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S A x y.
@@ -439,7 +432,6 @@ Proof.
     split; auto. constructor. reflexivity.
     destruct H; subst. split; auto. inversion H0; subst.
       constructor. destruct (existT _ (A x0) y). simpl in *.
-    Print sigT.
     Focus 2. destruct H, H0; split.
       rewrite H, H0. auto.
-      
+Abort.

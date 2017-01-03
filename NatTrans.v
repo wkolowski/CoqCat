@@ -91,11 +91,6 @@ Proof.
     cat; apply inverse_α_β.
 Defined.
 
-
-Print has_products.
-Print Functor.
-Print diag.
-
 Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
     (F G : Functor C D) : Functor C D :=
 {

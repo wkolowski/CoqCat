@@ -1,7 +1,5 @@
 Require Export Cat.
 
-Require Export Equivalences.
-
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
     fob : Ob C -> Ob D;

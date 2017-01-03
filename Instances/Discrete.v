@@ -1,10 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
-
-Set Universe Polymorphism.
 
 Instance Discrete (X : Set) : Cat :=
 {
@@ -15,9 +13,11 @@ Instance Discrete (X : Set) : Cat :=
     comp := @eq_trans X;
     id := @eq_refl X
 }.
-Proof. all: cat. Defined.
-
-Eval compute in Discrete Empty_set.
+Proof.
+  (* Equivalence *) solve_equiv.
+  (* composition is proper *) proper.
+  (* Category laws *) all: cat.
+Defined.
 
 Instance Empty : Cat := Discrete Empty_set.
 Instance Unit : Cat := Discrete unit.
@@ -29,6 +29,3 @@ Proof.
     rewrite f. auto.
   exists g. auto.
 Defined.
-
-
-

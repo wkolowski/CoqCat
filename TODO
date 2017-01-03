@@ -2,6 +2,7 @@ Fix:
 1. Prove that dual is involution with respect to equality and then remove the axiom I'm currently using.
 2. Write new unique ismorphicness theorems for products (the isos have to be compatible with the projections).
 3. Check whether big_product is properly defined (there was an error in big_product_skolem).
+4. Give some structure to the modules, e.g. Sgr should be called Instances.Set.Sgr. Solution: each subdirectory has to have its own makefile...
 
 Refactor:
 1. Refactor Monads.v: move the Maybe monad to CoqSet.
@@ -9,6 +10,7 @@ Refactor:
 General:
 1. Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
 2. Define dual instances for big products/coproducts/biproducts, equalizers and coequalizers.
+3. Settle all the maters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
 
 Instances:
 1. Define slice categories.
@@ -20,7 +22,7 @@ Instances:
 6. Define heterogenous apartoids.
 7. Implement prosets and semigroups wth respect to setoids/apartoids etc.
 8. Implement some examples of functors (like the Hom functor).
-9. Divide Instances/ into directories based on what kind of "equality" they use (eq, JMeq, setoids, apartoids, heterogeneous setoids etc.).
+10. Maybe delete the unused file with Monoids (with the "unpacked" definition).
 
 Further ideas:
 1. Implement concrecete categories and use them for theorems about individual categories.

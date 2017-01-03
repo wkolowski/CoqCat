@@ -1,10 +1,4 @@
-Require Export Coq.Classes.SetoidClass.
-(*Require Export Coq.Logic.ProofIrrelevance.*)
-Require Export JMeq.
-
-Require Export Coq.Logic.IndefiniteDescription.
-
-Global Set Universe Polymorphism.
+Require Export Base.
 
 Class Cat : Type :=
 {
@@ -27,13 +21,6 @@ Notation "f .> g" := (comp f g) (at level 50).
 
 Hint Resolve comp_Proper comp_assoc id_left id_right.
 
-(* Moved here so that tactics work *)
-Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
-    : Prop := P x /\  (forall y : A, P y -> x == y).
-
-Notation "'exists' !! x : A , P" :=
-    (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
-
 Ltac rw_id := match goal with
     | |- context [id _ .> _] => rewrite id_left
     | |- context [_ .> id _] => rewrite id_right
@@ -44,81 +31,11 @@ end.
 Ltac rw_assoc := rewrite comp_assoc.
 Ltac rw_assoc' := rewrite <- comp_assoc.
 
-Ltac proper :=
-match goal with
-    | |- context [Proper] => unfold Proper, respectful; simpl; intros; proper
-    | H : ?a == ?b |- _ => try rewrite H; clear H; proper
-    | |- ?a == ?a => reflexivity
-    | _ => idtac
-end.
-
-Ltac my_simpl := simpl in *; repeat
-match goal with
-    | H : False |- _ => inversion H
-    | e : Empty_set |- _ => inversion e
-    | x : True |- _ => destruct x
-    | x : unit |- _ => destruct x
-    | |- context [@eq unit ?a ?b] => destruct a, b
-    | H : forall _ : unit, _ |- _ => specialize (H tt)
-    | H : forall _ : True, _ |- _ => specialize (H I)
-    | H : _ /\ _ |- _ => destruct H
-    | |- _ /\ _ => split
-    | |- _ <-> _ => split
-    (*| H : exists x, _ |- _ => destruct H
-    | H : exists! x, _ |- _ => destruct H
-    | H : exists!! x : _, _ |- _ => destruct H; unfold setoid_unique in **)
-    | H : exists x, _ |- _ =>
-      apply constructive_indefinite_description in H
-    | H : exists! x, _ |- _ =>
-      apply constructive_indefinite_description in H
-    | H : exists!! x : _, _ |- _ => 
-      apply constructive_indefinite_description in H;
-        destruct H; unfold setoid_unique in *
-    | H : {_ | _} |- _ => destruct H
-    | H : {_ : _ | _} |- _ => destruct H
-    | H : {_ : _ & _} |- _ => destruct H
-    | H : context [setoid_unique] |- _ => red in H
-    | |- context [setoid_unique] => split
-end.
-
-Ltac solve_equiv := intros; repeat
-match goal with
-    | |- context [Equivalence] => split; red; intros
-    | |- Reflexive _ => red; intros
-    | |- Symmetric _ => red; intros
-    | |- Transitive _ => red; intros
-    (* Dealing with equality *)
-    | |-  ?a = ?a => reflexivity
-    | H : ?a = ?b |- ?b = ?a => symmetry; assumption
-    | H : ?a = ?b, H' : ?b = ?c |- ?a = ?c => rewrite H, H'; reflexivity
-    (* Quantified equality *)
-    | H : forall _, ?a _ = ?b _ |- ?b _ = ?a _ => rewrite H; reflexivity
-    | H : forall _, ?a _ = ?b _, H' : forall _, ?b _ = ?c _
-      |- ?a _ = ?c _ => rewrite H, H'; reflexivity
-    (* Dealing with setoid equivalence *)
-    | |-  ?a == ?a => reflexivity
-    | H : ?a == ?b |- ?b == ?a => symmetry; assumption
-    | H : ?a == ?b, H' : ?b == ?c |- ?a == ?c => rewrite H, H'; reflexivity
-    (* Quantified setoid equivalence *)
-    | H : forall _, ?a _ == ?b _ |- ?b _ == ?a _ => rewrite H; reflexivity
-    | H : forall _, ?a _ == ?b _, H' : forall _, ?b _ == ?c _
-      |- ?a _ == ?c _ => rewrite H, H'; reflexivity
-    | _ => my_simpl; eauto
-end.
-
 Ltac cat_aux := repeat (my_simpl || intros || rw_id || rw_assoc ||
-    reflexivity || subst; eauto (*10*)).
+    reflexivity || subst; eauto).
 Ltac cat_aux' := repeat (my_simpl || intros || rw_id || rw_assoc' ||
-    reflexivity || subst; eauto (*10*)).
+    reflexivity || subst; eauto).
 Ltac cat := cat_aux || cat_aux'.
-
-Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
-    {| equiv := fun a a' : A => f a = f a' |}.
-Proof. solve_equiv. Defined.
-
-Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B)
-    : Setoid A := {| equiv := fun a a' : A => f a == f a' |}.
-Proof. solve_equiv. Defined.
 
 Instance Dual (C : Cat) : Cat :=
 {|
@@ -334,33 +251,6 @@ Proof.
 Defined.
 
 Hint Resolve iso_iff_sec_ret iso_iff_mon_ret iso_iff_sec_epi.
-
-(* Kinds of ordinary functions. The suffix "S" at the end of some
-   of these stands for "Setoid". *)
-Definition injective {A B : Type} (f : A -> B) : Prop :=
-    forall x y : A, f x = f y -> x = y.
-
-Definition surjective {A B : Type} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a = b.
-
-Definition bijective {A B : Type} (f : A -> B) : Prop :=
-    injective f /\ surjective f.
-
-Definition injectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
-    (f : A -> B) : Prop := forall a a' : A, f a == f a' -> a == a'.
-
-Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a == b.
-
-Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
-    (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
-
-(* TODO: possibly remove
-Definition invertible {A B : Type} (S : Setoid B) (f : A -> B) : Type :=
-    forall b : B, {a : A | f a == b}.*)
-
-Hint Unfold injective surjective bijective injectiveS
-    surjectiveS bijectiveS. 
 
 (* Characterizations. *)
 Theorem mon_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),

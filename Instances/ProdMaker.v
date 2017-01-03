@@ -1,9 +1,9 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 
-Set Universe Polymorphism.
-Print sigT.
+(* TODO: write tactics likes those used in Instances/Set *)
+
 Definition ProdMakerOb (C : Cat) (A B : Ob C) : Type :=
     {X : Ob C & {f : Hom X A & Hom X B}}.
 
@@ -13,7 +13,6 @@ Proof.
   destruct P1 as [X [f g]], P2 as [X' [f' g']].
   exact {h : Hom X X' | f == h .> f' /\ g == h .> g'}.
 Defined.
-Print ProdMakerHom.
 
 Definition ProdMakerEquiv {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     (h h' : ProdMakerHom P1 P2) : Prop.
@@ -28,11 +27,8 @@ Instance ProdMakerHomSetoid {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     equiv := ProdMakerEquiv P1 P2
 }.
 Proof.
-  unfold ProdMakerEquiv; destruct P1 as [X [f g]], P2 as [X' [f' g']];
-  cat; red; intros;
-  repeat match goal with
-    | x : ?sig _ _ |- _ => destruct x
-  end.
+  solve_equiv; unfold ProdMakerEquiv;
+  destruct P1 as [X [f g]], P2 as [X' [f' g']]; my_simpl; simpl in *.
     reflexivity.
     symmetry. assumption.
     rewrite H, H0. reflexivity.

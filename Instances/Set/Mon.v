@@ -1,13 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Require Export Sgr.
-
-Set Universe Polymorphism.
+Require Export Instances.Set.Sgr.
 
 Class Mon : Type :=
 {

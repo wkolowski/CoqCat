@@ -1,12 +1,10 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
-
-Require Export Equivalences.
 
 Instance DepExtSet : Cat :=
 {|
@@ -92,20 +90,18 @@ Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) repeat red; simpl; intros. apply depExtEq_ext. intro. Print depExtEq.
+  (* Proper *) repeat red; simpl; intros. apply depExtEq_ext. intro.
 
 (*    change (fun j : J => f j a) with (fun j : J => (f j) a).
     change (fun j : J => f j a) with (fun j : J => (f j) a).
 *)
-    change (fun j : J => f j a) with (fun j : J => (fun a : X => f j a) a).
-    change (fun j : J => g j a) with (fun j : J => (fun a : X => g j a) a). admit.
-    Print depExtEq_ext.
+    change (fun j : J => f j x) with (fun j : J => (fun a : X => f j a) x).
+    change (fun j : J => g j x) with (fun j : J => (fun a : X => g j a) x). admit.
   (* Universal property *) unfold big_product_skolem; simpl; intros.
     repeat (red || split).
       intro. apply depExtEq_ext. intro. auto.
-      intros. apply depExtEq_ext. intro. Print depExtEq. apply depExtEq_unext.
-      
-Defined.
+      intros. apply depExtEq_ext. intro. admit.
+Abort.
 
 Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 {
@@ -118,9 +114,12 @@ Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
         | inr b => g b
       end
 }.
-Proof.
-  all: repeat red; cat;
-  match goal with | x : _ + _ |- _ => destruct x end; cat.
+Proof. (* TODO: fix this for real *)
+  (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
+  (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
+    destruct H. apply depExtEq_ext. destruct x.
+      apply (depExtEq_unext _ _ _ _ _ H a a). auto.
+      apply (depExtEq_unext _ _ _ _ _ H0 b b). auto.
 Defined.
 
 Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
@@ -134,69 +133,15 @@ Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  simpl; intros.
-  cat. destruct x. cat.
+  (* bigCodiag is proper *) simpl; intros; solve_depExtEq.
+    destruct x; simpl; solve_depExtEq.
+    apply (depExtEq_unext _ _ _ _ _ (H x) a a). auto.
+  (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
+    apply depExtEq_ext. destruct x; simpl.
+    apply (depExtEq_unext _ _ _ _ _ (H x) _ _). auto.
 Defined.
 
-Theorem DepExtSet_ret_invertible : forall (A B : Set)
-    (f : Hom A B), {g : Hom B A | g .> f = id B} ->
-    invertible {| equiv := eq |} f.
-Proof.
-  intros. red.
-    destruct H as [g H]. intro. exists (g b). simpl in *.
-    change (f (g b)) with ((fun a : B => (f (g a))) b).
-    change b with ((fun a : B => a) b) at 2.
-    rewrite H. auto.
-Qed.
-
-Theorem DepExtSet_invertible_ret : forall (A B : Set) (f : Hom A B),
-    invertible {| equiv := eq |} f -> {g : Hom B A | g .> f == id B}.
-Proof.
-  intros. red in H.
-  exists (fun b => proj1_sig (H b)). simpl.
-  intro b. destruct (H b). simpl in *. auto.
-Qed.
-
-Theorem DepExtSet_counterexample1 :
-    exists (A B C : Set) (f : Hom A B) (g : Hom B C),
-    injective (f .> g) /\ ~ (injective g).
-Proof.
-  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold injective, not; simpl; split; intros.
-    destruct x, y; auto.
-    specialize (H true false eq_refl). discriminate H.
-Qed.
-
-Theorem DepExtSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
-    (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
-Proof.
-  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold surjective, not; simpl; split; intros.
-    exists tt. destruct b. auto.
-    destruct (H false). inversion H0.
-Qed.
-
-(* It's time to change all this shit to be constructive and proof-relevant. *)
-Theorem DepExtSet_iso_bij : forall (A B : Set) (f : Hom A B),
-    Iso f -> injective f /\ surjective f.
-Proof.
-  unfold injective, surjective, Iso; simpl; intros. split; intros.
-    destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
-      rewrite H0. auto.
-    destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
-Defined.
-
-(* Case analysis on sort Set. *)
-(*Theorem DepExtSet_iso_bin_conv : forall (A B : Set) (f : Hom A B),
-    injective f -> surjective f -> Iso f.
-Proof.
-  unfold injective, surjective, Iso. intros.
-  assert (g : B -> A).
-    intro b. Focus 2.
-    exists g. simpl; split; intros.
-      destruct (H0 (f x)).
-*)
-
+(* TODO: fix this.
 Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
@@ -206,21 +151,10 @@ Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 }.
 Proof.
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. Print sig.
+    destruct x; simpl. auto.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
-Defined.
+Defined.*)
 
-(* Not sure if it's even true *)
-(*Instance DepExtSet_has_coequalizers : has_coequalizers DepExtSet :=
-{
-    coeq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
-        {T : Set & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
-    (*coeq_mor := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>*)
-        
-}.
-Proof.
-  simpl; intros X Y f g y. exists {A : {y : Y | 
-  unfold coequalizer; simpl; intros. cat. f_equal.
-*) *)
+(* TODO: looks like DepExtSet won't have coequalizers. *)

@@ -1,13 +1,8 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
-
-Require Export Sumprod.
-
-Set Universe Polymorphism.
 
 Instance SetP : Cat :=
 {
@@ -23,9 +18,8 @@ Instance SetP : Cat :=
   id := fun (X : Set) (x : X) => Some x
 }.
 Proof.
-  (* Equivalence *) cat; red; intros. rewrite H, H0. auto.
-  (* Proper *) repeat red; simpl; intros. rewrite H.
-    destruct (y x1); auto.
+  (* Equivalence *) solve_equiv.
+  (* Proper *) proper. rewrite H. destruct (y x1); auto.
   (* Category laws *) all: cat; try destruct (f x); cat.
 Defined.
 
@@ -45,8 +39,6 @@ Proof. cat; destruct (f x); cat. Defined.
 
 Instance SetP_has_zero : has_zero SetP := {}.
 Proof. cat. Defined.
-
-Eval compute in zero_ob SetP.
 
 Definition SetP_proj1 (X Y : Set) (p : sumprod X Y) : option X :=
 match p with
@@ -101,7 +93,7 @@ Instance SetP_has_coproducts : has_coproducts SetP :=
     codiag := SetP_codiag
 }.
 Proof.
-  repeat red; simpl; intros. unfold SetP_codiag.
+  (* codiag is proper *) proper. unfold SetP_codiag.
     destruct x1; try rewrite H; try rewrite H0; auto.
-  cat. destruct x; cat.
+  (* Coproduct laws *) red; cat; destruct x; cat.
 Defined.

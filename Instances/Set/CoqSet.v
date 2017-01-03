@@ -1,4 +1,4 @@
-(*Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".*)
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
@@ -184,7 +184,7 @@ Proof.
   (* Universal property *) red; cat. extensionality a. auto.
 Defined.
 
-Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.
+(*Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.*)
 
 Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).

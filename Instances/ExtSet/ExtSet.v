@@ -1,12 +1,10 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
-
-Require Export Equivalences.
 
 (*Instance extSet : Cat :=
 {|
@@ -108,14 +106,13 @@ Proof.
     change (fun j : J => f j a) with (fun j : J => (f j) a).
 *)
     change (fun j : J => f j a) with (fun j : J => (fun a : X => f j a) a).
-    change (fun j : J => g j a) with (fun j : J => (fun a : X => g j a) a). admit.
-    Print extEq_ext.
+    change (fun j : J => g j a) with (fun j : J => (fun a : X => g j a) a).
+  admit.
   (* Universal property *) unfold big_product_skolem; simpl; intros.
     repeat (red || split).
       intro. apply extEq_ext. intro. auto.
-      intros. apply extEq_ext. intro. Print extEq. apply extEq_unext.
-      
-Defined.
+      intros. apply extEq_ext. intro.
+Abort.
 
 Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
 {
@@ -129,8 +126,10 @@ Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
       end
 }.
 Proof.
-  all: repeat red; cat;
-  match goal with | x : _ + _ |- _ => destruct x end; cat.
+  (* codiag is proper *) proper. apply extEq_ext; intros.
+    destruct a; cat.
+  (* Coproduct law *) red; cat. apply extEq_ext; intros.
+    destruct a; cat.
 Defined.
 
 Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
@@ -144,11 +143,12 @@ Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  simpl; intros.
-  cat. destruct x. cat.
+  (* bigCodiag is proper *) cat.
+  (* Coproduct law *) red; cat. apply extEq_ext. cat.
 Defined.
 
-Theorem ExtSet_ret_invertible : forall (A B : Set)
+(* TODO: change this to use surjective *)
+(*Theorem ExtSet_ret_invertible : forall (A B : Set)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     invertible {| equiv := eq |} f.
 Proof.
@@ -165,49 +165,10 @@ Proof.
   intros. red in H.
   exists (fun b => proj1_sig (H b)). simpl.
   intro b. destruct (H b). simpl in *. auto.
-Qed.
+Qed. End TODO *)
 
-Theorem ExtSet_counterexample1 :
-    exists (A B C : Set) (f : Hom A B) (g : Hom B C),
-    injective (f .> g) /\ ~ (injective g).
-Proof.
-  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold injective, not; simpl; split; intros.
-    destruct x, y; auto.
-    specialize (H true false eq_refl). discriminate H.
-Qed.
 
-Theorem ExtSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
-    (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
-Proof.
-  exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold surjective, not; simpl; split; intros.
-    exists tt. destruct b. auto.
-    destruct (H false). inversion H0.
-Qed.
-
-(* It's time to change all this shit to be constructive and proof-relevant. *)
-Theorem ExtSet_iso_bij : forall (A B : Set) (f : Hom A B),
-    Iso f -> injective f /\ surjective f.
-Proof.
-  unfold injective, surjective, Iso; simpl; intros. split; intros.
-    destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
-      rewrite H0. auto.
-    destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
-Defined.
-
-(* Case analysis on sort Set. *)
-(*Theorem ExtSet_iso_bin_conv : forall (A B : Set) (f : Hom A B),
-    injective f -> surjective f -> Iso f.
-Proof.
-  unfold injective, surjective, Iso. intros.
-  assert (g : B -> A).
-    intro b. Focus 2.
-    exists g. simpl; split; intros.
-      destruct (H0 (f x)).
-*)
-
-Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
+(*Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
     eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
         {x : X | f x = g x};
@@ -216,11 +177,13 @@ Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 }.
 Proof.
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. Print sig.
+    apply extEq_ext. intros. destruct a as [x H]; simpl.
+      inversion H. auto.
+    inversion H. eapply extEq_ext in H.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
-Defined.
+Defined.*)
 
 (* Not sure if it's even true *)
 (*Instance ExtSet_has_coequalizers : has_coequalizers ExtSet :=
@@ -233,4 +196,4 @@ Defined.
 Proof.
   simpl; intros X Y f g y. exists {A : {y : Y | 
   unfold coequalizer; simpl; intros. cat. f_equal.
-*) *)
+*)

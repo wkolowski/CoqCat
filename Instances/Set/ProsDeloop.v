@@ -1,13 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid".
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/Instances".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Require Export Pros.
-
-Set Universe Polymorphism.
+Require Export Instances.Set.Pros.
 
 Instance DeloopPros (P : Pros) : Cat :=
 {
@@ -18,5 +15,9 @@ Instance DeloopPros (P : Pros) : Cat :=
     comp := leq_trans;
     id := leq_refl
 }.
-Proof. all: cat. Defined.
+Proof.
+  (* Equivalence *) solve_equiv.
+  (* composition is proper *) proper.
+  (* Category laws *) all: cat.
+Defined.
 

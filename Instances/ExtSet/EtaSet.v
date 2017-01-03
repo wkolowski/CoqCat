@@ -1,4 +1,4 @@
-Add LoadPath "/home/zeimer/Code/Coq/CoqCat/Setoid/".
+Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
 Require Export Cat.
 Require Export InitTerm.
@@ -6,9 +6,7 @@ Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
 
-Require Export Equivalences.
-
-Instance EtaSet : Cat :=
+(*Instance EtaSet : Cat :=
 {|
     Ob := Set;
     Hom := fun A B : Set => A -> B;
@@ -19,7 +17,7 @@ Instance EtaSet : Cat :=
 |}.
 Proof.
   apply eta_Equivalence.
-  (* Composition is proper *) unfold Proper, respectful. simpl. intros.
+  (* Composition is proper *) proper. inversion H0.
     destruct H.
   (* Category laws *) all:cat.
-Defined.
+Defined.*)
