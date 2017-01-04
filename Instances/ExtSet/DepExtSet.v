@@ -16,9 +16,8 @@ Instance DepExtSet : Cat :=
     id := fun (A : Set) (a : A) => a
 |}.
 Proof.
-  (* Equivalence *) split; eauto.
-  (* Composition is proper *) repeat (red || split); simpl. intros.
-    solve_depExtEq.
+  (* Equivalence *) solve_equiv.
+  (* Composition is proper *) proper. solve_depExtEq.
   (* Category laws *) all: cat.
 Defined.
 
@@ -28,12 +27,11 @@ Theorem DepExtSet_mon_inj : forall (A B : Ob DepExtSet) (f : A -> B),
 Proof.
   unfold Mon, injectiveS; simpl; split; intros.
     change (depExtEq a a') with (depExtEq ((fun _ => a) a) ((fun _ => a') a)).
-      eapply (depExtEq_unext _ _ _ (fun _ : A => a) (fun _ : A => a')).
-      apply H. eapply depExtEq_ext.
-        intro. assumption.
+      eapply (depExtEq_unext (fun _ : A => a) (fun _ : A => a')).
+        apply H. eapply depExtEq_ext. intro. assumption.
         apply (depExtEq_eq _ a a). auto.
     apply depExtEq_ext. intro. apply H.
-      apply (depExtEq_unext _ _ _
+      apply (depExtEq_unext
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 x x). auto.
 Qed.
 
@@ -63,23 +61,24 @@ Instance DepExtSet_has_products : has_products DepExtSet :=
 }.
 Proof.
   repeat red; simpl; intros. apply depExtEq_ext. intro.
-    apply (depExtEq_unext' _ _ _ _ (pair (x x1)) (pair (y x1))).
-      apply (depExtEq_unext' _ _ _ _ pair pair). auto.
-        apply (depExtEq_unext' _ _ _ _ x y). auto. auto.
-      apply (depExtEq_unext' _ _ _ _ x0 y0). auto. auto.
+    apply (depExtEq_unext (pair (x x1)) (pair (y x1))).
+      apply (depExtEq_unext pair pair). auto.
+        apply (depExtEq_unext x y). auto. auto.
+      apply (depExtEq_unext x0 y0). auto. auto.
   repeat (red || split); simpl.
     apply depExtEq_ext. auto.
     apply depExtEq_ext. auto.
     destruct 1. apply depExtEq_ext. intros.
       assert (depExtEq (f x) (fst (y x))).
-        apply (depExtEq_unext _ _ _ f (fun a : X => fst (y a)) H x x). auto.
+        apply (depExtEq_unext f (fun a : X => fst (y a)) H x x). auto.
       assert (depExtEq (g x) (snd (y x))).
-        apply (depExtEq_unext _ _ _ g (fun a : X => snd (y a)) H0 x x). auto.
+        apply (depExtEq_unext g (fun a : X => snd (y a)) H0 x x). auto.
       destruct (y x); simpl in *.
-      apply (depExtEq_unext' _ _ _ _ (pair (f x)) (pair a)).
-        apply (depExtEq_unext' _ _ _ _ pair pair). auto. auto. auto.      
+      apply (depExtEq_unext (pair (f x)) (pair a)).
+        apply (depExtEq_unext pair pair). auto. auto. auto.
 Defined.
 
+(* TODO: this is fake *)
 Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
@@ -118,8 +117,8 @@ Proof. (* TODO: fix this for real *)
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
     destruct H. apply depExtEq_ext. destruct x.
-      apply (depExtEq_unext _ _ _ _ _ H a a). auto.
-      apply (depExtEq_unext _ _ _ _ _ H0 b b). auto.
+      apply (depExtEq_unext _ _ H a a). auto.
+      apply (depExtEq_unext _ _ H0 b b). auto.
 Defined.
 
 Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
@@ -135,26 +134,34 @@ Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
 Proof.
   (* bigCodiag is proper *) simpl; intros; solve_depExtEq.
     destruct x; simpl; solve_depExtEq.
-    apply (depExtEq_unext _ _ _ _ _ (H x) a a). auto.
+    apply (depExtEq_unext _ _ (H x) a a). auto.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
     apply depExtEq_ext. destruct x; simpl.
-    apply (depExtEq_unext _ _ _ _ _ (H x) _ _). auto.
+    apply (depExtEq_unext _ _ (H x)). auto.
 Defined.
 
-(* TODO: fix this.
 Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
-        {x : X | f x = g x};
+        {x : X | depExtEq (f x) (g x)};
     eq_mor := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
-        fun (x : {x : X | f x = g x}) => proj1_sig x
+        fun (x : {x : X | depExtEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto.
-    exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
-    cat. specialize (H0 x). destruct (y x). simpl in *. subst.
-    f_equal. apply proof_irrelevance.
-Defined.*)
+    apply depExtEq_ext. destruct x as [x eq]; simpl. assumption.
+    Lemma trick : forall (X Y E' : Set) (f g : X -> Y) (e' : E' -> X)
+      (H : depExtEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a))),
+      E' -> {x : X | depExtEq (f x) (g x)}.
+    Proof.
+      intros. exists (e' H0). apply (depExtEq_unext _ _ H). reflexivity.
+    Defined.
+    exists (trick _ _ _ f g e' H). repeat (red || split); intros.
+      simpl. apply depExtEq_ext. auto.
+      apply depExtEq_ext. intro. destruct (y x).
+      unfold trick. apply (depExtEq_unext _ _).
+
+
+
 
 (* TODO: looks like DepExtSet won't have coequalizers. *)
