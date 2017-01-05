@@ -14,6 +14,22 @@ Definition SetoidRel_Fun (X Y : Setoid') (R : SetoidRel X Y)
     : X -> Y -> Prop := proj1_sig R.
 Coercion SetoidRel_Fun : SetoidRel >-> Funclass.
 
+Ltac setoidrelhom R := try intros until R;
+match type of R with
+  | SetoidRel _ _ =>
+      let a := fresh R "_Proper" in destruct R as [?R a]
+  | Hom _ _ => progress simpl in R; setoidrelhom R
+end.
+
+Ltac setoidrelhoms := intros; repeat
+match goal with
+  | R : SetoidRel _ _ |- _ => setoidrelhom R
+  | f : Hom _ _ |- _ => setoidrelhom f
+end.
+
+Ltac setoidrel' := repeat (my_simpl || setoidobs || setoidrelhoms || cat).
+Ltac setoidrel := try (setoidrel'; fail).
+
 Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
 {
     equiv := fun (P Q : SetoidRel X Y) =>
@@ -29,12 +45,11 @@ Definition SetoidRelComp (X Y Z : Setoid')
     (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z.
 Proof.
   red. exists (fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z).
-  repeat red; intros.
-  setoidobs; destruct R as [R R_proper], S as [S S_proper]; simpl in *.
+  setoidrel'; repeat red; simpl; intros.
+  repeat red in R_proper; repeat red in S_proper.
   split; destruct 1 as [y' [HR HS]];
-  repeat red in R_proper; repeat red in S_proper;
-  destruct (R_proper x y H y' y' (Y_equiv_refl y'));
-  destruct (S_proper y' y' (Y_equiv_refl y') x0 y0 H0); eauto.
+  destruct (R_Proper x y H y' y' (Y_equiv_refl y'));
+  destruct (S_Proper y' y' (Y_equiv_refl y') x0 y0 H0); eauto.
 Defined.
 
 Definition SetoidRelId (X : Setoid') : SetoidRel X X.
@@ -54,137 +69,139 @@ Proof.
   (* Proper *) repeat red; split; intros; destruct H1; simpl in *.
     eexists. erewrite <- H, <- H0. eauto.
     eexists. rewrite H, H0. eauto.
-  (* Category laws *) all: intros; repeat
-    match goal with
-      | R : SetoidRel _ _ |- _ => destruct R
-    end; setoidobs; simpl in *; setoid'.
-      eapply p; eauto.
-      eapply p. eauto. apply B_equiv_sym. eauto. eauto.
+  (* Category laws *) all: setoidrel'.
+    eapply f_Proper; eauto.
+    eapply f_Proper. eauto. apply B_equiv_sym. eauto. eauto.
 Defined.
 
-(* TODO: prove all this shit *)
-Instance Rel_has_init : has_init Rel :=
+Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 {
-    init := Empty_set;
-    create := fun (X : Set) (e : Empty_set) (x : X) => match e with end
+    init := CoqSetoid_init;
+    create := fun (X : Setoid') (e : Empty_set) _ => match e with end
 }.
-Proof. cat. Defined.
+Next Obligation. proper. destruct x. Defined.
+Next Obligation. destruct x. Defined.
 
-Instance Rel_has_term : has_term Rel :=
+Program Instance SetoidRel_has_term : has_term SetoidRelCat :=
 {
-    term := Empty_set;
-    delete := fun (X : Set) (x : X) (e : Empty_set) => match e with end
+    term := CoqSetoid_init;
+    delete := fun (X : Setoid') _ (e : Empty_set) => match e with end
 }.
-Proof. cat. Defined.
+Next Obligation. proper. destruct x0. Defined.
+Next Obligation. destruct y. Defined.
 
-Instance Rel_has_zero : has_zero Rel :=
+Instance SetoidRel_has_zero : has_zero SetoidRelCat :=
 {
-    zero_is_initial := Rel_has_init;
-    zero_is_terminal := Rel_has_term
+    zero_is_initial := SetoidRel_has_init;
+    zero_is_terminal := SetoidRel_has_term
 }.
-Proof. cat. Defined.
+Proof. setoidrel. Defined.
 
-Ltac solve :=
-match goal with
-    | H : _ /\ _ |- _ => destruct H
-    | H : exists _, _ |- _ => destruct H
-    | _ => try subst; eauto
-end.
-
-Theorem Rel_product : forall A B : Ob Rel,
-    product Rel (A + B) (fun (p : A + B) (a : A) => p = inl a)
-      (fun (p : A + B) (b : B) => p = inr b).
+Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
+{
+    carrier := X + Y;
+    setoid :=
+    {| equiv := fun p1 p2 : X + Y =>
+      match p1, p2 with
+        | inl x, inl x' => @equiv _ X x x'
+        | inr y, inr y' => @equiv _ Y y y'
+        | _, _ => False
+      end
+    |}
+}.
 Proof.
-  unfold product; simpl. intros A B X R S.
-  exists (fun (x : X) (ab : A + B) => match ab with
-      | inl a => R x a
-      | inr b => S x b
-  end).
-  repeat (red || split); intros.
-    exists (inl b). auto.
-    destruct H, x, H; inversion H0; subst; auto.
-    exists (inr b). auto.
-    destruct H, x, H; inversion H0; subst; auto.
-    destruct H, b. 
-      destruct (H a a0), (H2 H0), H4; subst. auto.
-      destruct (H1 a b), (H2 H0), H4; subst. auto.
-    destruct H, b.
-      destruct (H a a0). apply H3. eauto.
-      destruct (H1 a b). apply H3. eauto.
-Restart.
-  unfold product; simpl. intros A B X R S.
-  exists (fun (x : X) (ab : A + B) => match ab with
-      | inl a => R x a
-      | inr b => S x b
-  end).
-  repeat (red || split); intros.
-    all: try eexists; cat.
-    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
-    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
+  repeat match goal with
+    | p : _ + _ |- _ => destruct p
+    | _ => solve_equiv
+  end.
 Defined.
 
-Theorem Rel_coproduct : forall A B : Ob Rel,
-    coproduct Rel (A + B) (fun (a : A) (p : A + B) => p = inl a)
-      (fun (b : B) (p : A + B) => p = inr b).
+Definition SetoidRel_proj1 (X Y : Setoid')
+    : SetoidRel (SetoidRel_prodOb X Y) X.
 Proof.
-  unfold coproduct; simpl. intros A B X R S.
-  exists (fun (ab : A + B) (x : X) => match ab with
+  red. exists (fun (p : X + Y) (x : X) =>
+    match p with
+      | inl x' => x == x'
+      | _ => False
+    end).
+  repeat red.  destruct x, y; simpl; intros; intuition eauto.
+    rewrite <- H0, <- H. auto.
+    rewrite H, H0. auto.
+Defined.
+
+Definition SetoidRel_proj2 (X Y : Setoid')
+    : SetoidRel (SetoidRel_prodOb X Y) Y.
+Proof.
+  red. exists (fun (p : X + Y) (y : Y) =>
+    match p with
+      | inr y' => y == y'
+      | _ => False
+    end).
+  repeat red. destruct x, y; simpl; intros; intuition eauto.
+    rewrite <- H0, <- H. auto.
+    rewrite H0, H. auto.
+Defined.
+
+Definition SetoidRel_diag (A B X : Setoid')
+    (R : SetoidRel X A) (S : SetoidRel X B)
+    : SetoidRel X (SetoidRel_prodOb A B).
+Proof.
+  red. exists (fun (x : X) (p : A + B) =>
+    match p with
+      | inl a => R x a
+      | inr b => S x b
+    end).
+  repeat red; destruct x0, y0; setoidrelhoms; simpl in *; intuition eauto;
+  try rewrite <- H0, <- H; auto;
+  try rewrite H, H0; auto.
+Defined.
+
+Instance SetoidRel_has_products : has_products SetoidRelCat :=
+{
+    prodOb := SetoidRel_prodOb;
+    proj1 := SetoidRel_proj1;
+    proj2 := SetoidRel_proj2;
+    diag := SetoidRel_diag
+}.
+Proof.
+  (* Proper *) repeat red; destruct y1; setoidrelhoms; simpl in *;
+    edestruct H, H0; eauto.
+  (*repeat (red || split); simpl; intros. exists (inl y). split; [assumption | reflexivity]. destruct f. simpl. eauto. simpl. red.*)
+  (* Product laws *) red. setoidrel'; repeat
+  match goal with
+    | p : _ + _ |- _ => destruct p
+    | H : False |- _ => inversion H
+  end.
+    exists (inl y). eauto.
+    eapply f_Proper; eauto.
+    exists (inr y); eauto.
+    eapply g_Proper; eauto. repeat red in y_Proper.
+    destruct (H x a) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
+      eapply y_Proper; eauto. simpl. assumption.
+      inversion H'2.
+    destruct (H0 x b) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
+      inversion H'2.
+      eapply y_Proper; eauto. simpl. assumption.
+    destruct (H x a) as [_ H']. apply H'. exists (inl a). eauto.
+    destruct (H0 x b) as [_ H']. apply H'. exists (inr b). eauto.
+Grab Existential Variables.
+(* TODO: the Proper-ness condition should probably be changed to
+   two, one for each side (so x == x' -> R x y -> R x' y and
+   y == y' -> R x y -> R x y' *)
+Defined.
+    
+
+Definition SetoidRel_codiag (A B X : Setoid')
+    (R : SetoidRel A X) (S : SetoidRel B X)
+    : SetoidRel (SetoidRel_prodOb A B) X.
+Proof.
+  red. exists (fun (p : A + B) (x : X) =>
+    match p with
       | inl a => R a x
       | inr b => S b x
-  end).
-  repeat (red || split); intros.
-    all: try eexists; cat.
-    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
-    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
+    end).
+  repeat red; destruct x, y, R as [R R_proper], S as [S S_proper];
+  simpl; intuition eauto;
+  try rewrite <- H0, <- H; auto;
+  try rewrite H, H0; auto.
 Defined.
-
-Hint Resolve Rel_product Rel_coproduct.
-
-Theorem Rel_biproduct : forall A B : Ob Rel,
-    biproduct Rel (A + B)
-      (fun (p : A + B) (a : A) => p = inl a)
-      (fun (p : A + B) (b : B) => p = inr b)      
-      (fun (a : A) (p : A + B) => p = inl a)
-      (fun (b : B) (p : A + B) => p = inr b).
-Proof. red; cat. Defined.
-
-Instance Rel_has_all_products : has_all_products Rel :=
-{
-    bigProdOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
-    bigProj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
-        fun (p : {j : J & A j}) (x : A j) => projT1 p = j /\ JMeq (projT2 p) x;
-    bigDiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
-      (f : forall j : J, Hom X (A j)) (x : X) (p : {j : J & A j}) =>
-        f (projT1 p) x (projT2 p)
-}.
-Proof.
-  (* bigDiag is proper *) cat.
-  (* Product law *) red; cat; simpl in *.
-    exists (existT A j b); simpl. auto.
-    destruct (H x a a0), (H1 H0), x0; simpl in *. cat.
-    destruct (H x a a0); simpl in *. cat.
-Defined.
-
-Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
-{
-    bigCoprodOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
-    bigCoproj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
-        fun (x : A j) (p : {j : J & A j}) => projT1 p = j /\ JMeq (projT2 p) x;
-    bigCodiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
-      (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) (x : X) =>
-        f (projT1 p) (projT2 p) x
-}.
-Proof.
-  (* bigCodiag is proper *) cat.
-  (* Coproduct law *) red; cat; simpl in *.
-    exists (existT A j a); simpl. auto.
-    destruct (H x a b), (H1 H0), x0. cat.
-    destruct (H x a b). apply H2. eexists. cat.
-Defined.
-
-Instance Rel_has_all_biproducts : has_all_biproducts Rel :=
-{
-    bigProduct := Rel_has_all_products;
-    bigCoproduct := Rel_has_all_coproducts
-}.
-Proof. cat. Defined.

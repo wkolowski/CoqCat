@@ -3,6 +3,7 @@ Fix:
 2. Write new unique ismorphicness theorems for products (the isos have to be compatible with the projections).
 3. Check whether big_product is properly defined (there was an error in big_product_skolem).
 4. Give some structure to the modules, e.g. Sgr should be called Instances.Set.Sgr. Solution: each subdirectory has to have its own makefile...
+5. Maybe I should use Proper more? Looks like havinh "Proper ..." in context makes rewriting easy. Maybe there should be separate Proper instances for each variable, like x == x' -> R x y -> R x' y?
 
 Refactor:
 1. Refactor Monads.v: move the Maybe monad to CoqSet.
@@ -14,7 +15,6 @@ General:
 
 Instances:
 1. Define slice categories.
-2. Define linear orders.
 3. Solve the dependent type problems with setoid coproducts.
 4. Implement big (co)products and (co)equalizers of Apartoids.
 5. Characterize morphisms and universal constructions of setoids/apartoids etc.
