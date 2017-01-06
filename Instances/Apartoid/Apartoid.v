@@ -3,6 +3,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
+Require Import BigProdCoprod.
 Require Import Equalizer.
 
 Class Apartoid : Type :=
@@ -29,6 +30,16 @@ match type of A with
     let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
   | Ob _ => progress simpl in A; apartoidob A
 end.
+
+(* This won't probably work.
+Ltac genericob A lst := try intros until A;
+match type of A with
+  | Ob _ => progress simpl in A; genericob A
+  | _ => match lst with
+    | nil => idtac
+    | x :: xs
+  end
+end.*)
 
 Ltac apartoidobs := intros; repeat
 match goal with
@@ -284,6 +295,53 @@ Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
 Proof.
   (* Proper *) proper. destruct x1; apartoid.
   (* Product law *) red; apartoid'. destruct x; apartoid.
+Defined.
+
+Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
+{
+    carrier := forall j : J, A j;
+    neq := fun (f g : forall j : J, A j) =>
+      exists j : J, f j # g j
+}.
+Proof.
+  intros; intro. destruct H as [j H]. apply (neq_irrefl (x j)). assumption.
+  intros. destruct H as [j H]. exists j. apply neq_sym. assumption.
+  intros. destruct H as [j H]. destruct (neq_cotrans (x j) (y j) (z j) H).
+    left. exists j. assumption.
+    right. exists j. assumption.
+Defined.
+
+Definition Apartoid_bigProj {J : Set} (A : J -> Apartoid) (j : J)
+    : ApartoidHom (Apartoid_bigProdOb A) (A j).
+Proof.
+  red. exists (fun (f : forall j : J, A j) => f j). intros.
+  intro. apply H. simpl. exists j. assumption.
+Defined.
+
+Print has_all_products.
+
+Definition Apartoid_bigDiag {J : Set} {A : J -> Apartoid} {X : Apartoid}
+    (f : forall j : J, ApartoidHom X (A j))
+    : ApartoidHom X (Apartoid_bigProdOb A).
+Proof.
+  red. exists (fun (x : X) (j : J) => f j x). simpl; intros.
+  intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; simpl in *.
+  eapply Hfj; eauto.
+Defined.
+
+Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
+{
+    bigProdOb := @Apartoid_bigProdOb;
+    bigProj := @Apartoid_bigProj;
+    bigDiag := @Apartoid_bigDiag;
+}.
+Proof.
+  (* bigDiag is proper *) simpl; intros. destruct 1 as [j H'].
+    eapply H. eassumption.
+  (* Product law *) unfold big_product_skolem; red; split;
+  simpl in *; intros; eauto. destruct 1 as [j H'].
+  red in y. destruct y as [y Hy]; simpl in *.
+  eapply H; eauto.
 Defined.
 
 Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
