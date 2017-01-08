@@ -147,6 +147,14 @@ Proof.
   (* Category laws *) all: apartoid.
 Defined.
 
+(*Instance Apartoid_not_eq (A : Type) : Apartoid :=
+{
+    carrier := A;
+    neq := fun x y : A => x <> y
+}.
+Proof.
+  all: intros; eauto. left. intro. apply H.*)
+
 Instance Apartoid_init : Apartoid :=
 {
     carrier := Empty_set;
@@ -356,10 +364,24 @@ Proof. all: apartoid. Defined.
 Definition Apartoid_eq_mor {X Y : Apartoid} (f g : ApartoidHom X Y)
     : ApartoidHom (Apartoid_eq_ob f g) X.
 Proof.
-  red. unfold Apartoid_eq_ob. simpl. exists (@proj1_sig _ _).
-  apartoid.
+  red; simpl. exists (@proj1_sig _ _). apartoid.
 Defined.
 
+Lemma trick (X Y E' : Apartoid) (f g : Hom X Y)
+    (e' : Hom E' X) (H : e' .> f == e' .> g)
+    : E' -> Apartoid_eq_ob f g.
+Proof.
+  intro arg. red; simpl in *. exists (e' arg). apartoid.
+Defined.
+
+Lemma trick2 (X Y E' : Apartoid) (f g : Hom X Y)
+  (e' : Hom E' X) (H : e' .> f == e' .> g)
+  : ApartoidHom E' (Apartoid_eq_ob f g).
+Proof.
+  exists (trick X Y E' f g e' H). apartoid.
+Defined.
+
+(* This run for about ~10 secs. *)
 Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 {
     eq_ob := @Apartoid_eq_ob;
@@ -367,11 +389,67 @@ Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 }.
 Proof.
   red; split; intros.
-    apartoid.
-(*    exists (eq_trick2 f g).*)
+    (* Equalizer law *) apartoid.
+    (* Uniqueness *) exists (trick2 X Y E' f g e' H). apartoid'.
+      apply (H0 x). apply X_neq_sym. assumption.
+Time Defined. (* TODO: make faster *)
+
+Print has_coequalizers.
+
+(* TODO: likely this can't be done at all.
+Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
+    : Y -> Y -> Prop :=
+    | coeq_step : forall y y' : Y,
+        y # y' -> CoqSetoid_coeq_neq f g y y'
+    | coeq_quot : forall x x' : X,
+        x # x' -> CoqSetoid_coeq_neq f g (f x) (g x')
+    | coeq_sym : forall y y' : Y,
+        Apartoid_coeq_neq f g y y' ->
+        Apartoid_coeq_neq f g y' y
+    | coeq_cotrans_l : forall y1 y2 y3 : Y,
+        Apartoid_coeq_neq f g y1 y2 ->
+        Apartoid_coeq_neq f g y2 y3 ->
+        Apartoid_coeq_neq f g y1 y3.
+*)
+
+(* TODO: finish *)
+Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
+    : Apartoid :=
+{
+    carrier := Y;
+    neq := fun y y' : Y => y # y' \/ f y # g y'
+}.
 Abort.
 
+(* TODO: make this more dependent *)
+Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
+{
+    carrier := {j : J & A j};
+    neq := fun p1 p2 : {j : J & A j} =>
+      projT1 p1 # projT1 p2 (*\/ (projT1 p1 = projT1 p2 /\ projT2 p1 # projT2 p2)*)
+}.
+Proof.
+  all: destruct x; try destruct y; try destruct z; eauto.
+Defined.
 
+Definition Apartoid_bigCoproj {J : Apartoid} (A : J -> Apartoid) (j : J)
+    : ApartoidHom (A j) (Apartoid_bigCoprodOb A).
+Proof.
+  red; simpl in *. exists (fun a : A j => existT _ j a); simpl.
+  intros; intro. eapply neq_irrefl. eauto.
+Defined.
+
+Print has_all_coproducts.
+
+Definition Apartoid_bigCodiag {J : Apartoid} {A : J -> Apartoid}
+    {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
+    : ApartoidHom (Apartoid_bigCoprodOb A) X.
+Proof.
+  red; simpl. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
+  destruct x as [j a], x' as [j' a']; simpl; do 2 intro.
+  destruct (f j) as [fj Hfj]; simpl in *.
+  destruct (f j') as [fj' Hfj']; simpl in *. apply (Hfj a a).
+Abort. (* TODO *)
 
 (*Record RatT : Type :=
 {

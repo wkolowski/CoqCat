@@ -16,13 +16,12 @@ General:
 Instances:
 1. Define slice categories.
 3. Solve the dependent type problems with setoid coproducts.
-4. Implement big (co)products and (co)equalizers of Apartoids.
+4. Implement big (co)products and coequalizers of Apartoids.
 5. Characterize morphisms and universal constructions of setoids/apartoids etc.
 5.5. Find a general boilerplate for a file with concrete category — apply it to all instances.
 6. Define heterogenous apartoids.
 7. Implement prosets and semigroups wth respect to setoids/apartoids etc.
 8. Implement some examples of functors (like the Hom functor).
-10. Maybe delete the unused file with Monoids (with the "unpacked" definition).
 
 Further ideas:
 1. Implement concrecete categories and use them for theorems about individual categories.

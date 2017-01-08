@@ -9,6 +9,8 @@ Require Import Equalizer.
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
 
+Require Import Functor.
+
 Instance CoqSet : Cat :=
 {|
     Ob := Set;
@@ -298,3 +300,5 @@ Proof.
   simpl; intros X Y f g y. exists {A : {y : Y | 
   unfold coequalizer; simpl; intros. cat. f_equal.
 *)
+
+(* TODO: Hom functor here *)
