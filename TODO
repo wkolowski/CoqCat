@@ -29,3 +29,5 @@ Further ideas:
 3. Implement limits and colimits.
 4. Implement monoidal categories.
 5. Implement enriched categories.
+
+Proved that SetoidRelCat has coproducts.

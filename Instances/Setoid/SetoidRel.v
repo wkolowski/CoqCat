@@ -189,9 +189,39 @@ Proof.
     destruct (H0 x b) as [_ H']. apply H'. exists (inr b). eauto.
 Defined.
 
+Definition SetoidRel_coprodOb := SetoidRel_prodOb.
+
+Definition SetoidRel_coproj1 (X Y : Setoid')
+    : SetoidRel X (SetoidRel_coprodOb X Y).
+Proof.
+  red. exists (fun (x : X) (p : X + Y) =>
+    match p with
+      | inl x' => x == x'
+      | _ => False
+    end).
+  repeat red; destruct x0, y0; simpl; split; intros; eauto;
+  try (inversion H0; fail).
+    rewrite <- H, H1, H0. reflexivity.
+    rewrite H, H0, H1. reflexivity.
+Defined.
+
+Definition SetoidRel_coproj2 (X Y : Setoid')
+    : SetoidRel Y (SetoidRel_coprodOb X Y).
+Proof.
+  red. exists (fun (y : Y) (p : X + Y) =>
+    match p with
+      | inr y' => y == y'
+      | _ => False
+    end).
+  repeat red; destruct x0, y0; simpl; split; intros; eauto;
+  try (inversion H0; fail).
+    rewrite <- H, H1, H0. reflexivity.
+    rewrite H, H0, H1. reflexivity.
+Defined.
+
 Definition SetoidRel_codiag (A B X : Setoid')
     (R : SetoidRel A X) (S : SetoidRel B X)
-    : SetoidRel (SetoidRel_prodOb A B) X.
+    : SetoidRel (SetoidRel_coprodOb A B) X.
 Proof.
   red. exists (fun (p : A + B) (x : X) =>
     match p with
@@ -203,3 +233,32 @@ Proof.
   try rewrite <- H0, <- H; auto;
   try rewrite H, H0; auto.
 Defined.
+
+Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
+{
+    coprodOb := SetoidRel_coprodOb;
+    coproj1 := SetoidRel_coproj1;
+    coproj2 := SetoidRel_coproj2;
+    codiag := SetoidRel_codiag;
+}.
+Proof.
+  (* codiag is proper *) proper. destruct x1; eauto.
+  (* Coproduct law *) red; setoidrel'; repeat
+  match goal with
+    | p : _ + _ |- _ => destruct p
+    | H : False |- _ => inversion H
+  end.
+    exists (inl x); eauto.
+    eapply f_Proper; eauto.
+    exists (inr x); eauto.
+    eapply g_Proper; eauto.
+    destruct (H a y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
+      eapply (y_Proper (inl a) (inl p1)); eauto.
+      inversion Hp1.
+    destruct (H0 b y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
+      inversion Hp1.
+      eapply (y_Proper (inr b) (inr p2)); eauto.
+    destruct (H a y0). apply H3. exists (inl a); eauto.
+    destruct (H0 b y0). apply H3. exists (inr b); eauto.
+Defined.
+

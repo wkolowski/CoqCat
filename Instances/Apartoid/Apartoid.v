@@ -412,13 +412,35 @@ Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
         Apartoid_coeq_neq f g y1 y3.
 *)
 
+(* TODO: this shit doesn't work. *)
+Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
+    : Y -> Y -> Prop :=
+    | coeq_step : forall y y' : Y,
+        ~ y # y' -> Apartoid_coeq_equiv f g y y'
+    | coeq_quot : forall x : X,
+        Apartoid_coeq_equiv f g (f x) (g x)
+    | coeq_sym : forall y y' : Y,
+        Apartoid_coeq_equiv f g y y' ->
+        Apartoid_coeq_equiv f g y' y
+    | coeq_trans : forall y1 y2 y3 : Y,
+        Apartoid_coeq_equiv f g y1 y2 ->
+        Apartoid_coeq_equiv f g y2 y3 ->
+        Apartoid_coeq_equiv f g y1 y3.
+
 (* TODO: finish *)
 Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
     carrier := Y;
-    neq := fun y y' : Y => y # y' \/ f y # g y'
+    neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
 }.
+Proof.
+  intros. intro. apply H. intro. apply H0. constructor. apply neq_irrefl.
+  intros. intro. apply H0. intro. apply H. intro. apply H2.
+    apply coeq_sym. assumption.
+  intros.
+  intros. 
+    left. intro. apply H. apply (neq_cotrans x y z) in H. with z in H0.
 Abort.
 
 (* TODO: make this more dependent *)
