@@ -1,5 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
 
+Require Import Logic.FunctionalExtensionality.
+
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -244,3 +246,29 @@ Proof.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.
 
+Instance Cayley_Sgr (G : Grp) : Sgr :=
+{
+    carrier := {f : G -> G & {g : G | f = op g}};
+    (*op := fun f g => fun x : G => g (f x)*)
+}.
+Proof.
+  destruct 1 as [f1 [g1 H1]], 1 as [f2 [g2 H2]].
+    exists (fun x => op g1 (op g2 x)). exists (op g1 g2).
+    extensionality x. rewrite assoc. trivial.
+  cat. grp'. repeat rewrite assoc. (* TODO: finish *) 
+Defined.
+
+Instance Cayley_Mon (G : Grp) : Mon :=
+{
+    sgr := Cayley_Sgr G;
+    neutr := fun x : G => x
+}.
+Proof. 
+  all: intro; simpl; extensionality x; trivial.
+Defined.
+
+Instance Cayley_Grp (G : Grp) : Grp :=
+{
+    mon := Cayley_Mon G;
+    inv := fun f : G -> G => 
+}.

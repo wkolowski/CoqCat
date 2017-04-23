@@ -245,3 +245,45 @@ Proof.
     coproj2 := Sgr_inr;
     codiag := Sgr_codiag;
 }.*)
+
+Inductive nel (A : Type) : Type :=
+    | singl : A -> nel A
+    | cons_nel : A -> nel A -> nel A.
+
+Arguments singl [A] _.
+Arguments cons_nel [A] _ _.
+
+Fixpoint app_nel {A : Type} (l1 l2 : nel A) : nel A :=
+match l1 with
+    | singl a => cons_nel a l2
+    | cons_nel a l1' => cons_nel a (app_nel l1' l2)
+end.
+
+Theorem app_nel_assoc : forall (A : Type) (x y z : nel A),
+    app_nel x (app_nel y z) = app_nel (app_nel x y) z.
+Proof.
+  induction x as [h | h t]; simpl; intros.
+    trivial.
+    rewrite IHt. trivial.
+Qed.
+
+Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
+{
+    carrier := nel (X + Y);
+    op := app_nel;
+}.
+Proof.
+  apply app_nel_assoc.
+Defined.
+
+Print has_coproducts.
+
+(*Definition Sgr_coproj1 (X Y : Sgr) : Hom X (Sgr_freeprod X Y).
+Proof.
+  sgr'. exists (fun x : X => singl (inl x)). simpl.
+  intros.*)
+
+(*  TODO: this can't be done. The free product of groups doesn't have
+    coprojections in this category. To define them, an equivalence relation
+    would be needed to make sure that
+      singl (inl (op x y)) = cons_nel (inl x) (singl (inl y)) *)

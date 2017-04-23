@@ -26,6 +26,6 @@ Theorem Discrete_char_iso : forall (X : Set) (x x' : X)
     (f : @Hom (Discrete X) x x'), Iso f.
 Proof.
   unfold Iso; simpl; intros. assert (g : x' = x).
-    rewrite f. auto.
-  exists g. auto.
+    rewrite f. trivial.
+    exists g. auto.
 Defined.
