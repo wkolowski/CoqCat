@@ -21,6 +21,7 @@ Fix:
  * Check whether big\_product is properly defined (there was an error in big\_product\_skolem).
  * Give some structure to the modules, e.g. Sgr should be called Instances.Set.Sgr. Solution: each subdirectory has to have its own makefile...
  * Maybe I should use Proper more? Looks like having "Proper ..." in context makes rewriting easy. Maybe there should be separate Proper instances for each variable, like x == x' -> R x y -> R x' y?
+ * Make sure everything works with the new makefile.
 
 General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.

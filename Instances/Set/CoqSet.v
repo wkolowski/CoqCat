@@ -1,10 +1,11 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
+Require Export Cat.Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
+Require Import Exponential.
 
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
@@ -302,3 +303,15 @@ Proof.
 *)
 
 (* TODO: Hom functor here *)
+
+Theorem CoqSet_exponential : forall X Y : Set,
+    exponential CoqSet X Y (X -> Y)
+      (fun (fx : prodOb (X -> Y) X) => (fst fx) (snd fx)).
+Proof.
+  red; simpl; intros. exists (fun (z : Z) (x : X) => e (z, x)).
+  red; split.
+    destruct x. simpl. reflexivity.
+    simpl. intros f H z. extensionality x.
+      rewrite <- H. simpl. reflexivity.
+Defined.
+
