@@ -304,9 +304,11 @@ Proof.
 
 (* TODO: Hom functor here *)
 
-Theorem CoqSet_exponential : forall X Y : Set,
-    exponential CoqSet X Y (X -> Y)
-      (fun (fx : prodOb (X -> Y) X) => (fst fx) (snd fx)).
+Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
+{
+    expOb := fun X Y : Set => X -> Y;
+    eval := fun (X Y : Set) (fx : prodOb (X -> Y) X) => (fst fx) (snd fx)
+}.
 Proof.
   red; simpl; intros. exists (fun (z : Z) (x : X) => e (z, x)).
   red; split.
@@ -314,4 +316,9 @@ Proof.
     simpl. intros f H z. extensionality x.
       rewrite <- H. simpl. reflexivity.
 Defined.
+
+
+
+
+
 

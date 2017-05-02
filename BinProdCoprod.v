@@ -1,4 +1,6 @@
-Require Export Cat.
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
+Require Export Cat.Cat.
 Require Export Functor.
 
 Definition product (C : Cat) {A B : Ob C} (P : Ob C) (p1 : Hom P A)

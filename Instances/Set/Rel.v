@@ -1,9 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
+Require Import Exponential.
 
 Open Scope type_scope.
 
@@ -89,6 +90,27 @@ Restart.
     destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
 Defined.
 
+Instance Rel_has_products : has_products Rel :=
+{
+    prodOb := fun X Y : Set => X + Y;
+    proj1 := fun (X Y : Set) (p : X + Y) (x : X) => p = inl x;
+    proj2 := fun (X Y : Set) (p : X + Y) (y : Y) => p = inr y;
+    diag := fun (X Y A : Set) (f : A -> X -> Prop) (g : A -> Y -> Prop)
+      (a : A) (p : X + Y) => match p with | inl x => f a x | inr y => g a y end
+}.
+Proof.
+  proper. destruct b; split; intro; try apply H; try apply H0; assumption.
+  red; cat.
+    eexists; split; eauto; simpl; assumption.
+    eexists; split; eauto; simpl; assumption.
+    destruct b.
+      destruct (H a a0), (H2 H1); cat.
+      destruct (H0 a b), (H2 H1); cat.
+    destruct b.
+      destruct (H a a0). apply H3. cat.
+      destruct (H0 a b). apply H3. cat.
+Defined.
+
 Theorem Rel_coproduct : forall A B : Ob Rel,
     coproduct Rel (A + B) (fun (a : A) (p : A + B) => p = inl a)
       (fun (b : B) (p : A + B) => p = inr b).
@@ -154,3 +176,8 @@ Instance Rel_has_all_biproducts : has_all_biproducts Rel :=
     bigCoproduct := Rel_has_all_coproducts
 }.
 Proof. cat. Defined.
+
+Instance Rel_has_exponentials : has_exponentials Rel :=
+{
+    expOb := fun X Y : Set => X -> Y -> Prop
+}.
