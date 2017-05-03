@@ -27,7 +27,6 @@ General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
  * Define dual instances for big products/coproducts/biproducts, equalizers and coequalizers.
  * Settle all the maters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
- * Prove has\_coproduct and has\_exponential instances for Rel.
 
 Instances:
  * Define slice categories.
@@ -40,7 +39,7 @@ Instances:
  * Implement some examples of functors (like the Hom functor).
 
 Further ideas:
- * Implement concrecete categories and use them for theorems about individual categories.
+ * Implement concrete categories and use them for theorems about individual categories.
  * Implement better pullbacks and pushouts.
  * Implement limits and colimits.
  * Implement monoidal categories.

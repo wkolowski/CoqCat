@@ -144,4 +144,4 @@ Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
     zero_is_initial := Dual_has_init C hz;
     zero_is_terminal := Dual_has_term C hz
 }.
-Proof. cat. Defined. 
+Proof. cat. Defined.

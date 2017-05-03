@@ -58,83 +58,82 @@ match goal with
     | _ => try subst; eauto
 end.
 
-Theorem Rel_product : forall A B : Ob Rel,
-    product Rel (A + B) (fun (p : A + B) (a : A) => p = inl a)
-      (fun (p : A + B) (b : B) => p = inr b).
-Proof.
-  unfold product; simpl. intros A B X R S.
-  exists (fun (x : X) (ab : A + B) => match ab with
-      | inl a => R x a
-      | inr b => S x b
-  end).
-  repeat (red || split); intros.
-    exists (inl b). auto.
-    destruct H, x, H; inversion H0; subst; auto.
-    exists (inr b). auto.
-    destruct H, x, H; inversion H0; subst; auto.
-    destruct H, b. 
-      destruct (H a a0), (H2 H0), H4; subst. auto.
-      destruct (H1 a b), (H2 H0), H4; subst. auto.
-    destruct H, b.
-      destruct (H a a0). apply H3. eauto.
-      destruct (H1 a b). apply H3. eauto.
-Restart.
-  unfold product; simpl. intros A B X R S.
-  exists (fun (x : X) (ab : A + B) => match ab with
-      | inl a => R x a
-      | inr b => S x b
-  end).
-  repeat (red || split); intros.
-    all: try eexists; cat.
-    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
-    destruct b; [edestruct H, H2 | edestruct H1, H2]; cat.
-Defined.
+Definition Rel_prodOb (X Y : Set) : Set := sum X Y.
+
+Definition Rel_proj1 {X Y : Set} (p : X + Y) (x : X)
+    : Prop := p = inl x.
+Definition Rel_proj2 {X Y : Set} (p : X + Y) (y : Y)
+    : Prop := p = inr y.
+Print has_products.
+Definition Rel_diag {X Y A : Set} (f : A -> X -> Prop) (g : A -> Y -> Prop)
+    (a : A) (p : X + Y) : Prop :=
+match p with
+    | inl x => f a x
+    | inr y => g a y
+end.
+Hint Unfold Rel_prodOb Rel_proj1 Rel_proj2 Rel_diag.
+Ltac solve_Rel_core :=
+match goal with
+    | |- exists _, _ => eexists
+    | |- _ /\ _ => split; eauto
+    | x : _ + _ |- _ => destruct x
+    | H : _ = _ |- _ => inversion H; subst
+    | H : exists _, _ |- _ => destruct H
+    | H : _ /\ _ |- _ => destruct H
+    | H : forall _ : ?T, _, x : ?T |- _ => specialize (H x)
+    | H : _ <-> _ |- _ => destruct H
+end.
 
 Instance Rel_has_products : has_products Rel :=
 {
-    prodOb := fun X Y : Set => X + Y;
-    proj1 := fun (X Y : Set) (p : X + Y) (x : X) => p = inl x;
-    proj2 := fun (X Y : Set) (p : X + Y) (y : Y) => p = inr y;
-    diag := fun (X Y A : Set) (f : A -> X -> Prop) (g : A -> Y -> Prop)
-      (a : A) (p : X + Y) => match p with | inl x => f a x | inr y => g a y end
+    prodOb := Rel_prodOb;
+    proj1 := @Rel_proj1;
+    proj2 := @Rel_proj2;
+    diag := @Rel_diag;
 }.
 Proof.
   proper. destruct b; split; intro; try apply H; try apply H0; assumption.
-  red; cat.
-    eexists; split; eauto; simpl; assumption.
-    eexists; split; eauto; simpl; assumption.
-    destruct b.
-      destruct (H a a0), (H2 H1); cat.
-      destruct (H0 a b), (H2 H1); cat.
-    destruct b.
-      destruct (H a a0). apply H3. cat.
-      destruct (H0 a b). apply H3. cat.
+  red; cat. all: repeat (simpl in *; intros;
+    unfold Rel_prodOb, Rel_proj1, Rel_proj2, Rel_diag in *;
+    solve_Rel_core; eauto).
 Defined.
 
-Theorem Rel_coproduct : forall A B : Ob Rel,
-    coproduct Rel (A + B) (fun (a : A) (p : A + B) => p = inl a)
-      (fun (b : B) (p : A + B) => p = inr b).
+Definition Rel_coproj1 {X Y : Set} (x : X) (p : X + Y)
+    : Prop := p = inl x.
+Definition Rel_coproj2 {X Y : Set} (y : Y) (p : X + Y)
+    : Prop := p = inr y.
+
+Definition Rel_codiag {X Y A : Set} (R : X -> A -> Prop) (S : Y -> A -> Prop)
+    (p : X + Y) (a : A) : Prop :=
+match p with
+    | inl x => R x a
+    | inr y => S y a
+end.
+
+Ltac solve_Rel_coprod := repeat (simpl in *; intros;
+    unfold Rel_prodOb, Rel_proj1, Rel_proj2, Rel_diag in *;
+    solve_Rel_core; eauto).
+
+Instance Rel_has_coproducts : has_coproducts Rel :=
+{
+    coprodOb := Rel_prodOb;
+    coproj1 := @Rel_coproj1;
+    coproj2 := @Rel_coproj2;
+    codiag := @Rel_codiag;
+}.
 Proof.
-  unfold coproduct; simpl. intros A B X R S.
-  exists (fun (ab : A + B) (x : X) => match ab with
-      | inl a => R a x
-      | inr b => S b x
-  end).
-  repeat (red || split); intros.
-    all: try eexists; cat.
-    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
-    destruct a; [edestruct H, H2 | edestruct H1, H2]; cat.
+  proper. destruct a; split; intro; try apply H; try apply H0; assumption.
+  red; cat. all: repeat (simpl in *; intros;
+    unfold Rel_prodOb, Rel_coproj1, Rel_coproj2, Rel_codiag in *;
+    solve_Rel_core; eauto).
 Defined.
 
-Hint Resolve Rel_product Rel_coproduct.
-
-Theorem Rel_biproduct : forall A B : Ob Rel,
-    biproduct Rel (A + B)
-      (fun (p : A + B) (a : A) => p = inl a)
-      (fun (p : A + B) (b : B) => p = inr b)      
-      (fun (a : A) (p : A + B) => p = inl a)
-      (fun (b : B) (p : A + B) => p = inr b).
-Proof. red; cat. Defined.
+Instance Rel_has_biproducts : has_biproducts Rel :=
+{
+    products := Rel_has_products;
+    coproducts := Rel_has_coproducts;
+}.
+Proof. simpl. trivial. Defined.
 
 Instance Rel_has_all_products : has_all_products Rel :=
 {
@@ -177,7 +176,8 @@ Instance Rel_has_all_biproducts : has_all_biproducts Rel :=
 }.
 Proof. cat. Defined.
 
-Instance Rel_has_exponentials : has_exponentials Rel :=
+(* Rel doesn't have exponentials *)
+(*Instance Rel_has_exponentials : has_exponentials Rel :=
 {
     expOb := fun X Y : Set => X -> Y -> Prop
-}.
+}.*)
