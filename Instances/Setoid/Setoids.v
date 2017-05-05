@@ -1,10 +1,11 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 Require Export Equalizer.
 Require Export BigProdCoprod.
+Require Import Exponential.
 
 Class Setoid' : Type :=
 {
@@ -137,7 +138,6 @@ Proof.
       proper. do 2 destruct (constructive_indefinite_description _ _);
       simpl. setoid'.
 Abort. *)
-    
 
 Instance CoqSetoid_init : Setoid' :=
 {
@@ -435,3 +435,46 @@ Proof.
     Focus 2. destruct H, H0; split.
       rewrite H, H0. auto.
 Abort.
+
+Instance CoqSetoid_expOb_setoid (X Y : Setoid')
+    : Setoid (SetoidHom X Y) :=
+{
+    equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x
+    (*equiv := fun f g : X -> Y =>
+        forall x x' : X, x == x' -> f x == g x'*)
+}.
+Proof.
+  solve_equiv.
+Defined.
+
+Instance CoqSetoid_expOb (X Y : Setoid') : Setoid' :=
+{
+    carrier := SetoidHom X Y;
+    setoid := CoqSetoid_expOb_setoid X Y
+}.
+
+Definition CoqSetoid_eval (X Y : Setoid')
+    : SetoidHom (prodOb (CoqSetoid_expOb X Y) X) Y.
+Proof.
+  red; simpl. exists (fun fx : SetoidHom X Y * X => (fst fx) (snd fx)).
+  proper. destruct x, y, H; simpl in *. setoid.
+Defined.
+
+Print has_exponentials.
+
+Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
+{
+    expOb := CoqSetoid_expOb;
+    eval := CoqSetoid_eval;
+}.
+Proof.
+  red; intros.
+  assert (Hom Z (CoqSetoid_expOb X Y)).
+    * simpl. red. destruct e as [f f_Proper]; simpl in *.
+      assert (Z -> SetoidHom X Y).
+        + intro z. red. exists (fun x : X => f (z, x)).
+          do 2 red. do 2 red in f_Proper. intros.
+          apply f_Proper. simpl. split; [reflexivity | assumption].
+        + exists X0. do 2 red. intros. destruct (X0 x), (X0 y).
+          simpl in *. do 2 red in p. do 2 red in p0. rewrite H. apply p.
+      exists (fun (z : Z) (x : X) => f (z, x)).

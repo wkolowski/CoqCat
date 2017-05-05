@@ -1,9 +1,10 @@
-Require Import Coq.Logic.IndefiniteDescription.
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Functor.
-Require Export BinProdCoprod.
+(*Require Import Coq.Logic.IndefiniteDescription.*)
+Require Import Cat.Base.
 
-Set Primitive Projections.
+Require Import Functor.
+Require Import BinProdCoprod.
 
 Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 {
@@ -24,14 +25,14 @@ Proof.
   split; red; intros; try rewrite H; try rewrite H0; reflexivity.
 Defined.
 
-Instance NatTransComp {C D : Cat} (F : Functor C D) (G : Functor C D)
-    (H : Functor C D) (alfa : NatTrans F G) (beta : NatTrans G H)
-    : NatTrans F H :=
+Instance NatTransComp {C D : Cat}
+    {F : Functor C D} {G : Functor C D} {H : Functor C D}
+    (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H :=
 {
-    component := fun X : Ob C => component alfa X .> component beta X
+    component := fun X : Ob C => component α X .> component β X
 }.
 Proof.
-  intros. destruct alfa, beta; simpl in *. repeat rewrite comp_assoc.
+  intros. destruct α, β; simpl in *. repeat rewrite comp_assoc.
   rewrite coherence1. rewrite <- comp_assoc. rewrite coherence0. cat.
 Defined.
 
@@ -44,9 +45,9 @@ Proof. cat. Defined.
 Instance FunCat (C D : Cat) : Cat :=
 {
     Ob := Functor C D;
-    Hom := NatTrans;
-    HomSetoid := fun F G : Functor C D => NatTransSetoid F G;
-    comp := NatTransComp;
+    Hom := @NatTrans C D;
+    HomSetoid := NatTransSetoid;
+    comp := @NatTransComp C D;
     id := NatTransId
 }.
 Proof.
@@ -56,13 +57,13 @@ Defined.
 
 Definition natural_isomorphism {C D : Cat} {F G : Functor C D}
     (α : NatTrans F G) : Prop := exists β : NatTrans G F,
-    (*NatTransComp _ _ _ alfa beta = NatTransId F /\
-    NatTransComp _ _ _ beta alfa = NatTransId G.*)
-    @comp (FunCat C D) _ _ _ α β == @id (FunCat C D) F /\
-    @comp (FunCat C D) _ _ _ β α == @id (FunCat C D) G.
+    NatTransComp α β == NatTransId F /\
+    NatTransComp β α == NatTransId G.
+    (*@comp (FunCat C D) _ _ _ α β == @id (FunCat C D) F /\
+    @comp (FunCat C D) _ _ _ β α == @id (FunCat C D) G.*)
 
-Theorem natural_isomorphism_char : forall (C D : Cat) (F G : Functor C D)
-    (α : NatTrans F G),
+Theorem natural_isomorphism_char :
+    forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
     natural_isomorphism α <-> forall X : Ob C, Iso (component α X).
 Proof.
   unfold natural_isomorphism; split; simpl; intros.

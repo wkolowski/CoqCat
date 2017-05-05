@@ -1,4 +1,6 @@
-Require Export Cat.
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
+Require Import Cat.Cat.
 
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
@@ -85,7 +87,7 @@ Proof.
   intros. rewrite iso_iff_sec_ret in *. cat.
 Defined.
 
-Instance FunctorComp (C D E : Cat) (T : Functor C D) (S : Functor D E)
+Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E)
     : Functor C E :=
 {
     fob := fun A : Ob C => fob S (fob T A);
@@ -113,7 +115,7 @@ Instance CAT : Cat :=
     HomSetoid := fun C D : Cat =>
       {| equiv := fun T S : Functor C D =>
         depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S) |};
-    comp := FunctorComp;
+    comp := @FunctorComp;
     id := FunctorId
 }.
 Proof.
@@ -121,3 +123,4 @@ Proof.
   (* Proper *) proper. my_simpl; solve_depExtEq.
   (* Category laws *) all: cat.
 Defined.
+
