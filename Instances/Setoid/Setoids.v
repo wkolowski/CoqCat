@@ -6,6 +6,7 @@ Require Export BinProdCoprod.
 Require Export Equalizer.
 Require Export BigProdCoprod.
 Require Import Exponential.
+Require Import CartesianClosed.
 
 Class Setoid' : Type :=
 {
@@ -460,7 +461,23 @@ Proof.
   proper. destruct x, y, H; simpl in *. setoid.
 Defined.
 
-Print has_exponentials.
+Definition CoqSetoid_curry_fun
+    (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
+    : Z -> (CoqSetoid_expOb X Y).
+Proof.
+  intro z; do 3 red. destruct f as [f Hf]; do 2 red in Hf; simpl in *.
+  exists (fun x : X => f (z, x)). do 2 red. intros.
+  apply Hf. simpl. split; [reflexivity | assumption].
+Defined.
+
+Definition CoqSetoid_curry
+    (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
+    : SetoidHom Z (CoqSetoid_expOb X Y).
+Proof.
+  exists (CoqSetoid_curry_fun X Y Z f). do 2 red. intros.
+  setoidhom f; unfold CoqSetoid_curry_fun; simpl in *. intro x'.
+  apply f_pres_equiv. simpl. split; [assumption | reflexivity].
+Defined.
 
 Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
 {
@@ -468,13 +485,23 @@ Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
     eval := CoqSetoid_eval;
 }.
 Proof.
-  red; intros.
-  assert (Hom Z (CoqSetoid_expOb X Y)).
-    * simpl. red. destruct e as [f f_Proper]; simpl in *.
-      assert (Z -> SetoidHom X Y).
-        + intro z. red. exists (fun x : X => f (z, x)).
-          do 2 red. do 2 red in f_Proper. intros.
-          apply f_Proper. simpl. split; [reflexivity | assumption].
-        + exists X0. do 2 red. intros. destruct (X0 x), (X0 y).
-          simpl in *. do 2 red in p. do 2 red in p0. rewrite H. apply p.
-      exists (fun (z : Z) (x : X) => f (z, x)).
+  red; intros. exists (CoqSetoid_curry X Y Z e). setoid.
+Defined.
+
+Instance CoqSetoid_has_exponentials' : has_exponentials' CoqSetoid :=
+{
+    expOb' := CoqSetoid_expOb;
+    eval' := CoqSetoid_eval;
+    curry' := CoqSetoid_curry
+}.
+Proof.
+  red; intros; setoid.
+Defined.
+
+Instance CoqSetoid_cartesian_closed : cartesian_closed CoqSetoid :=
+{
+    ccc_term := CoqSetoid_has_term;
+    ccc_prod := CoqSetoid_has_products;
+    ccc_exp := CoqSetoid_has_exponentials;
+}.
+

@@ -373,3 +373,33 @@ Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     coproducts := Dual_has_coproducts C hp;
 }.
 Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.
+
+Theorem ProductFunctor_fmap_pres_comp_l :
+    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
+    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
+    ProductFunctor_fmap (f .> g) (id Z) == 
+    ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
+Proof.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp.
+  apply (ProductFunctor_fmap_Proper).
+    exact (id X).
+    exact (id Z).
+    reflexivity.
+    rewrite id_left. reflexivity.
+Defined.
+
+Theorem ProductFunctor_fmap_pres_comp_r :
+    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
+    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
+    ProductFunctor_fmap (id Z) (f .> g) ==
+    ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
+Proof.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp.
+  apply (ProductFunctor_fmap_Proper).
+    exact (id Z).
+    exact (id X).
+    rewrite id_left. reflexivity.
+    reflexivity.
+Defined.
+
+

@@ -20,6 +20,7 @@ Theorem id_unique_left' : forall (C : Cat) (X Y : Ob C)
     (f : Hom X Y) (g : Hom Y X), f .> g .> f == f -> f .> g == id X.
 Proof.
   intros. apply id_unique_left. intros.
+Abort.
 
 Theorem prod_term_iso : forall (C : Cat) (X : Ob C)
     (ht : has_term C) (hp : has_products C),
@@ -41,11 +42,11 @@ Check id_unique_left. apply id_unique_left. intros.
       destruct H0. specialize (H4 (id _)). cat.
       assert (delete (prodOb term X) == proj1 term X).
       destruct ht. simpl in *. rewrite <- is_terminal. reflexivity.
-      
+Abort. (*
       destruct (is_terminal (prodOb term X) (proj1 term X)).
 
 
 
     rewrite <- ProductFunctor_fmap_pres_id.
       unfold ProductFunctor_fmap.
-      
+      *)

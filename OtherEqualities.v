@@ -1,4 +1,7 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
 Require Export Base.
+
 
 Inductive etaEq : forall A : Set, A -> A -> Prop :=
     | etaEq_refl : forall (A : Set) (x : A), etaEq A x x
@@ -63,8 +66,8 @@ Defined.
 
 (* TODO: this is all shit *)
 Require Import Coq.Logic.Eqdep.
-Print eq_dep.
-Inductive depExtEq :
+
+(*Inductive depExtEq :
   forall (A : Type) (B : A -> Type) (a : A) (b : B a), Prop :=
     | depExtEq_refl : forall (A : Type) (x : A),
         depExtEq A A x x
@@ -98,3 +101,4 @@ Proof.
   induction H; intros.
     auto.
     apply depExtEq_sym. specialize (f x). specialize (IHdepExtEq f). apply IHdepExtEq. auto.
+Abort.*)

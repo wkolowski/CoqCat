@@ -1,11 +1,14 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
+Require Import Base.
+
 Require Export Cat.Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
 Require Import Exponential.
+Require Import CartesianClosed.
 
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
@@ -317,8 +320,22 @@ Proof.
       rewrite <- H. simpl. reflexivity.
 Defined.
 
+Instance CoqSet_has_exponentials' : has_exponentials' CoqSet :=
+{
+    expOb' := fun X Y : Set => X -> Y;
+    eval' := fun (X Y : Set) (fx : prodOb (X -> Y) X) => (fst fx) (snd fx);
+    curry' := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) =>
+      fun x : X => f (z, x)
+}.
+Proof.
+  do 2 red; simpl; split; intros.
+    destruct x; simpl. reflexivity.
+    extensionality x'. rewrite <- H. simpl. reflexivity.
+Defined.
 
-
-
-
-
+Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
+{
+    ccc_term := CoqSet_has_term;
+    ccc_prod := CoqSet_has_products;
+    ccc_exp := CoqSet_has_exponentials;
+}.
