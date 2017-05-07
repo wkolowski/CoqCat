@@ -4,10 +4,6 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Print product.
-
-Print has_products.
-
 Definition exponential {C : Cat} {hp : has_products C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y) : Prop :=
     forall (Z : Ob C) (e : Hom (prodOb Z X) Y),
@@ -87,17 +83,21 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
     expOb : Ob C -> Ob C -> Ob C;
     eval : forall X Y : Ob C,
       Hom (prodOb (expOb X Y) X) Y;
+    curry : forall {X Y Z : Ob C},
+      Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
     is_exponential : forall (X Y : Ob C),
-      exponential X Y (expOb X Y) (eval X Y)
+      exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
-Class has_exponentials' (C : Cat) {hp : has_products C} : Type :=
-{
-    expOb' : Ob C -> Ob C -> Ob C;
-    eval' : forall X Y : Ob C,
-      Hom (prodOb (expOb' X Y) X) Y;
-    curry' : forall {X Y Z : Ob C},
-      Hom (prodOb Z X) Y -> Hom Z (expOb' X Y);
-    is_exponential' : forall (X Y : Ob C),
-      exponential_skolem X Y (expOb' X Y) (eval' X Y) (@curry' X Y)
-}.
+Arguments expOb [C] [hp] [has_exponentials] _ _.
+Arguments eval [C] [hp] [has_exponentials] [X] [Y].
+Arguments curry [C] [hp] [has_exponentials] [X] [Y] [Z] _.
+Print ProductFunctor.
+Arguments ProductFunctor [C] [hp].
+
+Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
+
+Definition uncurry
+    {C : Cat} {hp : has_products C} {he : has_exponentials C}
+    {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
+    := f ×' (id X) .> eval.

@@ -144,6 +144,11 @@ Class has_products (C : Cat) : Type :=
       product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@diag A B)
 }.
 
+Arguments prodOb [C] [has_products] _ _.
+Arguments proj1 [C] [has_products] [A] [B]. (* _ _.*)
+Arguments proj2 [C] [has_products] [A] [B]. (* _ _.*)
+Arguments diag [C] [has_products] [A] [B] [X] _ _.
+
 Class has_coproducts (C : Cat) : Type := 
 {
     coprodOb : Ob C -> Ob C -> Ob C;
@@ -156,6 +161,11 @@ Class has_coproducts (C : Cat) : Type :=
     is_coproduct : forall A B : Ob C,
       coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@codiag A B)
 }.
+
+Arguments coprodOb [C] [has_coproducts] _ _.
+Arguments coproj1 [C] [has_coproducts] _ _.
+Arguments coproj2 [C] [has_coproducts] _ _.
+Arguments codiag [C] [has_coproducts] [A] [B] [X] _ _.
 
 Class has_biproducts (C : Cat) : Type :=
 {
@@ -206,7 +216,7 @@ Defined.
 Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
     : Hom (prodOb X X') (prodOb Y Y') :=
-      (diag (proj1 X X' .> f) (proj2 X X' .> g)).
+      (diag (proj1 .> f) (proj2 .> g)).
 
 Theorem ProductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_products C) (X X' Y Y' : Ob C) (f : Hom X Y) (g : Hom X' Y'),
@@ -268,7 +278,7 @@ Proof.
       rewrite H22 at 1. rewrite comp_assoc. rewrite H32 at 1. cat.
 Defined.
 
-Instance ProductFunctor {C : Cat} (hp : has_products C) :
+Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prod C C) C :=
 {
     fob := fun P : Ob (CAT_prod C C) => prodOb (fst P) (snd P);
@@ -280,7 +290,7 @@ Proof.
     rewrite H, H0. reflexivity.
   intros. apply ProductFunctor_fmap_pres_comp.
   intros. apply ProductFunctor_fmap_pres_id.
-Qed.
+Defined.
 
 Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
     {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
@@ -334,9 +344,9 @@ Proof.
       (id A1 .> coproj3 A1 A2) (id A2 .> coproj4 A1 A2)).
     destruct is_coproduct0 as [[H1 H2] H3].
     specialize (H3 (id _)). apply H3. split; cat.
-Qed.
+Defined.
 
-(* TODO *)
+(* TODO *) Print fmap.
 Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
 Notation "f ×' g" := (fmap ProductFunctor f g) (at level 40).
 
@@ -401,5 +411,3 @@ Proof.
     rewrite id_left. reflexivity.
     reflexivity.
 Defined.
-
-

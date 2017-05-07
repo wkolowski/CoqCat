@@ -483,16 +483,7 @@ Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
 {
     expOb := CoqSetoid_expOb;
     eval := CoqSetoid_eval;
-}.
-Proof.
-  red; intros. exists (CoqSetoid_curry X Y Z e). setoid.
-Defined.
-
-Instance CoqSetoid_has_exponentials' : has_exponentials' CoqSetoid :=
-{
-    expOb' := CoqSetoid_expOb;
-    eval' := CoqSetoid_eval;
-    curry' := CoqSetoid_curry
+    curry := CoqSetoid_curry
 }.
 Proof.
   red; intros; setoid.
@@ -505,3 +496,25 @@ Instance CoqSetoid_cartesian_closed : cartesian_closed CoqSetoid :=
     ccc_exp := CoqSetoid_has_exponentials;
 }.
 
+Instance HomFunctor_fob (C : Cat) (X : Ob C)
+    : Ob C -> Setoid' := fun Y : Ob C =>
+{|
+    carrier := Hom X Y;
+    setoid := HomSetoid X Y
+|}.
+
+Definition HomFunctor_fmap (C : Cat) (X : Ob C)
+    : forall Y Z : Ob C, Hom Y Z ->
+    SetoidHom (HomFunctor_fob C X Y) (HomFunctor_fob C X Z).
+Proof.
+  intros Y Z g. red; simpl.
+  exists (fun f : Hom X Y => f .> g).
+  proper.
+Defined.
+
+Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
+{
+    fob := HomFunctor_fob C X;
+    fmap := HomFunctor_fmap C X;
+}.
+Proof. proper. all: cat. Defined.

@@ -1,3 +1,5 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
 Require Export Cat.
 
 Definition initial {C : Cat} (I : Ob C) : Prop :=
@@ -28,7 +30,7 @@ Class has_init (C : Cat) : Type :=
 }.
 
 Arguments init _ [has_init].
-Arguments create _ [has_init] _.
+Arguments create [C] [has_init] _.
 
 Class has_term (C : Cat) : Type :=
 {
@@ -38,7 +40,7 @@ Class has_term (C : Cat) : Type :=
 }.
 
 Arguments term _ [has_term].
-Arguments delete _ [has_term] _.
+Arguments delete [C] [has_term] _.
 
 Class has_zero (C : Cat) : Type :=
 {
@@ -54,7 +56,7 @@ Definition zero_ob (C : Cat) {has_zero0 : has_zero C} : Ob C := init C.
 Definition zero_mor (C : Cat) {has_zero0 : has_zero C}
     (X Y : Ob C) : Hom X Y.
 Proof.
-  pose (f := delete C X). pose (g := create C Y).
+  pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
 
