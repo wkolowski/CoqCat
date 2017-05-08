@@ -133,12 +133,9 @@ Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
 Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
     (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
 
-(* TODO: possibly remove
-Definition invertible {A B : Type} (S : Setoid B) (f : A -> B) : Type :=
-    forall b : B, {a : A | f a == b}.*)
-
-Hint Unfold injective surjective bijective injectiveS
-    surjectiveS bijectiveS.
+Hint Unfold
+    injective surjective bijective
+    injectiveS surjectiveS bijectiveS.
 
 Ltac proper :=
 match goal with
@@ -160,9 +157,6 @@ match goal with
     | H : _ /\ _ |- _ => destruct H
     | |- _ /\ _ => split
     | |- _ <-> _ => split
-    (*| H : exists x, _ |- _ => destruct H
-    | H : exists! x, _ |- _ => destruct H
-    | H : exists!! x : _, _ |- _ => destruct H; unfold setoid_unique in **)
     | H : exists x, _ |- _ =>
       apply constructive_indefinite_description in H
     | H : exists! x, _ |- _ =>

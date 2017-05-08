@@ -190,7 +190,7 @@ Definition Sgr_inr (X Y : Sgr) : SgrHom Y (Sgr_sum X Y).
 Proof. sgr_simpl. exists inr. sgr. Defined.
 
 (* Neither sum nor sumprod is a coproduct in Sgr. Rather it's
-   the free product. *)
+   the free product (whatever that means). *)
 
 (*Definition Sgr_codiag (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
     : SgrHom (Sgr_sum A B) X.

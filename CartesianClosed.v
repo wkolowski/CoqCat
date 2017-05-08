@@ -51,7 +51,7 @@ Theorem exp_term_dom :
 Proof.
   symmetry; red.
   exists (curry proj1). red.
-  exists (diag (id (expOb (term C) Y)) (delete _) .> eval).
+  exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
   destruct ccc, ccc_term0, ccc_prod0, ccc_exp0; simpl in *.
   do 2 red in is_exponential; simpl in *.
   split.

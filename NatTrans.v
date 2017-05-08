@@ -110,9 +110,58 @@ Proof.
     rewrite pres_id, pres_id0, H. reflexivity.
 Defined.
 
-(* TODO *)
-(*Instance has_products {C D : Cat} {hp : has_products D}
-    : has_products (FunCat C D) :=
+Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
+    {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
+{
+    component := fun _ : Ob C => proj1
+}.
 Proof.
-  esplit. all: admit.
-*)
+  intros. destruct hp. simpl in *.
+  do 2 red in is_product.
+  destruct (is_product _ _ _
+    (proj1 (fob F X) (fob G X) .> fmap F f)
+    (proj2 (fob F X) (fob G X) .> fmap G f)).
+  destruct H as [H1 H2]. exact H1.
+Defined.
+
+Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
+    {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
+{
+    component := fun _ : Ob C => proj2
+}.
+Proof.
+  intros. destruct hp. simpl in *.
+  do 2 red in is_product.
+  destruct (is_product _ _ _
+    (proj1 (fob F X) (fob G X) .> fmap F f)
+    (proj2 (fob F X) (fob G X) .> fmap G f)).
+  destruct H as [H1 H2]. exact H2.
+Defined.
+
+Instance FunCat_fpair (* TODO *)
+    {C D : Cat} {hp : has_products D} {F G H : Functor C D}
+    (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
+{
+    component := fun X : Ob C => fpair (component α X) (component β X)
+}.
+Proof.
+  intros. destruct α, β; simpl in *.
+  unfold ProductFunctor_fmap.
+  destruct F, G, H; simpl in *.
+  destruct hp; simpl in *.
+  do 2 red in is_product.
+Abort.
+
+(* TODO *)
+Instance has_products {C D : Cat} {hp : has_products D}
+    : has_products (FunCat C D) :=
+{
+    prodOb := FunCat_prodOb;
+    proj1 := @FunCat_proj1 C D hp;
+    proj2 := @FunCat_proj2 C D hp;
+    (*fpair := fun (G H F : Functor C D)
+      (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H)
+      => @FunCat_fpair C D hp F G H α β*)
+}.
+Proof.
+Abort.
