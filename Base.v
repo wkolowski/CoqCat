@@ -12,7 +12,7 @@ Inductive extEq : forall A : Type, A -> A -> Prop :=
     (* TODO: change this from _refl to _eq so that shit is easier
       and you don't need to destruct equalities. This will affect
       equalizers in ExtSet.v *)
-    | extEq_refl : forall (A : Type) (x : A), extEq A x x
+    | extEq_refl : forall (A : Type) (x (*y*) : A), (*x = y ->*) extEq A x x
     | extEq_sym : forall (A : Type) (x y : A), extEq A x y -> extEq A y x
     | extEq_trans : forall (A : Type) (x y z : A),
       extEq A x y -> extEq A y z -> extEq A x z

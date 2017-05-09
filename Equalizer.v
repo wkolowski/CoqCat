@@ -1,3 +1,5 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
 Require Export Cat.
 
 Definition equalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
@@ -13,6 +15,14 @@ Definition coequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
 Definition biequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E) : Prop :=
     equalizer C f g E e /\ coequalizer C f g E q.
+
+Definition equalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X)
+    (wut : forall (E' : Ob C) (e' : Hom E' X), Hom E' E) : Prop :=
+    e .> f == e .> g /\ forall (E' : Ob C) (e' : Hom E' X),
+    setoid_unique (fun u : Hom E' E => u .> e == e') (wut E' e').
+
+(* TODO : give skolemized definitions of coequalizer and biequalizer *)
 
 Theorem dual_equalizer_coequalizer : forall (C : Cat) (X Y E : Ob C)
     (f g : Hom X Y) (e : Hom E X),

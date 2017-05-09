@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Arith.
 Require Import Omega.
@@ -16,10 +16,7 @@ Proof.
   (* Equiv *) solve_equiv.
   (* composition *) destruct A, B, C. simpl. intros.
     eapply le_trans; eauto.
-  (* Proper *) cat. proper.
-  (* associativity *) cat.
-  (* identity *) cat.
-  (* id_left *) cat.
-  (* id_right *) cat.
+  (* Proper *) proper.
+  (* Category laws *) all: cat.
 Defined.
 

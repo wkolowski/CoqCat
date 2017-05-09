@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -27,9 +27,6 @@ Ltac falgobs := falgobs_template falgob; simpl in *.
 Definition FAlgHom {C : Cat} {F : Functor C C}
     (X Y : FAlg F) : Type :=
     {f : Hom (projT1 X) (projT1 Y) | projT2 X .> f == fmap F f .> projT2 Y}.
-(*Proof.
-  falgobs. exact {f : Hom X Y | α_X .> f == fmap F f .> α_Y}.
-Defined.*)
 
 Ltac falghom f := try intros until f;
 match type of f with

@@ -59,8 +59,6 @@ Definition natural_isomorphism {C D : Cat} {F G : Functor C D}
     (α : NatTrans F G) : Prop := exists β : NatTrans G F,
     NatTransComp α β == NatTransId F /\
     NatTransComp β α == NatTransId G.
-    (*@comp (FunCat C D) _ _ _ α β == @id (FunCat C D) F /\
-    @comp (FunCat C D) _ _ _ β α == @id (FunCat C D) G.*)
 
 Theorem natural_isomorphism_char :
     forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
@@ -138,22 +136,29 @@ Proof.
   destruct H as [H1 H2]. exact H2.
 Defined.
 
-Instance FunCat_fpair (* TODO *)
+(* TODO *) Instance FunCat_fpair
     {C D : Cat} {hp : has_products D} {F G H : Functor C D}
     (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
 {
     component := fun X : Ob C => fpair (component α X) (component β X)
 }.
 Proof.
-  intros. destruct α, β; simpl in *.
+  intros. destruct hp. simpl in *.
+  do 2 red in is_product.
+  specialize (is_product (fob G X) (fob H X) (fob F X)).
+  edestruct is_product as [[H1 H2] H3].
+  rewrite H1.
+
+
+
+ destruct α, β; simpl in *.
   unfold ProductFunctor_fmap.
   destruct F, G, H; simpl in *.
-  destruct hp; simpl in *.
-  do 2 red in is_product.
+  (*destruct hp; simpl in *.
+  do 2 red in is_product.*)
 Abort.
 
-(* TODO *)
-Instance has_products {C D : Cat} {hp : has_products D}
+(* TODO *) Instance has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 {
     prodOb := FunCat_prodOb;
