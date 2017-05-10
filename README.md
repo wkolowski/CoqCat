@@ -43,3 +43,8 @@ Further ideas:
  * Implement enriched categories.
 
 Stuff from Awodey's book: 7-8 page 10 (functors between deloopings of Pros are Pros homomorphisms), page 14 (Cayley's Theorem), 3 page 17 onwards.
+
+Quick TODO:
+ * Find some useful properties of fpair.
+ * Fix equalizers.
+ * Define representability and adjoints.

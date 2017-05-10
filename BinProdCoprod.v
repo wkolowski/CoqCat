@@ -39,7 +39,7 @@ Class has_products (C : Cat) : Type :=
     proj1 : forall A B : Ob C, Hom (prodOb A B) A;
     proj2 : forall A B : Ob C, Hom (prodOb A B) B;
     fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
-      Hom X (prodOb A B);
+      Hom X (prodOb A B); (* TODO : properteis of fpair *)
     fpair_Proper : forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
     is_product : forall (A B : Ob C),

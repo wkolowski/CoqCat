@@ -20,9 +20,18 @@ Theorem prod_term_iso : forall (C : Cat) (X : Ob C)
     (ht : has_term C) (hp : has_products C),
         prodOb (term C) X ~ X.
 Proof.
-  (*symmetry. (*destruct ht, hp*) intros; red; simpl.
-  pose (f := diag term X X (delete X) (id X)).
-  exists f; red. exists (proj2 term X). unfold f.
+  symmetry.
+  red. pose (f := fpair (delete X) (id X)). exists f.
+  red. exists proj2. unfold f. split.
+    destruct hp; simpl in *. do 2 red in is_product.
+      destruct (is_product (term C) X X (delete X) (id X)) as [[H1 H2] H3].
+      rewrite <- H2. reflexivity.
+    assert (forall (Y : Ob C) (y : Hom Y (prodOb (term C) X)),
+      y .> proj2 .> fpair (delete X) (id X) == y).
+      intros. destruct hp; do 2 red in is_product; simpl in *.
+        destruct (is_product (term C) X Y (y .> proj1 _ _) (y .> proj2 _ _))
+        as [[H1 H2] H3].
+        rewrite H2. specialize (H3 y).
   destruct (is_product term X X (delete X) (id X)) as [[H1 H2] H3].
   split.
     rewrite <- H2. reflexivity.
