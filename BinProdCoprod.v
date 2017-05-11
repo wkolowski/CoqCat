@@ -96,35 +96,6 @@ Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
     biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
 Proof. unfold biproduct. cat. Qed.
 
-Theorem product_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (pA : Hom P A)
-    (pB : Hom P B), product C P pA pB -> product C P pB pA.
-Proof.
-  unfold product in *; intros.
-  destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
-  exists u. split.
-    (* Universal property *) split; assumption.
-    (* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
-Restart.
-  unfold product in *; intros. destruct (H X g f); eexists; cat.
-Qed.
-
-Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
-    (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
-Proof.
-  unfold coproduct; intros. destruct (H X g f). eexists; cat.
-Restart. (* Duality! *)
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
-  rewrite <- (dual_product_coproduct (Dual C)) in *.
-  apply product_comm. assumption.
-Qed.
-
-Hint Resolve product_comm coproduct_comm.
-
-Theorem biproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
-Proof. unfold biproduct. cat. Qed.
-
 Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
     A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
@@ -178,6 +149,62 @@ Proof.
   apply (product_iso C' A B C D P Q pA pB qC qD H H0 H1 H2).
 Qed.
 
+Theorem iso_to_prod_is_prod : forall (C : Cat) (A B P P' : Ob C)
+    (p1 : Hom P A) (p2 : Hom P B) (p1' : Hom P' A) (p2' : Hom P' B),
+        product C P p1 p2 -> P ~ P' -> product C P' p1' p2'.
+Proof.
+  intros. destruct H0 as [f [g [eq1 eq2]]].
+  unfold product in *. intros.
+  destruct (H X f0 g0) as [xp [[xp_eq1 xp_eq2] xp_uniq]].
+  exists (xp .> f). repeat split.
+Abort.
+
+(* TODO : dual for coproducts (and one for biproducts too) *)
+Theorem iso_to_prod_is_prod : forall (C : Cat) (A B P P' : Ob C)
+  (p1 : Hom P A) (p2 : Hom P B), product C P p1 p2 ->
+    forall f : Hom P' P, Iso f -> product C P' (f .> p1) (f .> p2).
+Proof.
+  intros. destruct H0 as [g [eq1 eq2]].
+  unfold product in *. intros.
+  destruct (H X f0 g0) as [xp [[xp_eq1 xp_eq2] xp_unique]].
+  exists (xp .> g). repeat split.
+    rewrite comp_assoc. rewrite <- (comp_assoc g f).
+      rewrite eq2. rewrite id_left. assumption.
+    rewrite comp_assoc. rewrite <- (comp_assoc g f).
+      rewrite eq2. rewrite id_left. assumption.
+    intros. do 2 rewrite <- comp_assoc in H0.
+      specialize (xp_unique (y .> f) H0). rewrite xp_unique.
+      rewrite comp_assoc. rewrite eq1. rewrite id_right. reflexivity.
+Qed.
+
+Theorem product_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (pA : Hom P A)
+    (pB : Hom P B), product C P pA pB -> product C P pB pA.
+Proof.
+  unfold product in *; intros.
+  destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
+  exists u. split.
+    (* Universal property *) split; assumption.
+    (* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
+Restart.
+  unfold product in *; intros. destruct (H X g f); eexists; cat.
+Qed.
+
+Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
+    (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
+Proof.
+  unfold coproduct; intros. destruct (H X g f). eexists; cat.
+Restart. (* Duality! *)
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- (dual_product_coproduct (Dual C)) in *.
+  apply product_comm. assumption.
+Qed.
+
+Hint Resolve product_comm coproduct_comm.
+
+Theorem biproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
+    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
+    biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
+Proof. unfold biproduct. cat. Qed.
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 

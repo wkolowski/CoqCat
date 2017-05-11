@@ -1,6 +1,6 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
+Require Import Cat.
 
 (* TODO: write tactics likes those used in Instances/Set *)
 
@@ -69,3 +69,5 @@ Proof.
   end; simpl in *; cat.
     rewrite H, H0. reflexivity.
 Defined.
+
+(* TODO : prove this is equvalent to the usual products *)

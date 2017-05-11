@@ -17,17 +17,20 @@ Accomplished:
 
 Fix:
  * Prove that dual is involution with respect to equality and then remove the axiom I'm currently using.
- * Write new unique ismorphicness theorems for products (the isos have to be compatible with the projections).
+ * Write new unique isomorphicness theorems for products (the isos have to be compatible with the projections).
  * Check whether big\_product is properly defined (there was an error in big\_product\_skolem).
- * Maybe I should use Proper more? Looks like having "Proper ..." in context makes rewriting easy. Maybe there should be separate Proper instances for each variable, like x == x' -> R x y -> R x' y?
 
 General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
  * Define dual instances for big products/coproducts/biproducts, equalizers and coequalizers.
  * Settle all the maters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
+ * Make sure all properties of products have been proven.
+ * State and prove properties of products (and other constructions) using skolemized definitions and type classes.
+ * Find some useful properties of fpair.
+ * Fix equalizers.
+ * Define representability and adjoints.
 
 Instances:
- * Define slice categories.
  * Solve the dependent type problems with setoid coproducts.
  * Implement big (co)products and coequalizers of Apartoids.
  * Characterize morphisms and universal constructions of setoids/apartoids etc.
@@ -43,8 +46,3 @@ Further ideas:
  * Implement enriched categories.
 
 Stuff from Awodey's book: 7-8 page 10 (functors between deloopings of Pros are Pros homomorphisms), page 14 (Cayley's Theorem), 3 page 17 onwards.
-
-Quick TODO:
- * Find some useful properties of fpair.
- * Fix equalizers.
- * Define representability and adjoints.

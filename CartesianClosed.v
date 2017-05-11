@@ -32,27 +32,7 @@ Proof.
         destruct (is_product (term C) X Y (y .> proj1 _ _) (y .> proj2 _ _))
         as [[H1 H2] H3].
         rewrite H2. specialize (H3 y).
-  destruct (is_product term X X (delete X) (id X)) as [[H1 H2] H3].
-  split.
-    rewrite <- H2. reflexivity.
-    assert (diag term X X (delete X) (id X) .> proj2 term X
-      .> diag term X X (delete X) (id X) ==
-      diag term X X (delete X) (id X)).
-        rewrite <- H2, id_left. reflexivity.
-Check id_unique_left. apply id_unique_left. intros.
-    rewrite comp_assoc. 
-    destruct (is_product term X (prodOb term X) (delete _) (proj2 term X)).
-      destruct H0. specialize (H4 (id _)). cat.
-      assert (delete (prodOb term X) == proj1 term X).
-      destruct ht. simpl in *. rewrite <- is_terminal. reflexivity.*)
-Abort. (*
-      destruct (is_terminal (prodOb term X) (proj1 term X)).
-
-
-
-    rewrite <- ProductFunctor_fmap_pres_id.
-      unfold ProductFunctor_fmap.
-      *)
+Abort.
 
 Theorem exp_term_dom :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
