@@ -84,7 +84,7 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
     eval : forall X Y : Ob C,
       Hom (prodOb (expOb X Y) X) Y;
     curry : forall {X Y Z : Ob C},
-      Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+      Hom (prodOb Z X) Y -> Hom Z (expOb X Y); (* TODO : coherence *)
     is_exponential : forall (X Y : Ob C),
       exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
@@ -92,7 +92,7 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 Arguments expOb [C] [hp] [has_exponentials] _ _.
 Arguments eval [C] [hp] [has_exponentials] [X] [Y].
 Arguments curry [C] [hp] [has_exponentials] [X] [Y] [Z] _.
-Print ProductFunctor.
+
 Arguments ProductFunctor [C] [hp].
 
 Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
@@ -101,3 +101,22 @@ Definition uncurry
     {C : Cat} {hp : has_products C} {he : has_exponentials C}
     {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
     := f ×' (id X) .> eval.
+
+Theorem curry_uncurry :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+      uncurry (curry f) == f.
+Proof.
+  destruct he; simpl; intros. do 2 red in is_exponential0.
+  unfold uncurry. destruct (is_exponential0 Y Z X f).
+  exact H.
+Qed.
+
+(* TODO *) Theorem uncurry_curry :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
+      curry (uncurry f) == f.
+Proof.
+  destruct hp, he; intros; do 2 red in is_exponential0; simpl in *.
+  unfold uncurry. pose (wut := is_exponential0 Y Z X).
+Abort.

@@ -16,23 +16,45 @@ Coercion ccc_term : cartesian_closed >-> has_term.
 Coercion ccc_prod : cartesian_closed >-> has_products.
 Coercion ccc_exp : cartesian_closed >-> has_exponentials.
 
-Theorem prod_term_iso : forall (C : Cat) (X : Ob C)
+Theorem prod_term_iso_l : forall (C : Cat) (X : Ob C)
     (ht : has_term C) (hp : has_products C),
         prodOb (term C) X ~ X.
 Proof.
   symmetry.
-  red. pose (f := fpair (delete X) (id X)). exists f.
-  red. exists proj2. unfold f. split.
-    destruct hp; simpl in *. do 2 red in is_product.
-      destruct (is_product (term C) X X (delete X) (id X)) as [[H1 H2] H3].
-      rewrite <- H2. reflexivity.
-    assert (forall (Y : Ob C) (y : Hom Y (prodOb (term C) X)),
-      y .> proj2 .> fpair (delete X) (id X) == y).
-      intros. destruct hp; do 2 red in is_product; simpl in *.
-        destruct (is_product (term C) X Y (y .> proj1 _ _) (y .> proj2 _ _))
-        as [[H1 H2] H3].
-        rewrite H2. specialize (H3 y).
-Abort.
+  red. exists (fpair (delete X) (id X)).
+  red. exists proj2. split.
+    apply fpair_proj2.
+    rewrite fpair_pre. rewrite <- fpair_id. apply fpair_Proper.
+      rewrite (is_terminal _ proj1). cat.
+      cat.
+Qed.
+
+Theorem prod_term_iso_r : forall (C : Cat) (X : Ob C)
+    (ht : has_term C) (hp : has_products C),
+        prodOb X (term C) ~ X.
+Proof.
+  intros. rewrite prodOb_comm. apply prod_term_iso_l.
+Qed.
+
+Theorem coprod_init_iso_l : forall (C : Cat) (X : Ob C)
+  (hi : has_init C) (hp : has_coproducts C),
+    coprodOb (init C) X ~ X.
+Proof.
+  intros.
+  red. exists (copair (create X) (id X)).
+  red. exists coproj2. split.
+    rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
+      rewrite (is_initial _ coproj1). cat.
+      cat.
+    apply copair_coproj2.
+Qed.
+
+Theorem coprod_init_iso_r : forall (C : Cat) (X : Ob C)
+  (hi : has_init C) (hp : has_coproducts C),
+    coprodOb X (init C) ~ X.
+Proof.
+  intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
+Qed.
 
 Theorem exp_term_dom :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),

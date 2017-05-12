@@ -96,6 +96,47 @@ Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
     biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
 Proof. unfold biproduct. cat. Qed.
 
+Theorem fpair_proj1 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
+    (f : Hom A X) (g : Hom A Y), fpair f g .> proj1 == f.
+Proof.
+  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H1. reflexivity.
+Qed.
+
+Theorem fpair_proj2 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
+    (f : Hom A X) (g : Hom A Y), fpair f g .> proj2 == g.
+Proof.
+  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H2. reflexivity.
+Qed.
+
+Theorem fpair_pre : forall (C : Cat) (hp : has_products C) (A B X Y : Ob C)
+    (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
+        f .> fpair g1 g2 == fpair (f .> g1) (f .> g2).
+Proof.
+  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A (f .> g1) (f .> g2)) as [_ H3].
+  destruct (is_product0 X Y B g1 g2) as [[H1' H2'] _].
+  rewrite <- H3.
+    reflexivity.
+    split.
+      rewrite comp_assoc, <- H1'. reflexivity.
+      rewrite comp_assoc, <- H2'. reflexivity.
+Qed.
+
+Theorem fpair_id : forall (C : Cat) (hp : has_products C) (X  Y : Ob C),
+    fpair proj1 proj2 == id (prodOb X Y).
+Proof.
+  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y (prodOb0 X Y) (proj3 X Y) (proj4 X Y))
+    as [_ H3].
+  rewrite H3.
+    reflexivity.
+    split; cat.
+Qed.
+
 Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
     A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
@@ -189,6 +230,31 @@ Restart.
   unfold product in *; intros. destruct (H X g f); eexists; cat.
 Qed.
 
+Theorem product_skolem_comm :
+  forall (C : Cat) (X Y P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
+      product_skolem C P p1 p2 fpair ->
+      product_skolem C P p2 p1 (fun A f g => fpair A g f).
+Proof.
+  unfold product_skolem in *; intros.
+  destruct (H X0 g f) as [[H1 H2] H3]. cat.
+Qed.
+
+Theorem prodOb_comm : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
+    prodOb X Y ~ prodOb Y X.
+Proof.
+  intros.
+  red. exists (fpair proj2 proj1).
+  red. exists (fpair proj2 proj1).
+  split.
+    rewrite <- fpair_id. rewrite fpair_pre. apply fpair_Proper.
+      rewrite fpair_proj2. reflexivity.
+      rewrite fpair_proj1. reflexivity.
+    rewrite <- fpair_id. rewrite fpair_pre. apply fpair_Proper.
+      rewrite fpair_proj2. reflexivity.
+      rewrite fpair_proj1. reflexivity.
+Qed.
+
 Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
     (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
 Proof.
@@ -205,6 +271,75 @@ Theorem biproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
     (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
     biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
 Proof. unfold biproduct. cat. Qed.
+
+Theorem copair_coproj1 :
+  forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
+    (f : Hom X A) (g : Hom Y A), coproj1 .> copair f g == f.
+Proof.
+  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  destruct (is_coproduct0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H1. reflexivity.
+Qed.
+
+Theorem copair_coproj2 :
+  forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
+    (f : Hom X A) (g : Hom Y A), coproj2 .> copair f g == g.
+Proof.
+  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  destruct (is_coproduct0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H2. reflexivity.
+Qed.
+
+Theorem copair_post :
+  forall (C : Cat) (hp : has_coproducts C) (X Y A B : Ob C)
+    (f1 : Hom X A) (f2 : Hom Y A) (g : Hom A B),
+      copair f1 f2 .> g == copair (f1 .> g) (f2 .> g).
+Proof.
+  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  destruct (is_coproduct0 X Y B (f1 .> g) (f2 .> g)) as [_ H3].
+  destruct (is_coproduct0 X Y A f1 f2) as [[H1 H2] _].
+  rewrite H3.
+    reflexivity.
+    split.
+      rewrite <- comp_assoc, <- H1. reflexivity.
+      rewrite <- comp_assoc, <- H2. reflexivity.
+Qed.
+
+Theorem copair_id :
+  forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
+    copair coproj1 coproj2 == id (coprodOb X Y).
+Proof.
+  destruct hp; simpl; intros. do 2 red in is_coproduct0.
+  destruct (is_coproduct0 X Y (coprodOb0 X Y) (coproj3 X Y) (coproj4 X Y))
+    as [_ H3].
+  apply H3. cat.
+Qed.
+
+Theorem coproduct_skolem_comm :
+  forall (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
+      coproduct_skolem C P p1 p2 copair ->
+      coproduct_skolem C P p2 p1 (fun A f g => copair A g f).
+Proof.
+  unfold coproduct_skolem in *; intros.
+  destruct (H X0 g f) as [[H1 H2] H3]. cat.
+Qed.
+
+Theorem coprodOb_comm : forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
+    coprodOb X Y ~ coprodOb Y X.
+Proof.
+  intros.
+  red. exists (copair coproj2 coproj1).
+  red. exists (copair coproj2 coproj1).
+  split.
+    rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
+      apply copair_coproj2.
+      apply copair_coproj1.
+    rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
+      apply copair_coproj2.
+      apply copair_coproj1.
+Qed.
+
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
@@ -246,26 +381,24 @@ Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
       (fpair (proj1 .> f) (proj2 .> g)).
 
 Theorem ProductFunctor_fmap_Proper : forall (C : Cat)
-    (hp : has_products C) (X X' Y Y' : Ob C) (f : Hom X Y) (g : Hom X' Y'),
+    (hp : has_products C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
       (@equiv _ (HomSetoid X' Y'))  ==>
       (@equiv _ (HomSetoid (prodOb X X') (prodOb Y Y'))))
       (@ProductFunctor_fmap C hp X X' Y Y').
 Proof.
-  repeat red; simpl; intros. destruct hp; simpl.
-    rewrite H, H0. reflexivity.
+  unfold Proper, respectful, ProductFunctor_fmap. intros.
+  apply fpair_Proper.
+    rewrite H. reflexivity.
+    rewrite H0. reflexivity.
 Qed.
 
 Theorem ProductFunctor_fmap_pres_id : forall (C : Cat)
     (hp : has_products C) (X Y : Ob C),
     ProductFunctor_fmap (id X) (id Y) == id (prodOb X Y).
 Proof.
-  destruct hp; simpl in *; intros.
-    unfold product_skolem in *.
-    specialize (is_product0 _ _ _
-      (proj3 X Y .> id X) (proj4 X Y .> id Y)).
-    destruct is_product0 as [[H1 H2] H3].
-    specialize (H3 (id _)). apply H3. split; cat.
+  intros; unfold ProductFunctor_fmap.
+  rewrite <- fpair_id. apply fpair_Proper; cat.
 Defined.
 
 Theorem ProductFunctor_fmap_pres_comp : forall (C : Cat)
@@ -274,35 +407,30 @@ Theorem ProductFunctor_fmap_pres_comp : forall (C : Cat)
     ProductFunctor_fmap (f1 .> g1) (f2 .> g2) ==
     ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.
 Proof.
-  destruct hp; simpl in *.
-    unfold product_skolem in *; intros.
-    pose (isp1 := is_product0).
-    pose (isp2 := is_product0).
-    pose (isp3 := is_product0).
-    specialize (isp1 _ _ _
-      (proj3 A1 A2 .> f1 .> g1)
-      (proj4 A1 A2 .> f2 .> g2)).
-    specialize (isp2 _ _ _
-      (proj3 A1 A2 .> f1)
-      (proj4 A1 A2 .> f2)).
-    specialize (isp3 _ _ _
-      (proj3 B1 B2 .> g1)
-      (proj4 B1 B2 .> g2)).
-    destruct
-      isp1 as [[H11 H12] H13],
-      isp2 as [[H21 H22] H23],
-      isp3 as [[H31 H32] H33]; simpl in *.
-    specialize (H13 (
-      fpair0 _ _ _ (proj3 A1 A2 .> f1) (proj4 A1 A2 .> f2)
-      .>
-      fpair0 _ _ _ (proj3 B1 B2 .> g1) (proj4 B1 B2 .> g2))).
-    specialize (H23 (fpair0 _ _ _
-      (proj3 A1 A2 .> f1) (proj4 A1 A2 .> f2))).
-    specialize (H33 (fpair0 _ _ _
-      (proj3 B1 B2 .> g1) (proj4 B1 B2 .> g2))).
-    repeat rewrite <- comp_assoc in *. apply H13. split.
-      rewrite H21 at 1. rewrite comp_assoc. rewrite H31 at 1. cat.
-      rewrite H22 at 1. rewrite comp_assoc. rewrite H32 at 1. cat.
+  unfold ProductFunctor_fmap; intros.
+  rewrite fpair_pre. apply fpair_Proper.
+    cat. rewrite fpair_proj1. cat.
+    cat. rewrite fpair_proj2. cat.
+Defined.
+
+Theorem ProductFunctor_fmap_pres_comp_l :
+    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
+    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
+    ProductFunctor_fmap (f .> g) (id Z) == 
+    ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
+Proof.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp.
+  apply (ProductFunctor_fmap_Proper); cat.
+Defined.
+
+Theorem ProductFunctor_fmap_pres_comp_r :
+    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
+    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
+    ProductFunctor_fmap (id Z) (f .> g) ==
+    ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
+Proof.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp.
+  apply (ProductFunctor_fmap_Proper); cat.
 Defined.
 
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
@@ -332,45 +460,14 @@ Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
       CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  do 2 red; simpl; intros. destruct H, hp; simpl in *.
-    rewrite H, H0. reflexivity.
-  destruct A as [A1 A2], B as [B1 B2], C0 as [C1 C2], hp; simpl in *.
-    unfold product_skolem in *; intros.
-    pose (isp1 := is_coproduct0).
-    pose (isp2 := is_coproduct0).
-    pose (isp3 := is_coproduct0).
-    specialize (isp1 _ _ _
-      (fst f .> fst g .> coproj3 C1 C2)
-      (snd f .> snd g .> coproj4 C1 C2)).
-    specialize (isp2 _ _ _
-      (fst f .> coproj3 B1 B2)
-      (snd f .> coproj4 B1 B2)).
-    specialize (isp3 _ _ _
-      (fst g .> coproj3 C1 C2)
-      (snd g .> coproj4 C1 C2)).
-    destruct
-      isp1 as [[H11 H12] H13],
-      isp2 as [[H21 H22] H23],
-      isp3 as [[H31 H32] H33]; simpl in *.
-    specialize (H13 (
-      copair0 _ _ _ (fst f .> coproj3 B1 B2) (snd f .> coproj4 B1 B2)
-      .>
-      copair0 _ _ _ (fst g .> coproj3 C1 C2) (snd g .> coproj4 C1 C2))).
-    specialize (H23 (copair0 _ _ _
-      (fst f .> coproj3 B1 B2) (snd f .> coproj4 B1 B2))).
-    specialize (H33 (copair0 _ _ _
-      (fst g .> coproj3 C1 C2) (snd g .> coproj4 C1 C2))).
-    repeat rewrite <- comp_assoc in *. apply H13. split.
-      rewrite comp_assoc. rewrite H31. rewrite <- comp_assoc.
-        rewrite H21. cat.
-      rewrite comp_assoc. rewrite H32. rewrite <- comp_assoc.
-        rewrite H22. cat.
-  destruct A as [A1 A2], hp; simpl in *.
-    unfold product_skolem in *.
-    specialize (is_coproduct0 _ _ _
-      (id A1 .> coproj3 A1 A2) (id A2 .> coproj4 A1 A2)).
-    destruct is_coproduct0 as [[H1 H2] H3].
-    specialize (H3 (id _)). apply H3. split; cat.
+  all: unfold CoproductFunctor_fmap.
+  proper. destruct H. apply copair_Proper.
+    rewrite H. reflexivity.
+    rewrite H0. reflexivity.
+  intros. rewrite copair_post. apply copair_Proper.
+    cat. rewrite copair_coproj1. reflexivity.
+    cat. rewrite copair_coproj2. reflexivity.
+  intros. rewrite <- copair_id. apply copair_Proper; cat.
 Defined.
 
 (* TODO *)
@@ -410,31 +507,3 @@ Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     coproducts := Dual_has_coproducts C hp;
 }.
 Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.
-
-Theorem ProductFunctor_fmap_pres_comp_l :
-    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
-    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-    ProductFunctor_fmap (f .> g) (id Z) == 
-    ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
-Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp.
-  apply (ProductFunctor_fmap_Proper).
-    exact (id X).
-    exact (id Z).
-    reflexivity.
-    rewrite id_left. reflexivity.
-Defined.
-
-Theorem ProductFunctor_fmap_pres_comp_r :
-    forall {C : Cat} {hp : has_products C} {X Y : Ob C}
-    (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-    ProductFunctor_fmap (id Z) (f .> g) ==
-    ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
-Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp.
-  apply (ProductFunctor_fmap_Proper).
-    exact (id Z).
-    exact (id X).
-    rewrite id_left. reflexivity.
-    reflexivity.
-Defined.
