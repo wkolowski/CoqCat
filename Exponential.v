@@ -33,7 +33,7 @@ Proof.
         <- ProductFunctor_fmap_pres_comp in Hu1.
         assert (ProductFunctor_fmap (u .> u') (id X .> id X)
           == ProductFunctor_fmap (u .> u') (id X)).
-          apply ProductFunctor_fmap_Proper; auto. exact (id X). reflexivity.
+          apply ProductFunctor_fmap_Proper; auto. reflexivity.
           rewrite H2 in Hu1. assumption.
     destruct (H0 E' eval') as [f [Hf1 Hf2]].
     assert (f == id E').
@@ -43,7 +43,7 @@ Proof.
         <- ProductFunctor_fmap_pres_comp in Hu'1.
         assert (ProductFunctor_fmap (u' .> u) (id X .> id X)
           == ProductFunctor_fmap (u' .> u) (id X)).
-          apply ProductFunctor_fmap_Proper; auto. exact (id X). reflexivity.
+          apply ProductFunctor_fmap_Proper; auto. reflexivity.
           rewrite H2 in Hu'1. assumption.
 Defined.
 
@@ -84,7 +84,9 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
     eval : forall X Y : Ob C,
       Hom (prodOb (expOb X Y) X) Y;
     curry : forall {X Y Z : Ob C},
-      Hom (prodOb Z X) Y -> Hom Z (expOb X Y); (* TODO : coherence *)
+      Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+    curry_Proper : forall X Y Z : Ob C,
+      Proper (equiv ==> equiv) (@curry X Y Z); (* TODO : coherence *)
     is_exponential : forall (X Y : Ob C),
       exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
@@ -102,7 +104,28 @@ Definition uncurry
     {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
     := f ×' (id X) .> eval.
 
+Theorem uncurry_Proper :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z : Ob C), Proper (equiv ==> equiv) (@uncurry C hp he X Y Z).
+Proof.
+  unfold Proper, respectful, uncurry. intros.
+  cut (x ×' id X == y ×' id X).
+    intro H'. rewrite H'. reflexivity.
+    apply ProductFunctor_fmap_Proper; [assumption | reflexivity].
+Qed.
+
 Theorem curry_uncurry :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
+      curry (uncurry f) == f.
+Proof.
+  unfold uncurry; destruct he; simpl; intros.
+  do 2 red in is_exponential0.
+  destruct (is_exponential0 Y Z X (f ×' id Y .> (eval0 _ _))) as [H1 H2].
+  apply H2. reflexivity.
+Qed.
+
+Theorem uncurry_curry :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
@@ -112,11 +135,23 @@ Proof.
   exact H.
 Qed.
 
-(* TODO *) Theorem uncurry_curry :
+Theorem curry_eval :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
-    (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
-      curry (uncurry f) == f.
+    (X Y : Ob C), curry eval == id (expOb X Y).
 Proof.
-  destruct hp, he; intros; do 2 red in is_exponential0; simpl in *.
-  unfold uncurry. pose (wut := is_exponential0 Y Z X).
-Abort.
+  destruct he; simpl; intros.
+  do 2 red in is_exponential0.
+  destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
+  apply (H2 (id _)). rewrite ProductFunctor_fmap_pres_id.
+  rewrite id_left. reflexivity.
+Qed.
+
+Theorem uncurry_id :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
+Proof.
+  destruct he; simpl; intros.
+  do 2 red in is_exponential0.
+  destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
+  unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
+Qed.

@@ -23,10 +23,11 @@ Fix:
 General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
  * Define dual instances for big products/coproducts/biproducts, equalizers and coequalizers.
- * Settle all the maters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
+ * Settle all the matters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
  * State and prove skolemized definitions and/or properties for coproducts, equalizers, coequalizers, big products, big coproducts.
  * Fix equalizers.
  * Define representability and adjoints.
+ * Do stuff related to distributive categories.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.

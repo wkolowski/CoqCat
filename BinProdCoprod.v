@@ -19,7 +19,7 @@ Definition product_skolem (C : Cat) {A B : Ob C} (P : Ob C)
     (p1 : Hom P A) (p2 : Hom P B)
     (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
     forall (X : Ob C) (f : Hom X A) (g : Hom X B),
-    setoid_unique (fun d : Hom X P => f == d .> p1 /\ g == d .> p2) (fpair f g).
+    setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
 
 Definition coproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
     (p1 : Hom A P) (p2 : Hom B P)
@@ -126,7 +126,7 @@ Proof.
       rewrite comp_assoc, <- H2'. reflexivity.
 Qed.
 
-Theorem fpair_id : forall (C : Cat) (hp : has_products C) (X  Y : Ob C),
+Theorem fpair_id : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     fpair proj1 proj2 == id (prodOb X Y).
 Proof.
   destruct hp; simpl; intros. do 2 red in is_product0.
@@ -135,6 +135,17 @@ Proof.
   rewrite H3.
     reflexivity.
     split; cat.
+Qed.
+
+Theorem fpair_comp :
+  forall (C : Cat) (hp : has_products C) (A X Y X' Y' : Ob C)
+    (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
+      fpair (f .> h1) (g .> h2) ==
+      fpair f g .> fpair (proj1 .> h1) (proj2 .> h2).
+Proof.
+  intros. rewrite fpair_pre. apply fpair_Proper.
+    rewrite <- comp_assoc. rewrite fpair_proj1. reflexivity.
+    rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
 Qed.
 
 Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
@@ -169,6 +180,38 @@ Proof.
             rewrite u2_proj2. reflexivity.
           rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
 Defined.
+
+Theorem product_skolem_iso :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
+  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
+  (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C Q q1 q2 fpair' ->
+    P ~ Q.
+Proof.
+  intros. red in H. red in H0.
+  red. exists (fpair' _ p1 p2).
+  red. exists (fpair0 _ q1 q2).
+  destruct
+    (H P p1 p2) as [[HP1 HP2] HP3],
+    (H Q q1 q2) as [[HQ1 HQ2] HQ3],
+    (H0 P p1 p2) as [[HP1' HP2'] HP3'],
+    (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
+  cat.
+    rewrite <- (HP3 (fpair' P p1 p2 .> fpair0 Q q1 q2)).
+      apply HP3. cat.
+      cat.
+        rewrite <- HQ1. assumption.
+        rewrite <- HQ2. assumption.
+    rewrite <- (HQ3' (fpair0 Q q1 q2 .> fpair' P p1 p2)).
+      apply HQ3'. cat.
+      cat.
+        rewrite <- HP1'. assumption.
+        rewrite <- HP2'. assumption.
+Qed.
+      
 
 Theorem coproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
     (iA : Hom A P) (iB : Hom B P) (jC : Hom C Q) (jD : Hom D Q),
@@ -507,3 +550,33 @@ Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     coproducts := Dual_has_coproducts C hp;
 }.
 Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.
+
+Require Import InitTerm.
+Definition distr
+  {C : Cat} {hi : has_init C} {ht : has_term C}
+  {hp : has_products C} {hc : has_coproducts C} (X Y Z : Ob C)
+  : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
+  := copair
+    (fpair proj1 (proj2 .> coproj1))
+    (fpair proj1 (proj2 .> coproj2)).
+
+Class distributive (C : Cat) : Type :=
+{
+    distr_has_init :> has_init C;
+    distr_has_term :> has_term C;
+    distr_has_products :> has_products C;
+    distr_has_coproducts :> has_coproducts C;
+    distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
+}.
+
+Theorem distr_prodOb_init :
+  forall (C : Cat) (hi : has_init C) (d : distributive C) (X : Ob C),
+    prodOb (init C) X ~ init C.
+Proof.
+  intros.
+  red. exists proj1.
+  red. exists (fpair (id _) (create _)).
+  split.
+    rewrite fpair_pre, <- fpair_id. apply fpair_Proper.
+      cat.
+      destruct hi, d; simpl. Abort.

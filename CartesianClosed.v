@@ -63,24 +63,33 @@ Proof.
   symmetry; red.
   exists (curry proj1). red.
   exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
+  split.
   destruct ccc, ccc_term0, ccc_prod0, ccc_exp0; simpl in *.
   do 2 red in is_exponential; simpl in *.
-  split.
 Abort.
 
 Theorem exp_term_cod :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb Y (term C) ~ term C.
 Proof.
-  red; intros.
-  exists (delete _). red. exists (curry proj1).
+  intros.
+  red. exists (delete _).
+  red. exists (curry proj1).
   split.
     Focus 2. destruct ccc, ccc_term0; simpl in *.
       rewrite is_terminal. rewrite <- (is_terminal _ (id term)).
         reflexivity.
-    destruct ccc, ccc_term0; simpl in *.
-    destruct ccc_exp0; do 2 red in is_exponential; simpl in *.
-    destruct (is_exponential Y term (expOb Y term) (eval _ _)).
-      specialize (H0 (id (expOb Y term))).
-      rewrite <- H0.
+    pose (unc := @uncurry C ccc_prod ccc_exp).
+    assert (forall (A B C : Ob C) (f : Hom C (expOb A B)),
+      curry (unc _ _ _ f) == f).
+      intros. unfold unc. rewrite curry_uncurry. reflexivity.
+    unfold uncurry in *.
+    destruct ccc, ccc_term0, ccc_exp0; simpl in *.
+    do 2 red in is_exponential; simpl in *.
+ (*   unfold uncurry in unc. simpl in unc.*)
+    destruct (is_exponential _ _ (expOb Y term)
+      (unc _ _ _ (delete (expOb Y term) .> curry Y term term proj1)))
+      as [H1 H2].
+    specialize (H2 (id _)). rewrite <- H2. rewrite H. reflexivity.
+    rewrite <- H1. unfold ProductFunctor_fmap. rewrite H1.
 Abort.
