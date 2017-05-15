@@ -1,4 +1,6 @@
-Require Export Base.
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
+Require Export Cat.Base.
 
 Class Cat : Type :=
 {
@@ -50,9 +52,77 @@ Proof.
   (* Equivalence *) solve_equiv.
   (* Composition is proper *) proper.
   (* Category laws *) all: cat.
+(*Restart.
+  (* Equivalence *) solve_equiv.
+  (* Composition is proper *) proper.
+  (* Category laws *) all: intros.
+    rewrite <- (@comp_assoc C _ _ _ _ h g f). reflexivity.
+    rewrite (@id_right C). reflexivity.
+    rewrite (@id_left C). reflexivity.*)
 Defined.
 
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
+
+(* Warning: the following also uses the JMeq_eq axiom *)
+Require Import Logic.ProofIrrelevance.
+Require Import FunctionalExtensionality.
+
+Theorem cat_split : forall
+  (Ob Ob' : Type)
+  (Hom : Ob -> Ob -> Type)
+  (Hom': Ob' -> Ob' -> Type)
+  (HomSetoid : forall A B : Ob, Setoid (Hom A B))
+  (HomSetoid' : forall A B : Ob', Setoid (Hom' A B))
+  (comp : forall A B C : Ob, Hom A B -> Hom B C -> Hom A C)
+  (comp' : forall A B C : Ob', Hom' A B -> Hom' B C -> Hom' A C)
+  comp_Proper
+  comp'_Proper
+  comp_assoc
+  comp_assoc'
+  (id : forall A : Ob, Hom A A)
+  (id' : forall A : Ob', Hom' A A)
+  id_left
+  id'_left
+  id_right
+  id'_right,
+    Ob = Ob' -> JMeq Hom Hom' -> JMeq comp comp' -> JMeq id id' ->
+    JMeq HomSetoid HomSetoid' ->
+    @Build_Cat Ob Hom HomSetoid comp comp_Proper comp_assoc id id_left id_right =
+    @Build_Cat Ob' Hom' HomSetoid' comp' comp'_Proper comp_assoc' id' id'_left id'_right.
+Proof.
+  intros. repeat
+  match goal with
+      | H : _ = _ |- _ => subst
+      | H : JMeq _ _ |- _ => apply JMeq_eq in H
+      | |- ?x = ?x => reflexivity
+  end;
+  f_equal; apply proof_irrelevance.
+Qed.
+
+Theorem setoid_split : forall A A' equiv equiv' setoid_equiv setoid_equiv',
+    A = A' -> JMeq equiv equiv' ->
+    JMeq (@Build_Setoid A equiv setoid_equiv)
+         (@Build_Setoid A' equiv' setoid_equiv').
+Proof.
+  intros. repeat
+  match goal with
+      | H : _ = _ |- _ => subst
+      | H : JMeq _ _ |- _ => apply JMeq_eq in H
+      | |- ?x = ?x => reflexivity
+  end.
+  f_equal.
+  assert (setoid_equiv = setoid_equiv'). apply proof_irrelevance.
+  rewrite H. trivial.
+Qed.
+
+Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
+Proof.
+  destruct C. unfold Dual. apply cat_split; simpl; trivial.
+  assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
+    intros. rewrite H. reflexivity.
+    apply H. extensionality A. extensionality B. apply JMeq_eq.
+      destruct (HomSetoid0 A B). apply setoid_split; trivial.
+Qed.
 
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).

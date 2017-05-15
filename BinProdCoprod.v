@@ -3,20 +3,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 Require Export Cat.Cat.
 Require Export Functor.
 
-Definition product (C : Cat) {A B : Ob C} (P : Ob C) (p1 : Hom P A)
-    (p2 : Hom P B) := forall (X : Ob C) (f : Hom X A) (g : Hom X B),
-    exists!! u : Hom X P, f == u .> p1 /\ g == u .> p2.
-
-Definition coproduct (C : Cat) {A B : Ob C} (P : Ob C) (iA : Hom A P)
-    (iB : Hom B P) := forall (X : Ob C) (f : Hom A X) (g : Hom B X),
-    exists!! u : Hom P X, f == iA .> u /\ g == iB .> u.
-
-Definition biproduct (C : Cat) {A B : Ob C} (P : Ob C) (pA : Hom P A)
-    (pB : Hom P B) (iA : Hom A P) (iB : Hom B P) : Prop :=
-    product C P pA pB /\ coproduct C P iA iB.
-
-Definition product_skolem (C : Cat) {A B : Ob C} (P : Ob C)
-    (p1 : Hom P A) (p2 : Hom P B)
+Definition product_skolem (C : Cat) {A B : Ob C}
+    (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
     (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
     forall (X : Ob C) (f : Hom X A) (g : Hom X B),
     setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
@@ -39,7 +27,7 @@ Class has_products (C : Cat) : Type :=
     proj1 : forall A B : Ob C, Hom (prodOb A B) A;
     proj2 : forall A B : Ob C, Hom (prodOb A B) B;
     fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
-      Hom X (prodOb A B); (* TODO : properteis of fpair *)
+      Hom X (prodOb A B);
     fpair_Proper : forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
     is_product : forall (A B : Ob C),
@@ -80,21 +68,26 @@ Class has_biproducts (C : Cat) : Type :=
 Coercion products : has_biproducts >-> has_products.
 Coercion coproducts : has_biproducts >-> has_coproducts.
 
-Theorem dual_product_coproduct : forall (C : Cat) (A B P : Ob C)
-    (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
-    coproduct (Dual C) P pA pB.
+Theorem dual_product_coproduct_skolem :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
+    product_skolem C P p1 p2 fpair <->
+    coproduct_skolem (Dual C) P p1 p2 fpair.
 Proof.
-  unfold product, coproduct; split; intros.
-  unfold Hom, Dual. apply H.
-  unfold Hom, Dual in H. apply H.
-Restart.
   cat.
-Qed.
+Defined.
 
-Theorem dual_biproduct_self : forall (C : Cat) (A B P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct C P pA pB iA iB <-> biproduct (Dual C) P iA iB pA pB.
-Proof. unfold biproduct. cat. Qed.
+Theorem dual_biproduct_skolem_self :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (q1 : Hom X P) (q2 : Hom Y P)
+  (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
+  (copair : forall (P' : Ob C) (q1' : Hom X P') (q2' : Hom Y P'), Hom P P'),
+    biproduct_skolem C P p1 p2 q1 q2 fpair copair <->
+    biproduct_skolem (Dual C) P q1 q2 p1 p2 copair fpair.
+Proof.
+  unfold biproduct_skolem. cat.
+Qed.
 
 Theorem fpair_proj1 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj1 == f.
@@ -148,39 +141,6 @@ Proof.
     rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
 Qed.
 
-Theorem product_iso : forall (C' : Cat) (A B C D P Q : Ob C')
-    (pA : Hom P A) (pB : Hom P B) (qC : Hom Q C) (qD : Hom Q D),
-    A ~ C -> B ~ D -> product C' P pA pB -> product C' Q qC qD -> P ~ Q.
-Proof.
-  unfold product, isomorphic; intros.
-  destruct H as (f, [f' [f_iso1 f_iso2]]), H0 as (g, [g' [g_iso1 g_iso2]]).
-  destruct (H2 P (pA .> f) (pB .> g)) as (u1, [[u1_proj1 u1_proj2] uniq1]).
-  destruct (H1 Q (qC .> f') (qD .> g')) as (u2, [[u2_proj1 u2_proj2] uniq2]).
-  unfold Iso. exists u1, u2. split.
-    destruct (H1 P pA pB) as (i, [_ uq]).
-      assert (i_is_id : i == id P). apply uq. cat.
-      rewrite <- i_is_id. symmetry. apply uq. split.
-        cat. rewrite <- u2_proj1.
-          assert (As1 : pA .> f .> f' == u1 .> qC .> f').
-            rewrite u1_proj1. reflexivity.
-          rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso1. cat.
-        cat. rewrite <- u2_proj2.
-          assert (As2 : pB .> g .> g' == u1 .> qD .> g').
-            rewrite u1_proj2. reflexivity.
-          rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso1. cat.
-    destruct (H2 Q qC qD) as (i, [_ uq]).
-      assert (i_is_id : i == id Q). apply uq. cat.
-      rewrite <- i_is_id. symmetry. apply uq. split.
-        cat. rewrite <- u1_proj1.
-          assert (As1 : qC .> f' .> f == u2 .> pA .> f).
-            rewrite u2_proj1. reflexivity.
-          rewrite <- comp_assoc. rewrite <- As1. cat. rewrite f_iso2. cat.
-        cat. rewrite <- u1_proj2.
-          assert (As2 : qD .> g' .> g == u2 .> pB .> g).
-            rewrite u2_proj2. reflexivity.
-          rewrite <- comp_assoc. rewrite <- As2. cat. rewrite g_iso2. cat.
-Defined.
-
 Theorem product_skolem_iso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -211,67 +171,6 @@ Proof.
         rewrite <- HP1'. assumption.
         rewrite <- HP2'. assumption.
 Qed.
-      
-
-Theorem coproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
-    (iA : Hom A P) (iB : Hom B P) (jC : Hom C Q) (jD : Hom D Q),
-    A ~ C -> B ~ D -> coproduct C' P iA iB -> coproduct C' Q jC jD -> P ~ Q.
-Proof.
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
-  rewrite <- (dual_product_coproduct (Dual C)) in *.
-  rewrite dual_isomorphic_self in *.
-  eapply product_iso. exact H. exact H0. exact H2. exact H1.
-Defined.
-
-Theorem biproduct_iso : forall (C' : Cat) (A B C D P Q : Ob C')
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
-    (qC : Hom Q C) (qD : Hom Q D) (jC : Hom C Q) (jD : Hom D Q),
-    A ~ C -> B ~ D ->
-    biproduct C' P pA pB iA iB -> biproduct C' Q qC qD jC jD -> P ~ Q.
-Proof.
-  unfold biproduct. cat.
-  apply (product_iso C' A B C D P Q pA pB qC qD H H0 H1 H2).
-Qed.
-
-Theorem iso_to_prod_is_prod : forall (C : Cat) (A B P P' : Ob C)
-    (p1 : Hom P A) (p2 : Hom P B) (p1' : Hom P' A) (p2' : Hom P' B),
-        product C P p1 p2 -> P ~ P' -> product C P' p1' p2'.
-Proof.
-  intros. destruct H0 as [f [g [eq1 eq2]]].
-  unfold product in *. intros.
-  destruct (H X f0 g0) as [xp [[xp_eq1 xp_eq2] xp_uniq]].
-  exists (xp .> f). repeat split.
-Abort.
-
-(* TODO : dual for coproducts (and one for biproducts too) *)
-Theorem iso_to_prod_is_prod : forall (C : Cat) (A B P P' : Ob C)
-  (p1 : Hom P A) (p2 : Hom P B), product C P p1 p2 ->
-    forall f : Hom P' P, Iso f -> product C P' (f .> p1) (f .> p2).
-Proof.
-  intros. destruct H0 as [g [eq1 eq2]].
-  unfold product in *. intros.
-  destruct (H X f0 g0) as [xp [[xp_eq1 xp_eq2] xp_unique]].
-  exists (xp .> g). repeat split.
-    rewrite comp_assoc. rewrite <- (comp_assoc g f).
-      rewrite eq2. rewrite id_left. assumption.
-    rewrite comp_assoc. rewrite <- (comp_assoc g f).
-      rewrite eq2. rewrite id_left. assumption.
-    intros. do 2 rewrite <- comp_assoc in H0.
-      specialize (xp_unique (y .> f) H0). rewrite xp_unique.
-      rewrite comp_assoc. rewrite eq1. rewrite id_right. reflexivity.
-Qed.
-
-Theorem product_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (pA : Hom P A)
-    (pB : Hom P B), product C P pA pB -> product C P pB pA.
-Proof.
-  unfold product in *; intros.
-  destruct (H X g f) as (u, [[eq1 eq2] uniq]); clear H.
-  exists u. split.
-    (* Universal property *) split; assumption.
-    (* Uniquenes *) intros. apply uniq. destruct H; split; assumption.
-Restart.
-  unfold product in *; intros. destruct (H X g f); eexists; cat.
-Qed.
 
 Theorem product_skolem_comm :
   forall (C : Cat) (X Y P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -297,23 +196,6 @@ Proof.
       rewrite fpair_proj2. reflexivity.
       rewrite fpair_proj1. reflexivity.
 Qed.
-
-Theorem coproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C) (iA : Hom A P)
-    (iB : Hom B P), coproduct C P iA iB -> coproduct C P iB iA.
-Proof.
-  unfold coproduct; intros. destruct (H X g f). eexists; cat.
-Restart. (* Duality! *)
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
-  rewrite <- (dual_product_coproduct (Dual C)) in *.
-  apply product_comm. assumption.
-Qed.
-
-Hint Resolve product_comm coproduct_comm.
-
-Theorem biproduct_comm : forall (C : Cat) (A B : Ob C) (P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P),
-    biproduct C P pA pB iA iB -> biproduct C P pB pA iB iA.
-Proof. unfold biproduct. cat. Qed.
 
 Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
@@ -356,6 +238,17 @@ Proof.
   destruct (is_coproduct0 X Y (coprodOb0 X Y) (coproj3 X Y) (coproj4 X Y))
     as [_ H3].
   apply H3. cat.
+Qed.
+
+Theorem copair_comp : 
+  forall (C : Cat) (hp : has_coproducts C) (X Y X' Y' A : Ob C)
+    (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
+      copair (h1 .> f) (h2 .> g) ==
+      copair (h1 .> coproj1) (h2 .> coproj2) .> copair f g.
+Proof.
+  intros. rewrite copair_post. apply copair_Proper.
+    rewrite comp_assoc. rewrite copair_coproj1. reflexivity.
+    rewrite comp_assoc. rewrite copair_coproj2. reflexivity.
 Qed.
 
 Theorem coproduct_skolem_comm :
@@ -550,33 +443,3 @@ Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     coproducts := Dual_has_coproducts C hp;
 }.
 Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.
-
-Require Import InitTerm.
-Definition distr
-  {C : Cat} {hi : has_init C} {ht : has_term C}
-  {hp : has_products C} {hc : has_coproducts C} (X Y Z : Ob C)
-  : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
-  := copair
-    (fpair proj1 (proj2 .> coproj1))
-    (fpair proj1 (proj2 .> coproj2)).
-
-Class distributive (C : Cat) : Type :=
-{
-    distr_has_init :> has_init C;
-    distr_has_term :> has_term C;
-    distr_has_products :> has_products C;
-    distr_has_coproducts :> has_coproducts C;
-    distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
-}.
-
-Theorem distr_prodOb_init :
-  forall (C : Cat) (hi : has_init C) (d : distributive C) (X : Ob C),
-    prodOb (init C) X ~ init C.
-Proof.
-  intros.
-  red. exists proj1.
-  red. exists (fpair (id _) (create _)).
-  split.
-    rewrite fpair_pre, <- fpair_id. apply fpair_Proper.
-      cat.
-      destruct hi, d; simpl. Abort.
