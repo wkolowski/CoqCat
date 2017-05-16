@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import NPeano.
 Require Import Omega.
@@ -231,7 +231,7 @@ Proof. red. exists fst. destruct 1. auto. Defined.
 Definition Pros_proj2 (X Y : Pros) : ProsHom (Pros_prod X Y) Y.
 Proof. red. exists snd. destruct 1. auto. Defined.
 
-Definition Pros_diag {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B)
+Definition Pros_fpair {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B)
     : ProsHom X (Pros_prod A B).
 Proof.
   red. exists (fun x : X => (f x, g x)). pros.
@@ -242,7 +242,7 @@ Instance Pros_has_products : has_products ProsCat :=
     prodOb := Pros_prod;
     proj1 := Pros_proj1;
     proj2 := Pros_proj2;
-    diag := @Pros_diag
+    fpair := @Pros_fpair
 }.
 Proof.
   all: pros'; try rewrite H, H0; try destruct (y x); auto.

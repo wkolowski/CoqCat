@@ -1,11 +1,11 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 
-Require Export Instances.Setoid.Setoids.
+Require Export Instances.Setoids.
 
 Definition SetoidRel (X Y : Setoid') : Type :=
     {R : X -> Y -> Prop | Proper (equiv ==> equiv ==> iff) R}.
@@ -142,7 +142,7 @@ Proof.
     rewrite H0, H. auto.
 Defined.
 
-Definition SetoidRel_diag (A B X : Setoid')
+Definition SetoidRel_fpair (A B X : Setoid')
     (R : SetoidRel X A) (S : SetoidRel X B)
     : SetoidRel X (SetoidRel_prodOb A B).
 Proof.
@@ -161,7 +161,7 @@ Instance SetoidRel_has_products : has_products SetoidRelCat :=
     prodOb := SetoidRel_prodOb;
     proj1 := SetoidRel_proj1;
     proj2 := SetoidRel_proj2;
-    diag := SetoidRel_diag
+    fpair := SetoidRel_fpair
 }.
 Proof.
   (* Proper *) repeat red; destruct y1; setoidrelhoms; simpl in *;
@@ -219,7 +219,7 @@ Proof.
     rewrite H, H0, H1. reflexivity.
 Defined.
 
-Definition SetoidRel_codiag (A B X : Setoid')
+Definition SetoidRel_copair (A B X : Setoid')
     (R : SetoidRel A X) (S : SetoidRel B X)
     : SetoidRel (SetoidRel_coprodOb A B) X.
 Proof.
@@ -239,10 +239,10 @@ Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
     coprodOb := SetoidRel_coprodOb;
     coproj1 := SetoidRel_coproj1;
     coproj2 := SetoidRel_coproj2;
-    codiag := SetoidRel_codiag;
+    copair := SetoidRel_copair;
 }.
 Proof.
-  (* codiag is proper *) proper. destruct x1; eauto.
+  (* copair is proper *) proper. destruct x1; eauto.
   (* Coproduct law *) red; setoidrel'; repeat
   match goal with
     | p : _ + _ |- _ => destruct p
@@ -261,4 +261,3 @@ Proof.
     destruct (H a y0). apply H3. exists (inl a); eauto.
     destruct (H0 b y0). apply H3. exists (inr b); eauto.
 Defined.
-

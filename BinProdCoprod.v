@@ -141,6 +141,19 @@ Proof.
     rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
 Qed.
 
+Ltac fpair_simpl :=
+    repeat rewrite <- fpair_id;
+    repeat rewrite fpair_pre;
+    repeat rewrite <- comp_assoc;
+    repeat (try rewrite fpair_proj1; try rewrite fpair_proj2).
+
+Ltac fpair := let P := fresh "P" in pose (P := fpair_Proper); cat;
+repeat match goal with
+    | |- ?x == ?x => reflexivity
+    | |- fpair _ _ == fpair _ _ => f_equiv
+    | _ => fpair_simpl
+end.
+
 Theorem product_skolem_iso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -195,7 +208,31 @@ Proof.
     rewrite <- fpair_id. rewrite fpair_pre. apply fpair_Proper.
       rewrite fpair_proj2. reflexivity.
       rewrite fpair_proj1. reflexivity.
+Restart.
+  intros.
+  red. exists (fpair proj2 proj1).
+  red. exists (fpair proj2 proj1).
+  fpair.
 Qed.
+
+(* TODO : dual *)
+Theorem prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
+    prodOb X (prodOb Y Z) ~ prodOb (prodOb X Y) Z.
+Proof.
+  intros.
+  red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
+  red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
+  pose (P := fpair_Proper). split.
+    fpair_simpl. f_equiv.
+      destruct hp; simpl in *. edestruct is_product0; apply H0; cat.
+    fpair_simpl. f_equiv.
+      destruct hp; simpl in *. edestruct is_product0; apply H0; cat.
+Restart.
+  intros.
+  red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
+  red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
+  fpair; destruct hp; simpl in *; edestruct is_product0; apply H0; cat.
+Defined.
 
 Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
@@ -251,6 +288,19 @@ Proof.
     rewrite comp_assoc. rewrite copair_coproj2. reflexivity.
 Qed.
 
+Ltac copair_simpl :=
+    repeat rewrite <- copair_id;
+    repeat rewrite copair_post;
+    repeat rewrite <- comp_assoc;
+    repeat (try rewrite copair_coproj1; try rewrite copair_coproj2).
+
+Ltac copair := let P := fresh "P" in pose (P := copair_Proper); cat;
+repeat match goal with
+    | |- ?x == ?x => reflexivity
+    | |- copair _ _ == copair _ _ => f_equiv
+    | _ => copair_simpl
+end.
+
 Theorem coproduct_skolem_comm :
   forall (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
@@ -274,7 +324,21 @@ Proof.
     rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
       apply copair_coproj2.
       apply copair_coproj1.
+Restart.
+  intros.
+  red. exists (copair coproj2 coproj1).
+  red. exists (copair coproj2 coproj1).
+  copair.
 Qed.
+
+(* TODO *) Theorem coprodOb_assoc :
+  forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
+    coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
+Proof.
+  intros.
+  red. pose (wut := @copair C hp X (coprodOb Y Z)
+    (coprodOb (coprodOb X Y) Z) (coproj1 .> coproj1)).
+Abort.
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).

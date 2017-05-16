@@ -2,7 +2,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Base.
 
-Require Export Cat.Cat.
+Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
@@ -10,10 +10,10 @@ Require Import Equalizer.
 Require Import Exponential.
 Require Import CartesianClosed.
 
+Require Import Functor.
+
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
-
-Require Import Functor.
 
 Instance CoqSet : Cat :=
 {|
@@ -39,7 +39,7 @@ Proof.
     apply H. apply H0.
 Defined.
 
-(*Theorem CoqSet_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
+(* TODO : Theorem CoqSet_sec_inj : forall (A B : Set) (nonempty : A) (f : Hom A B),
     Sec f <-> injective f.
 Proof.
   split; intros.
@@ -86,7 +86,7 @@ Restart.
       rewrite CoqSet_ret_sur. assumption.
 Defined.
 
-(*Theorem CoqSet_ret_invertible : forall (A B : Set)
+(* TODO : remove Theorem CoqSet_ret_invertible : forall (A B : Set)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     invertible {| equiv := eq |} f.
 Proof.
@@ -134,7 +134,7 @@ Restart.
   destruct H as [a [_ H]]. exists (fun _ : X => a). cat.
 Qed.
 
-Theorem CoqSet_prod : forall (A B : Set),
+(* TODO : remove Theorem CoqSet_prod : forall (A B : Set),
     product CoqSet (prod A B) (@fst A B) (@snd A B).
 Proof.
   unfold product; intros.
@@ -145,24 +145,25 @@ Restart.
   unfold product; intros.
   exists (fun x : X => (f x, g x)). cat.
   rewrite H, H0, surjective_pairing. auto.
-Qed.
+Qed. *)
 
-Definition CoqSet_diag (X : Set) (x : X) : X * X := (x, x).
+Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)
+    : Hom A (prod X Y) := fun x : A => (f x, g x).
 
 Instance CoqSet_has_products : has_products CoqSet :=
 {
     prodOb := prod;
     proj1 := @fst;
     proj2 := @snd;
-    diag := fun (A B X : Ob CoqSet) (f : Hom X A) (g : Hom X B) =>
-      fun x : X => (f x, g x)
+    fpair := CoqSet_fpair
 }.
 Proof.
+  all: unfold CoqSet_fpair.
   (* Proper *) proper. rewrite H, H0. auto.
   (* Product law *) red; cat. rewrite H, H0. destruct (y x). auto.
 Defined.
 
-Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
+(* TODO : remove Instance CoqSet_prod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
 refine
 {|
   fob := fun A : Ob (CAT_prod CoqSet CoqSet) => prod (fst A) (snd A);
@@ -173,7 +174,7 @@ Proof.
   repeat red. intros. simpl in *. destruct H. rewrite H, H0. auto.
   functor.
   functor. destruct x. auto.
-Defined.
+Defined. *)
 
 (* Beware! Requires functional extensionality. *)
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
@@ -190,9 +191,7 @@ Proof.
   (* Universal property *) red; cat. extensionality a. auto.
 Defined.
 
-(*Eval simpl in bigDiag nat (fun _ => nat) nat (fun n m => n + m) 6 5.*)
-
-Theorem CoqSet_coprod : forall (A B : Set),
+(* TODO : remove Theorem CoqSet_coprod : forall (A B : Set),
     coproduct CoqSet (sum A B) (@inl A B) (@inr A B).
 Proof.
   unfold coproduct; intros.
@@ -211,9 +210,9 @@ Restart.
           | inr b => g b
       end).
   cat. destruct x; auto.
-Qed.
+Qed. *)
 
-Instance CoqSet_coprod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
+(* TODO : remove Instance CoqSet_coprod_functor : Functor (CAT_prod CoqSet CoqSet) CoqSet.
 refine
 {|
     fob := fun X : Ob (CAT_prod CoqSet CoqSet) => sum (fst X) (snd X);
@@ -226,18 +225,25 @@ refine
 Proof.
   repeat red; simpl. destruct 1. destruct x0; [rewrite H| rewrite H0]; auto.
   all: simpl; destruct x; cat.
-Defined.
+Defined. *)
+
+Definition CoqSet_coprodOb := sum.
+Definition CoqSet_coproj1 := @inl.
+Definition CoqSet_coproj2 := @inr.
+
+Definition CoqSet_copair (X Y A : Set) (f : X -> A) (g : Y -> A)
+    : sum X Y -> A := fun p : X + Y =>
+match p with
+    | inl x => f x
+    | inr y => g y
+end.
 
 Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
 {
     coprodOb := sum;
     coproj1 := @inl;
     coproj2 := @inr;
-    codiag := fun (A B X : Ob CoqSet) (f : Hom A X) (g : Hom B X) =>
-      fun p : A + B => match p with
-        | inl a => f a
-        | inr b => g b
-      end
+    copair := CoqSet_copair
 }.
 Proof.
   all: repeat red; cat;
@@ -313,6 +319,7 @@ Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
       fun x : X => f (z, x)
 }.
 Proof.
+  proper. extensionality a. rewrite H. reflexivity.
   do 2 red; simpl; split; intros.
     destruct x; simpl. reflexivity.
     extensionality x'. rewrite <- H. simpl. reflexivity.

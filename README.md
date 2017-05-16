@@ -12,7 +12,7 @@ Accomplished:
  * Universal constructions: initial, terminal and zero objects, products, coproducts, biproducts (both binary and general), equalizers and coequalizers together with more or less of their properties.
  * Functors: defined different kinds of functors, proved their properties, defined the category of categories.
  * Natural transformations: defined functor categories, characterized natural isomorphisms.
- * Defind and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
+ * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
  * Automation: got some quite useful genral tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) - they can, for example, elegantly destruct objects of these categories.
 
 Fix:
@@ -44,5 +44,8 @@ Further ideas:
  * Implement limits and colimits.
  * Implement monoidal categories.
  * Implement enriched categories.
+
+Tips for future me:
+ * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper).
 
 Stuff from Awodey's book: 7-8 page 10 (functors between deloopings of Pros are Pros homomorphisms), page 14 (Cayley's Theorem), 3 page 17 onwards.

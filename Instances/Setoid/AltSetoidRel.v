@@ -1,11 +1,11 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 
-Require Export Instances.Setoid.Setoids.
+Require Export Instances.Setoids.
 
 Definition SetoidRel (X Y : Setoid') : Type :=
     {R : X -> Y -> Prop |
@@ -144,7 +144,7 @@ Proof.
   try rewrite H; intuition eauto.
 Defined.
 
-Definition SetoidRel_diag (A B X : Setoid')
+Definition SetoidRel_fpair (A B X : Setoid')
     (R : SetoidRel X A) (S : SetoidRel X B)
     : SetoidRel X (SetoidRel_prodOb A B).
 Proof.
@@ -162,7 +162,7 @@ Instance SetoidRel_has_products : has_products SetoidRelCat :=
     prodOb := SetoidRel_prodOb;
     proj1 := SetoidRel_proj1;
     proj2 := SetoidRel_proj2;
-    diag := SetoidRel_diag
+    fpair := SetoidRel_fpair
 }.
 Proof.
   (* Proper *) repeat (red || split); simpl in *; intros; destruct y1.
@@ -189,7 +189,7 @@ Proof.
     destruct (H0 x b). apply H3. exists (inr b). eauto.
 Defined.
 
-Definition SetoidRel_codiag (A B X : Setoid')
+Definition SetoidRel_copair (A B X : Setoid')
     (R : SetoidRel A X) (S : SetoidRel B X)
     : SetoidRel (SetoidRel_prodOb A B) X.
 Proof.
@@ -198,8 +198,13 @@ Proof.
       | inl a => R a x
       | inr b => S b x
     end).
-  repeat red; destruct x, y, R as [R R_proper], S as [S S_proper];
-  simpl; intuition eauto;
-  try rewrite <- H0, <- H; auto;
-  try rewrite H, H0; auto.
+  repeat split; intros; destruct A, B, X, R, S; simpl in *; repeat
+  match goal with
+      | x : _ + _ |- _ => destruct x
+      | H : _ /\ _ |- _ => destruct H
+      | H : False |- _ => inversion H
+      | H : forall _ _ _, _ -> _ <-> _ |- _ =>
+        try (rewrite H; eauto; fail);
+        try (rewrite <- H; eauto; fail); clear H
+  end.
 Defined.

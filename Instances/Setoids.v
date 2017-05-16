@@ -199,7 +199,7 @@ Proof.
   red. exists snd. setoid'.
 Defined.
 
-Definition CoqSetoid_diag (A B X : Setoid')
+Definition CoqSetoid_fpair (A B X : Setoid')
     (f : SetoidHom X A) (g : SetoidHom X B)
     : SetoidHom X (CoqSetoid_prodOb A B).
 Proof.
@@ -211,7 +211,7 @@ Instance CoqSetoid_has_products : has_products CoqSetoid :=
     prodOb := CoqSetoid_prodOb;
     proj1 := CoqSetoid_proj1;
     proj2 := CoqSetoid_proj2;
-    diag := CoqSetoid_diag
+    fpair := CoqSetoid_fpair
 }.
 Proof. all: setoid'. Defined.
 
@@ -241,7 +241,7 @@ Proof.
   red. exists inr. proper.
 Defined.
 
-Definition CoqSetoid_codiag (A B X : Setoid')
+Definition CoqSetoid_copair (A B X : Setoid')
     (f : SetoidHom A X) (g : SetoidHom B X)
     : SetoidHom (CoqSetoid_coprodOb A B) X.
 Proof.
@@ -258,7 +258,7 @@ Instance CoqSetoid_has_coproducts : has_coproducts CoqSetoid :=
     coprodOb := CoqSetoid_coprodOb;
     coproj1 := CoqSetoid_coproj1;
     coproj2 := CoqSetoid_coproj2;
-    codiag := CoqSetoid_codiag;
+    copair := CoqSetoid_copair
 }.
 Proof.
   all: repeat match goal with
@@ -486,7 +486,7 @@ Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
     curry := CoqSetoid_curry
 }.
 Proof.
-  red; intros; setoid.
+  all: red; intros; setoid.
 Defined.
 
 Instance CoqSetoid_cartesian_closed : cartesian_closed CoqSetoid :=

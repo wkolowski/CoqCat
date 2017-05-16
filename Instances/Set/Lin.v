@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Instances.Set.Pos.
 
@@ -74,7 +74,7 @@ Instance Lin_has_term : has_term LinCat :=
 }.
 Proof. lin. Defined.
 
-Instance Lin_prod (X Y : Lin) : Pros :=
+Instance Lin_prod_Pros (X Y : Lin) : Pros :=
 {
     carrier := X * Y;
     leq := fun p1 p2 : X * Y =>
@@ -91,30 +91,49 @@ Proof.
     right. split; try rewrite H, H0; eauto.
 Defined.
 
-Definition Lin_proj1 (X Y : Lin) : ProsHom (Lin_prod X Y) X.
+Instance Lin_prod_Pos (X Y : Lin) : Pos :=
+{
+    pros := Lin_prod_Pros X Y
+}.
+Proof.
+  intros. destruct x, y. simpl in *. repeat
+  match goal with
+      | H : _ /\ _ |- _ => destruct H
+      | H : _ \/ _ |- _ => destruct H
+  end.
+    cut False. inversion 1. apply H2. apply leq_antisym. auto.
+    contradiction H1. rewrite H. reflexivity.
+    subst. contradiction H2. reflexivity.
+    rewrite H. f_equal. apply leq_antisym. auto.
+Defined.
+
+Instance Lin_prod (X Y : Lin) : Lin :=
+{
+    pos := Lin_prod_Pos X Y
+}.
+Proof.
+  destruct x, y; simpl.
+  destruct (leq_total c c1), (leq_total c0 c2).
+Abort.
+
+(* TODO : products of linear orders suck because of constructivity *)
+
+(*Definition Lin_proj1 (X Y : Lin) : ProsHom (Lin_prod X Y) X.
 Proof.
   red. exists fst. destruct 1, H; try rewrite H; lin.
 Defined.
 
-(* TODO: do linear orders even have a product? *)
 Definition Lin_proj2 (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
 Proof.
   red. exists snd. lin'. destruct a, a', H, H; simpl in *.
-Abort.
+Abort. *)
 
-(*
-Definition Lin_proj2 (X Y : Lin) : Lin_prod X Y -> Y.
-Proof.
-  simpl. lin'. destruct X0 as [x y].
-  destruct (X_leq_total 
-Defined.
-*)
-(*Instance Lin_has_products : has_products LinCat :=
+(* TODO Instance Lin_has_products : has_products LinCat :=
 {
     prodOb := Lin_prod;
     proj1 := Pros_proj1;
     proj2 := Pros_proj2;
-    diag := @Pros_diag
+    fpair := @Pros_fpair
 }.
 Proof.
   all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.
@@ -170,7 +189,7 @@ Proof.
   red. exists inr. lin.
 Defined.
 
-Definition Lin_codiag (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X)
+Definition Lin_copair (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X)
     : ProsHom (Lin_coprodOb A B) X.
 Proof.
   red; simpl. exists (fun p : A + B =>
@@ -178,5 +197,6 @@ Proof.
       | inl a => f a
       | inr b => g b
     end).
-  intros. destruct a.
+  intros.
   destruct a, a'; intros; lin. simpl. red.
+Abort.

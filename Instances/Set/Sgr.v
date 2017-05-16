@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -152,7 +152,7 @@ Proof.
   sgr_simpl. exists snd. destruct x, y. sgr.
 Defined.
 
-Definition Sgr_diag (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
+Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_prod A B).
 Proof.
   sgr_simpl. exists (fun x : X => (f x, g x)). sgr.
@@ -163,7 +163,7 @@ Instance Sgr_has_products : has_products SgrCat :=
     prodOb := Sgr_prod;
     proj1 := Sgr_proj1;
     proj2 := Sgr_proj2;
-    diag := Sgr_diag
+    fpair := Sgr_fpair
 }.
 Proof.
   sgr_simpl. rewrite H, H0. auto.
@@ -192,7 +192,7 @@ Proof. sgr_simpl. exists inr. sgr. Defined.
 (* Neither sum nor sumprod is a coproduct in Sgr. Rather it's
    the free product (whatever that means). *)
 
-(*Definition Sgr_codiag (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
+(*Definition Sgr_copair (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
     : SgrHom (Sgr_sum A B) X.
 Proof.
   red. exists (fun p : A + B =>
@@ -227,7 +227,7 @@ Proof. sgr_simpl. exists (@inl' X Y). sgr. Defined.
 Definition Sgr_inr' (X Y : Sgr) : SgrHom Y (Sgr_sumprod X Y).
 Proof. sgr_simpl. exists (@inr' X Y). sgr. Defined.
 
-(*Definition Sgr_codiag' (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
+(*Definition Sgr_copair' (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
     : SgrHom (Sgr_sumprod A B) X.
 Proof.
   red. exists (fun p : sumprod A B =>
@@ -243,7 +243,7 @@ Proof.
     coprodOb := Sgr_sum;
     coproj1 := Sgr_inl;
     coproj2 := Sgr_inr;
-    codiag := Sgr_codiag;
+    copair := Sgr_copair;
 }.*)
 
 Inductive nel (A : Type) : Type :=

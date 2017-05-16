@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Export InitTerm.
@@ -56,7 +56,7 @@ Instance DepExtSet_has_products : has_products DepExtSet :=
     prodOb := prod;
     proj1 := @fst;
     proj2 := @snd;
-    diag := fun (A B X : Ob DepExtSet) (f : Hom X A) (g : Hom X B) =>
+    fpair := fun (A B X : Ob DepExtSet) (f : Hom X A) (g : Hom X B) =>
       fun x : X => (f x, g x)
 }.
 Proof.
@@ -78,8 +78,7 @@ Proof.
         apply (depExtEq_unext pair pair). auto. auto. auto.
 Defined.
 
-(* TODO: this is fake *)
-Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
+(* TODO *) Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
         forall j : J, A j;
@@ -107,13 +106,13 @@ Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
     coprodOb := sum;
     coproj1 := @inl;
     coproj2 := @inr;
-    codiag := fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
+    copair := fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
       fun p : A + B => match p with
         | inl a => f a
         | inr b => g b
       end
 }.
-Proof. (* TODO: fix this for real *)
+Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
     destruct H. apply depExtEq_ext. destruct x.
@@ -140,7 +139,7 @@ Proof.
     apply (depExtEq_unext _ _ (H x)). auto.
 Defined.
 
-Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
+(* TODO *) Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
         {x : X | depExtEq (f x) (g x)};
@@ -159,9 +158,7 @@ Proof.
     exists (trick _ _ _ f g e' H). repeat (red || split); intros.
       simpl. apply depExtEq_ext. auto.
       apply depExtEq_ext. intro. destruct (y x).
-      unfold trick. apply (depExtEq_unext _ _).
-
-
-
+      unfold trick.
+Abort.
 
 (* TODO: looks like DepExtSet won't have coequalizers. *)

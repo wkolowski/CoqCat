@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import NPeano.
 
@@ -97,7 +97,7 @@ Instance Pos_has_products : has_products PosCat :=
     prodOb := Pos_prod;
     proj1 := Pros_proj1;
     proj2 := Pros_proj2;
-    diag := @Pros_diag
+    fpair := @Pros_fpair
 }.
 Proof.
   all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.

@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -21,6 +21,14 @@ Arguments hneq [HApartoid] [A] [B] _ _.
 
 Coercion carrier : HApartoid >-> Sortclass.
 
+(*Theorem hneq_arg : forall (X Y : HApartoid) (A : Type) (x y : A),
+    @hneq X A A x y <-> @hneq Y A A x y.
+Proof.
+  split; intros.
+    eapply hneq_cotrans in H. destruct H.
+      apply hneq_sym in H.*)
+    
+
 Definition HApartoidHom (X Y : HApartoid) : Type :=
     {f : X -> Y | forall x x' : carrier, ~ hneq x x' -> ~ hneq (f x) (f x')}.
 
@@ -34,4 +42,5 @@ Definition HApartoidComp (X Y Z : HApartoid)
 Proof.
   red. exists (fun x : X => g (f x)). intros. intro.
   destruct f, g; simpl in *. apply (n0 (x0 x) (x0 x')).
-   
+    intro. apply (n x x').
+Abort.

@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Logic.FunctionalExtensionality.
 
@@ -226,10 +226,10 @@ Proof.
   grp_simpl. exists (Mon_proj2 X Y). grp.
 Defined.
 
-Definition Grp_diag (A B X : Grp) (f : Hom X A) (g : Hom X B)
+Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B)
     : Hom X (Grp_prod A B).
 Proof.
-  grp_simpl. exists (Mon_diag _ _ _ f g).
+  grp_simpl. exists (Mon_fpair _ _ _ f g).
   grphoms'. grp_simpl. auto.
 Defined.
 
@@ -238,7 +238,7 @@ Instance Grp_has_products : has_products GrpCat :=
     prodOb := Grp_prod;
     proj1 := Grp_proj1;
     proj2 := Grp_proj2;
-    diag := Grp_diag
+    fpair := Grp_fpair
 }.
 Proof.
   grp_simpl. grphoms'. rewrite H, H0. auto.
@@ -246,7 +246,7 @@ Proof.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.
 
-Instance Cayley_Sgr (G : Grp) : Sgr :=
+(* TODO : finish *) Instance Cayley_Sgr (G : Grp) : Sgr :=
 {
     carrier := {f : G -> G & {g : G | f = op g}};
     (*op := fun f g => fun x : G => g (f x)*)
@@ -255,10 +255,10 @@ Proof.
   destruct 1 as [f1 [g1 H1]], 1 as [f2 [g2 H2]].
     exists (fun x => op g1 (op g2 x)). exists (op g1 g2).
     extensionality x. rewrite assoc. trivial.
-  cat. grp'. repeat rewrite assoc. (* TODO: finish *) 
-Defined.
+  cat. grp'. repeat rewrite assoc.
+Abort.
 
-Instance Cayley_Mon (G : Grp) : Mon :=
+(*Instance Cayley_Mon (G : Grp) : Mon :=
 {
     sgr := Cayley_Sgr G;
     neutr := fun x : G => x
@@ -270,5 +270,5 @@ Defined.
 Instance Cayley_Grp (G : Grp) : Grp :=
 {
     mon := Cayley_Mon G;
-    inv := fun f : G -> G => 
-}.
+    (*inv := fun f : G -> G => *)
+}.*)

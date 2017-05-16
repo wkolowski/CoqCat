@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -202,10 +202,10 @@ Proof.
   mon_simpl. exists (Sgr_proj2 X Y). mon.
 Defined.
 
-Definition Mon_diag (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
+Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
     : MonHom X (Mon_prod A B).
 Proof.
-  mon_simpl. exists (Sgr_diag _ _ _ f g). mon.
+  mon_simpl. exists (Sgr_fpair _ _ _ f g). mon.
 Defined.
 
 Instance Mon_has_products : has_products MonCat :=
@@ -213,7 +213,7 @@ Instance Mon_has_products : has_products MonCat :=
     prodOb := Mon_prod;
     proj1 := Mon_proj1;
     proj2 := Mon_proj2;
-    diag := Mon_diag
+    fpair := Mon_fpair
 }.
 Proof.
   mon.

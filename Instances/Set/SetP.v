@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import InitTerm.
@@ -54,7 +54,7 @@ match p with
     | _ => None
 end.
 
-Definition SetP_diag (A B X : Set) (f : Hom X A) (g : Hom X B)
+Definition SetP_fpair (A B X : Set) (f : Hom X A) (g : Hom X B)
     : Hom X (sumprod A B) := fun x : X =>
 match f x, g x with
     | None, None => None
@@ -68,17 +68,17 @@ Instance SetP_has_products : has_products SetP :=
     prodOb := sumprod;
     proj1 := SetP_proj1;
     proj2 := SetP_proj2;
-    diag := SetP_diag
+    fpair := SetP_fpair
 }.
 Proof.
-  all: unfold SetP_diag; repeat (red || split); simpl; intros; cat.
+  all: unfold SetP_fpair; repeat (red || split); simpl; intros; cat.
     rewrite H, H0. auto.
     destruct (f x), (g x); auto.
     destruct (f x), (g x); auto.
     rewrite H, H0; destruct (y x); try destruct s; auto.
 Defined.
 
-Definition SetP_codiag (A B X : Ob SetP) (f : Hom A X) (g : Hom B X)
+Definition SetP_copair (A B X : Ob SetP) (f : Hom A X) (g : Hom B X)
     : Hom (sum A B) X := fun p : A + B =>
 match p with
     | inl a => f a
@@ -90,10 +90,10 @@ Instance SetP_has_coproducts : has_coproducts SetP :=
     coprodOb := sum;
     coproj1 := fun (A B : Set) (a : A) => Some (inl a);
     coproj2 := fun (A B : Set) (b : B) => Some (inr b);
-    codiag := SetP_codiag
+    copair := SetP_copair
 }.
 Proof.
-  (* codiag is proper *) proper. unfold SetP_codiag.
+  (* codiag is proper *) proper. unfold SetP_copair.
     destruct x1; try rewrite H; try rewrite H0; auto.
   (* Coproduct laws *) red; cat; destruct x; cat.
 Defined.

@@ -1,6 +1,6 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
+Require Import Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
@@ -30,16 +30,6 @@ match type of A with
     let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
   | Ob _ => progress simpl in A; apartoidob A
 end.
-
-(* This won't probably work.
-Ltac genericob A lst := try intros until A;
-match type of A with
-  | Ob _ => progress simpl in A; genericob A
-  | _ => match lst with
-    | nil => idtac
-    | x :: xs
-  end
-end.*)
 
 Ltac apartoidobs := intros; repeat
 match goal with
@@ -147,14 +137,6 @@ Proof.
   (* Category laws *) all: apartoid.
 Defined.
 
-(*Instance Apartoid_not_eq (A : Type) : Apartoid :=
-{
-    carrier := A;
-    neq := fun x y : A => x <> y
-}.
-Proof.
-  all: intros; eauto. left. intro. apply H.*)
-
 Instance Apartoid_init : Apartoid :=
 {
     carrier := Empty_set;
@@ -232,7 +214,7 @@ Proof.
   red. exists snd. apartoid.
 Defined.
 
-Definition Apartoid_diag (A B X : Apartoid)
+Definition Apartoid_fpair (A B X : Apartoid)
     (f : ApartoidHom X A) (g : ApartoidHom X B)
     : ApartoidHom X (Apartoid_prodOb A B).
 Proof.
@@ -244,7 +226,7 @@ Instance Apartoid_has_products : has_products ApartoidCat :=
     prodOb := Apartoid_prodOb;
     proj1 := Apartoid_proj1;
     proj2 := Apartoid_proj2;
-    diag := Apartoid_diag
+    fpair := Apartoid_fpair
 }.
 Proof.
   (* Proper *) apartoid.
@@ -281,7 +263,7 @@ Proof.
   red. exists inr. apartoid.
 Defined.
 
-Definition Apartoid_codiag (A B X : Apartoid)
+Definition Apartoid_copair (A B X : Apartoid)
     (f : ApartoidHom A X) (g : ApartoidHom B X)
     : ApartoidHom (Apartoid_coprodOb A B) X.
 Proof.
@@ -298,7 +280,7 @@ Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
     coprodOb := Apartoid_coprodOb;
     coproj1 := Apartoid_coproj1;
     coproj2 := Apartoid_coproj2;
-    codiag := Apartoid_codiag
+    copair := Apartoid_copair
 }.
 Proof.
   (* Proper *) proper. destruct x1; apartoid.
@@ -325,8 +307,6 @@ Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
   intro. apply H. simpl. exists j. assumption.
 Defined.
-
-Print has_all_products.
 
 Definition Apartoid_bigDiag {J : Set} {A : J -> Apartoid} {X : Apartoid}
     (f : forall j : J, ApartoidHom X (A j))
@@ -394,8 +374,6 @@ Proof.
       apply (H0 x). apply X_neq_sym. assumption.
 Time Defined. (* TODO: make faster *)
 
-Print has_coequalizers.
-
 (* TODO: likely this can't be done at all.
 Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Y -> Y -> Prop :=
@@ -440,7 +418,7 @@ Proof.
     apply coeq_sym. assumption.
   intros.
   intros. 
-    left. intro. apply H. apply (neq_cotrans x y z) in H. with z in H0.
+    left. intro. apply H.
 Abort.
 
 (* TODO: make this more dependent *)
@@ -460,8 +438,6 @@ Proof.
   red; simpl in *. exists (fun a : A j => existT _ j a); simpl.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
-
-Print has_all_coproducts.
 
 Definition Apartoid_bigCodiag {J : Apartoid} {A : J -> Apartoid}
     {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)

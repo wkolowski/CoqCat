@@ -53,4 +53,18 @@ Proof.
     destruct (Hpull' Q q1 q2). specialize (H0 (e Q q1 q2 .> e' P p1 p2) H).
       rewrite <- H0. destruct (Hpull' Q q1 q2). apply H2. assumption.
 Qed.
-    
+
+Class has_pullbacks (C : Cat) : Type :=
+{
+    pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
+    pullbackOb_Proper : forall X Y A : Ob C,
+      Proper (equiv ==> equiv ==> eq) (@pullbackOb X Y A);
+    pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
+      Hom (pullbackOb f g) X;
+    pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
+      Hom (pullbackOb f g) Y;
+    (*pull1_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
+      f == f' -> g == g' -> pull1 f g == pull1 f' g'*)
+}.
+
+(* TODO : coherence for has_pullbacks *)
