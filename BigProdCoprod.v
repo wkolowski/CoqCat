@@ -1,3 +1,5 @@
+Add Rec LoadPath "/home/zeimer/Code/Coq".
+
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
@@ -17,19 +19,19 @@ Definition big_biproduct (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (coproj : forall j : J, Hom (A j) P) : Prop :=
         big_product C P proj /\ big_coproduct C P coproj.
 
-Definition big_product_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
-    (proj : forall j : J, Hom P (A j))
-    (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
-      : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)), 
-        setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j)
-          (diag X f).
+Definition big_product_skolem (C : Cat) {J : Set} {A : J -> Ob C}
+  (P : Ob C) (proj : forall j : J, Hom P (A j))
+  (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+    : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)), 
+      setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j)
+        (diag X f).
 
-Definition big_coproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
-    (coproj : forall j : J, Hom (A j) P)
-    (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
-      : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X), 
-        setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d)
-          (codiag X f).
+Definition big_coproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C}
+  (P : Ob C) (coproj : forall j : J, Hom (A j) P)
+  (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
+    : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X), 
+      setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d)
+        (codiag X f).
 
 Definition big_biproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
@@ -174,6 +176,52 @@ Class has_all_products (C : Cat) : Type :=
         big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
 }.
 
+Arguments bigProdOb [C] [_] [J] _.
+Arguments bigProj [C] [_] [J] [A] _.
+Arguments bigDiag [C] [_] [J] [A] [X] _.
+
+Theorem bigDiag_bigProj :
+  forall (C : Cat) (hp : has_all_products C) (X : Ob C) (J : Set)
+  (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
+    bigDiag f .> bigProj j == f j.
+Proof.
+  intros. destruct hp; simpl.
+  edestruct is_big_product0.
+  rewrite <- H. reflexivity.
+Qed.
+
+Theorem bigDiag_pre : 
+  forall (C : Cat) (hp : has_all_products C) (X Y : Ob C) (J : Set)
+  (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
+    f .> bigDiag g == bigDiag (fun j : J => f .> g j).
+Proof.
+  intros. edestruct is_big_product.
+  rewrite <- H0.
+    reflexivity.
+    intros; simpl in *. cat. rewrite bigDiag_bigProj. reflexivity.
+Qed.
+
+Theorem bigDiag_id :
+  forall (C : Cat) (hp : has_all_products C) (J : Set)
+  (X : J -> Ob C),
+    bigDiag (@bigProj C hp J X) == id (bigProdOb X).
+Proof.
+  intros. edestruct is_big_product. apply H0. cat.
+Qed.
+
+Theorem bigDiag_comp :
+  forall (C : Cat) (hp : has_all_products C) (J : Set) (X : Ob C)
+  (Y Y' : J -> Ob C) (f : forall j : J, Hom X (Y j))
+  (g : forall j : J, Hom (Y j) (Y' j)),
+    bigDiag (fun j : J => f j .> g j) ==
+    bigDiag f .> bigDiag (fun j : J => bigProj j .> g j).
+Proof.
+  intros. edestruct is_big_product. apply H0. intros.
+  rewrite -> comp_assoc. rewrite bigDiag_bigProj.
+  rewrite <- comp_assoc. rewrite bigDiag_bigProj.
+  reflexivity.
+Qed.
+
 Class has_all_coproducts (C : Cat) : Type :=
 {
     bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
@@ -188,10 +236,28 @@ Class has_all_coproducts (C : Cat) : Type :=
         big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
 }.
 
+(* TODO : properties of bigCodiag *)
+
 Class has_all_biproducts (C : Cat) : Type :=
 {
     bigProduct :> has_all_products C;
     bigCoproduct :> has_all_coproducts C;
     product_is_coproduct : forall (J : Set) (A : J -> Ob C),
-        bigProdOb J A = bigCoprodOb J A
+        @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
 }.
+
+(* TODO : finish *) Theorem big_product_skolem_iso_unique :
+  forall (C : Cat) (J : Set) (A : J -> Ob C)
+  (P : Ob C) (p : forall j : J, Hom P (A j))
+  (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+  (Q : Ob C) (q : forall j : J, Hom Q (A j))
+  (diag' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
+    big_product_skolem C P p diag ->
+    big_product_skolem C Q q diag' ->
+    P ~ Q.
+Proof.
+  intros.
+  red. exists (diag' _ p).
+  red. exists (diag _ q).
+  split.
+Abort.

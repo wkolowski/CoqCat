@@ -17,7 +17,6 @@ Accomplished:
 
 Fix:
  * Write new unique isomorphicness theorems for products (the isos have to be compatible with the projections).
- * Check whether big\_product is properly defined (there was an error in big\_product\_skolem).
 
 General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.

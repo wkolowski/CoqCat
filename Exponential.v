@@ -84,6 +84,26 @@ Proof.
   rewrite id_left. reflexivity.
 Qed.
 
+Theorem curry_comp :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z A : Ob C) (f : Hom Y Z) (g : Hom Z A),
+      @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+Proof.
+  intros. destruct he; simpl in *.
+  destruct (is_exponential0 _ _ _ ((eval0 X Y .> f) .> g)).
+  destruct (is_exponential0 _ _ _ (eval0 X Y .> f)).
+  destruct (is_exponential0 _ _ _ (eval0 X Z .> g)).
+  apply H0. pose (P := ProductFunctor_fmap_Proper). rewrite <- (id_left X).
+  rewrite ProductFunctor_fmap_pres_comp. rewrite comp_assoc.
+  rewrite H3. rewrite <- comp_assoc. rewrite H1. reflexivity.
+Qed.
+(*Theorem curry_eval' :
+  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X Y Z : Ob C) f, curry (eval .> f) == f.*)
+
+ 
+
+
 Theorem uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
@@ -163,3 +183,18 @@ Theorem has_exponentials_unique :
 Proof.
   intros. destruct he, he'. simpl in *.
 Abort.
+
+Print Functor.
+
+Instance Functor (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (X : Ob C) : Functor C C :=
+{
+    fob := fun Y : Ob C => expOb X Y;
+    fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
+}.
+Proof.
+  unfold Proper, respectful; intros. apply curry_Proper.
+    rewrite H. reflexivity.
+  intros. rewrite <- curry_comp. apply curry_Proper. cat.
+  intros. rewrite <- curry_eval. apply curry_Proper. cat.
+Defined.

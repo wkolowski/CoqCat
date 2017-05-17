@@ -37,10 +37,12 @@ Definition biequalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
 
 Class has_equalizers (C : Cat) : Type :=
 {
-    eq_ob : forall (X Y : Ob C) (f g : Hom X Y), Ob C;
-    eq_mor : forall (X Y : Ob C) (f g : Hom X Y), Hom (eq_ob X Y f g) X;
+    eq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
+    eq_ob_Proper : forall X Y : Ob C,
+      Proper (equiv ==> equiv ==> eq) (@eq_ob X Y);
+    eq_mor : forall (X Y : Ob C) (f g : Hom X Y), Hom (eq_ob f g) X;
     is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
-        equalizer C f g (eq_ob X Y f g) (eq_mor X Y f g)
+        equalizer C f g (eq_ob f g) (eq_mor X Y f g)
 }.
 
 Class has_coequalizers (C : Cat) : Type :=
