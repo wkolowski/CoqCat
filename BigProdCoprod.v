@@ -21,17 +21,17 @@ Definition big_biproduct (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
 
 Definition big_product_skolem (C : Cat) {J : Set} {A : J -> Ob C}
   (P : Ob C) (proj : forall j : J, Hom P (A j))
-  (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+  (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
     : Prop := forall (X : Ob C) (f : forall j : J, Hom X (A j)), 
       setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j)
-        (diag X f).
+        (tuple X f).
 
 Definition big_coproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C}
   (P : Ob C) (coproj : forall j : J, Hom (A j) P)
-  (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
+  (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
     : Prop := forall (X : Ob C) (f : forall j : J, Hom (A j) X), 
       setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d)
-        (codiag X f).
+        (cotuple X f).
 
 Definition big_biproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
@@ -167,58 +167,58 @@ Class has_all_products (C : Cat) : Type :=
     bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
     bigProj : forall (J : Set) (A : J -> Ob C) (j : J),
         Hom (bigProdOb J A) (A j);
-    bigDiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    tuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
-    bigDiag_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    tuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
-      (forall j : J, f j == g j) -> bigDiag J A X f == bigDiag J A X g;
+      (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
     is_big_product : forall (J : Set) (A : J -> Ob C),
-        big_product_skolem C (bigProdOb J A) (bigProj J A) (bigDiag J A)
+        big_product_skolem C (bigProdOb J A) (bigProj J A) (tuple J A)
 }.
 
 Arguments bigProdOb [C] [_] [J] _.
 Arguments bigProj [C] [_] [J] [A] _.
-Arguments bigDiag [C] [_] [J] [A] [X] _.
+Arguments tuple [C] [_] [J] [A] [X] _.
 
-Theorem bigDiag_bigProj :
+Theorem tuple_bigProj :
   forall (C : Cat) (hp : has_all_products C) (X : Ob C) (J : Set)
   (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
-    bigDiag f .> bigProj j == f j.
+    tuple f .> bigProj j == f j.
 Proof.
   intros. destruct hp; simpl.
   edestruct is_big_product0.
   rewrite <- H. reflexivity.
 Qed.
 
-Theorem bigDiag_pre : 
+Theorem tuple_pre : 
   forall (C : Cat) (hp : has_all_products C) (X Y : Ob C) (J : Set)
   (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
-    f .> bigDiag g == bigDiag (fun j : J => f .> g j).
+    f .> tuple g == tuple (fun j : J => f .> g j).
 Proof.
   intros. edestruct is_big_product.
   rewrite <- H0.
     reflexivity.
-    intros; simpl in *. cat. rewrite bigDiag_bigProj. reflexivity.
+    intros; simpl in *. cat. rewrite tuple_bigProj. reflexivity.
 Qed.
 
-Theorem bigDiag_id :
+Theorem tuple_id :
   forall (C : Cat) (hp : has_all_products C) (J : Set)
   (X : J -> Ob C),
-    bigDiag (@bigProj C hp J X) == id (bigProdOb X).
+    tuple (@bigProj C hp J X) == id (bigProdOb X).
 Proof.
   intros. edestruct is_big_product. apply H0. cat.
 Qed.
 
-Theorem bigDiag_comp :
+Theorem tuple_comp :
   forall (C : Cat) (hp : has_all_products C) (J : Set) (X : Ob C)
   (Y Y' : J -> Ob C) (f : forall j : J, Hom X (Y j))
   (g : forall j : J, Hom (Y j) (Y' j)),
-    bigDiag (fun j : J => f j .> g j) ==
-    bigDiag f .> bigDiag (fun j : J => bigProj j .> g j).
+    tuple (fun j : J => f j .> g j) ==
+    tuple f .> tuple (fun j : J => bigProj j .> g j).
 Proof.
   intros. edestruct is_big_product. apply H0. intros.
-  rewrite -> comp_assoc. rewrite bigDiag_bigProj.
-  rewrite <- comp_assoc. rewrite bigDiag_bigProj.
+  rewrite -> comp_assoc. rewrite tuple_bigProj.
+  rewrite <- comp_assoc. rewrite tuple_bigProj.
   reflexivity.
 Qed.
 
@@ -227,37 +227,126 @@ Class has_all_coproducts (C : Cat) : Type :=
     bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
     bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
         Hom (A j) (bigCoprodOb J A);
-    bigCodiag : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    cotuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
-    bigCodiag_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    cotuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
-      (forall j : J, f j == g j) -> bigCodiag J A X f == bigCodiag J A X g;
+      (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
     is_big_coproduct : forall (J : Set) (A : J -> Ob C),
-        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (bigCodiag J A)
+        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (cotuple J A)
 }.
 
-(* TODO : properties of bigCodiag *)
+Arguments bigCoprodOb [C] [_] [J] _.
+Arguments bigCoproj [C] [_] [J] [A] _.
+Arguments cotuple [C] [_] [J] [A] [X] _.
+
+Theorem cotuple_bigCoproj :
+  forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
+  (X : J -> Ob C) (Y : Ob C) (f : forall j : J, Hom (X j) Y) (j : J),
+    bigCoproj j .> cotuple f == f j.
+Proof.
+  intros. edestruct is_big_coproduct.
+  rewrite <- H. reflexivity.
+Qed.
+
+Theorem cotuple_post :
+  forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
+  (X : J -> Ob C) (Y Z : Ob C) (f : forall j : J, Hom (X j) Y) (g : Hom Y Z),
+    cotuple f .> g == cotuple (fun j : J => f j .> g).
+Proof.
+  intros. edestruct is_big_coproduct.
+  rewrite <- H0.
+    reflexivity.
+    intros; simpl in *. cat. rewrite cotuple_bigCoproj. reflexivity.
+Qed.
+
+Theorem cotuple_id :
+  forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
+  (X : J -> Ob C),
+    cotuple (@bigCoproj C hp J X) == id (bigCoprodOb X).
+Proof.
+  intros. edestruct is_big_coproduct. apply H0. cat.
+Qed.
+
+Theorem cotuple_comp :
+  forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
+  (X X' : J -> Ob C) (Y : Ob C)
+  (f : forall j : J, Hom (X j) (X' j))
+  (g : forall j : J, Hom (X' j) Y),
+    cotuple (fun j : J => f j .> g j) ==
+    cotuple (fun j : J => f j .> bigCoproj j) .> cotuple g.
+Proof.
+  intros. edestruct is_big_coproduct. apply H0. intros.
+  rewrite <- comp_assoc. rewrite cotuple_bigCoproj.
+  rewrite -> comp_assoc. rewrite cotuple_bigCoproj.
+  reflexivity.
+Qed.
 
 Class has_all_biproducts (C : Cat) : Type :=
 {
     bigProduct :> has_all_products C;
     bigCoproduct :> has_all_coproducts C;
     product_is_coproduct : forall (J : Set) (A : J -> Ob C),
-        @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
+      @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
 }.
 
-(* TODO : finish *) Theorem big_product_skolem_iso_unique :
+Coercion bigProduct : has_all_biproducts >-> has_all_products.
+Coercion bigCoproduct : has_all_biproducts >-> has_all_coproducts.
+
+Theorem big_product_skolem_iso_unique :
   forall (C : Cat) (J : Set) (A : J -> Ob C)
   (P : Ob C) (p : forall j : J, Hom P (A j))
-  (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+  (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
   (Q : Ob C) (q : forall j : J, Hom Q (A j))
-  (diag' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
-    big_product_skolem C P p diag ->
-    big_product_skolem C Q q diag' ->
+  (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
+    big_product_skolem C P p tuple ->
+    big_product_skolem C Q q tuple' ->
     P ~ Q.
 Proof.
   intros.
-  red. exists (diag' _ p).
-  red. exists (diag _ q).
+  red. exists (tuple' _ p).
+  red. exists (tuple0 _ q).
+  do 2 red in H. do 2 red in H0.
+  destruct
+    (H P p) as [HP1 HP2],
+    (H Q q) as [HQ1 HQ2],
+    (H0 P p) as [HP1' HP2'],
+    (H0 Q q) as [HQ1' HQ2'].
   split.
-Abort.
+    rewrite <- (HP2 (tuple' P p .> tuple0 Q q)).
+      apply HP2. cat.
+      intros. cat. rewrite <- HQ1. rewrite <- HP1'. reflexivity.
+    rewrite <- (HQ2' (tuple0 Q q .> tuple' P p)).
+      apply HQ2'. cat.
+      intros. cat. rewrite <- HP1'. rewrite <- HQ1. reflexivity.
+Qed.
+
+Instance Dual_has_all_products (C : Cat) (hp : has_all_coproducts C)
+    : has_all_products (Dual C) :=
+{
+    bigProdOb := @bigCoprodOb C hp;
+    bigProj := @bigCoproj C hp;
+    tuple := @cotuple C hp;
+    tuple_Proper := @cotuple_Proper C hp;
+    is_big_product := @is_big_coproduct C hp
+}.
+
+Instance Dual_has_all_coproducts (C : Cat) (hp : has_all_products C)
+    : has_all_coproducts (Dual C) :=
+{
+    bigCoprodOb := @bigProdOb C hp;
+    bigCoproj := @bigProj C hp;
+    cotuple := @tuple C hp;
+    cotuple_Proper := @tuple_Proper C hp;
+    is_big_coproduct := @is_big_product C hp
+}.
+
+Instance Dual_has_all_biproducts (C : Cat) (hp : has_all_biproducts C)
+    : has_all_biproducts (Dual C) :=
+{
+    bigProduct := Dual_has_all_products C hp;
+    bigCoproduct := Dual_has_all_coproducts C hp;
+}.
+Proof.
+  intros. simpl. rewrite product_is_coproduct. trivial.
+Qed.

@@ -215,7 +215,6 @@ Restart.
   fpair.
 Qed.
 
-(* TODO : dual *)
 Theorem prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
     prodOb X (prodOb Y Z) ~ prodOb (prodOb X Y) Z.
 Proof.
@@ -291,7 +290,7 @@ Qed.
 Ltac copair_simpl :=
     repeat rewrite <- copair_id;
     repeat rewrite copair_post;
-    repeat rewrite <- comp_assoc;
+    repeat rewrite comp_assoc;
     repeat (try rewrite copair_coproj1; try rewrite copair_coproj2).
 
 Ltac copair := let P := fresh "P" in pose (P := copair_Proper); cat;
@@ -331,14 +330,17 @@ Restart.
   copair.
 Qed.
 
-(* TODO *) Theorem coprodOb_assoc :
+Theorem coprodOb_assoc :
   forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
     coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
 Proof.
-  intros.
-  red. pose (wut := @copair C hp X (coprodOb Y Z)
-    (coprodOb (coprodOb X Y) Z) (coproj1 .> coproj1)).
-Abort.
+  intros. Print has_coproducts.
+  red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
+  red. exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
+  split; copair.
+    rewrite <- copair_post. rewrite copair_id. cat.
+    rewrite <- copair_post. rewrite copair_id. cat.
+Qed.
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
@@ -480,12 +482,10 @@ Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
     coprodOb := @prodOb C hp;
     coproj1 := @proj1 C hp;
     coproj2 := @proj2 C hp;
-    copair := @fpair C hp
+    copair := @fpair C hp;
+    copair_Proper := @fpair_Proper C hp;
+    is_coproduct := @is_product C hp
 }.
-Proof.
-  (* Proper *) simpl. apply fpair_Proper.
-  (* Coproduct laws *) apply (@is_product C hp).
-Defined.
 
 Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
     : has_products (Dual C) :=
@@ -494,11 +494,9 @@ Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
     proj1 := @coproj1 C hp;
     proj2 := @coproj2 C hp;
     fpair := @copair C hp;
+    fpair_Proper := @copair_Proper C hp;
+    is_product := @is_coproduct C hp
 }.
-Proof.
-  (* Proper *) simpl. apply copair_Proper.
-  (* Products laws *) apply (@is_coproduct C hp).
-Defined.
 
 Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     : has_biproducts (Dual C) :=
@@ -506,4 +504,6 @@ Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     products := Dual_has_products C hp;
     coproducts := Dual_has_coproducts C hp;
 }.
-Proof. simpl. intros. rewrite product_is_coproduct. auto. Defined.
+Proof.
+  simpl. intros. rewrite product_is_coproduct. trivial.
+Defined.

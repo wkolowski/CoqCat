@@ -2,14 +2,18 @@
 
 Design choices:
  * Type of objects and Setoid of morphisms. Tried other configurations and this one seems best.
- * Axioms: indefinite description, duality (because couldn't prove it as a theorem), possibly proof irrelevance and or functional extensionality.
+ * Axioms:
+     - Indefinite description — very convenient, a real ass-saver.
+     - Functional extensionality — in general, working with custom extensional equalities is painful. Needed to prove that the category CoqSet has exponentials and all products.
+     - Proof irrelevance — needed for example to prove that CoqSet has equalizers.
+     - JMeq_eq — needed to prove that taking the dual category is involution with respect to equality.
  * Tried to stick to using normal equality (eq), but it's increasingly difficult. Did tests of other possible equality relations.
  * Using typeclasses and universe polymorphism where possible.
- * Got different branches for differents designs of the algebraic/order hierarchy (one based on types, setoids, apartoids etc.).
+ * Got different directories for differents designs of the algebraic/order hierarchy (one based on types, setoids, apartoids etc.).
 
 Accomplished:
  * Basics: defined categories and proved properties of different kinds of morphisms.
- * Universal constructions: initial, terminal and zero objects, products, coproducts, biproducts (both binary and general), equalizers and coequalizers together with more or less of their properties.
+ * Universal constructions: initial, terminal and zero objects, products, coproducts, biproducts (both binary and general), equalizers and coequalizers together with more or less of their properties. Not perfect yet: there are issues with coherence conditions.
  * Functors: defined different kinds of functors, proved their properties, defined the category of categories.
  * Natural transformations: defined functor categories, characterized natural isomorphisms.
  * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
@@ -34,7 +38,7 @@ Instances:
  * Find a general boilerplate for a file with concrete category — apply it to all instances.
  * Define heterogenous apartoids.
  * Implement prosets and semigroups wth respect to setoids/apartoids etc.
- * Define dual instances for big products/coproducts/biproducts, equalizers and coequalizers.
+ * Define dual instances for equalizers and coequalizers.
  * Refactor the directory structure.
 
 Further ideas:
