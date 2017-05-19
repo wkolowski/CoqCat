@@ -19,9 +19,6 @@ Accomplished:
  * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
  * Automation: got some quite useful genral tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) - they can, for example, elegantly destruct objects of these categories.
 
-Fix:
- * Write new unique isomorphicness theorems for products (the isos have to be compatible with the projections).
-
 General:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
  * Settle all the matters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
@@ -50,5 +47,6 @@ Further ideas:
 
 Tips for future me:
  * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper).
+ * Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but no with the pairing (I think pairing is a property, not structure).
 
 Stuff from Awodey's book: 7-8 page 10 (functors between deloopings of Pros are Pros homomorphisms), page 14 (Cayley's Theorem), 3 page 17 onwards.

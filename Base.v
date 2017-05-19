@@ -108,7 +108,7 @@ Hint Constructors sumprod.
 
 (* Moved here so that tactics work *)
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
-    : Prop := P x /\  (forall y : A, P y -> x == y).
+    : Prop := P x /\ (forall y : A, P y -> x == y).
 
 Notation "'exists' !! x : A , P" :=
     (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).

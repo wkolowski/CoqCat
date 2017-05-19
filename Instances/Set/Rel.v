@@ -142,12 +142,12 @@ Instance Rel_has_all_products : has_all_products Rel :=
     bigProdOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
     bigProj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
         fun (p : {j : J & A j}) (x : A j) => projT1 p = j /\ JMeq (projT2 p) x;
-    bigDiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
+    tuple := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
       (f : forall j : J, Hom X (A j)) (x : X) (p : {j : J & A j}) =>
         f (projT1 p) x (projT2 p)
 }.
 Proof.
-  (* bigDiag is proper *) cat.
+  (* tuple is proper *) cat.
   (* Product law *) red; cat; simpl in *.
     exists (existT A j b); simpl. auto.
     destruct (H x a a0), (H1 H0), x0; simpl in *. cat.
@@ -159,12 +159,12 @@ Instance Rel_has_all_coproducts : has_all_coproducts Rel :=
     bigCoprodOb := fun (J : Set) (A : J -> Ob Rel) => {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob Rel) (j : J) =>
         fun (x : A j) (p : {j : J & A j}) => projT1 p = j /\ JMeq (projT2 p) x;
-    bigCodiag := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
+    cotuple := fun (J : Set) (A : J -> Ob Rel) (X : Ob Rel)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) (x : X) =>
         f (projT1 p) (projT2 p) x
 }.
 Proof.
-  (* bigCodiag is proper *) cat.
+  (* cotuple is proper *) cat.
   (* Coproduct law *) red; cat; simpl in *.
     exists (existT A j a); simpl. auto.
     destruct (H x a b), (H1 H0), x0. cat.

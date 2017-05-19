@@ -308,7 +308,7 @@ Proof.
   intro. apply H. simpl. exists j. assumption.
 Defined.
 
-Definition Apartoid_bigDiag {J : Set} {A : J -> Apartoid} {X : Apartoid}
+Definition Apartoid_tuple {J : Set} {A : J -> Apartoid} {X : Apartoid}
     (f : forall j : J, ApartoidHom X (A j))
     : ApartoidHom X (Apartoid_bigProdOb A).
 Proof.
@@ -321,10 +321,10 @@ Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
 {
     bigProdOb := @Apartoid_bigProdOb;
     bigProj := @Apartoid_bigProj;
-    bigDiag := @Apartoid_bigDiag;
+    tuple := @Apartoid_tuple;
 }.
 Proof.
-  (* bigDiag is proper *) simpl; intros. destruct 1 as [j H'].
+  (* tuple is proper *) simpl; intros. destruct 1 as [j H'].
     eapply H. eassumption.
   (* Product law *) unfold big_product_skolem; red; split;
   simpl in *; intros; eauto. destruct 1 as [j H'].
@@ -439,7 +439,7 @@ Proof.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
-Definition Apartoid_bigCodiag {J : Apartoid} {A : J -> Apartoid}
+Definition Apartoid_cotuple {J : Apartoid} {A : J -> Apartoid}
     {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
     : ApartoidHom (Apartoid_bigCoprodOb A) X.
 Proof.

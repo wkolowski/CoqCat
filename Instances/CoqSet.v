@@ -183,7 +183,7 @@ Instance CoqSet_has_all_products : has_all_products CoqSet :=
         forall j : J, A j;
     bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
         fun (f : forall j : J, A j) => f j;
-    bigDiag := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    tuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
@@ -256,7 +256,7 @@ Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
         {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
         fun (x : A j) => existT A j x;
-    bigCodiag := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    cotuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
           f (projT1 p) (projT2 p)
 }.

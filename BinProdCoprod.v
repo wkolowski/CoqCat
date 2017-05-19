@@ -154,7 +154,7 @@ repeat match goal with
     | _ => fpair_simpl
 end.
 
-Theorem product_skolem_iso :
+Theorem product_skolem_unique :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -183,6 +183,68 @@ Proof.
       cat.
         rewrite <- HP1'. assumption.
         rewrite <- HP2'. assumption.
+Qed.
+
+Theorem product_skolem_unique' :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
+  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
+  (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C Q q1 q2 fpair' ->
+    exists !! f : Hom P Q, Iso f /\
+      p1 == f .> q1 /\
+      p2 == f .> q2.
+Proof.
+  intros. do 2 red in H. do 2 red in H0.
+  exists (fpair' _ p1 p2).
+  red. repeat split.
+    exists (fpair0 _ q1 q2).
+      destruct
+        (H P p1 p2) as [[HP1 HP2] HP3],
+        (H Q q1 q2) as [[HQ1 HQ2] HQ3],
+        (H0 P p1 p2) as [[HP1' HP2'] HP3'],
+        (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
+      cat.
+        rewrite <- (HP3 (fpair' P p1 p2 .> fpair0 Q q1 q2)).
+          apply HP3. cat.
+          cat.
+            rewrite <- HQ1. assumption.
+            rewrite <- HQ2. assumption.
+        rewrite <- (HQ3' (fpair0 Q q1 q2 .> fpair' P p1 p2)).
+          apply HQ3'. cat.
+          cat.
+            rewrite <- HP1'. assumption.
+            rewrite <- HP2'. assumption.
+    edestruct H0 as [[H1 H2] _]. eauto.
+    edestruct H0 as [[H1 H2] _]. eauto.
+    intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
+      edestruct H0. apply H2. cat.
+Qed.
+
+Theorem iso_to_prod_skolem :
+  forall (C : Cat) (X Y : Ob C)
+  (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
+    product_skolem C P p1 p2 fpair ->
+    forall (f : Hom Q P) (H : Iso f),
+    product_skolem C Q (f .> p1) (f .> p2)
+      (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
+        match constructive_indefinite_description _ H with
+          | exist _ g _ => fpair A p1' p2' .> g
+        end).
+Proof.
+  unfold product_skolem in *. intros.
+  destruct (constructive_indefinite_description _ _) as [f_inv [eq1 eq2]].
+  edestruct H as [[H1 H2] H3]. repeat split.
+    rewrite comp_assoc, <- (comp_assoc f_inv f).
+      rewrite eq2. cat.
+    rewrite comp_assoc, <- (comp_assoc f_inv f).
+      rewrite eq2. cat.
+    intros. red in H. destruct (H _ f0 g) as [[H1' H2'] H3'].
+      specialize (H3' (y .> f)). rewrite H3'; cat.
+        rewrite eq1. cat.
 Qed.
 
 Theorem product_skolem_comm :

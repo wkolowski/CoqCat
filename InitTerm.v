@@ -11,6 +11,11 @@ Definition terminal {C : Cat} (T : Ob C) : Prop :=
 Definition zero_object {C : Cat} (Z : Ob C) : Prop :=
     initial Z /\ terminal Z.
 
+Definition initial_skolem {C : Cat} (I : Ob C)
+  (create : forall X : Ob C, Hom I X) : Prop :=
+  forall X : Ob C,
+    setoid_unique (fun _ => True) (create X).
+
 Class has_init (C : Cat) : Type :=
 {
     init : Ob C;
@@ -72,6 +77,24 @@ Proof.
            (H A) as [idA [_ HA]],
            (H0 B) as [idB [_ HB]].
   exists f; red. split; auto. exists g; split.
+    rewrite <- (HA (id A)); try symmetry; auto.
+    rewrite <- (HB (id B)); try symmetry; auto.
+Qed.
+
+Theorem initial_skolem_uiso :
+  forall (C : Cat) (A B : Ob C)
+  (create : forall X : Ob C, Hom A X)
+  (create' : forall X : Ob C, Hom B X),
+    initial_skolem A create -> initial_skolem B create' ->
+    A ~~ B.
+Proof.
+  unfold uniquely_isomorphic, isomorphic, initial; intros.
+  red in H. red in H0.
+  destruct (H B) as [_ Hf],
+           (H0 A) as [_ Hg],
+           (H A) as [_ HA],
+           (H0 B) as [_ HB].
+  exists (create0 B); red. split; auto. exists (create' A); split.
     rewrite <- (HA (id A)); try symmetry; auto.
     rewrite <- (HB (id B)); try symmetry; auto.
 Qed.

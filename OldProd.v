@@ -89,7 +89,7 @@ Theorem iso_to_prod_is_prod : forall (C : Cat) (A B P P' : Ob C)
   (p1 : Hom P A) (p2 : Hom P B), product C P p1 p2 ->
     forall f : Hom P' P, Iso f -> product C P' (f .> p1) (f .> p2).
 Proof.
-  intros. destruct H0 as [g [eq1 eq2]].
+  intros. destruct H0 as [g [eq1 eq2]]. Show Proof.
   unfold product in *. intros.
   destruct (H X f0 g0) as [xp [[xp_eq1 xp_eq2] xp_unique]].
   exists (xp .> g). repeat split.

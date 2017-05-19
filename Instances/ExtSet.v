@@ -99,11 +99,11 @@ Defined.
         forall j : J, A j;
     bigProj := fun (J : Set) (A : J -> Ob ExtSet) (j : J) =>
         fun (f : forall j : J, A j) => f j;
-    bigDiag := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
+    tuple := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) repeat red; simpl; intros. apply extEq_ext. intro. Print extEq.
+  (* Proper *) repeat red; simpl; intros. apply extEq_ext. intro.
 
 (*    change (fun j : J => f j a) with (fun j : J => (f j) a).
     change (fun j : J => f j a) with (fun j : J => (f j) a).
@@ -141,12 +141,12 @@ Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
         {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob ExtSet) (j : J) =>
         fun (x : A j) => existT A j x;
-    bigCodiag := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
+    cotuple := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  (* bigCodiag is proper *) cat.
+  (* cotuple is proper *) cat.
   (* Coproduct law *) red; cat. apply extEq_ext. cat.
 Defined.
  

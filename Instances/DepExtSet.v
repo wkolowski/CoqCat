@@ -84,7 +84,7 @@ Defined.
         forall j : J, A j;
     bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
         fun (f : forall j : J, A j) => f j;
-    bigDiag := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
+    tuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
@@ -126,12 +126,12 @@ Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
         {j : J & A j};
     bigCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
         fun (x : A j) => existT A j x;
-    bigCodiag := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
+    cotuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  (* bigCodiag is proper *) simpl; intros; solve_depExtEq.
+  (* cotuple is proper *) simpl; intros; solve_depExtEq.
     destruct x; simpl; solve_depExtEq.
     apply (depExtEq_unext _ _ (H x) a a). auto.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.

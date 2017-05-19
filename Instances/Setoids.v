@@ -8,6 +8,8 @@ Require Export BigProdCoprod.
 Require Import Exponential.
 Require Import CartesianClosed.
 
+Require Import Functor.
+
 Class Setoid' : Type :=
 {
     carrier :> Type;
@@ -392,7 +394,7 @@ Proof.
   red. exists (fun (f : forall j : J, A j) => f j). proper.
 Defined.
 
-Definition CoqSetoid_bigDiag {J : Set} {A : J -> Setoid'} {X : Setoid'}
+Definition CoqSetoid_tuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
     (f : forall j : J, SetoidHom X (A j))
     : SetoidHom X (CoqSetoid_bigProdOb A).
 Proof.
@@ -405,7 +407,7 @@ Instance CoqSetoid_has_all_products : has_all_products CoqSetoid :=
 {
     bigProdOb := @CoqSetoid_bigProdOb;
     bigProj := @CoqSetoid_bigProj;
-    bigDiag := @CoqSetoid_bigDiag
+    tuple := @CoqSetoid_tuple
 }.
 Proof.
   simpl; intros; eauto.
