@@ -1,6 +1,6 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.Cat.
+Require Export Cat.
 Require Export Functor.
 
 Definition product_skolem (C : Cat) {A B : Ob C}
@@ -34,10 +34,10 @@ Class has_products (C : Cat) : Type :=
       product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
 }.
 
-Arguments prodOb [C] [has_products] _ _.
-Arguments proj1 [C] [has_products] [A] [B].
-Arguments proj2 [C] [has_products] [A] [B].
-Arguments fpair [C] [has_products] [A] [B] [X] _ _.
+Arguments prodOb  [C] [has_products] _ _.
+Arguments proj1   [C] [has_products] [A] [B].
+Arguments proj2   [C] [has_products] [A] [B].
+Arguments fpair   [C] [has_products] [A] [B] [X] _ _.
 
 Class has_coproducts (C : Cat) : Type := 
 {
@@ -141,17 +141,16 @@ Proof.
     rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
 Qed.
 
-Ltac fpair_simpl :=
-    repeat rewrite <- fpair_id;
-    repeat rewrite fpair_pre;
-    repeat rewrite <- comp_assoc;
-    repeat (try rewrite fpair_proj1; try rewrite fpair_proj2).
-
-Ltac fpair := let P := fresh "P" in pose (P := fpair_Proper); cat;
+Ltac fpair := pose fpair_Proper; try split;
 repeat match goal with
+    | |- context [fpair (_ .> proj1) (_ .> proj2)] =>
+        rewrite <- fpair_pre, fpair_id, id_right
+    | |- context [_ .> fpair _ _] => rewrite fpair_pre
+    | |- context [fpair _ _ .> proj1] => rewrite fpair_proj1
+    | |- context [fpair _ _ .> proj2] => rewrite fpair_proj2
+    | |- context [fpair proj1 proj2] => rewrite fpair_id
     | |- ?x == ?x => reflexivity
-    | |- fpair _ _ == fpair _ _ => f_equiv
-    | _ => fpair_simpl
+    | _ => repeat rewrite <- comp_assoc
 end.
 
 Theorem product_skolem_unique :
@@ -263,18 +262,7 @@ Proof.
   intros.
   red. exists (fpair proj2 proj1).
   red. exists (fpair proj2 proj1).
-  split.
-    rewrite <- fpair_id. rewrite fpair_pre. apply fpair_Proper.
-      rewrite fpair_proj2. reflexivity.
-      rewrite fpair_proj1. reflexivity.
-    rewrite <- fpair_id. rewrite fpair_pre. apply fpair_Proper.
-      rewrite fpair_proj2. reflexivity.
-      rewrite fpair_proj1. reflexivity.
-Restart.
-  intros.
-  red. exists (fpair proj2 proj1).
-  red. exists (fpair proj2 proj1).
-  fpair.
+  Time fpair.
 Qed.
 
 Theorem prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
@@ -283,16 +271,7 @@ Proof.
   intros.
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
-  pose (P := fpair_Proper). split.
-    fpair_simpl. f_equiv.
-      destruct hp; simpl in *. edestruct is_product0; apply H0; cat.
-    fpair_simpl. f_equiv.
-      destruct hp; simpl in *. edestruct is_product0; apply H0; cat.
-Restart.
-  intros.
-  red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
-  red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
-  fpair; destruct hp; simpl in *; edestruct is_product0; apply H0; cat.
+  Time fpair.
 Defined.
 
 Theorem copair_coproj1 :
@@ -349,18 +328,55 @@ Proof.
     rewrite comp_assoc. rewrite copair_coproj2. reflexivity.
 Qed.
 
-Ltac copair_simpl :=
-    repeat rewrite <- copair_id;
-    repeat rewrite copair_post;
-    repeat rewrite comp_assoc;
-    repeat (try rewrite copair_coproj1; try rewrite copair_coproj2).
-
-Ltac copair := let P := fresh "P" in pose (P := copair_Proper); cat;
+Ltac copair := pose copair_Proper; try split;
 repeat match goal with
+    | |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] =>
+        rewrite <- copair_post, copair_id, id_left
+    | |- context [copair _ _ .> _] => rewrite copair_post
+    | |- context [coproj1 .> copair _ _] => rewrite copair_coproj1
+    | |- context [coproj2 .> copair _ _] => rewrite copair_coproj2
+    | |- context [copair coproj1 coproj2] => rewrite copair_id
     | |- ?x == ?x => reflexivity
-    | |- copair _ _ == copair _ _ => f_equiv
-    | _ => copair_simpl
+    | _ => repeat rewrite comp_assoc
 end.
+
+Theorem coproduct_skolem_unique' :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
+  (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
+  (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
+    coproduct_skolem C P p1 p2 copair ->
+    coproduct_skolem C Q q1 q2 copair' ->
+    exists !! f : Hom P Q, Iso f /\
+      p1 .> f == q1 /\
+      p2 .> f == q2.
+Proof.
+  intros. do 2 red in H. do 2 red in H0.
+  exists (copair0 _ q1 q2).
+  red. repeat split.
+    exists (copair' _ p1 p2).
+      destruct
+        (H P p1 p2) as [[HP1 HP2] HP3],
+        (H Q q1 q2) as [[HQ1 HQ2] HQ3],
+        (H0 P p1 p2) as [[HP1' HP2'] HP3'],
+        (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
+      cat.
+        rewrite <- (HP3 (copair0 Q q1 q2 .> copair' P p1 p2)).
+          apply HP3. cat.
+          cat; repeat rewrite <- comp_assoc.
+            rewrite <- HQ1. assumption.
+            rewrite <- HQ2. assumption.
+        rewrite <- (HQ3' (copair' P p1 p2 .> copair0 Q q1 q2)).
+          apply HQ3'. cat.
+          cat; repeat rewrite <- comp_assoc.
+            rewrite <- HP1'. assumption.
+            rewrite <- HP2'. assumption.
+    edestruct H as [[H1 H2] _]. rewrite <- H1. reflexivity.
+    edestruct H as [[H1 H2] _]. rewrite <- H2. reflexivity.
+    intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
+      edestruct H. apply H2. split; [rewrite eq1 | rewrite eq2]; cat.
+Qed.
 
 Theorem coproduct_skolem_comm :
   forall (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
@@ -378,30 +394,17 @@ Proof.
   intros.
   red. exists (copair coproj2 coproj1).
   red. exists (copair coproj2 coproj1).
-  split.
-    rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
-      apply copair_coproj2.
-      apply copair_coproj1.
-    rewrite copair_post. rewrite <- copair_id. apply copair_Proper.
-      apply copair_coproj2.
-      apply copair_coproj1.
-Restart.
-  intros.
-  red. exists (copair coproj2 coproj1).
-  red. exists (copair coproj2 coproj1).
-  copair.
+  Time copair.
 Qed.
 
 Theorem coprodOb_assoc :
   forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
     coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
 Proof.
-  intros. Print has_coproducts.
+  intros.
   red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
   red. exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
-  split; copair.
-    rewrite <- copair_post. rewrite copair_id. cat.
-    rewrite <- copair_post. rewrite copair_id. cat.
+  Time copair.
 Qed.
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
@@ -516,6 +519,7 @@ Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
       : Hom (coprodOb X X') (coprodOb Y Y') :=
       (copair (f .> coproj1) (g .> coproj2)).
 
+(* TODO : stuff like for ProductFunctor *)
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prod C C) C :=
 {

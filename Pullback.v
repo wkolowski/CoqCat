@@ -6,7 +6,7 @@ Definition pullback (C : Cat) {A B X : Ob C} (f : Hom A X) (g : Hom B X)
   (P : Ob C) (pA : Hom P A) (pB : Hom P B) := forall (Q : Ob C) (qA : Hom Q A)
     (qB : Hom Q B), exists!! u : Hom Q P, qA == u .> pA /\ qB == u .> pB.
 
-Theorem pullback_iso_unique : forall (C : Cat) (A B X P Q : Ob C)
+Theorem pullback_iso : forall (C : Cat) (A B X P Q : Ob C)
     (f : Hom A X) (g : Hom B X) (pA : Hom P A) (pB : Hom P B) (qA : Hom Q A)
     (qB : Hom Q B), pullback C f g P pA pB -> pullback C f g Q qA qB -> P ~ Q.
 Proof.
@@ -34,7 +34,7 @@ Definition pullback_skolem
     forall (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y),
       setoid_unique (fun u : Hom Q P => q1 .> f == q2 .> g) (e Q q1 q2).
 
-Theorem pullback_skolem_iso_unique :
+Theorem pullback_skolem_iso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (e : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)

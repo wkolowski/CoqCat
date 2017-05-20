@@ -17,16 +17,16 @@ Accomplished:
  * Functors: defined different kinds of functors, proved their properties, defined the category of categories.
  * Natural transformations: defined functor categories, characterized natural isomorphisms.
  * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
- * Automation: got some quite useful genral tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) - they can, for example, elegantly destruct objects of these categories.
+ * Automation: got some quite useful genral tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) — they can, for example, elegantly destruct objects of these categories. Also got some automation for solving instances of Proper, proving equivalences and rewriting with pairings and copairings.
 
-General:
- * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (was it described in Coq'Art?). This will be very hard, but fruitful.
+General TODO:
+ * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (as described in CPDT). This will be very hard, but fruitful.
  * Settle all the matters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
- * State and prove skolemized definitions and/or properties for coproducts, equalizers, coequalizers, big products, big coproducts.
  * Fix equalizers.
  * Define representability and adjoints.
  * Do stuff related to distributive categories.
  * Refactor the products and coproducts — put them in separate files in a new directory. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects.
+ * Port all properties of universal constructions to skolemized definitions.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.
@@ -35,7 +35,6 @@ Instances:
  * Find a general boilerplate for a file with concrete category — apply it to all instances.
  * Define heterogenous apartoids.
  * Implement prosets and semigroups wth respect to setoids/apartoids etc.
- * Define dual instances for equalizers and coequalizers.
  * Refactor the directory structure.
 
 Further ideas:
