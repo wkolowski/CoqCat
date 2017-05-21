@@ -30,12 +30,12 @@ Ltac rw_id := match goal with
     | H : context [_ .> id _] |- _ => rewrite id_right in H
 end.
 
-Ltac rw_assoc := rewrite comp_assoc.
-Ltac rw_assoc' := rewrite <- comp_assoc.
+Ltac assocr := rewrite comp_assoc.
+Ltac assocl := rewrite <- comp_assoc.
 
-Ltac cat_aux := repeat (my_simpl || intros || rw_id || rw_assoc ||
+Ltac cat_aux := repeat (my_simpl || intros || rw_id || assocr ||
     reflexivity || subst; eauto).
-Ltac cat_aux' := repeat (my_simpl || intros || rw_id || rw_assoc' ||
+Ltac cat_aux' := repeat (my_simpl || intros || rw_id || assocl ||
     reflexivity || subst; eauto).
 Ltac cat := cat_aux || cat_aux'.
 
@@ -52,13 +52,6 @@ Proof.
   (* Equivalence *) solve_equiv.
   (* Composition is proper *) proper.
   (* Category laws *) all: cat.
-(*Restart.
-  (* Equivalence *) solve_equiv.
-  (* Composition is proper *) proper.
-  (* Category laws *) all: intros.
-    rewrite <- (@comp_assoc C _ _ _ _ h g f). reflexivity.
-    rewrite (@id_right C). reflexivity.
-    rewrite (@id_left C). reflexivity.*)
 Defined.
 
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
@@ -205,11 +198,38 @@ Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 
 Hint Unfold isomorphic uniquely_isomorphic setoid_unique.
 
+Ltac uniso' f :=
+match goal with
+    | H : Iso f |- _ => rewrite iso_inv_unique in H;
+        let f_inv := fresh f "_inv" in
+        let f_inv_eq1 := fresh f "_inv_eq1" in
+        let f_inv_eq2 := fresh f "_inv_eq2" in
+        let f_inv_unique := fresh f "_inv_unique" in
+        destruct H as [f_inv [[f_inv_eq1 f_inv_eq2] f_inv_unique]]
+end.
+
+Ltac iso := repeat  (intros;
+match goal with
+    | H : _ ~~ _ |- _ => red in H
+    | H : _ ~ _ |- _ => red in H
+    | |- context [_ ~~ _] => unfold uniquely_isomorphic
+    | |- context [_ ~ _] => unfold isomorphic
+    | H : exists _ : Hom _ _, Iso _ |- _ => destruct H
+    | _ : Iso ?f |- _ => uniso' f
+    | |- Iso _ => unfold Iso
+    | |- exists _ : Hom _ _, _ => eexists
+    | |- _ /\ _ => split
+    | |- _ <-> _ => split
+    | _ => cat
+end).
+
 Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
     @isomorphic C A B <-> @isomorphic (Dual C) B A.
 Proof.
   unfold isomorphic; simpl; split; intros;
   destruct H as [f [g [eq1 eq2]]]; exists f; red; cat.
+Restart.
+  iso.
 Defined.
 
 Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
@@ -225,6 +245,10 @@ Proof.
       rewrite iso_inv_unique in f_iso. unfold Iso.
         destruct f_iso as [g [[eq1 eq2] unique]].
         exists g. cat. apply unique; rewrite (H x); cat.
+Restart.
+  iso.
+    apply x_inv_unique. cat; rewrite H0; iso.
+    apply x_inv_unique. cat; rewrite H0; iso.
 Time Qed.
 
 Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.

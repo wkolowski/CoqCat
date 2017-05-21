@@ -140,7 +140,7 @@ Hint Unfold
 Ltac proper :=
 match goal with
     | |- context [Proper] => unfold Proper, respectful; simpl; intros; proper
-    | H : ?a == ?b |- _ => try rewrite H; clear H; proper
+    | H : ?a == ?b |- _ => rewrite H; clear H; proper
     | |- ?a == ?a => reflexivity
     | _ => auto
 end.

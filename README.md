@@ -45,7 +45,7 @@ Further ideas:
  * Implement enriched categories.
 
 Tips for future me:
- * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper).
+ * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper). This likely has something to do with registering morphisms as Proper. I should read the docs...
  * Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but no with the pairing (I think pairing is a property, not structure).
 
 Stuff from Awodey's book: 7-8 page 10 (functors between deloopings of Pros are Pros homomorphisms), page 14 (Cayley's Theorem), 3 page 17 onwards.
