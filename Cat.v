@@ -33,6 +33,9 @@ end.
 Ltac assocr := rewrite comp_assoc.
 Ltac assocl := rewrite <- comp_assoc.
 
+Ltac assocr' := rewrite comp_assoc.
+Ltac assocl' := rewrite <- comp_assoc.
+
 Ltac cat_aux := repeat (my_simpl || intros || rw_id || assocr ||
     reflexivity || subst; eauto).
 Ltac cat_aux' := repeat (my_simpl || intros || rw_id || assocl ||

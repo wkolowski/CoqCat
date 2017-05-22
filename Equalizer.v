@@ -19,8 +19,9 @@ Definition biequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
 Definition equalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall {E' : Ob C} (e' : Hom E' X), Hom E' E) : Prop :=
-    e .> f == e .> g /\ forall (E' : Ob C) (e' : Hom E' X),
-    setoid_unique (fun u : Hom E' E => u .> e == e') (factorize e').
+    e .> f == e .> g /\
+    forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g ->
+      setoid_unique (fun u : Hom E' E => u .> e == e') (factorize e').
 
 Definition coequalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (Q : Ob C) (q : Hom Y Q)
@@ -64,15 +65,19 @@ Class has_biequalizers (C : Cat) : Type :=
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
 Coercion bi_has_coequalizers : has_biequalizers >-> has_coequalizers.
 
+Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
+    : forall {B : Type}, B -> Prop :=
+    | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
+
 (* TODO : check coherences for has_equalizers' *)
 Class has_equalizers' (C : Cat) : Type :=
 {
     eq_ob' : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-    eq_ob'_Proper : forall X Y : Ob C,
-      Proper (equiv ==> equiv ==> eq) (@eq_ob' X Y);
+    (*eq_ob'_Proper : forall X Y : Ob C,
+      Proper (equiv ==> equiv ==> eq) (@eq_ob' X Y);*)
     eq_mor' : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob' f g) X;
-    (*eq_mor'_Proper : forall (X Y : Ob C),
-      Proper (equiv ==> equiv ==> equiv) (@eq_mor' X Y);*)
+    eq_mor'_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> JMequiv (eq_mor' f g) (eq_mor' f' g');
     factorize : forall {X Y : Ob C} (f g : Hom X Y)
       (E' : Ob C) (e' : Hom E' X), Hom E' (eq_ob' f g);
     factorize_Proper : forall (X Y E' : Ob C) (f g : Hom X Y),
@@ -81,6 +86,7 @@ Class has_equalizers' (C : Cat) : Type :=
         equalizer_skolem C f g
           (eq_ob' f g) (eq_mor' f g) (factorize f g)
 }.
+
 (* TODO : check coherences for has_coequalizers' *)
 Class has_coequalizers' (C : Cat) : Type :=
 {
@@ -159,6 +165,43 @@ Proof.
   rewrite <- H2, <- H4; try assumption; reflexivity.
 Defined.
 
+Theorem equalizer_skolem_is_mono :
+    forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X)
+    (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E),
+      equalizer_skolem C f g E e factorize -> Mon e.
+Proof.
+  unfold equalizer_skolem, setoid_unique, Mon. intros.
+  rename X0 into Z. rename g0 into h'.
+  destruct H as [eq H].
+  destruct (H Z (h .> e)) as [u Hh].
+    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+  destruct (H Z (h' .> e)) as [u' Hh'].
+    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+  assert (factorize0 Z (h .> e) == factorize0 Z (h' .> e)).
+    rewrite Hh, Hh'. reflexivity. reflexivity. assumption.
+  specialize (Hh h); specialize (Hh' h').
+  rewrite <- Hh, <- Hh'; try rewrite H1; reflexivity.
+Defined.
+
+Theorem equalizer_epi_is_iso
+  : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X)
+    (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E),
+      equalizer_skolem C f g E e factorize -> Epi e -> Iso e.
+Proof.
+  intros. assert (HMon : Mon e).
+    eapply equalizer_skolem_is_mono; eauto.
+    unfold Epi, equalizer_skolem, setoid_unique. intros.
+    red. exists (factorize0 _ (id X)). split.
+      edestruct H. specialize (H2 _ (id X)).
+        assert (e .> factorize0 X (id X) .> e == id E .> e).
+          destruct H2.
+            cat.
+            assocr. rewrite H2. cat. apply HMon. assumption.
+      edestruct H. apply H2. cat.
+Qed.
+
 Theorem coequalizer_is_epi : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q : Ob C) (q : Hom Y Q), coequalizer C f g Q q -> Epi q.
 Proof.
@@ -168,8 +211,15 @@ Proof.
   eapply equalizer_is_mono. eauto.
 Defined.
 
-(* TODO : uniqueness for equalizer_skolem *)
-(* Theorem equalizer_skolem_iso :
+Theorem factorize_eq_mor :
+  forall (C : Cat) (he : has_equalizers' C) (X Y : Ob C) (f g : Hom X Y),
+    factorize f g _ (eq_mor' f g) == id (eq_ob' f g).
+Proof.
+  intros. destruct he; simpl in *.
+  edestruct is_equalizer'0. apply H0; cat.
+Defined.
+
+Theorem equalizer_skolem_iso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
@@ -178,24 +228,49 @@ Defined.
       equalizer_skolem C f g E' e' factorize' ->
       E ~ E'.
 Proof.
-  unfold equalizer_skolem; intros.
-  destruct H as [Heq H], H0 as [Heq' H'].
-  destruct (H E' e') as [Hf unique].
-  destruct (H' E e) as [Hf' unique'].
-  red. pose (h := factorize' E e). exists h.
-  red. pose (h' := factorize0 E' e'). exists h'.
-  unfold h, h'. split.
-    destruct (H E (h .> e')). rewrite Heq'. auto.
-      red in H3. destruct H3.
-      rewrite <- (H4 (h' .> h)).
+  unfold equalizer; intros. destruct H, H0.
+  destruct (H1 E' e' H0) as [eq unique].
+  destruct (H2 E e H) as [eq' unique'].
+  red. exists (factorize' E e).
+  red. exists (factorize0 E' e').
+  split.
+    destruct (H1 E (factorize' E e .> e')). rewrite eq'. auto.
+      rewrite <- (H4 (factorize' E e .> factorize0 E' e')).
       apply H4. rewrite eq'. cat.
       rewrite comp_assoc, eq. reflexivity.
-    destruct (H2 E' (h .> e)). rewrite eq. auto.
-      red in H3. destruct H3.
-      rewrite <- (H4 (h .> h')).
+    destruct (H2 E' (factorize0 E' e' .> e)). rewrite eq. auto.
+      rewrite <- (H4 (factorize0 E' e' .> factorize' E e)).
       apply H4. rewrite eq. cat.
       rewrite comp_assoc, eq'. reflexivity.
-  *)
+Qed.
+
+Theorem equalizer_skolem_uiso :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
+    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
+    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E'),
+      equalizer_skolem C f g E e factorize ->
+      equalizer_skolem C f g E' e' factorize' ->
+      exists !! f : Hom E E', Iso f /\
+        e == f .> e'.
+Proof.
+  unfold equalizer; intros. destruct H, H0.
+  destruct (H1 E' e' H0) as [eq unique].
+  destruct (H2 E e H) as [eq' unique'].
+  exists (factorize' E e).
+  repeat split.
+    red. exists (factorize0 E' e'). split.
+      destruct (H1 E (factorize' E e .> e')). rewrite eq'. auto.
+        rewrite <- (H4 (factorize' E e .> factorize0 E' e')).
+        apply H4. rewrite eq'. cat.
+        rewrite comp_assoc, eq. reflexivity.
+      destruct (H2 E' (factorize0 E' e' .> e)). rewrite eq. auto.
+        rewrite <- (H4 (factorize0 E' e' .> factorize' E e)).
+        apply H4. rewrite eq. cat.
+        rewrite comp_assoc, eq'. reflexivity.
+    rewrite eq'. reflexivity.
+    intros. destruct H3. apply unique'. rewrite H4. reflexivity.
+Qed.
 
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=

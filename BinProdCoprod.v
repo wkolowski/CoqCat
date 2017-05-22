@@ -156,7 +156,7 @@ repeat match goal with
     | _ => repeat rewrite <- comp_assoc; auto
 end.
 
-Theorem product_skolem_unique :
+Theorem product_skolem_iso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -187,7 +187,7 @@ Proof.
         rewrite <- HP2'. assumption.
 Qed.
 
-Theorem product_skolem_unique' :
+Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -346,7 +346,7 @@ repeat match goal with
     | _ => repeat rewrite comp_assoc; auto
 end.
 
-Theorem coproduct_skolem_unique' :
+Theorem coproduct_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
