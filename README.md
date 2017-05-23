@@ -27,6 +27,7 @@ General TODO:
  * Do stuff related to distributive categories.
  * Refactor the products and coproducts — put them in separate files in a new directory. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects.
  * Port all properties of universal constructions to skolemized definitions.
+ * Use more duality.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.

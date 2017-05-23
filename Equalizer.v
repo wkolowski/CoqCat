@@ -16,31 +16,33 @@ Definition biequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E) : Prop :=
     equalizer C f g E e /\ coequalizer C f g E q.
 
-Definition equalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
-    (E : Ob C) (e : Hom E X)
-    (factorize : forall {E' : Ob C} (e' : Hom E' X), Hom E' E) : Prop :=
+Definition equalizer_skolem
+  (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+  (E : Ob C) (e : Hom E X)
+  (factorize : forall {E' : Ob C} (e' : Hom E' X), Hom E' E) : Prop :=
     e .> f == e .> g /\
     forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g ->
       setoid_unique (fun u : Hom E' E => u .> e == e') (factorize e').
 
-Definition coequalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
-    (Q : Ob C) (q : Hom Y Q)
-    (cofactorize : forall {Q' : Ob C} (q' : Hom Y Q'), Hom Q Q') : Prop :=
-    f .> q == g .> q /\ forall (Q' : Ob C) (q' : Hom Y Q'),
-    setoid_unique (fun u : Hom Q Q' => q .> u == q') (cofactorize q').
+Definition coequalizer_skolem
+  (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+  (Q : Ob C) (q : Hom Y Q)
+  (cofactorize : forall {Q' : Ob C} (q' : Hom Y Q'), Hom Q Q') : Prop :=
+    f .> q == g .> q /\
+    forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' ->
+      setoid_unique (fun u : Hom Q Q' => q .> u == q') (cofactorize q').
 
-Definition biequalizer_skolem (C : Cat) {X Y : Ob C} (f g : Hom X Y)
-    (E : Ob C) (e : Hom E X) (q : Hom Y E)
-    (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E)
-    (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom E Q') : Prop :=
+Definition biequalizer_skolem
+  (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+  (E : Ob C) (e : Hom E X) (q : Hom Y E)
+  (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E)
+  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom E Q') : Prop :=
     equalizer_skolem C f g E e factorize /\
     coequalizer_skolem C f g E q cofactorize.
 
 Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-    (*eq_ob_Proper : forall X Y : Ob C, TODO : this break a lot
-      Proper (equiv ==> equiv ==> eq) (@eq_ob X Y);*)
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
     is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
         equalizer C f g (eq_ob f g) (eq_mor f g)
@@ -110,6 +112,29 @@ Theorem dual_biqualizer_self : forall (C : Cat) (X Y E : Ob C)
     (f g : Hom X Y) (e : Hom E X) (q : Hom Y E),
     @biequalizer C X Y f g E e q <-> @biequalizer (Dual C) Y X f g E q e.
 Proof. unfold biequalizer, equalizer, coequalizer. cat. Qed.
+
+Theorem dual_equalizer_coequalizer_skolem :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E : Ob C) (e : Hom E X)
+    (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E),
+      @equalizer_skolem C X Y f g E e factorize <->
+      @coequalizer_skolem (Dual C) Y X f g E e factorize.
+Proof. unfold equalizer, coequalizer. cat. Qed.
+
+Theorem dual_biqualizer_skolem_self :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (E : Ob C) (e : Hom E X) (q : Hom Y E)
+  (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E)
+  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom E Q'),
+    @biequalizer_skolem C X Y f g E e q factorize cofactorize <->
+    @biequalizer_skolem (Dual C) Y X f g E q e cofactorize factorize.
+Proof.
+  unfold biequalizer_skolem. do 2 split.
+    destruct H. apply dual_equalizer_coequalizer_skolem. assumption.
+    destruct H. apply dual_equalizer_coequalizer_skolem. assumption.
+    destruct H. apply dual_equalizer_coequalizer_skolem. assumption.
+    destruct H. rewrite dual_equalizer_coequalizer_skolem in H. exact H.
+Qed.
 
 Theorem equalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X),
@@ -211,6 +236,32 @@ Proof.
   eapply equalizer_is_mono. eauto.
 Defined.
 
+Theorem coequalizer_skolem_is_epi :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q : Ob C) (q : Hom Y Q)
+  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom Q Q'),
+    coequalizer_skolem C f g Q q cofactorize -> Epi q.
+Proof.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- dual_mon_epi.
+  rewrite <- dual_equalizer_coequalizer_skolem in *.
+  eapply equalizer_skolem_is_mono. eauto.
+Qed.
+
+Theorem coequalizer_mono_is_iso :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q : Ob C) (q : Hom Y Q)
+  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom Q Q'),
+    coequalizer_skolem C f g Q q cofactorize -> Mon q -> Iso q.
+Proof.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite dual_mon_epi in H0.
+  rewrite <- dual_iso_self.
+  apply (equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).
+    rewrite dual_equalizer_coequalizer_skolem. exact H.
+    exact H0.
+Qed.
+
 Theorem factorize_eq_mor :
   forall (C : Cat) (he : has_equalizers' C) (X Y : Ob C) (f g : Hom X Y),
     factorize f g _ (eq_mor' f g) == id (eq_ob' f g).
@@ -219,30 +270,13 @@ Proof.
   edestruct is_equalizer'0. apply H0; cat.
 Defined.
 
-Theorem equalizer_skolem_iso :
-  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
-    (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
-    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
-    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E'),
-      equalizer_skolem C f g E e factorize ->
-      equalizer_skolem C f g E' e' factorize' ->
-      E ~ E'.
+Theorem cofactorize_eq_mor :
+  forall (C : Cat) (he : has_coequalizers' C) (X Y : Ob C) (f g : Hom X Y),
+    cofactorize f g _ (coeq_mor' f g) == id (coeq_ob' f g).
 Proof.
-  unfold equalizer; intros. destruct H, H0.
-  destruct (H1 E' e' H0) as [eq unique].
-  destruct (H2 E e H) as [eq' unique'].
-  red. exists (factorize' E e).
-  red. exists (factorize0 E' e').
-  split.
-    destruct (H1 E (factorize' E e .> e')). rewrite eq'. auto.
-      rewrite <- (H4 (factorize' E e .> factorize0 E' e')).
-      apply H4. rewrite eq'. cat.
-      rewrite comp_assoc, eq. reflexivity.
-    destruct (H2 E' (factorize0 E' e' .> e)). rewrite eq. auto.
-      rewrite <- (H4 (factorize0 E' e' .> factorize' E e)).
-      apply H4. rewrite eq. cat.
-      rewrite comp_assoc, eq'. reflexivity.
-Qed.
+  intros. destruct he; simpl in *.
+  edestruct is_coequalizer'0. apply H0; cat.
+Defined.
 
 Theorem equalizer_skolem_uiso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
@@ -270,6 +304,64 @@ Proof.
         rewrite comp_assoc, eq'. reflexivity.
     rewrite eq'. reflexivity.
     intros. destruct H3. apply unique'. rewrite H4. reflexivity.
+Qed.
+
+Theorem equalizer_skolem_iso :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
+    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
+    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E'),
+      equalizer_skolem C f g E e factorize ->
+      equalizer_skolem C f g E' e' factorize' ->
+      E ~ E'.
+Proof.
+  intros. edestruct equalizer_skolem_uiso.
+    apply H.
+    apply H0.
+    do 2 destruct H1. eauto.
+Qed.
+
+Theorem coequalizer_skolem_uiso :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
+  (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q Q'')
+  (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q' Q''),
+    coequalizer_skolem C f g Q q cofactorize ->
+    coequalizer_skolem C f g Q' q' cofactorize' ->
+    exists !! f : Hom Q Q', Iso f /\
+      q .> f == q'.
+Proof.
+  unfold coequalizer; intros. destruct H, H0.
+  destruct (H1 Q' q' H0) as [eq unique].
+  destruct (H2 Q q H) as [eq' unique'].
+  exists (cofactorize0 Q' q').
+  repeat split.
+    red. exists (cofactorize' Q q). split.
+      destruct (H1 Q (q' .> cofactorize' Q q)). rewrite eq'. auto.
+        rewrite <- (H4 (cofactorize0 Q' q' .> cofactorize' Q q)).
+        apply H4. rewrite eq'. cat.
+        rewrite <- comp_assoc, eq. reflexivity.
+      destruct (H2 Q' (q .> cofactorize0 Q' q')). rewrite eq. auto.
+        rewrite <- (H4 (cofactorize' Q q .> cofactorize0 Q' q')).
+        apply H4. rewrite eq. cat.
+        rewrite <- comp_assoc, eq'. reflexivity.
+    rewrite eq. reflexivity.
+    intros. destruct H3. apply unique. rewrite H4. reflexivity.
+Qed.
+
+Theorem coequalizer_skolem_iso :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
+  (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q Q'')
+  (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q' Q''),
+    coequalizer_skolem C f g Q q cofactorize ->
+    coequalizer_skolem C f g Q' q' cofactorize' ->
+      Q ~ Q'.
+Proof.
+  intros. edestruct coequalizer_skolem_uiso.
+    apply H.
+    apply H0.
+    do 2 destruct H1. eauto.
 Qed.
 
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
