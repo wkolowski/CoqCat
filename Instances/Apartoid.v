@@ -439,7 +439,7 @@ Proof.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
-Definition Apartoid_cotuple {J : Apartoid} {A : J -> Apartoid}
+(* TODO *) Definition Apartoid_cotuple {J : Apartoid} {A : J -> Apartoid}
     {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
     : ApartoidHom (Apartoid_bigCoprodOb A) X.
 Proof.
@@ -447,7 +447,7 @@ Proof.
   destruct x as [j a], x' as [j' a']; simpl; do 2 intro.
   destruct (f j) as [fj Hfj]; simpl in *.
   destruct (f j') as [fj' Hfj']; simpl in *. apply (Hfj a a).
-Abort. (* TODO *)
+Abort. 
 
 (*Record RatT : Type :=
 {

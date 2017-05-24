@@ -33,10 +33,6 @@ Arguments expOb [C] [hp] [has_exponentials] _ _.
 Arguments eval [C] [hp] [has_exponentials] [X] [Y].
 Arguments curry [C] [hp] [has_exponentials] [X] [Y] [Z] _.
 
-Arguments ProductFunctor [C] [hp].
-
-Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
-
 Definition uncurry
     {C : Cat} {hp : has_products C} {he : has_exponentials C}
     {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
@@ -97,12 +93,6 @@ Proof.
   rewrite ProductFunctor_fmap_pres_comp. rewrite comp_assoc.
   rewrite H3. rewrite <- comp_assoc. rewrite H1. reflexivity.
 Qed.
-(*Theorem curry_eval' :
-  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
-    (X Y Z : Ob C) f, curry (eval .> f) == f.*)
-
- 
-
 
 Theorem uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
@@ -114,7 +104,20 @@ Proof.
   unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
 Qed.
 
-Theorem exponential_unique :
+Ltac curry := intros; pose curry_Proper; repeat
+match goal with
+    | |- context [Proper] => proper; intros
+    | |- context [curry (eval .> (_ .> _))] =>
+        rewrite <- (comp_assoc eval); rewrite curry_comp
+    | |- curry _ == id _ => rewrite <- curry_eval
+    | |- curry _ == curry _ => apply curry_Proper
+    | |- _ .> _ == _ .> _ => try (f_equiv; auto; fail)
+    | |- context [id _ .> _] => rewrite id_left
+    | |- context [_ .> id _] => rewrite id_right
+    | |- ?x == ?x => reflexivity
+end.
+
+Theorem exponential_iso :
     forall (C : Cat) (hp : has_products C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y),
@@ -176,7 +179,43 @@ Proof.
             rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
 Qed.
 
-Theorem has_exponentials_unique :
+Theorem exponential_skolem_uiso :
+  forall (C : Cat) (hp : has_products C) (X Y : Ob C)
+  (E : Ob C) (eval : Hom (prodOb E X) Y)
+  (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
+  (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
+  (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
+      exponential_skolem X Y E eval curry ->
+      exponential_skolem X Y E' eval' curry' ->
+      exists !! f : Hom E E', Iso f /\
+        f ×' id X .> eval' == eval.
+Proof.
+  intros. do 2 red in H. do 2 red in H0.
+  exists (curry' E eval0). repeat split.
+    red. exists (curry0 E' eval').
+    split.
+      destruct (H E eval0) as [H1 H2].
+        rewrite <- (H2 (curry' E eval0 .> curry0 E' eval')).
+          rewrite (H2 (id E)).
+            reflexivity.
+            rewrite ProductFunctor_fmap_pres_id, id_left. reflexivity.
+          rewrite ProductFunctor_fmap_pres_comp_l.
+            destruct (H E' eval'), (H0 E eval0).
+              rewrite comp_assoc. rewrite H3. rewrite H5. reflexivity.
+      destruct (H0 E' eval') as [H1 H2].
+        rewrite <- (H2 (curry0 E' eval' .> curry' E eval0)).
+          rewrite (H2 (id E')).
+            reflexivity.
+            rewrite ProductFunctor_fmap_pres_id, id_left. reflexivity.
+          rewrite ProductFunctor_fmap_pres_comp_l.
+            destruct (H E' eval'), (H0 E eval0).
+              rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
+    intros. edestruct H0. apply H1.
+    intros. edestruct H0. apply H3. rewrite <- H2. apply comp_Proper; cat.
+      apply ProductFunctor_fmap_Proper; cat. rewrite H3; cat.
+Qed.
+
+(* TODO *) Theorem has_exponentials_unique :
   forall (C : Cat) (hp : has_products C) (hp' : has_products C)
     (he : has_exponentials C) (he' : has_exponentials C) (X Y : Ob C),
       @expOb C hp he X Y ~ @expOb C hp' he' X Y.
@@ -184,17 +223,11 @@ Proof.
   intros. destruct he, he'. simpl in *.
 Abort.
 
-Print Functor.
-
-Instance Functor (C : Cat) (hp : has_products C) (he : has_exponentials C)
-    (X : Ob C) : Functor C C :=
+Instance ExponentialFunctor
+  (C : Cat) (hp : has_products C) (he : has_exponentials C)
+  (X : Ob C) : Functor C C :=
 {
     fob := fun Y : Ob C => expOb X Y;
     fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
-Proof.
-  unfold Proper, respectful; intros. apply curry_Proper.
-    rewrite H. reflexivity.
-  intros. rewrite <- curry_comp. apply curry_Proper. cat.
-  intros. rewrite <- curry_eval. apply curry_Proper. cat.
-Defined.
+Proof. all: curry. Defined.

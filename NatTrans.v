@@ -1,10 +1,10 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-(*Require Import Coq.Logic.IndefiniteDescription.*)
 Require Import Cat.Base.
 
 Require Import Functor.
 Require Import BinProdCoprod.
+Require Import Exponential.
 
 Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 {
@@ -134,7 +134,7 @@ Proof.
   destruct α, β; simpl in *. fpair.
 Defined.
 
-Instance has_products {C D : Cat} {hp : has_products D}
+Instance FunCat_has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 {
     prodOb := FunCat_prodOb;
@@ -195,7 +195,7 @@ Proof.
 Defined.
 
 Instance FunCat_has_coproducts {C D : Cat} {hp : has_coproducts D}
-    : has_coproducts (FunCat C D) :=
+  : has_coproducts (FunCat C D) :=
 {
     coprodOb := FunCat_coprodOb;
     coproj1 := @FunCat_coproj1 C D hp;
@@ -210,4 +210,25 @@ Proof.
   destruct H. rewrite H, H0. copair.
 Defined.
 
+Instance FunCat_expOb
+  {C D : Cat} {hp : has_products D} {he : has_exponentials D}
+  (F G : Functor C D) : Functor C D :=
+{
+    fob := fun X : Ob C => expOb (fob F X) (fob G X)
+}. Check curry. Check @uncurry. Check @fmap.
+Proof. Print has_exponentials.
+  intros.
+  Check (curry (@uncurry D hp he (fob F A) (fob G A) (expOb (fob F A) (fob G A)) _
+  .> fmap G X)).
+  Focus 2. unfold Proper, respectful. intros. proper.
+Abort. 
+  
+
 (* TODO : transfer of exponentials *)
+Instance FunCat_has_exponentials
+  {C D : Cat} {hp : has_products D} {he : has_exponentials D}
+  : has_exponentials (FunCat C D) :=
+{}.
+Proof.
+Abort.
+  

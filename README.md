@@ -22,7 +22,6 @@ Accomplished:
 General TODO:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (as described in CPDT). This will be very hard, but fruitful.
  * Settle all the matters with axioms forever (is the combination indefinite description + proof irrelevance + functional extensionality ok?).
- * Fix equalizers.
  * Define representability and adjoints.
  * Do stuff related to distributive categories.
  * Refactor the products and coproducts — put them in separate files in a new directory. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects.

@@ -584,8 +584,9 @@ Defined.
 
 
 Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
-Notation "f ×' g" := (fmap ProductFunctor f g) (at level 40).
-(* TODO Notation "A + B" := (fob CoproductFunctor (A, B)) (at level 50). *)
+Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
+Notation "A + B" := (fob CoproductFunctor (A, B)).
+Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
 
 Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
     : has_coproducts (Dual C) :=

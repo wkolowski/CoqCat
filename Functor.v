@@ -123,4 +123,3 @@ Proof.
   (* Proper *) proper. my_simpl; solve_depExtEq.
   (* Category laws *) all: cat.
 Defined.
-
