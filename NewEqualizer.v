@@ -26,10 +26,6 @@ Definition biequalizer_skolem
     equalizer_skolem C f g E e factorize /\
     coequalizer_skolem C f g E q cofactorize.
 
-Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
-    : forall {B : Type}, B -> Prop :=
-    | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
-
 (* TODO : check coherences for has_equalizers *)
 Class has_equalizers (C : Cat) : Type :=
 {
@@ -55,6 +51,8 @@ Class has_coequalizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
     cofactorize : forall {X Y : Ob C} (f g : Hom X Y)
       (Q' : Ob C) (q' : Hom Y Q'), Hom (coeq_ob f g) Q';
+    cofactorize_Proper : forall (X Y E' : Ob C) (f g : Hom X Y),
+      Proper (equiv ==> equiv) (@cofactorize X Y f g E');
     is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
         coequalizer_skolem C f g
           (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
@@ -275,6 +273,42 @@ Proof.
   edestruct is_coequalizer0. apply H0; cat.
 Defined.
 
+Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
+    : has_coequalizers (Dual C) :=
+{
+    coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
+    coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
+    cofactorize := fun X Y : Ob (Dual C) => @factorize C he Y X;
+    cofactorize_Proper := fun X Y : Ob (Dual C) =>
+      @factorize_Proper C he Y X;
+    is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
+}.
+Proof.
+  simpl; intros. destruct (eq_mor_Proper Y X f f' g g' H H0).
+  constructor. assumption.
+Defined.
 
+Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
+    : has_equalizers (Dual C) :=
+{
+    eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
+    eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
+    factorize := fun X Y : Ob (Dual C) => @cofactorize C he Y X;
+    factorize_Proper := fun X Y : Ob (Dual C) =>
+      @cofactorize_Proper C he Y X;
+    is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
+}.
+Proof.
+  simpl; intros. destruct (coeq_mor_Proper Y X f f' g g' H H0).
+  constructor. assumption.
+Defined.
 
-(* TODO : Dual instances *)
+Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
+    : has_biequalizers (Dual C) :=
+{
+    bi_has_equalizers := Dual_has_equalizers C he;
+    bi_has_coequalizers := Dual_has_coequalizers C he;
+}.
+Proof.
+  simpl. intros. rewrite equalizer_is_coequalizer. trivial.
+Defined.

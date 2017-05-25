@@ -34,6 +34,14 @@ Definition pullback_skolem
     forall (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y),
       setoid_unique (fun u : Hom Q P => q1 .> f == q2 .> g) (e Q q1 q2).
 
+Definition pushout_skolem
+  (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (e : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'), Hom P P')
+  : Prop := f .> p1 == g .> p2 /\
+    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q),
+      setoid_unique (fun u : Hom P Q => f .> q1 == g .> q2) (e Q q1 q2).
+
 Theorem pullback_skolem_iso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -54,17 +62,23 @@ Proof.
       rewrite <- H0. destruct (Hpull' Q q1 q2). apply H2. assumption.
 Qed.
 
+Check pullback_skolem.
+
 Class has_pullbacks (C : Cat) : Type :=
 {
     pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
-    pullbackOb_Proper : forall X Y A : Ob C,
-      Proper (equiv ==> equiv ==> eq) (@pullbackOb X Y A);
+    pullbackObProper : forall (X Y A : Ob C) (f f' : Hom X A)
+      (g g' : Hom Y A), f == f' -> g == g' ->
+        JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
     pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
       Hom (pullbackOb f g) X;
     pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
       Hom (pullbackOb f g) Y;
-    (*pull1_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> pull1 f g == pull1 f' g'*)
+    pull1_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
+      f == f' -> g == g' -> JMequiv (pull1 f g) (pull1 f' g');
+    pull2_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
+      f == f' -> g == g' -> JMequiv (pull2 f g) (pull2 f' g');
+    is_pullback : forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
+      pullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g)
 }.
 
-(* TODO : coherence for has_pullbacks *)

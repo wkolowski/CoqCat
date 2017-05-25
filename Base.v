@@ -203,3 +203,7 @@ Proof. solve_equiv. Defined.
 Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B)
     : Setoid A := {| equiv := fun a a' : A => f a == f a' |}.
 Proof. solve_equiv. Defined.
+
+Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
+    : forall {B : Type}, B -> Prop :=
+    | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
