@@ -4,7 +4,6 @@ Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-(* TODO : define appropriate tactics *)
 Class Graph : Type :=
 {
     vertices : Type;
@@ -16,6 +15,22 @@ Class Graph : Type :=
 Arguments vertices _ : clear implicits.
 Arguments edges _ : clear implicits.
 
+Ltac graphob X := try intros until X;
+match type of X with
+  | Graph => 
+    let a := fresh X "_V" in
+    let b := fresh X "_E" in
+    let c := fresh X "_src" in
+    let d := fresh X "_tgt" in destruct X as [a b c d]
+  | Ob _ => progress simpl in X; graphob X
+end; simpl in *.
+
+Ltac graphobs := repeat
+match goal with
+  | X : Graph |- _ => graphob X
+  | X : Ob _ |- _ => graphob X
+end.
+
 Class GraphHom (X Y : Graph) : Type :=
 {
     fver : vertices X -> vertices Y;
@@ -26,6 +41,26 @@ Class GraphHom (X Y : Graph) : Type :=
 
 Arguments fver [X] [Y] _ _.
 Arguments fed [X] [Y] _ _.
+
+Ltac graphhom f := try intros until f;
+match type of f with
+  | GraphHom _ _ =>
+      let a := fresh f "_fver" in
+      let b := fresh f "_fed" in
+      let c := fresh f "_pres_src" in
+      let d := fresh f "_pres_tgt" in destruct f as [a b c d]
+  | Hom _ _ => progress simpl in f; graphhom f
+end; simpl in *.
+
+Ltac graphhoms := intros; repeat
+match goal with
+  | f : GraphHom _ _ |- _ => graphhom f
+  | f : Hom _ _ |- _ => graphhom f
+  | _ => idtac
+end.
+
+Ltac graph' := repeat (graphobs || graphhoms || cat).
+Ltac graph := try (graph'; fail).
 
 Instance GraphHomSetoid (X Y : Graph) : Setoid (GraphHom X Y) :=
 {
@@ -48,8 +83,8 @@ Instance GraphComp (X Y Z : Graph)
     fed := fun e : edges X => fed g (fed f e);
 }.
 Proof.
-  all: intros; destruct X, Y, Z, f, g; simpl in *;
-  repeat match goal with
+  all: graphhoms; repeat
+  match goal with
       | H : forall _, _ = _ |- _ => try rewrite H; clear H
   end; auto.
 Defined.
@@ -59,7 +94,7 @@ Instance GraphId (X : Graph) : GraphHom X X :=
     fver := fun v : vertices X => v;
     fed := fun e : edges X => e
 }.
-Proof. all: cat. Defined.
+Proof. all: graph. Defined.
 
 Instance GraphCat : Cat :=
 {
@@ -70,7 +105,7 @@ Instance GraphCat : Cat :=
     id := GraphId;
 }.
 Proof.
-  all: cat. proper. split; intros; repeat
+  all: graph. proper. split; intros; repeat
   match reverse goal with
       | H : _ /\ _ |- _ => destruct H
       | H : forall _, _ = _ |- _ => try rewrite H; clear H

@@ -1,16 +1,6 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq/CoqCat".
+Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
-
-Instance SubCatMor (C : Cat) (P : forall X Y : Ob C, Hom X Y -> Prop)
-    : Cat :=
-{
-    Ob := Ob C;
-    Hom := fun X Y : Ob C => {f : Hom X Y | P _ _ f};
-    HomSetoid := fun X Y : Ob C =>
-      Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) (P X Y))
-}.
-Abort.
+Require Import Cat.
 
 Instance WithMon (C : Cat) : Cat :=
 {

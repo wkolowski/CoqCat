@@ -2,21 +2,51 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
 
-(* TODO: write tactics likes those used in Instances/Set *)
-
 Definition ProdMakerOb (C : Cat) (A B : Ob C) : Type :=
     {X : Ob C & {f : Hom X A & Hom X B}}.
 
-Definition ProdMakerHom {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
+Ltac pmob X := try intros until X;
+match type of X with
+  | ProdMakerOb _ _ _ => 
+    let a := fresh X "_f" in
+    let b := fresh X "_g" in destruct X as [X [a b]]
+  | Ob _ => progress simpl in X; pmob X
+end; simpl in *.
+
+Ltac pmobs := repeat
+match goal with
+  | X : ProdMakerOb _ _ _ |- _ => pmob X
+  | X : Ob _ |- _ => pmob X
+end.
+
+Definition ProdMakerHom {C : Cat} {A B : Ob C} (X Y : ProdMakerOb C A B)
     : Type.
 Proof.
-  destruct P1 as [X [f g]], P2 as [X' [f' g']].
-  exact {h : Hom X X' | f == h .> f' /\ g == h .> g'}.
+  pmobs.
+  exact {h : Hom X Y | X_f == h .> Y_f /\ X_g == h .> Y_g}.
 Defined.
+
+Ltac pmhom f := try intros until f;
+match type of f with
+  | ProdMakerHom _ _ =>
+      let a := fresh f "_eq1" in
+      let b := fresh f "_eq2" in destruct f as [f [a b]]
+  | Hom _ _ => progress simpl in f; pmhom f
+end; simpl in f.
+
+Ltac pmhoms := intros; repeat
+match goal with
+  | f : ProdMakerHom _ _ |- _ => pmhom f
+  | f : Hom _ _ |- _ => pmhom f
+  | _ => idtac
+end.
+
+(* TODO : finish tactics *)
 
 Definition ProdMakerEquiv {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     (h h' : ProdMakerHom P1 P2) : Prop.
 Proof.
+  pmobs. simpl in *. pmhom h. destruct h as [a [b c]]. pmhom h.
     destruct P1 as [X [f g]], P2 as [X' [f' g']];
     destruct h as [h _], h' as [h' _]. exact (h == h').
 Defined.

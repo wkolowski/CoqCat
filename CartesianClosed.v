@@ -56,7 +56,7 @@ Proof.
   intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
 Qed.
 
-Theorem exp_term_dom :
+(* TODO *) Theorem exp_term_dom :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb (term C) Y ~ Y.
 Proof.
@@ -68,7 +68,7 @@ Proof.
   do 2 red in is_exponential; simpl in *.
 Abort.
 
-Theorem exp_term_cod :
+(* TODO *) Theorem exp_term_cod :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb Y (term C) ~ term C.
 Proof.

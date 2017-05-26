@@ -26,10 +26,11 @@ Definition biequalizer_skolem
     equalizer_skolem C f g E e factorize /\
     coequalizer_skolem C f g E q cofactorize.
 
-(* TODO : check coherences for has_equalizers *)
 Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
+    eq_ob_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
     eq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (eq_mor f g) (eq_mor f' g');
@@ -38,14 +39,14 @@ Class has_equalizers (C : Cat) : Type :=
     factorize_Proper : forall (X Y E' : Ob C) (f g : Hom X Y),
       Proper (equiv ==> equiv) (@factorize X Y f g E');
     is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
-        equalizer_skolem C f g
-          (eq_ob f g) (eq_mor f g) (factorize f g)
+      equalizer_skolem C f g (eq_ob f g) (eq_mor f g) (factorize f g)
 }.
 
-(* TODO : check coherences for has_coequalizers *)
 Class has_coequalizers (C : Cat) : Type :=
 {
     coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
+    coeq_ob_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
     coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
     coeq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
@@ -54,8 +55,7 @@ Class has_coequalizers (C : Cat) : Type :=
     cofactorize_Proper : forall (X Y E' : Ob C) (f g : Hom X Y),
       Proper (equiv ==> equiv) (@cofactorize X Y f g E');
     is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
-        coequalizer_skolem C f g
-          (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
+      coequalizer_skolem C f g (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
 }.
 
 Class has_biequalizers (C : Cat) : Type :=
@@ -178,7 +178,7 @@ Proof.
     do 2 destruct H1. eauto.
 Qed.
 
-(* TODO *) Theorem biequalizer_skolem_uiso :
+(* TODO : finish *) Theorem biequalizer_skolem_uiso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
@@ -191,7 +191,33 @@ Qed.
       exists !! f : Hom E E', Iso f /\
         e == f .> e' /\ q .> f == q'.
 Proof.
-  intros.
+  unfold biequalizer_skolem; intros.
+  destruct H as [[HE_eq HE_uq] [HC_eq HC_uq]],
+    H0 as [[HE'_eq HE'_uq] [HC'_eq HC'_uq]].
+  destruct (HE_uq E' e' HE'_eq) as [eq unique].
+  destruct (HE'_uq E e HE_eq) as [eq' unique'].
+  exists (factorize' E e).
+  repeat split.
+    red. exists (factorize0 E' e'). split.
+      destruct (HE_uq E (factorize' E e .> e')). rewrite eq'. auto.
+        rewrite <- (H0 (factorize' E e .> factorize0 E' e')).
+        apply H0. rewrite eq'. cat.
+        rewrite comp_assoc, eq. reflexivity.
+      destruct (HE'_uq E' (factorize0 E' e' .> e)). rewrite eq. auto.
+        rewrite <- (H0 (factorize0 E' e' .> factorize' E e)).
+        apply H0. rewrite eq. cat.
+        rewrite comp_assoc, eq'. reflexivity.
+    rewrite eq'. reflexivity.
+    Focus 2.
+    intros. destruct H as [_ [H1 _]]. apply unique'. symmetry. auto.
+    destruct (HC_uq E' q' HC'_eq).
+    destruct (HC'_uq E q HC_eq).
+    assert (factorize' E e .> e' .> g .> q'
+      == e .> f .> q .> cofactorize0 E' q').
+      rewrite eq'. rewrite HE_eq.
+      assocr'. rewrite H. reflexivity.
+    
+    
 Abort.
 
 Theorem equalizer_skolem_is_mono :
@@ -284,8 +310,9 @@ Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
 }.
 Proof.
-  simpl; intros. destruct (eq_mor_Proper Y X f f' g g' H H0).
-  constructor. assumption.
+  all: simpl; intros.
+    destruct (eq_ob_Proper Y X f f' g g' H H0). auto.
+    destruct (eq_mor_Proper Y X f f' g g' H H0). auto.
 Defined.
 
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
@@ -299,8 +326,9 @@ Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
 }.
 Proof.
-  simpl; intros. destruct (coeq_mor_Proper Y X f f' g g' H H0).
-  constructor. assumption.
+  all: simpl; intros.
+    destruct (coeq_ob_Proper Y X f f' g g' H H0). auto.
+  destruct (coeq_mor_Proper Y X f f' g g' H H0). auto.
 Defined.
 
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)

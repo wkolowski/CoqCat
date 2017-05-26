@@ -17,7 +17,7 @@ Accomplished:
  * Functors: defined different kinds of functors, proved their properties, defined the category of categories.
  * Natural transformations: defined functor categories, characterized natural isomorphisms.
  * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
- * Automation: got some quite useful genral tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) — they can, for example, elegantly destruct objects of these categories. Also got some automation for solving instances of Proper, proving equivalences and rewriting with pairings and copairings.
+ * Automation: got some quite useful general tactics for working with categories (cat) and also tactics for particular categories (sgr, mon, grp, pros, pos etc.) — they can, for example, elegantly destruct objects of these categories. Also got some automation for solving instances of Proper, proving equivalences and rewriting with pairings and copairings.
 
 General TODO:
  * Implement a tactic to decide equality of morphisms based on a tactic that decides whether two elements of a monoid are equal (as described in CPDT). This will be very hard, but fruitful.

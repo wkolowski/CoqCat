@@ -2,6 +2,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import BinProdCoprod.
 Require Import InitTerm.
+
 Definition distr
   {C : Cat} {hi : has_init C} {ht : has_term C}
   {hp : has_products C} {hc : has_coproducts C} (X Y Z : Ob C)
@@ -19,7 +20,7 @@ Class distributive (C : Cat) : Type :=
     distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
 }.
 
-Theorem distr_prodOb_init :
+(* TODO *) Theorem distr_prodOb_init :
   forall (C : Cat) (hi : has_init C) (d : distributive C) (X : Ob C),
     prodOb (init C) X ~ init C.
 Proof.
@@ -29,4 +30,5 @@ Proof.
   split.
     rewrite fpair_pre, <- fpair_id. apply fpair_Proper.
       cat.
-      destruct hi, d; simpl. Abort.
+      destruct hi, d; simpl.
+Abort.

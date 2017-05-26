@@ -26,10 +26,10 @@ Arguments extEq [A] _ _.
 
 Hint Constructors extEq.
 
-Instance extEq_Equivalence (A : Set) : Equivalence (@extEq A).
+Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
 Proof. split; eauto. Defined.
 
-Theorem extEq_Proper : forall (A B : Set) (f : A -> B),
+Theorem extEq_Proper : forall (A B : Type) (f : A -> B),
     Proper (@extEq A ==> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -40,7 +40,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
-Theorem extEq_Proper' : forall (A B : Set) (f : A -> B),
+Theorem extEq_Proper' : forall (A B : Type) (f : A -> B),
     Proper (@extEq A --> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -51,7 +51,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
-Theorem extEq_Proper'' : forall (A : Set),
+Theorem extEq_Proper'' : forall (A : Type),
     Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
 Proof.
   repeat red. intros. eapply extEq_trans. eauto. eauto.
@@ -79,7 +79,7 @@ Arguments depExtEq_unext [A1] [A2] [B1] [B2] _ _ _ _ _ _.
 
 Hint Constructors depExtEq.
 
-Instance depExtEq_Equivalence (A : Set) : Equivalence (@depExtEq A A).
+Instance depExtEq_Equivalence (A : Type) : Equivalence (@depExtEq A A).
 Proof.
   split; red; simpl; intros; eauto.
 Defined.
@@ -207,3 +207,5 @@ Proof. solve_equiv. Defined.
 Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
     : forall {B : Type}, B -> Prop :=
     | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
+
+Hint Constructors JMequiv.

@@ -10,12 +10,12 @@ Require Import Logic.IndefiniteDescription.
 
 Instance ExtSet : Cat :=
 {|
-    Ob := Set;
-    Hom := fun A B : Set => A -> B;
-    HomSetoid := fun A B : Set =>
+    Ob := Type;
+    Hom := fun A B : Type => A -> B;
+    HomSetoid := fun A B : Type =>
         {| equiv := fun f g : A -> B => extEq f g |};
-    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-    id := fun (A : Set) (a : A) => a
+    comp := fun (A B C : Type) (f : A -> B) (g : B -> C) (a : A) => g (f a);
+    id := fun (A : Type) (a : A) => a
 |}.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -34,18 +34,18 @@ Proof.
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 a a). auto.
 Qed.
 
-Theorem ExtSet_ret_surjective : forall (A B : Set)
+Theorem ExtSet_ret_surjective : forall (A B : Type)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     @surjectiveS A B {| equiv := @extEq B |} f.
 Proof.
-  intros. red.
+  intros until f; intro H. red.
     destruct H as [g H]. intro. exists (g b). simpl in *.
     change (f (g b)) with ((fun a : B => (f (g a))) b).
     change b with ((fun a : B => a) b) at 2.
     rewrite H. reflexivity.
 Qed.
 
-Theorem ExtSet_invertible_ret : forall (A B : Set) (f : Hom A B),
+Theorem ExtSet_surjective_ret : forall (A B : Type) (f : Hom A B),
     @surjectiveS A B {| equiv := @extEq B |} f ->
     {g : Hom B A | g .> f == id B}.
 Proof.
@@ -59,14 +59,14 @@ Qed.
 Instance ExtSet_has_init : has_init ExtSet :=
 {
     init := Empty_set;
-    create := fun (X : Set) (e : Empty_set) => match e with end
+    create := fun (X : Type) (e : Empty_set) => match e with end
 }.
 Proof. simpl; intros. apply extEq_ext. destruct a. Defined.
 
 Instance ExtSet_has_term : has_term ExtSet :=
 {
     term := unit;
-    delete := fun (X : Set) (x : X) => tt
+    delete := fun (X : Type) (x : X) => tt
 }.
 Proof.
   simpl; intros. apply extEq_ext. intro. destruct (f a). auto.
@@ -95,26 +95,21 @@ Defined.
 
 (* TODO *) Instance ExtSet_has_all_products : has_all_products ExtSet :=
 {
-    bigProdOb := fun (J : Set) (A : J -> Ob ExtSet) =>
+    bigProdOb := fun (J : Type) (A : J -> Ob ExtSet) =>
         forall j : J, A j;
-    bigProj := fun (J : Set) (A : J -> Ob ExtSet) (j : J) =>
+    bigProj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) =>
         fun (f : forall j : J, A j) => f j;
-    tuple := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
+    tuple := fun (J : Type) (A : J -> Ob ExtSet) (X : Ob ExtSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
   (* Proper *) repeat red; simpl; intros. apply extEq_ext. intro.
-
-(*    change (fun j : J => f j a) with (fun j : J => (f j) a).
-    change (fun j : J => f j a) with (fun j : J => (f j) a).
-*)
-    change (fun j : J => f j a) with (fun j : J => (fun a : X => f j a) a).
-    change (fun j : J => g j a) with (fun j : J => (fun a : X => g j a) a).
-  admit.
+  Focus 2.
   (* Universal property *) unfold big_product_skolem; simpl; intros.
     repeat (red || split).
       intro. apply extEq_ext. intro. auto.
-      intros. apply extEq_ext. intro.
+      intros. apply extEq_ext. intro. simpl in *.
+      change (y a) with (fun j => y a j).
 Abort.
 
 Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
@@ -137,11 +132,11 @@ Defined.
 
 Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
 {
-    bigCoprodOb := fun (J : Set) (A : J -> Ob ExtSet) =>
+    bigCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) =>
         {j : J & A j};
-    bigCoproj := fun (J : Set) (A : J -> Ob ExtSet) (j : J) =>
+    bigCoproj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) =>
         fun (x : A j) => existT A j x;
-    cotuple := fun (J : Set) (A : J -> Ob ExtSet) (X : Ob ExtSet)
+    cotuple := fun (J : Type) (A : J -> Ob ExtSet) (X : Ob ExtSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
           f (projT1 p) (projT2 p)
 }.
@@ -149,7 +144,7 @@ Proof.
   (* cotuple is proper *) cat.
   (* Coproduct law *) red; cat. apply extEq_ext. cat.
 Defined.
- 
+
 (* TODO *)Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
     eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
@@ -161,7 +156,7 @@ Proof.
   unfold equalizer; simpl; split; intros.
     apply extEq_ext. intros; destruct a as [x H]; simpl.
       assumption.
-    Definition trick {X Y E' : Set} (f g : X -> Y) (e' : E' -> X)
+    Definition trick {X Y E' : Type} (f g : X -> Y) (e' : E' -> X)
       (H : extEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a)))
         : E' -> {x : X | extEq (f x) (g x)}.
     Proof.
@@ -191,7 +186,7 @@ Abort.
 (* TODO : Instance ExtSet_has_coequalizers : has_coequalizers ExtSet :=
 {
     coeq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
-        {T : Set & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
+        {T : Type & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
     (*coeq_mor := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>*)
         
 }.

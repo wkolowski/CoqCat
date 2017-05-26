@@ -210,7 +210,7 @@ Proof.
   destruct H. rewrite H, H0. copair.
 Defined.
 
-Instance FunCat_expOb
+(* TODO *) Instance FunCat_expOb
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   (F G : Functor C D) : Functor C D :=
 {
