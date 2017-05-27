@@ -224,7 +224,7 @@ Proof. Print has_exponentials.
 Abort. 
   
 
-(* TODO : transfer of exponentials *)
+(* TODO : transfer of exponentials. Do they even transfer? *)
 Instance FunCat_has_exponentials
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   : has_exponentials (FunCat C D) :=

@@ -246,6 +246,46 @@ Proof.
     intros. grphoms'. destruct H. rewrite H, H0. destruct (y x). auto.
 Defined.
 
+Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
+
+Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X)
+    : Type := {f : Hom X X | Iso f}.
+
+Definition AutHom_Fun {C : Cat} {X : Ob C} (A B : AutOb C X)
+    (f : AutHom A B) : Hom X X := proj1_sig f.
+
+Coercion AutHom_Fun : AutHom >-> Hom.
+
+Instance AutHomSetoid (C : Cat) (X : Ob C)
+    : forall A B : AutOb C X, Setoid (AutHom A B) :=
+{
+    equiv := fun f g : AutHom A B =>
+      @equiv _ (@HomSetoid C X X) f g
+}.
+Proof. repeat split; red; solve_equiv. Defined.
+
+Definition AutComp (C : Cat) (A : Ob C) (X Y Z : AutOb C A)
+    (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
+Proof.
+  red. exists (f .> g). destruct f, g; simpl. apply iso_comp; auto.
+Defined.
+
+Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A)
+    : AutHom X X.
+Proof.
+  red. exists (id A). apply id_is_aut.
+Defined.
+
+Instance AutCat (C : Cat) (X : Ob C) : Cat :=
+{
+    Ob := AutOb C X;
+    Hom := @AutHom C X;
+    HomSetoid := @AutHomSetoid C X;
+    comp := @AutComp C X;
+    id := @AutId C X;
+}.
+Proof. proper. all: cat. Defined.
+
 (* TODO : finish *) Instance Cayley_Sgr (G : Grp) : Sgr :=
 {
     carrier := {f : G -> G & {g : G | f = op g}};

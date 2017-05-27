@@ -60,10 +60,15 @@ Qed.
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb (term C) Y ~ Y.
 Proof.
-  symmetry; red.
-  exists (curry proj1). red.
-  exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
+  symmetry.
+  red. exists (curry proj1).
+  red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
   split.
+    fpair. SearchAbout id. replace Y with (prodOb Y (term C)).
+      rewrite <- fpair_id. SearchAbout fpair.
+      SearchAbout curry.
+
+
   destruct ccc, ccc_term0, ccc_prod0, ccc_exp0; simpl in *.
   do 2 red in is_exponential; simpl in *.
 Abort.

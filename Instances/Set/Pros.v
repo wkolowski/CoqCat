@@ -247,3 +247,7 @@ Instance Pros_has_products : has_products ProsCat :=
 Proof.
   all: pros'; try rewrite H, H0; try destruct (y x); auto.
 Defined.
+
+Definition thin (C : Cat) : Prop :=
+    forall (X Y : Ob C) (f g : Hom X Y), f == g.
+

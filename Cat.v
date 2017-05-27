@@ -177,7 +177,7 @@ Restart.
   unfold Iso; cat.
 Qed.
 
-Theorem iso_inv_unique : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Theorem iso_inv_unique : forall {C : Cat} {A B : Ob C} (f : Hom A B),
     Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
 Proof.
   unfold Iso; split; intros.

@@ -93,10 +93,10 @@ Proof.
 Qed.
 
 Theorem equalizer_skolem_uiso :
-  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
-    (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
-    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E)
-    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E'),
+  forall {C : Cat} {X Y : Ob C} {f g : Hom X Y}
+    {E E' : Ob C} {e : Hom E X} {e' : Hom E' X}
+    {factorize : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E}
+    {factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), Hom E'' E'},
       equalizer_skolem C f g E e factorize ->
       equalizer_skolem C f g E' e' factorize' ->
       exists !! f : Hom E E', Iso f /\
@@ -129,7 +129,7 @@ Theorem equalizer_skolem_iso :
       equalizer_skolem C f g E' e' factorize' ->
       E ~ E'.
 Proof.
-  intros. edestruct equalizer_skolem_uiso.
+  intros. edestruct @equalizer_skolem_uiso.
     apply H.
     apply H0.
     do 2 destruct H1. eauto.
@@ -161,6 +161,23 @@ Proof.
         rewrite <- comp_assoc, eq'. reflexivity.
     rewrite eq. reflexivity.
     intros. destruct H3. apply unique. rewrite H4. reflexivity.
+Restart. (* TODO : coeq_skol_uiso using duality *)
+  intro. rewrite <- (dual_involution_axiom C). intros. simpl in *.
+  rewrite <- dual_equalizer_coequalizer_skolem in H.
+  rewrite <- dual_equalizer_coequalizer_skolem in H0.
+  destruct (equalizer_skolem_uiso H H0).
+  Print Mon.
+  destruct H1 as [[H1 H2] H3]. simpl in *.
+  edestruct (iso_inv_unique _ _ _ x).
+  rewrite dual_iso_self in H1.
+  destruct (H4 H1). exists x0. repeat split.
+    destruct H6. iso.
+    destruct H6. cut (q .> x0 == q' .> x .> x0).
+      intro. rewrite comp_assoc in H8. destruct H6. rewrite H6 in H8. cat.
+      rewrite <- H2. reflexivity.
+    intros. destruct H6. apply H8. split.
+      destruct H7. rewrite H2 in H9.
+    (* Idea : use thefact that q is epi *)
 Qed.
 
 Theorem coequalizer_skolem_iso :
