@@ -7,6 +7,7 @@ Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
+Require Import Pullback.
 Require Import Exponential.
 Require Import CartesianClosed.
 
@@ -234,3 +235,37 @@ Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
     ccc_prod := CoqSet_has_products;
     ccc_exp := CoqSet_has_exponentials;
 }.
+
+Print has_pullbacks.
+
+Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A)
+    : Set := {p : X * Y | f (fst p) = g (snd p)}.
+
+Definition CoqSet_pull1 {X Y A : Set} (f : X -> A) (g : Y -> A)
+ (p : CoqSet_pullbackOb f g) : X := fst (proj1_sig p).
+
+Definition CoqSet_pull2 {X Y A : Set} (f : X -> A) (g : Y -> A)
+ (p : CoqSet_pullbackOb f g) : Y := snd (proj1_sig p).
+
+Definition CoqSet_factor {X Y A : Set} (f : X -> A) (g : Y -> A)
+    (P : Set) (p1 : P -> X) (p2 : P -> Y) : P -> CoqSet_pullbackOb f g.
+Proof.
+  intro x. red. exists (p1 x, p2 x).
+  simpl.
+Abort.
+
+Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
+{
+    pullbackOb := @CoqSet_pullbackOb;
+    pull1 := @CoqSet_pull1;
+    pull2 := @CoqSet_pull2;
+}.
+Proof.
+  Focus 2. intros. unfold CoqSet_pull1.
+  assert (CoqSet_pullbackOb f g = CoqSet_pullbackOb f' g').
+    unfold CoqSet_pullbackOb. simpl in *.
+    f_equal. extensionality p. rewrite H, H0. trivial.
+  (*replace (fun p : CoqSet_pullbackOb f' g' => fst (proj1_sig p))
+    with (fun p : CoqSet_pullbackOb f g => fst (proj1_sig p)).
+  intros. simpl. Print JMequiv. unfold CoqSet_pullbackOb.*)
+Abort.

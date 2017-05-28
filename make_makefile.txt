@@ -1,1 +1,1 @@
-coq_makefile -R "." Cat -o makefile *v Instances/*v Instances/*/*v
+coq_makefile -R "." Cat -o makefile *v Limits/*v Instances/*v Instances/*/*v

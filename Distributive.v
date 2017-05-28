@@ -71,7 +71,7 @@ Proof.
   *)
 
 
-    rewrite H0 in H1. rewrite H0 in H2. cat.
+    rewrite H0 in H1.
 Restart.
   intros. symmetry.
   red. exists (create _).
@@ -88,15 +88,5 @@ Restart.
               rewrite <- is_initial. reflexivity.
               rewrite H. cat.
             destruct d, distr_has_products. simpl in *.
-            do 2 red in is_product. Print Ret.
-            destruct (is_product _ _ _ proj1 proj2).
-            rewrite H2. assocl. rewrite fpair_pre.
-
-
-
-
-
-
-
-
-
+            do 2 red in is_product.
+Abort.

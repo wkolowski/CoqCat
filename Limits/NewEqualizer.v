@@ -161,14 +161,14 @@ Proof.
         rewrite <- comp_assoc, eq'. reflexivity.
     rewrite eq. reflexivity.
     intros. destruct H3. apply unique. rewrite H4. reflexivity.
-Restart. (* TODO : coeq_skol_uiso using duality *)
+(*Restart. (* TODO : coeq_skol_uiso using duality *)
   intro. rewrite <- (dual_involution_axiom C). intros. simpl in *.
   rewrite <- dual_equalizer_coequalizer_skolem in H.
   rewrite <- dual_equalizer_coequalizer_skolem in H0.
   destruct (equalizer_skolem_uiso H H0).
   Print Mon.
   destruct H1 as [[H1 H2] H3]. simpl in *.
-  edestruct (iso_inv_unique _ _ _ x).
+  edestruct (iso_inv_unique x).
   rewrite dual_iso_self in H1.
   destruct (H4 H1). exists x0. repeat split.
     destruct H6. iso.
@@ -177,7 +177,7 @@ Restart. (* TODO : coeq_skol_uiso using duality *)
       rewrite <- H2. reflexivity.
     intros. destruct H6. apply H8. split.
       destruct H7. rewrite H2 in H9.
-    (* Idea : use thefact that q is epi *)
+    (* Idea : use thefact that q is epi *)*)
 Qed.
 
 Theorem coequalizer_skolem_iso :

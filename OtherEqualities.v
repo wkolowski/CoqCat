@@ -1,6 +1,6 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Base.
+Require Import Base.
 
 Inductive ext : forall A : Set, A -> A -> Prop :=
     | ext_eq : forall (A : Set) (x y : A), x = y -> ext A x y
@@ -27,3 +27,9 @@ Proof.
 Abort.
 
 (* TODO: put equalities here *)
+
+(*Inductive JMequiv_ext : forall (A : Type) (_ : Setoid A) (B : Type),
+    A -> B -> Prop :=
+    | JMequiv_equiv : forall (A B : Type), Setoid A ->
+        forall x y : A, x == y -> JMequiv_ext x y.
+    | JMequiv_ext : forall *)

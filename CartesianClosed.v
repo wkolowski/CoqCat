@@ -64,7 +64,9 @@ Proof.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
   split.
-    fpair. SearchAbout id. replace Y with (prodOb Y (term C)).
+    fpair. SearchAbout eval.
+
+ SearchAbout id. replace Y with (prodOb Y (term C)).
       rewrite <- fpair_id. SearchAbout fpair.
       SearchAbout curry.
 

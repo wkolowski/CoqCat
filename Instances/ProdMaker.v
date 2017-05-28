@@ -46,7 +46,7 @@ end.
 Definition ProdMakerEquiv {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     (h h' : ProdMakerHom P1 P2) : Prop.
 Proof.
-  pmobs. simpl in *. pmhom h. destruct h as [a [b c]]. pmhom h.
+  (*pmobs. simpl in *. pmhom h. destruct h as [a [b c]]. pmhom h.*)
     destruct P1 as [X [f g]], P2 as [X' [f' g']];
     destruct h as [h _], h' as [h' _]. exact (h == h').
 Defined.
