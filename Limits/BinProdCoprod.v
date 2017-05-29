@@ -153,6 +153,8 @@ repeat match goal with
     | |- fpair _ _ == fpair _ _ => apply fpair_Proper
     | |- context [id _ .> _] => rewrite id_left
     | |- context [_ .> id _] => rewrite id_right
+    | |- fpair _ _ == id (prodOb _ _) =>
+        rewrite <- fpair_id; apply fpair_Proper
     | _ => repeat rewrite <- comp_assoc; auto
 end.
 
@@ -343,6 +345,8 @@ repeat match goal with
     | |- copair _ _ == copair _ _ => apply copair_Proper
     | |- context [id _ .> _] => rewrite id_left
     | |- context [_ .> id _] => rewrite id_right
+    | |- copair _ _ == id (coprodOb _ _) =>
+        rewrite <- copair_id; apply copair_Proper
     | _ => repeat rewrite comp_assoc; auto
 end.
 

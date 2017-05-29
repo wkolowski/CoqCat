@@ -57,6 +57,24 @@ Defined.
 Hint Unfold initial terminal zero_object.
 Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso.
 
+Ltac init := intros; repeat
+match goal with
+    | (*ht : has_init ?C*) |- context [?f] =>
+        match type of f with
+            | Hom (init _) _ => rewrite (is_initial _ f)
+        end
+    | |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
+Ltac term := intros; repeat
+match goal with
+    | |- context [?f] =>
+        match type of f with
+            | Hom _ (term _) => rewrite (is_terminal _ f)
+        end
+    | |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
 Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
     @initial C A <-> @terminal (Dual C) A.
 Proof. split; auto. Qed.

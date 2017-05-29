@@ -2,6 +2,9 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
 
+Require Import InitTerm.
+Require Import BinProdCoprod.
+
 Set Implicit Arguments.
 
 Definition pullback_skolem
@@ -151,4 +154,31 @@ Proof.
   symmetry. cat.
 Qed.
 
-Print Assumptions pushout_iso.
+Theorem pullback_product :
+  forall (C : Cat) (ht : has_term C) (X Y T : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (factorize : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
+    pullback_skolem C (delete X) (delete Y) P p1 p2 factorize ->
+    product_skolem C P p1 p2 factorize.
+Proof.
+  red; intros. edestruct H, H1 as [[H2 H3] H4]. repeat split.
+    rewrite H2. reflexivity.
+    rewrite H3. reflexivity.
+    intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
+Qed.
+
+Theorem product_pullback :
+  forall (C : Cat) (ht : has_term C) (X Y T : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
+    product_skolem C P p1 p2 fpair ->
+    pullback_skolem C (delete X) (delete Y) P p1 p2 fpair.
+Proof.
+  red; intros. repeat split.
+    term.
+    edestruct H, H0. rewrite <- H2. reflexivity.
+    edestruct H, H0. rewrite <- H3. reflexivity.
+    intros. edestruct H. apply H2. cat.
+      rewrite H0. reflexivity.
+      rewrite H4. reflexivity.
+Qed.
