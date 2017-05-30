@@ -135,6 +135,39 @@ Proof.
     do 2 destruct H1. eauto.
 Qed.
 
+Theorem equalizer_skolem_equiv :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
+  (factorize : forall (E' : Ob C) (e : Hom E' X), Hom E' E),
+    equalizer_skolem C f g E e1 factorize ->
+    equalizer_skolem C f g E e2 factorize ->
+    e1 == e2.
+Proof.
+  intros. edestruct H, H0, (H4 _ _ H3).
+  assert (factorize0 E e2 == id E).
+    apply H6. cat.
+    edestruct (H2 _ _ H3). rewrite H7 in H8. cat.
+Qed.
+
+Arguments equalizer_skolem_equiv [C X Y f g E e1 e2 factorize] _ _.
+
+Theorem equalizer_skolem_equiv_factorize :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (E : Ob C) (e : Hom E X)
+  (factorize : forall (E' : Ob C) (e' : Hom E' X), Hom E' E)
+  (factorize' : forall (E' : Ob C) (e' : Hom E' X), Hom E' E),
+    equalizer_skolem C f g E e factorize ->
+    equalizer_skolem C f g E e factorize' ->
+    forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g ->
+      factorize E' e' == factorize' E' e'.
+Proof.
+  intros.
+  edestruct H, H3; [idtac | apply H5].
+    assumption.
+    edestruct H0, H7; [idtac | apply H8].
+      assumption.
+Qed.
+
 Theorem coequalizer_skolem_uiso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
@@ -233,8 +266,6 @@ Proof.
       == e .> f .> q .> cofactorize0 E' q').
       rewrite eq'. rewrite HE_eq.
       assocr'. rewrite H. reflexivity.
-    
-    
 Abort.
 
 Theorem equalizer_skolem_is_mono :

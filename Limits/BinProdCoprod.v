@@ -4,9 +4,9 @@ Require Export Cat.
 Require Export Functor.
 
 Definition product_skolem (C : Cat) {A B : Ob C}
-    (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
-    (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
-    forall (X : Ob C) (f : Hom X A) (g : Hom X B),
+  (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
+  (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
+  forall (X : Ob C) (f : Hom X A) (g : Hom X B),
     setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
 
 Definition coproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
@@ -74,9 +74,7 @@ Theorem dual_product_coproduct_skolem :
   (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
     product_skolem C P p1 p2 fpair <->
     coproduct_skolem (Dual C) P p1 p2 fpair.
-Proof.
-  cat.
-Defined.
+Proof. cat. Defined.
 
 Theorem dual_biproduct_skolem_self :
   forall (C : Cat) (X Y : Ob C)
@@ -278,6 +276,12 @@ Proof.
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
   Time fpair.
 Defined.
+
+(* TODO : likely false. Idea : bool x bool, projections id and negation *) Theorem wut :
+  forall (C : Cat) (hp : has_products C) (X : Ob C),
+    @proj1 C hp X X == @proj2 C hp X X.
+Proof.
+Abort.
 
 Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)

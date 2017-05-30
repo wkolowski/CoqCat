@@ -4,6 +4,7 @@ Require Import Cat.
 
 Require Import InitTerm.
 Require Import BinProdCoprod.
+Require Import Cat.Limits.NewEqualizer.
 
 Set Implicit Arguments.
 
@@ -12,7 +13,7 @@ Definition pullback_skolem
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall {P' : Ob C} (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
   : Prop := p1 .> f == p2 .> g /\
-    forall (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y),
+    forall (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y), q1 .> f == q2 .> g ->
       setoid_unique (fun u : Hom Q P => u .> p1 == q1 /\ u .> p2 == q2) (factor q1 q2).
 
 Definition pushout_skolem
@@ -20,7 +21,7 @@ Definition pushout_skolem
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (e : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'), Hom P P')
   : Prop := f .> p1 == g .> p2 /\
-    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q),
+    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q), f .> q1 == g .> q2 ->
       setoid_unique (fun u : Hom P Q => p1 .> u == q1 /\ p2 .> u == q2) (e Q q1 q2).
 
 Class has_pullbacks (C : Cat) : Type :=
@@ -69,9 +70,12 @@ Theorem dual_pullback_pushout :
   forall (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
+    (*@pullback_skolem C X Y A f g P p1 p2 factor <->
+    @pushout_skolem (Dual C) Y X A g f P p2 p1
+      (fun (P' : Ob C) (p1' : Hom P' Y) (p2' : Hom P' X) => factor P' p2' p1').*)
     pullback_skolem C f g P p1 p2 factor <->
     pushout_skolem (Dual C) f g P p1 p2 factor.
-Proof. cat. Qed.
+Proof. cat. Defined.
 
 Theorem pullback_skolem_uiso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
@@ -87,10 +91,10 @@ Proof.
   intros. destruct H as [HP HP'], H0 as [HQ HQ'].
   exists (factor' P p1 p2).
   destruct
-    (HP' P p1 p2) as [[HP1 HP2] HP3],
-    (HP' Q q1 q2) as [[HP1' HP2'] HP3'],
-    (HQ' P p1 p2) as [[HQ1' HQ2'] HQ3'],
-    (HQ' Q q1 q2) as [[HQ1 HQ2] HQ3].
+    (HP' P p1 p2 HP) as [[HP1 HP2] HP3],
+    (HP' Q q1 q2 HQ) as [[HP1' HP2'] HP3'],
+    (HQ' P p1 p2 HP) as [[HQ1' HQ2'] HQ3'],
+    (HQ' Q q1 q2 HQ) as [[HQ1 HQ2] HQ3].
   repeat split; cat.
     red. exists (factor0 Q q1 q2). split.
       rewrite <- (HP3 (factor' P p1 p2 .> factor0 Q q1 q2)); auto.
@@ -154,21 +158,23 @@ Proof.
   symmetry. cat.
 Qed.
 
-Theorem pullback_product :
-  forall (C : Cat) (ht : has_term C) (X Y T : Ob C)
+(* TODO : dual *) Theorem pullback_product :
+  forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factorize : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
     pullback_skolem C (delete X) (delete Y) P p1 p2 factorize ->
     product_skolem C P p1 p2 factorize.
 Proof.
-  red; intros. edestruct H, H1 as [[H2 H3] H4]. repeat split.
-    rewrite H2. reflexivity.
-    rewrite H3. reflexivity.
-    intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
+  red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
+    term.
+    repeat split.
+      rewrite H2. reflexivity.
+      rewrite H3. reflexivity.
+      intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
 Qed.
 
-Theorem product_pullback :
-  forall (C : Cat) (ht : has_term C) (X Y T : Ob C)
+(* TODO : dual *) Theorem product_pullback :
+  forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
     product_skolem C P p1 p2 fpair ->
@@ -176,9 +182,44 @@ Theorem product_pullback :
 Proof.
   red; intros. repeat split.
     term.
-    edestruct H, H0. rewrite <- H2. reflexivity.
-    edestruct H, H0. rewrite <- H3. reflexivity.
-    intros. edestruct H. apply H2. cat.
-      rewrite H0. reflexivity.
-      rewrite H4. reflexivity.
+    edestruct H, H1. rewrite <- H3. reflexivity.
+    edestruct H, H1. rewrite <- H4. reflexivity.
+    intros. edestruct H. apply H3. cat.
+      rewrite H1. reflexivity.
+      rewrite H5. reflexivity.
 Qed.
+
+(* TODO : dual *) Theorem pullback_equalizer :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (P : Ob C) (p : Hom P X)
+  (factor : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' X), Hom P' P),
+    pullback_skolem C f g P p p factor ->
+    equalizer_skolem C f g P p
+      (fun (P' : Ob C) (p : Hom P' X) => factor P' p p).
+Proof.
+  repeat split.
+    destruct H. assumption.
+    edestruct H, (H2 _ _ _ H0), H3. assumption.
+    intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
+Qed.
+
+(* TODO : finish *) Theorem equalizer_pullback :
+  forall (C : Cat) (hp : has_products C) (X Y : Ob C) (f g : Hom X Y)
+  (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
+  (factorize : forall (E' : Ob C) (e : Hom E' X), Hom E' E),
+    equalizer_skolem C f g E e1 factorize ->
+    equalizer_skolem C f g E e2 factorize ->
+    pullback_skolem C f g (prodOb E E) (proj1 .> e1) (proj2 .> e2)
+      (fun (E' : Ob C) (e1 : Hom E' X) (e2 : Hom E' X) =>
+        fpair (factorize E' e1) (factorize E' e2)).
+Proof.
+  intros. pose (eq := equalizer_skolem_equiv H H0).
+  repeat split.
+    rewrite eq. edestruct H0. assocr'. rewrite e.
+      f_equiv. destruct hp. simpl in *. do 2 red in is_product.
+Abort.
+
+(* 
+https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
+
+Zhen Lin *)
