@@ -158,7 +158,7 @@ Proof.
   symmetry. cat.
 Qed.
 
-(* TODO : dual *) Theorem pullback_product :
+Theorem pullback_product :
   forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factorize : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
@@ -173,7 +173,7 @@ Proof.
       intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
 Qed.
 
-(* TODO : dual *) Theorem product_pullback :
+Theorem product_pullback :
   forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
@@ -189,7 +189,7 @@ Proof.
       rewrite H5. reflexivity.
 Qed.
 
-(* TODO : dual *) Theorem pullback_equalizer :
+Theorem pullback_equalizer :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (P : Ob C) (p : Hom P X)
   (factor : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' X), Hom P' P),
@@ -223,3 +223,48 @@ Abort.
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
 
 Zhen Lin *)
+
+Theorem pushout_coproduct :
+  forall (C : Cat) (ht : has_init C) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (cofactorize : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
+    pushout_skolem C (create X) (create Y) P p1 p2 cofactorize ->
+    coproduct_skolem C P p1 p2 cofactorize.
+Proof.
+  red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
+    init.
+    repeat split.
+      rewrite H2. reflexivity.
+      rewrite H3. reflexivity.
+      intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
+Qed.
+
+Theorem coproduct_pushout :
+  forall (C : Cat) (ht : has_init C) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
+    coproduct_skolem C P p1 p2 copair ->
+    pushout_skolem C (create X) (create Y) P p1 p2 copair.
+Proof.
+  red; intros. repeat split.
+    init.
+    edestruct H, H1. rewrite <- H3. reflexivity.
+    edestruct H, H1. rewrite <- H4. reflexivity.
+    intros. edestruct H. apply H3. cat.
+      rewrite H1. reflexivity.
+      rewrite H5. reflexivity.
+Qed.
+
+Theorem pushout_coequalizer :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (P : Ob C) (p : Hom Y P)
+  (cofactor : forall (P' : Ob C) (f : Hom Y P') (g : Hom Y P'), Hom P P'),
+    pushout_skolem C f g P p p cofactor ->
+    coequalizer_skolem C f g P p
+      (fun (P' : Ob C) (p : Hom Y P') => cofactor P' p p).
+Proof.
+  repeat split.
+    destruct H. assumption.
+    edestruct H, (H2 _ _ _ H0), H3. assumption.
+    intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
+Qed.

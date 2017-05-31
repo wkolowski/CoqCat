@@ -2,6 +2,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
 
+Set Implicit Arguments.
+
 Definition equalizer_skolem
   (C : Cat) {X Y : Ob C} (f g : Hom X Y)
   (E : Ob C) (e : Hom E X)
@@ -149,8 +151,6 @@ Proof.
     edestruct (H2 _ _ H3). rewrite H7 in H8. cat.
 Qed.
 
-Arguments equalizer_skolem_equiv [C X Y f g E e1 e2 factorize] _ _.
-
 Theorem equalizer_skolem_equiv_factorize :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e : Hom E X)
@@ -194,23 +194,28 @@ Proof.
         rewrite <- comp_assoc, eq'. reflexivity.
     rewrite eq. reflexivity.
     intros. destruct H3. apply unique. rewrite H4. reflexivity.
-(*Restart. (* TODO : coeq_skol_uiso using duality *)
+Qed.
+
+Theorem coequalizer_skolem_uiso' :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
+  (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q Q'')
+  (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), Hom Q' Q''),
+    coequalizer_skolem C f g Q q cofactorize ->
+    coequalizer_skolem C f g Q' q' cofactorize' ->
+    exists !! f : Hom Q' Q, Iso f /\
+      q' .> f == q.
+Proof.
   intro. rewrite <- (dual_involution_axiom C). intros. simpl in *.
   rewrite <- dual_equalizer_coequalizer_skolem in H.
   rewrite <- dual_equalizer_coequalizer_skolem in H0.
   destruct (equalizer_skolem_uiso H H0).
-  Print Mon.
-  destruct H1 as [[H1 H2] H3]. simpl in *.
-  edestruct (iso_inv_unique x).
-  rewrite dual_iso_self in H1.
-  destruct (H4 H1). exists x0. repeat split.
-    destruct H6. iso.
-    destruct H6. cut (q .> x0 == q' .> x .> x0).
-      intro. rewrite comp_assoc in H8. destruct H6. rewrite H6 in H8. cat.
-      rewrite <- H2. reflexivity.
-    intros. destruct H6. apply H8. split.
-      destruct H7. rewrite H2 in H9.
-    (* Idea : use thefact that q is epi *)*)
+  exists x. repeat split.
+    rewrite <- dual_iso_self. cat.
+    cat. rewrite H3. reflexivity.
+    intros. cat. apply H4. cat.
+      rewrite dual_iso_self. assumption.
+      rewrite H3. reflexivity.
 Qed.
 
 Theorem coequalizer_skolem_iso :
@@ -226,6 +231,37 @@ Proof.
     apply H.
     apply H0.
     do 2 destruct H1. eauto.
+Qed.
+
+Theorem coequalizer_skolem_equiv :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q : Ob C) (q1 : Hom Y Q) (q2 : Hom Y Q)
+  (cofactorize : forall (Q' : Ob C) (q : Hom Y Q'), Hom Q Q'),
+    coequalizer_skolem C f g Q q1 cofactorize ->
+    coequalizer_skolem C f g Q q2 cofactorize ->
+    q1 == q2.
+Proof.
+  intros. edestruct H, H0, (H4 _ _ H3).
+  assert (cofactorize0 Q q2 == id Q).
+    apply H6. cat.
+    edestruct (H2 _ _ H3). rewrite H7 in H8. cat.
+Qed.
+
+Theorem coequalizer_skolem_equiv_factorize :
+  forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+  (Q : Ob C) (q : Hom Y Q)
+  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), Hom Q Q')
+  (cofactorize' : forall (Q' : Ob C) (q' : Hom Y Q'), Hom Q Q'),
+    coequalizer_skolem C f g Q q cofactorize ->
+    coequalizer_skolem C f g Q q cofactorize' ->
+    forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' ->
+      cofactorize Q' q' == cofactorize' Q' q'.
+Proof.
+  intros.
+  edestruct H, H3; [idtac | apply H5].
+    assumption.
+    edestruct H0, H7; [idtac | apply H8].
+      assumption.
 Qed.
 
 (* TODO : finish *) Theorem biequalizer_skolem_uiso :
@@ -265,7 +301,10 @@ Proof.
     assert (factorize' E e .> e' .> g .> q'
       == e .> f .> q .> cofactorize0 E' q').
       rewrite eq'. rewrite HE_eq.
-      assocr'. rewrite H. reflexivity.
+      assocr'. rewrite H. reflexivity. rewrite unique'. eauto.
+        rewrite H0. eauto.
+    assert (factorize' E e == cofactorize0 E' q').
+      apply unique'.
 Abort.
 
 Theorem equalizer_skolem_is_mono :
@@ -326,7 +365,7 @@ Proof.
   intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
   rewrite dual_mon_epi in H0.
   rewrite <- dual_iso_self.
-  apply (equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).
+  apply (@equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).
     rewrite dual_equalizer_coequalizer_skolem. exact H.
     exact H0.
 Qed.
@@ -382,8 +421,8 @@ Defined.
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {
-    bi_has_equalizers := Dual_has_equalizers C he;
-    bi_has_coequalizers := Dual_has_coequalizers C he;
+    bi_has_equalizers := Dual_has_equalizers he;
+    bi_has_coequalizers := Dual_has_coequalizers he;
 }.
 Proof.
   simpl. intros. rewrite equalizer_is_coequalizer. trivial.
