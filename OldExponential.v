@@ -16,9 +16,9 @@ Theorem exponential_iso :
         exponential X Y E eval -> exponential X Y E' eval' -> E ~ E'.
 Proof.
   intros. red in H, H0.
-  destruct (H0 E eval0) as [u [Hu1 Hu2]], (H E' eval') as [u' [Hu'1 Hu'2]].
+  destruct (H0 E eval) as [u [Hu1 Hu2]], (H E' eval') as [u' [Hu'1 Hu'2]].
   exists u, u'. split.
-    destruct (H E eval0) as [f [Hf1 Hf2]].
+    destruct (H E eval) as [f [Hf1 Hf2]].
     assert (f == id E).
       apply Hf2. rewrite ProductFunctor_fmap_pres_id, id_left. reflexivity.
       rewrite <- H1. symmetry. apply Hf2.

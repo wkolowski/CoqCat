@@ -68,7 +68,6 @@ Proof.
   falg. exists (@id C X). functor.
 Defined.
 
-Print Cat.
 Instance CatFAlg {C : Cat} (F : Functor C C) : Cat :=
 {
     Ob := @FAlg C F;

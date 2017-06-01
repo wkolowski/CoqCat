@@ -236,8 +236,6 @@ Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
     ccc_exp := CoqSet_has_exponentials;
 }.
 
-Print has_pullbacks.
-
 Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A)
     : Set := {p : X * Y | f (fst p) = g (snd p)}.
 

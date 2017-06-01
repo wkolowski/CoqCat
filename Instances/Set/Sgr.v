@@ -276,8 +276,6 @@ Proof.
   apply app_nel_assoc.
 Defined.
 
-Print has_coproducts.
-
 (*Definition Sgr_coproj1 (X Y : Sgr) : Hom X (Sgr_freeprod X Y).
 Proof.
   sgr'. exists (fun x : X => singl (inl x)). simpl.

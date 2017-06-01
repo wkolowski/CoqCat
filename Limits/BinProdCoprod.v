@@ -3,6 +3,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 Require Export Cat.
 Require Export Functor.
 
+Set Implicit Arguments.
+
 Definition product_skolem (C : Cat) {A B : Ob C}
   (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
   (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P) : Prop :=
@@ -10,16 +12,16 @@ Definition product_skolem (C : Cat) {A B : Ob C}
     setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
 
 Definition coproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
-    (p1 : Hom A P) (p2 : Hom B P)
-    (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
-    forall (X : Ob C) (f : Hom A X) (g : Hom B X),
-    setoid_unique (fun d : Hom P X => f == p1 .> d /\ g == p2 .> d) (copair f g).
+  (p1 : Hom A P) (p2 : Hom B P)
+  (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
+  forall (X : Ob C) (f : Hom A X) (g : Hom B X),
+  setoid_unique (fun d : Hom P X => f == p1 .> d /\ g == p2 .> d) (copair f g).
 
 Definition biproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
-    (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
-    (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
-    (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
-    product_skolem C P pA pB (@fpair) /\ coproduct_skolem C P iA iB (@copair).
+  (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
+  (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
+  (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X) : Prop :=
+  product_skolem C P pA pB (@fpair) /\ coproduct_skolem C P iA iB (@copair).
 
 Class has_products (C : Cat) : Type :=
 {
@@ -156,37 +158,6 @@ repeat match goal with
     | _ => repeat rewrite <- comp_assoc; auto
 end.
 
-Theorem product_skolem_iso :
-  forall (C : Cat) (X Y : Ob C)
-  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
-  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
-  (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
-    product_skolem C P p1 p2 fpair ->
-    product_skolem C Q q1 q2 fpair' ->
-    P ~ Q.
-Proof.
-  intros. red in H. red in H0.
-  red. exists (fpair' _ p1 p2).
-  red. exists (fpair0 _ q1 q2).
-  destruct
-    (H P p1 p2) as [[HP1 HP2] HP3],
-    (H Q q1 q2) as [[HQ1 HQ2] HQ3],
-    (H0 P p1 p2) as [[HP1' HP2'] HP3'],
-    (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
-  cat.
-    rewrite <- (HP3 (fpair' P p1 p2 .> fpair0 Q q1 q2)).
-      apply HP3. cat.
-      cat.
-        rewrite <- HQ1. assumption.
-        rewrite <- HQ2. assumption.
-    rewrite <- (HQ3' (fpair0 Q q1 q2 .> fpair' P p1 p2)).
-      apply HQ3'. cat.
-      cat.
-        rewrite <- HP1'. assumption.
-        rewrite <- HP2'. assumption.
-Qed.
-
 Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -223,6 +194,60 @@ Proof.
     edestruct H0 as [[H1 H2] _]. eauto.
     intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
       edestruct H0. apply H2. cat.
+Qed.
+
+Theorem product_skolem_iso :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
+  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
+  (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C Q q1 q2 fpair' ->
+    P ~ Q.
+Proof.
+  intros. destruct (product_skolem_uiso H H0). cat.
+Qed.
+
+Theorem product_skolem_fpair_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
+  (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C P p1 p2 fpair' ->
+      forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
+        fpair A f g == fpair' A f g.
+Proof.
+  intros. edestruct H, H0. apply H2. cat.
+Qed.
+
+Theorem product_skolem_p1_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p1' : Hom P X) (p2 : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C P p1' p2 fpair ->
+    p1 == p1'.
+Proof.
+  intros. do 2 red in H.
+  destruct (H P p1 p2) as [[H1 H2] H3].
+  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  rewrite (H3 (id P)) in H1'. cat. cat.
+Qed.
+
+Theorem product_skolem_p2_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (p2' : Hom P Y)
+  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
+    product_skolem C P p1 p2 fpair ->
+    product_skolem C P p1 p2' fpair ->
+    p2 == p2'.
+Proof.
+  intros. do 2 red in H.
+  destruct (H P p1 p2) as [[H1 H2] H3].
+  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
 Theorem iso_to_prod_skolem :
@@ -390,6 +415,60 @@ Proof.
     edestruct H as [[H1 H2] _]. rewrite <- H2. reflexivity.
     intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
       edestruct H. apply H2. split; [rewrite eq1 | rewrite eq2]; cat.
+Qed.
+
+Theorem coproduct_skolem_iso :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
+  (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
+  (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
+    coproduct_skolem C P p1 p2 copair ->
+    coproduct_skolem C Q q1 q2 copair' ->
+    P ~ Q.
+Proof.
+  intros. destruct (coproduct_skolem_uiso H H0). cat.
+Qed.
+
+Theorem coproduct_skolem_copair_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+  (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
+  (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
+    coproduct_skolem C P p1 p2 copair ->
+    coproduct_skolem C P p1 p2 copair' ->
+      forall (A : Ob C) (f : Hom X A) (g : Hom Y A),
+        copair A f g == copair' A f g.
+Proof.
+  intros. edestruct H, H0. apply H2. cat.
+Qed.
+
+Theorem coproduct_skolem_p1_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p1' : Hom X P) (p2 : Hom Y P)
+  (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
+    coproduct_skolem C P p1 p2 copair ->
+    coproduct_skolem C P p1' p2 copair ->
+    p1 == p1'.
+Proof.
+  intros. do 2 red in H.
+  destruct (H P p1 p2) as [[H1 H2] H3].
+  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  rewrite (H3 (id P)) in H1'. cat. cat.
+Qed.
+
+Theorem coproduct_skolem_p2_equiv :
+  forall (C : Cat) (X Y : Ob C)
+  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P) (p2' : Hom Y P)
+  (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
+    coproduct_skolem C P p1 p2 copair ->
+    coproduct_skolem C P p1 p2' copair ->
+    p2 == p2'.
+Proof.
+  intros. do 2 red in H.
+  destruct (H P p1 p2) as [[H1 H2] H3].
+  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
 Theorem coproduct_skolem_comm :
@@ -621,8 +700,8 @@ Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
 Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     : has_biproducts (Dual C) :=
 {
-    products := Dual_has_products C hp;
-    coproducts := Dual_has_coproducts C hp;
+    products := Dual_has_products hp;
+    coproducts := Dual_has_coproducts hp;
 }.
 Proof.
   simpl. intros. rewrite product_is_coproduct. trivial.

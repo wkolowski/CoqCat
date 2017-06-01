@@ -1,7 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
-Require Export InitTerm.
+Require Export OldLimits.OldInitTerm.
 Require Export BinProdCoprod.
 
 Definition big_product (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)

@@ -34,7 +34,7 @@ Proof.
 
 
 
-    pose (mor_to_init_is_ret C (init C) (prodOb (init C) X) proj1).
+    (*pose (mor_to_init_is_ret C (init C) (prodOb (init C) X) proj1).
     assert (initial (init C)).
       red. intros. exists (create X0). repeat red. split; auto.
       init.
@@ -54,7 +54,7 @@ Proof.
 
     assert (x .> proj1 .> fpair (id (init C)) (create X)
       == x .> id (prodOb (init C) X)).
-      init.
+      init.*)
 Restart.
   intros. symmetry.
   red. exists (create _).

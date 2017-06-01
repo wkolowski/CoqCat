@@ -2,19 +2,20 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 
-Definition initial {C : Cat} (I : Ob C) : Prop :=
-    forall (X : Ob C), exists!! f : Hom I X, True.
+Set Implicit Arguments.
 
-Definition terminal {C : Cat} (T : Ob C) : Prop :=
-    forall (X : Ob C), exists!! f : Hom X T, True.
-
-Definition zero_object {C : Cat} (Z : Ob C) : Prop :=
-    initial Z /\ terminal Z.
-
-Definition initial_skolem {C : Cat} (I : Ob C)
+Definition initial {C : Cat} (I : Ob C)
   (create : forall X : Ob C, Hom I X) : Prop :=
-  forall X : Ob C,
-    setoid_unique (fun _ => True) (create X).
+    forall X : Ob C, setoid_unique (fun _ => True) (create X).
+
+Definition terminal {C : Cat} (T : Ob C)
+  (delete : forall X : Ob C, Hom X T) : Prop :=
+    forall X : Ob C, setoid_unique (fun _ => True) (delete X).
+
+Definition zero {C : Cat} (Z : Ob C)
+  (create : forall X : Ob C, Hom Z X)
+  (delete : forall X : Ob C, Hom X Z) : Prop :=
+    initial Z create /\ terminal Z delete.
 
 Class has_init (C : Cat) : Type :=
 {
@@ -46,20 +47,19 @@ Class has_zero (C : Cat) : Type :=
 Coercion zero_is_initial : has_zero >-> has_init.
 Coercion zero_is_terminal : has_zero >-> has_term.
 
-Definition zero_ob (C : Cat) {has_zero0 : has_zero C} : Ob C := init C.
-Definition zero_mor (C : Cat) {has_zero0 : has_zero C}
+Definition zero_ob (C : Cat) {hz : has_zero C} : Ob C := init C.
+Definition zero_mor (C : Cat) {hz : has_zero C}
     (X Y : Ob C) : Hom X Y.
 Proof.
   pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
 
-Hint Unfold initial terminal zero_object.
 Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso.
 
 Ltac init := intros; repeat
 match goal with
-    | (*ht : has_init ?C*) |- context [?f] =>
+    | |- context [?f] =>
         match type of f with
             | Hom (init _) _ => rewrite (is_initial _ f)
         end
@@ -75,38 +75,29 @@ match goal with
     | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
-Theorem dual_initial_terminal : forall (C : Cat) (A : Ob C),
-    @initial C A <-> @terminal (Dual C) A.
-Proof. split; auto. Qed.
+Theorem dual_initial_terminal :
+  forall (C : Cat) (X : Ob C)
+  (create : forall X' : Ob C, Hom X X'),
+    @initial C X create <-> @terminal (Dual C) X create.
+Proof. cat. Qed.
 
-Theorem dual_zero_self : forall (C : Cat) (A : Ob C),
-    @zero_object C A <-> @zero_object (Dual C) A.
+Theorem dual_zero_self :
+  forall (C : Cat) (X : Ob C)
+  (create : forall X' : Ob C, Hom X X')
+  (delete : forall X' : Ob C, Hom X' X),
+    @zero C X create delete <-> @zero (Dual C) X delete create.
 Proof.
-  unfold zero_object; repeat split; intros;
-  destruct H; assumption.
+  unfold zero; cat.
 Qed.
 
-Theorem initial_uiso : forall (C : Cat) (A B : Ob C),
-    initial A -> initial B -> A ~~ B.
-Proof.
-  unfold uniquely_isomorphic, isomorphic, initial; intros.
-  destruct (H B) as [f [_ Hf]],
-           (H0 A) as [g [_ Hg]],
-           (H A) as [idA [_ HA]],
-           (H0 B) as [idB [_ HB]].
-  exists f; red. split; auto. exists g; split.
-    rewrite <- (HA (id A)); try symmetry; auto.
-    rewrite <- (HB (id B)); try symmetry; auto.
-Qed.
-
-Theorem initial_skolem_uiso :
+Theorem initial_uiso :
   forall (C : Cat) (A B : Ob C)
   (create : forall X : Ob C, Hom A X)
   (create' : forall X : Ob C, Hom B X),
-    initial_skolem A create -> initial_skolem B create' ->
-    A ~~ B.
+    initial A create -> initial B create' ->
+      A ~~ B.
 Proof.
-  unfold uniquely_isomorphic, isomorphic, initial; intros.
+  unfold uniquely_isomorphic, isomorphic; intros.
   red in H. red in H0.
   destruct (H B) as [_ Hf],
            (H0 A) as [_ Hg],
@@ -117,79 +108,88 @@ Proof.
     rewrite <- (HB (id B)); try symmetry; auto.
 Qed.
 
-Hint Resolve initial_uiso.
-
-Theorem initial_iso : forall (C : Cat) (A B : Ob C),
-    initial A -> initial B -> A ~ B.
-Proof. auto. Defined.
-
-Theorem terminal_uiso : forall (C : Cat) (A B : Ob C),
-    terminal A -> terminal B -> A ~~ B.
+Theorem initial_iso :
+  forall (C : Cat) (A B : Ob C)
+  (create : forall X : Ob C, Hom A X)
+  (create' : forall X : Ob C, Hom B X),
+    initial A create -> initial B create' ->
+      A ~ B.
 Proof.
-  unfold uniquely_isomorphic, isomorphic, terminal; intros.
-  destruct (H B) as [f [_ Hf]], (H0 A) as [g [_ Hg]], (H A) as [idA [_ HA]],
-    (H0 B) as [idB [_ HB]].
-  exists g; red. split; auto. exists f; split.
+  intros. destruct (initial_uiso H H0). cat.
+Qed.
+
+Theorem initial_create_equiv :
+  forall (C : Cat) (I : Ob C)
+  (create : forall X : Ob C, Hom I X)
+  (create' : forall X : Ob C, Hom I X),
+    initial I create ->
+    initial I create' ->
+      forall X : Ob C, create X == create' X.
+Proof.
+  intros. edestruct H. apply H2. trivial.
+Qed.
+
+Theorem terminal_uiso :
+  forall (C : Cat) (A B : Ob C)
+  (delete : forall X : Ob C, Hom X A)
+  (delete' : forall X : Ob C, Hom X B),
+    terminal A delete -> terminal B delete' ->
+      A ~~ B.
+Proof. (* TODO : make faster *)
+  (*intro. rewrite <- (dual_involution_axiom C). intros.
+  simpl in *. rewrite dual_unique_iso_self.
+  eapply initial_uiso; apply dual_initial_terminal.
+    exact H.
+    exact H0.*)
+Restart.
+  unfold uniquely_isomorphic, isomorphic; intros.
+  red in H. red in H0.
+  destruct (H B) as [_ Hf],
+           (H0 A) as [_ Hg],
+           (H A) as [_ HA],
+           (H0 B) as [_ HB].
+  exists (delete' A); red. split; auto. exists (delete0 B); split.
     rewrite <- (HA (id A)); try symmetry; auto.
     rewrite <- (HB (id B)); try symmetry; auto.
-Restart.
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
-  rewrite <- dual_initial_terminal in *.
-  rewrite dual_unique_iso_self. cat.
 Qed.
 
-Hint Resolve terminal_uiso.
-
-Theorem terminal_iso : forall (C : Cat) (A B : Ob C),
-    terminal A -> terminal B -> A ~ B.
-Proof. auto. Qed.
-
-Theorem zero_unique_iso : forall (C : Cat) (A B : Ob C),
-    zero_object A -> zero_object B -> A ~~ B.
-Proof. unfold zero_object; cat. Qed.
-
-Hint Resolve zero_unique_iso.
-
-Theorem zero_iso : forall (C : Cat) (A B : Ob C),
-    zero_object A -> zero_object B -> A ~ B.
-Proof. auto. Qed.
-
-Theorem iso_to_init_is_init : forall (C : Cat) (I X : Ob C),
-    initial I -> I ~ X -> initial X.
+Theorem terminal_iso :
+  forall (C : Cat) (A B : Ob C)
+  (delete : forall X : Ob C, Hom X A)
+  (delete' : forall X : Ob C, Hom X B),
+    terminal A delete -> terminal B delete' ->
+      A ~ B.
 Proof.
-  intros. destruct H0 as [f [g [eq1 eq2]]].
-  unfold initial in *. intro X'.
-  destruct (H X') as [create [_ Hcreate]].
-  exists (g .> create). split; intros; auto.
-    specialize (Hcreate (f .> y) H0). rewrite Hcreate.
-      rewrite <- comp_assoc. rewrite eq2. rewrite id_left. reflexivity.
-Defined.
-
-Theorem iso_to_term_is_term : forall (C : Cat) (T X : Ob C),
-    terminal T -> T ~ X -> terminal X.
-Proof.
-  intros. destruct H0 as [f [g [eq1 eq2]]].
-  unfold terminal in *. intro X'.
-  destruct (H X') as [del [_ Hdel]].
-  exists (del .> f). split; intros; auto.
-    specialize (Hdel (y .> g) H0). rewrite Hdel.
-      rewrite comp_assoc. rewrite eq2. rewrite id_right. reflexivity.
+  intros. destruct (terminal_uiso H H0). cat.
 Qed.
 
-Theorem mor_to_init_is_ret : forall (C : Cat) (I X : Ob C) (f : Hom X I),
-    initial I -> Ret f.
+Theorem terminal_delete_equiv :
+  forall (C : Cat) (T : Ob C)
+  (delete : forall X : Ob C, Hom X T)
+  (delete' : forall X : Ob C, Hom X T),
+    terminal T delete ->
+    terminal T delete' ->
+      forall X : Ob C, delete X == delete' X.
 Proof.
-  unfold initial, Ret; intros.
-  destruct (H X) as (g, [_ eq1]), (H I) as (idI, [_ eq2]). exists g.
-  rewrite <- (eq2 (g .> f)); try rewrite <- (eq2 (id I)); reflexivity.
+  intros. edestruct H. apply H2. trivial.
 Qed.
 
-Theorem mor_from_term_is_sec : forall (C : Cat) (T X : Ob C) (f : Hom T X),
-    terminal T -> Sec f.
+Theorem mor_to_init_is_ret :
+  forall (C : Cat) (I X : Ob C) (f : Hom X I)
+  (create : forall I' : Ob C, Hom I I'),
+    initial I create -> Ret f.
 Proof.
-  unfold terminal, Sec; intros.
-  destruct (H X) as (g, [_ eq1]), (H T) as (idT, [_ eq2]). exists g.
-  rewrite <- (eq2 (f .> g)); try rewrite <- (eq2 (id T)); reflexivity.
+  intros. red. exists (create0 X).
+  edestruct H. rewrite <- H1; cat.
+Qed.
+
+Theorem mor_from_term_is_sec :
+  forall (C : Cat) (T X : Ob C) (f : Hom T X)
+  (delete : forall T' : Ob C, Hom T' T),
+    terminal T delete -> Sec f.
+Proof.
+  intros. red. exists (delete0 X).
+  edestruct H. rewrite <- H1; cat.
 Qed.
 
 Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
@@ -208,7 +208,7 @@ Proof. cat. Defined.
 
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
-    zero_is_initial := Dual_has_init C hz;
-    zero_is_terminal := Dual_has_term C hz
+    zero_is_initial := Dual_has_init hz;
+    zero_is_terminal := Dual_has_term hz
 }.
 Proof. cat. Defined.

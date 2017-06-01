@@ -215,14 +215,13 @@ Defined.
   (F G : Functor C D) : Functor C D :=
 {
     fob := fun X : Ob C => expOb (fob F X) (fob G X)
-}. Check curry. Check @uncurry. Check @fmap.
-Proof. Print has_exponentials.
+}.
+Proof.
   intros.
-  Check (curry (@uncurry D hp he (fob F A) (fob G A) (expOb (fob F A) (fob G A)) _
-  .> fmap G X)).
+  (*Check (curry (@uncurry D hp he (fob F A) (fob G A) (expOb (fob F A) (fob G A)) _
+  .> fmap G X)).*)
   Focus 2. unfold Proper, respectful. intros. proper.
-Abort. 
-  
+Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)
 Instance FunCat_has_exponentials

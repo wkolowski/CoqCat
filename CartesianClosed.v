@@ -1,4 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
+ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 Require Import Limits.InitTerm.
@@ -69,7 +69,7 @@ Proof.
   red. exists (curry proj1).
   split.
     Focus 2. term.
-    pose (mor_from_term_is_sec C _ _ (@curry C ccc ccc Y (term C) (term C) proj1)).
+    (*pose (mor_from_term_is_sec C _ _ (@curry C ccc ccc Y (term C) (term C) proj1)).
     assert (terminal (term C)).
       red. intros. exists (delete _). cat. term.
     specialize (s H). destruct s as [g is_sec].
@@ -79,5 +79,5 @@ Proof.
       .> delete _ .> curry proj1 .> g == curry proj1 .> g).
       assocr'. rewrite is_sec. term.
     repeat rewrite comp_assoc in H1. rewrite is_sec in H1.
-    cat.
+    cat.*)
 Abort.
