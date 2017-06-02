@@ -4,6 +4,7 @@ Require Import Cat.
 
 Set Implicit Arguments.
 
+(* TODO : Likely the definition of factorize here is wrong *)
 Definition equalizer_skolem
   (C : Cat) {X Y : Ob C} (f g : Hom X Y)
   (E : Ob C) (e : Hom E X)

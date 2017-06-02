@@ -128,19 +128,18 @@ Proof.
     setoid.
 Defined.
 
-(* TODO: There's a problem with the definition of surjectiveS *)
-(*Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
-    Ret f <-> surjectiveS f.
+Definition surjectiveS_skolem
+  {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
+    exists g : B -> A, Proper (equiv ==> equiv) g /\
+      forall b : B, f (g b) == b.
+
+Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
+    Ret f <-> surjectiveS_skolem f.
 Proof.
   unfold Ret, surjectiveS; split; simpl; intros.
-    destruct H as [g H]. exists (g b). apply H.
-    Lemma l : forall (X Y : Setoid') (f : SetoidHom X Y)
-      (H : forall b : Y, exists a : X, f a == b), SetoidHom Y X.
-      intros. red. exists (fun y : Y => proj1_sig
-      (constructive_indefinite_description _ (H y))).
-      proper. do 2 destruct (constructive_indefinite_description _ _);
-      simpl. setoid'.
-Abort. *)
+    destruct H as [g H]. red. exists g. cat. setoid'.
+    do 2 destruct H. exists (exist _ _ H). cat.
+Qed.
 
 Instance CoqSetoid_init : Setoid' :=
 {
@@ -421,7 +420,18 @@ Inductive equiv_hetero {A : Type} (S : Setoid A)
 
 Hint Constructors equiv_hetero.
 
-(* TODO *)
+Theorem equiv_hetero_trans :
+  forall (A B C : Type) (SA : Setoid A) (SB : Setoid B)
+  (x : A) (y : B) (z : C), A = B -> JMeq SA SB ->
+    equiv_hetero SA B x y -> equiv_hetero SB C y z -> equiv_hetero SA C x z.
+Proof.
+  intros. Check JMeq_eq. Require Import Program. subst.
+  apply JMeq_eq in H0. subst. dependent destruction H1.
+  dependent destruction H2. constructor. rewrite H0. assumption.
+Qed.
+
+Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
+
 Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
     carrier := {j : J & A j};
@@ -434,10 +444,12 @@ Proof.
   simpl; intros.
     split; auto. constructor. reflexivity.
     destruct H; subst. split; auto. inversion H0; subst.
-      constructor. destruct (existT _ (A x0) y). simpl in *.
-    Focus 2. destruct H, H0; split.
+      constructor. Require Import Program. apply inj_pair2 in H.
+      rewrite H1, <- H. reflexivity.
+    destruct H, H0; split.
       rewrite H, H0. auto.
-Abort.
+      subst. eapply (equiv_hetero_trans (eq_refl) (JMeq_refl) H1 H2).
+Defined.
 
 Instance CoqSetoid_expOb_setoid (X Y : Setoid')
     : Setoid (SetoidHom X Y) :=

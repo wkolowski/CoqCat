@@ -135,22 +135,11 @@ Theorem terminal_uiso :
   (delete' : forall X : Ob C, Hom X B),
     terminal A delete -> terminal B delete' ->
       A ~~ B.
-Proof. (* TODO : make faster *)
-  (*intro. rewrite <- (dual_involution_axiom C). intros.
-  simpl in *. rewrite dual_unique_iso_self.
-  eapply initial_uiso; apply dual_initial_terminal.
-    exact H.
-    exact H0.*)
-Restart.
-  unfold uniquely_isomorphic, isomorphic; intros.
-  red in H. red in H0.
-  destruct (H B) as [_ Hf],
-           (H0 A) as [_ Hg],
-           (H A) as [_ HA],
-           (H0 B) as [_ HB].
-  exists (delete' A); red. split; auto. exists (delete0 B); split.
-    rewrite <- (HA (id A)); try symmetry; auto.
-    rewrite <- (HB (id B)); try symmetry; auto.
+Proof.
+  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  rewrite <- dual_initial_terminal in *.
+  rewrite dual_unique_iso_self.
+  eapply initial_uiso; cat.
 Qed.
 
 Theorem terminal_iso :
@@ -173,6 +162,30 @@ Theorem terminal_delete_equiv :
 Proof.
   intros. edestruct H. apply H2. trivial.
 Qed.
+
+Theorem iso_to_init_is_init :
+  forall (C : Cat) (I X : Ob C)
+  (create : forall I' : Ob C, Hom I I'),
+    initial I create -> forall f : Hom X I, Iso f ->
+      initial X (fun X' : Ob C => f .> create X').
+Proof.
+  repeat split; intros. iso.
+  edestruct H. rewrite (H1 (f_inv .> y)).
+    assocl. rewrite f_inv_eq1. cat.
+    trivial.
+Defined.
+
+Theorem iso_to_term_is_term : 
+  forall (C : Cat) (X T : Ob C)
+  (delete : forall T' : Ob C, Hom T' T),
+    terminal T delete -> forall f : Hom T X, Iso f ->
+      terminal X (fun X' : Ob C => delete X' .> f).
+Proof.
+  repeat split; intros. iso.
+  edestruct H. rewrite (H1 (y .> f_inv)).
+    assocr. rewrite f_inv_eq2. cat.
+    trivial.
+Defined.
 
 Theorem mor_to_init_is_ret :
   forall (C : Cat) (I X : Ob C) (f : Hom X I)

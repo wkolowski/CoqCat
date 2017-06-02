@@ -74,7 +74,7 @@ Theorem zero_iso : forall (C : Cat) (A B : Ob C),
     zero_object A -> zero_object B -> A ~ B.
 Proof. auto. Qed.
 
-(* TODO : port *) Theorem iso_to_init_is_init : forall (C : Cat) (I X : Ob C),
+Theorem iso_to_init_is_init : forall (C : Cat) (I X : Ob C),
     initial I -> I ~ X -> initial X.
 Proof.
   intros. destruct H0 as [f [g [eq1 eq2]]].
@@ -85,7 +85,7 @@ Proof.
       rewrite <- comp_assoc. rewrite eq2. rewrite id_left. reflexivity.
 Defined.
 
-(* TODO : duality *) Theorem iso_to_term_is_term : forall (C : Cat) (T X : Ob C),
+Theorem iso_to_term_is_term : forall (C : Cat) (T X : Ob C),
     terminal T -> T ~ X -> terminal X.
 Proof.
   intros. destruct H0 as [f [g [eq1 eq2]]].

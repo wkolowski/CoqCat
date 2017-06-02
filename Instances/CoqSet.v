@@ -3,11 +3,11 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 Require Import Base.
 
 Require Export Cat.
-Require Export InitTerm.
-Require Import BinProdCoprod.
-Require Import BigProdCoprod.
-Require Import Equalizer.
-Require Import Pullback.
+Require Export Limits.InitTerm.
+Require Import Limits.BinProdCoprod.
+Require Import Limits.BigProdCoprod.
+Require Import OldLimits.Equalizer.
+Require Import Limits.Pullback.
 Require Import Exponential.
 Require Import CartesianClosed.
 
@@ -187,6 +187,15 @@ Proof.
     destruct (H false). inversion H0.
 Qed.
 
+Definition CoqSet_eq_ob (X Y : Set) (f g : X -> Y) : Set :=
+    {x : X | f x = g x}.
+
+Definition CoqSet_eq_mor (X Y : Set) (f g : X -> Y)
+    (p : {x : X | f x = g x}) : X := proj1_sig p.
+Print has_equalizers.
+Definition CoqSet_factorize (X Y : Set) (f g : X -> Y)
+    (E' : Set ) (e' : E' -> X) : E' -> {x : X | f x = g x}.
+
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -196,7 +205,7 @@ Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 }.
 Proof.
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto.
+    destruct x; simpl. auto. Print equalizer. intros.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.

@@ -70,9 +70,6 @@ Theorem dual_pullback_pushout :
   forall (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-    (*@pullback_skolem C X Y A f g P p1 p2 factor <->
-    @pushout_skolem (Dual C) Y X A g f P p2 p1
-      (fun (P' : Ob C) (p1' : Hom P' Y) (p2' : Hom P' X) => factor P' p2' p1').*)
     pullback_skolem C f g P p1 p2 factor <->
     pushout_skolem (Dual C) f g P p1 p2 factor.
 Proof. cat. Defined.
@@ -127,8 +124,6 @@ Theorem pushout_uiso :
     pushout_skolem C f g Q q1 q2 cofactor' ->
     exists!! f : Hom Q P, Iso f /\
         p1 == q1 .> f /\ p2 == q2 .> f.
-      (*exists!! f : Hom P Q, Iso f /\
-        p1 .> f == q1 /\ p2 .> f == q2.*)
 Proof.
   intro. rewrite <- (dual_involution_axiom C). intros.
   rewrite <- dual_pullback_pushout in H.
