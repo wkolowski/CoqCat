@@ -17,7 +17,7 @@ Hint Resolve assoc.
 
 Ltac sgr_simpl :=
 match goal with
-  (* Associativity — it works. *)
+  (* Associativity *)
   | H : context [?op _ (?op _ _)] |- _ => rewrite assoc in H
   | H : context [?op (?op _ _) _] |- _ => rewrite assoc in H
   | |- context [?op _ (?op _ _)] => rewrite assoc
@@ -39,6 +39,12 @@ match type of S with
     let b := fresh S "_assoc" in destruct S as [S a b]
   | Ob _ => progress simpl in S; sgrob S
 end; sgr_simpl.
+
+Ltac wut S l :=
+match l with
+    | nil => idtac
+    | cons ?h ?t => let x := fresh S "_" h in destruct S as [x S]; wut S t
+end.
 
 Ltac sgrobs := repeat
 match goal with
@@ -69,11 +75,49 @@ end; sgr_simpl.
 Ltac sgr' := repeat (sgr_simpl || sgrobs || sgrhoms || cat).
 Ltac sgr := try (sgr'; fail).
 
+Require Import String.
+
+Ltac weird l X := match l with
+    | EmptyString => idtac "wut"
+    | String ?h _ => let x := fresh X "_" h in destruct X as [x X]
+end.
+
+Ltac weird' l X := match l with
+    | nil => idtac "wut"
+    | cons ?h _ => let x := fresh X "_" h in destruct X as [x X]
+end.
+
+Ltac length' l :=
+match l with
+    | nil => constr:0
+    | cons _ ?t => let n := length' t in constr:(S n)
+end.
+
+Goal False.
+  let n := length' (cons 1 nil) in pose n.
+
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x = g x
 }.
-Proof. solve_equiv. Defined.
+Proof.
+
+(*pose (l := cons 1 (cons 5 nil)).
+
+let n := length' (cons 1 (cons 5 nil)) in pose n.
+Print string.
+weird EmptyString X. 
+Example stringEx : string := "This is a string".
+(* TODO *)  let x := fresh X "_" "1" in destruct X as [x X].
+weird' (cons stringEx nil) X.
+
+Check cons (String "dupa") nil.
+weird (String "a" EmptyString) X.
+
+
+pose (y := weird l).*)
+
+ solve_equiv. Defined.
 
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
@@ -189,9 +233,6 @@ Proof. sgr_simpl. exists inl. sgr. Defined.
 Definition Sgr_inr (X Y : Sgr) : SgrHom Y (Sgr_sum X Y).
 Proof. sgr_simpl. exists inr. sgr. Defined.
 
-(* Neither sum nor sumprod is a coproduct in Sgr. Rather it's
-   the free product (whatever that means). *)
-
 (*Definition Sgr_copair (A B X : Sgr) (f : SgrHom A X) (g : SgrHom B X)
     : SgrHom (Sgr_sum A B) X.
 Proof.
@@ -276,12 +317,12 @@ Proof.
   apply app_nel_assoc.
 Defined.
 
-(*Definition Sgr_coproj1 (X Y : Sgr) : Hom X (Sgr_freeprod X Y).
+Definition Sgr_coproj1 (X Y : Sgr) : Hom X (Sgr_freeprod X Y).
 Proof.
   sgr'. exists (fun x : X => singl (inl x)). simpl.
-  intros.*)
+  intros.
+Abort.
 
-(*  TODO: this can't be done. The free product of groups doesn't have
-    coprojections in this category. To define them, an equivalence relation
-    would be needed to make sure that
-      singl (inl (op x y)) = cons_nel (inl x) (singl (inl y)) *)
+(* This can't be done. The free product of groups doesn't have
+   coprojections in this category. To define them, an equivalence relation
+   would be needed to make sure that singl (inl (op x y)) = cons_nel (inl x) (singl (inl y)) *)

@@ -74,8 +74,10 @@ Inductive depExtEq : forall A B : Type, A -> B -> Prop :=
       forall (x : A1) (y : A2), depExtEq A1 A2 x y ->
       depExtEq (B1 x) (B2 y) (f x) (g y).
 
-Arguments depExtEq [A] [B] _ _.
-Arguments depExtEq_unext [A1] [A2] [B1] [B2] _ _ _ _ _ _.
+Arguments depExtEq [A B] _ _.
+Arguments depExtEq_eq [A x y] _.
+Arguments depExtEq_ext [A B C] _ _ _.
+Arguments depExtEq_unext [A1 A2 B1 B2] _ _ _ _ _ _.
 
 Hint Constructors depExtEq.
 
@@ -86,6 +88,10 @@ Defined.
 
 Ltac solve_depExtEq := repeat
 match goal with
+    | |- depExtEq (fun _ => _) _ => apply depExtEq_ext; intro
+    | |- depExtEq _ (fun _ => _) => apply depExtEq_ext; intro
+end; auto;
+repeat (auto; match goal with
     | |- depExtEq (fun _ => _) (fun _ => _) => apply depExtEq_ext; intro
     | H : depExtEq ?f ?g |- depExtEq (?f _ _ _) (?g _ _ _) =>
       apply (depExtEq_unext (f _ _) (g _ _))
@@ -93,7 +99,24 @@ match goal with
       apply (depExtEq_unext (f _) (g _))
     | H : depExtEq ?f ?g |- depExtEq (?f _) (?g _) => 
       apply (depExtEq_unext f g)
-end; auto.
+    | |- depExtEq (?f _ _) (?f _ _) => apply (depExtEq_unext (f _) (f _))
+    | |- depExtEq (?f _) (?f _) => apply (depExtEq_unext f f)
+    | |- depExtEq (_, _) ?x => rewrite (surjective_pairing x)
+end); auto.
+
+Theorem depExtEq_Proper : forall (A B : Type) (f : A -> B),
+    Proper (@depExtEq A A ==> @depExtEq B B) f.
+Proof.
+  unfold Proper, respectful; intros. solve_depExtEq. (*
+  apply (depExtEq_unext f f); auto.*)
+Qed.
+
+Theorem depExtEq_Proper' : forall (A : Type),
+    Proper (@depExtEq A A ==> @depExtEq A A ==>
+      (Basics.flip Basics.impl)) (@depExtEq A A).
+Proof.
+  repeat red. intros. eapply depExtEq_trans; eauto.
+Defined.
 
 Inductive sumprod (X Y : Set) : Set :=
     | inl' : X -> sumprod X Y
@@ -209,3 +232,7 @@ Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
     | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
 
 Hint Constructors JMequiv.
+
+Theorem eta : forall (A B : Type) (f : A -> B),
+    f = fun x : A => f x.
+Proof. trivial. Qed.

@@ -29,7 +29,7 @@ Proof.
     change (depExtEq a a') with (depExtEq ((fun _ => a) a) ((fun _ => a') a)).
       eapply (depExtEq_unext (fun _ : A => a) (fun _ : A => a')).
         apply H. eapply depExtEq_ext. intro. assumption.
-        apply (depExtEq_eq _ a a). auto.
+        apply (depExtEq_eq (eq_refl a)). auto.
     apply depExtEq_ext. intro. apply H.
       apply (depExtEq_unext
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 x x). auto.
@@ -60,22 +60,11 @@ Instance DepExtSet_has_products : has_products DepExtSet :=
       fun x : X => (f x, g x)
 }.
 Proof.
-  repeat red; simpl; intros. apply depExtEq_ext. intro.
-    apply (depExtEq_unext (pair (x x1)) (pair (y x1))).
-      apply (depExtEq_unext pair pair). auto.
-        apply (depExtEq_unext x y). auto. auto.
-      apply (depExtEq_unext x0 y0). auto. auto.
-  repeat (red || split); simpl.
-    apply depExtEq_ext. auto.
-    apply depExtEq_ext. auto.
-    destruct 1. apply depExtEq_ext. intros.
-      assert (depExtEq (f x) (fst (y x))).
-        apply (depExtEq_unext f (fun a : X => fst (y a)) H x x). auto.
-      assert (depExtEq (g x) (snd (y x))).
-        apply (depExtEq_unext g (fun a : X => snd (y a)) H0 x x). auto.
-      destruct (y x); simpl in *.
-      apply (depExtEq_unext (pair (f x)) (pair a)).
-        apply (depExtEq_unext pair pair). auto. auto. auto.
+  proper. solve_depExtEq.
+  repeat (red || split); simpl; auto; destruct 1; solve_depExtEq.
+    1: change (fst (y x)) with ((fun a => fst (y a)) x).
+    2: change (snd (y x)) with ((fun a => snd (y a)) x).
+    all: solve_depExtEq.
 Defined.
 
 (* TODO *) Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
@@ -115,7 +104,11 @@ Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
-    destruct H. apply depExtEq_ext. destruct x.
+    destruct H, x.
+      match goal with
+          | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
+              idtac f; idtac x
+      end.
       apply (depExtEq_unext _ _ H a a). auto.
       apply (depExtEq_unext _ _ H0 b b). auto.
 Defined.
@@ -135,7 +128,7 @@ Proof.
     destruct x; simpl; solve_depExtEq.
     apply (depExtEq_unext _ _ (H x) a a). auto.
   (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
-    apply depExtEq_ext. destruct x; simpl.
+    destruct x; simpl.
     apply (depExtEq_unext _ _ (H x)). auto.
 Defined.
 
