@@ -237,13 +237,14 @@ Abort.
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
 
 Zhen Lin *)
-(* TODO : new pullback
+
 Theorem pushout_coproduct :
   forall (C : Cat) (ht : has_init C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-  (cofactorize : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-    pushout C (create X) (create Y) P p1 p2 cofactorize ->
-    coproduct_skolem C P p1 p2 cofactorize.
+  (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
+    pushout C (create X) (create Y) P p1 p2
+      (fun P' f g _ => copair P' f g) ->
+    coproduct_skolem C P p1 p2 copair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     init.
@@ -257,8 +258,9 @@ Theorem coproduct_pushout :
   forall (C : Cat) (ht : has_init C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-    coproduct C P p1 p2 copair ->
-    pushout C (create X) (create Y) P p1 p2 copair.
+    coproduct_skolem C P p1 p2 copair ->
+    pushout C (create X) (create Y) P p1 p2
+      (fun P' f g _ => copair P' f g).
 Proof.
   red; intros. repeat split.
     init.
@@ -273,8 +275,8 @@ Theorem pushout_coequalizer :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (P : Ob C) (p : Hom Y P)
   (cofactor : forall (P' : Ob C) (f : Hom Y P') (g : Hom Y P'), Hom P P'),
-    pushout C f g P p p cofactor ->
-    coequalizer C f g P p
+    pushout C f g P p p (fun P' f g _ => cofactor P' f g) ->
+    coequalizer_skolem C f g P p
       (fun (P' : Ob C) (p : Hom Y P') => cofactor P' p p).
 Proof.
   repeat split.
@@ -282,4 +284,3 @@ Proof.
     edestruct H, (H2 _ _ _ H0), H3. assumption.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
-*)

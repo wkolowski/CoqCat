@@ -210,8 +210,8 @@ Instance Sgr_has_products : has_products SgrCat :=
     fpair := Sgr_fpair
 }.
 Proof.
-  sgr_simpl. rewrite H, H0. auto.
-  sgr_simpl. sgr'. rewrite H, H0. destruct (y x). auto.
+  proper. rewrite H, H0. auto.
+  repeat split; cat. rewrite H, H0. destruct (y x). auto.
 Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=

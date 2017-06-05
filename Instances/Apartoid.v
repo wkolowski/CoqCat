@@ -421,15 +421,37 @@ Proof.
     left. intro. apply H.
 Abort.
 
-(* TODO: make this more dependent *)
+Check neq_cotrans.
+
+(* Theorem JMeq_cotrans : forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
+    ~ JMeq x y -> ~ JMeq z x \/ ~ JMeq z y.
+Proof.
+  intros. left. intro. apply H. *)
+
+(* TODO: make this more dependent (change JMeq to some lifted heterogenous
+   apartness... *)
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
     carrier := {j : J & A j};
     neq := fun p1 p2 : {j : J & A j} =>
-      projT1 p1 # projT1 p2 (*\/ (projT1 p1 = projT1 p2 /\ projT2 p1 # projT2 p2)*)
+      projT1 p1 # projT1 p2 \/ (projT1 p1 = projT1 p2 /\
+        ~ JMeq (projT2 p1) (projT2 p2))
 }.
 Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
+  unfold not. cat. destruct H.
+    eapply neq_irrefl. eassumption.
+    destruct H. apply H0. auto.
+  unfold not; cat. destruct H.
+    left. apply neq_sym. assumption.
+    right. cat.
+  unfold not; cat. destruct H.
+    eapply neq_cotrans in H. destruct H.
+      left. left. eassumption.
+      right. left. eassumption.
+    cat. apply JMeq_cotrans in H. destruct H.
+      left. left. eassumption.
+      right. left. eassumption.
 Defined.
 
 Definition Apartoid_bigCoproj {J : Apartoid} (A : J -> Apartoid) (j : J)
@@ -439,28 +461,13 @@ Proof.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
-(* TODO *) Definition Apartoid_cotuple {J : Apartoid} {A : J -> Apartoid}
+Definition Apartoid_bigCopair {J : Apartoid} {A : J -> Apartoid}
     {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
     : ApartoidHom (Apartoid_bigCoprodOb A) X.
 Proof.
   red; simpl. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
   destruct x as [j a], x' as [j' a']; simpl; do 2 intro.
   destruct (f j) as [fj Hfj]; simpl in *.
-  destruct (f j') as [fj' Hfj']; simpl in *. apply (Hfj a a).
-Abort. 
-
-(*Record RatT : Type :=
-{
-    up : nat;
-    down : nat;
-    cond : down <> 0
-}.
-
-Instance Q : Apartoid :=
-{
-    carrier := RatT;
-    neq := fun p q : RatT => up p * down q <> up q * down p
-}.
-Proof.
-  all: apartoid'. destruct x, y, z. simpl in *.
-  left. intro. apply H. omega.*)
+  destruct (f j') as [fj' Hfj']; simpl in *.
+  Print Apartoid. apply (Hfj a a).
+Abort.

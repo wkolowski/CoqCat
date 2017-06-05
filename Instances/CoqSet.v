@@ -187,29 +187,71 @@ Proof.
     destruct (H false). inversion H0.
 Qed.
 
-Definition CoqSet_eq_ob (X Y : Set) (f g : X -> Y) : Set :=
+Definition CoqSet_eq_ob {X Y : Set} (f g : X -> Y) : Set :=
     {x : X | f x = g x}.
 
-Definition CoqSet_eq_mor (X Y : Set) (f g : X -> Y)
+Definition CoqSet_eq_mor {X Y : Set} (f g : X -> Y)
     (p : {x : X | f x = g x}) : X := proj1_sig p.
-Print has_equalizers.
+
 Definition CoqSet_factorize (X Y : Set) (f g : X -> Y)
-    (E' : Set ) (e' : E' -> X) : E' -> {x : X | f x = g x}.
+    (E' : Set ) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
+    : E' -> {x : X | f x = g x}.
+Proof.
+ intro x. exists (e' x). apply H.
+Defined.
 
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
         {x : X | f x = g x};
     eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        fun (x : {x : X | f x = g x}) => proj1_sig x
+        fun (x : {x : X | f x = g x}) => proj1_sig x;
 }.
 Proof.
+  unfold equalizer; simpl; split; intros.
+    destruct x; simpl. auto. intros.
+    exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
+    cat. specialize (H0 x). destruct (y x). simpl in *. subst.
+    f_equal. apply proof_irrelevance.
+Defined.
+
+Require Import Limits.NewestEqualizer.
+
+Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
+{
+    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        {x : X | f x = g x};
+    eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+        fun (x : {x : X | f x = g x}) => proj1_sig x;
+    factorize := @CoqSet_factorize;
+}.
+Proof.
+  intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+    f_equal. extensionality x. rewrite H, H0. trivial.
+    rewrite H1 in *. constructor. reflexivity.
+  Focus 2. simpl; intros. unfold CoqSet_factorize.
+    assert ((fun x : X => f x = g x) = (fun x : X => f' x = g' x)).
+      extensionality x. rewrite H0, H1. trivial.
+      
+
+intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+    f_equal. extensionality x. rewrite H, H0. trivial.
+    assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
+      (fun x : {x : X | f' x = g' x} => proj1_sig x)).
+      
+  
+
+
+
+
+
   unfold equalizer; simpl; split; intros.
     destruct x; simpl. auto. Print equalizer. intros.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
 Defined.
+
 
 (* Not sure if it's even true *)
 (* TODO : Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
