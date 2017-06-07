@@ -250,7 +250,7 @@ Proof.
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
-Theorem iso_to_prod_skolem :
+(* TODO : Dual *) Theorem iso_to_prod_skolem :
   forall (C : Cat) (X Y : Ob C)
   (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
