@@ -5,7 +5,7 @@ Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 
-Require Export Instances.Setoids.
+Require Export Cat.Instances.Setoids.
 
 Definition SetoidRel (X Y : Setoid') : Type :=
     {R : X -> Y -> Prop | Proper (equiv ==> equiv ==> iff) R}.

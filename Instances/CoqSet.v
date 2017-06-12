@@ -215,7 +215,7 @@ Proof.
     f_equal. apply proof_irrelevance.
 Defined.
 
-Require Import Limits.NewestEqualizer.
+(*Require Import Limits.NewestEqualizer.
 
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
 {
@@ -250,7 +250,7 @@ intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
-Defined.
+Defined.*)
 
 
 (* Not sure if it's even true *)

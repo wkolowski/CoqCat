@@ -35,6 +35,13 @@ match l with
     | HomCons h t => h .> expDenoteHL t
 end.
 
+(*Fixpoint Happ {C : Cat} {X Y Z : Ob C}
+   (l1 : HomList X Y) (l2 : HomList Y Z) : HomList X Z :=
+match l1 with
+    | HomNil _ => l2
+    | HomCons h t => HomCons h (Happ t l2)
+end.*)
+
 Fixpoint Happ {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y)
     : HomList Y Z -> HomList X Z :=
 match l1 with
@@ -151,5 +158,5 @@ Theorem wut3 :
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f .> g == f' .> g' ->
       ((f .> (g .> h)) .> i) .> j == f' .> (g' .> h) .> i .> j.
 Proof.
-  mor2.
-Qed.
+  try mor2.
+Abort.

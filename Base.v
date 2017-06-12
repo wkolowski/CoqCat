@@ -235,5 +235,3 @@ Theorem eta : forall (A B : Type) (f : A -> B),
 Proof. trivial. Qed.
 
 (* TODO : write JMequiv_dep *)
-
-Axiom JMeq_ext. 

@@ -10,6 +10,8 @@ Require Import CartesianClosed.
 
 Require Import Functor.
 
+Set Implicit Arguments.
+
 Class Setoid' : Type :=
 {
     carrier :> Type;
@@ -374,7 +376,7 @@ Proof.
         apply H.
         apply Q'_equiv_sym. assumption.
         eapply Q'_equiv_trans; eauto.
-    exists (trick X Y Q' f g q' H). setoid'.
+    exists (trick f g q' H). setoid'.
 Defined.
 
 Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
@@ -416,14 +418,14 @@ Defined.
 
 Inductive equiv_hetero {A : Type} (S : Setoid A)
     : forall (B : Type), A -> B -> Prop :=
-    | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S A x y.
+    | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S x y.
 
 Hint Constructors equiv_hetero.
 
 Theorem equiv_hetero_trans :
   forall (A B C : Type) (SA : Setoid A) (SB : Setoid B)
   (x : A) (y : B) (z : C), A = B -> JMeq SA SB ->
-    equiv_hetero SA B x y -> equiv_hetero SB C y z -> equiv_hetero SA C x z.
+    equiv_hetero SA x y -> equiv_hetero SB y z -> equiv_hetero SA x z.
 Proof.
   intros. Check JMeq_eq. Require Import Program. subst.
   apply JMeq_eq in H0. subst. dependent destruction H1.
@@ -437,7 +439,7 @@ Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
     carrier := {j : J & A j};
     setoid := {| equiv := fun x y : {j : J & A j} =>
       projT1 x = projT1 y /\
-      equiv_hetero (A (projT1 x)) (A (projT1 y)) (projT2 x) (projT2 y) |}
+      equiv_hetero (A (projT1 x)) (projT2 x) (projT2 y) |}
 }.
 Proof.
   split; red; destruct x; try destruct y; try destruct z;
@@ -488,7 +490,7 @@ Definition CoqSetoid_curry
     (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
     : SetoidHom Z (CoqSetoid_expOb X Y).
 Proof.
-  exists (CoqSetoid_curry_fun X Y Z f). do 2 red. intros.
+  exists (CoqSetoid_curry_fun f). do 2 red. intros.
   setoidhom f; unfold CoqSetoid_curry_fun; simpl in *. intro x'.
   apply f_pres_equiv. simpl. split; [assumption | reflexivity].
 Defined.
