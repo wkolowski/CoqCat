@@ -429,7 +429,7 @@ Theorem equiv_hetero_trans :
 Proof.
   intros. Check JMeq_eq. Require Import Program. subst.
   apply JMeq_eq in H0. subst. dependent destruction H1.
-  dependent destruction H2. constructor. rewrite H0. assumption.
+  dependent destruction H2. constructor. rewrite H. assumption.
 Qed.
 
 Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.

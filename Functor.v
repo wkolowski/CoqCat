@@ -2,6 +2,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.Cat.
 
+Set Implicit Arguments.
+
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
     fob : Ob C -> Ob D;
@@ -84,7 +86,10 @@ Theorem full_faithful_refl_iso : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> Iso (fmap T f) -> Iso f.
 Proof.
-  intros. rewrite iso_iff_sec_ret in *. cat.
+  intros. rewrite iso_iff_sec_ret in *. destruct H1. split.
+    eapply full_faithful_refl_sec; auto.
+    eapply full_faithful_refl_ret; auto.
+    (* TODO : cat should work here *)
 Defined.
 
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E)

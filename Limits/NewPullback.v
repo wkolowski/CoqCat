@@ -4,7 +4,7 @@ Require Import Cat.
 
 Require Import InitTerm.
 Require Import BinProdCoprod.
-Require Import Cat.Limits.NewEqualizer.
+Require Import Cat.Limits.NewestEqualizer.
 
 Set Implicit Arguments.
 
@@ -208,8 +208,8 @@ Theorem pullback_equalizer :
   (P : Ob C) (p : Hom P X)
   (factor : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' X), Hom P' P),
     pullback C f g P p p (fun P' p1' p2' _ => factor P' p1' p2') ->
-    equalizer_skolem C f g P p
-      (fun (P' : Ob C) (p : Hom P' X) => factor P' p p).
+    equalizer C f g P p
+      (fun (P' : Ob C) (p : Hom P' X) _ => factor P' p p).
 Proof.
   repeat split.
     destruct H. assumption.
@@ -217,12 +217,13 @@ Proof.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
 
-(* TODO : finish *) Theorem equalizer_pullback :
+(* TODO : finish *) (*Theorem equalizer_pullback :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
-  (factorize : forall (E' : Ob C) (e : Hom E' X), Hom E' E),
-    equalizer_skolem C f g E e1 factorize ->
-    equalizer_skolem C f g E e2 factorize ->
+  (factorize : forall (E' : Ob C) (e : Hom E' X),
+    e .> f == e .> g -> Hom E' E),
+    equalizer C f g E e1 factorize ->
+    equalizer C f g E e2 factorize ->
     pullback C f g (prodOb E E) (proj1 .> e1) (proj2 .> e2)
       (fun (E' : Ob C) (e1 : Hom E' X) (e2 : Hom E' X) _ =>
         fpair (factorize E' e1) (factorize E' e2)).
@@ -231,7 +232,7 @@ Proof.
   repeat split.
     rewrite eq. edestruct H0. assocr'. rewrite e.
       f_equiv. destruct hp. simpl in *. do 2 red in is_product.
-Abort.
+Abort.*)
 
 (* 
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
@@ -276,8 +277,8 @@ Theorem pushout_coequalizer :
   (P : Ob C) (p : Hom Y P)
   (cofactor : forall (P' : Ob C) (f : Hom Y P') (g : Hom Y P'), Hom P P'),
     pushout C f g P p p (fun P' f g _ => cofactor P' f g) ->
-    coequalizer_skolem C f g P p
-      (fun (P' : Ob C) (p : Hom Y P') => cofactor P' p p).
+    coequalizer C f g P p
+      (fun (P' : Ob C) (p : Hom Y P') _ => cofactor P' p p).
 Proof.
   repeat split.
     destruct H. assumption.

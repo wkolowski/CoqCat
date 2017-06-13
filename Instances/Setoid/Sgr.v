@@ -6,6 +6,7 @@ Require Import BinProdCoprod.
 
 Require Import Cat.Instances.Setoids.
 
+(* TODO : op should be a setoid homomorphism *)
 Class Sgr : Type :=
 {
     carrier : Setoid';
@@ -193,10 +194,12 @@ Inductive nel (A : Type) : Type :=
 Arguments singl [A] _.
 Arguments cons_nel [A] _ _.
 
+Notation "h ::: t" := (cons_nel h t) (right associativity, at level 30).
+
 Fixpoint app_nel {A : Type} (l1 l2 : nel A) : nel A :=
 match l1 with
     | singl a => cons_nel a l2
-    | cons_nel a l1' => cons_nel a (app_nel l1' l2)
+    | a ::: l1' => cons_nel a (app_nel l1' l2)
 end.
 
 Theorem app_nel_assoc : forall (A : Type) (x y z : nel A),
@@ -206,11 +209,6 @@ Proof.
     trivial.
     rewrite IHt. trivial.
 Qed.
-
-(*Inductive freeprod_equiv {X Y : Setoid'}
-    : nel (X + Y) -> nel (X + Y) -> Prop :=
-    | equiv_singl1 : forall x : X, freeprod_equiv (singl x) (singl x)
-    | equiv_singl*)
 
 Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (X + Y)) : Prop :=
 match l1, l2 with
@@ -254,145 +252,145 @@ Qed.
 
 Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans.
 
-Inductive fp_equiv2 {X Y : Setoid'} : nel (X + Y) -> nel (X + Y) -> Prop :=
-    | singl_inl : forall x x' : X, x == x' ->
-        fp_equiv2 (singl (inl x)) (singl (inl x'))
-    | singl_inr : forall y y' : Y, y == y' ->
-        fp_equiv2 (singl (inr y)) (singl (inr y'))
-    | singl_mismatch1 : forall (x : X) (y : Y),
-        fp_equiv2 (singl (inl x)) (singl (inr y))
-    | singl_mismatch2 : forall (x : X) (y : Y),
-        fp_equiv2 (singl (inr y)) (singl (inl x))
-    | cons_inl : forall (h1 h2 : X) (t1 t2 : nel (X + Y)),
-        h1 == h2 -> fp_equiv2 t1 t2 ->
-        fp_equiv2 (cons_nel (inl h1) t1) (cons_nel (inl h2) t2)
-    | cons_inr : forall (h1 h2 : Y) (t1 t2 : nel (X + Y)),
-        h1 == h2 -> fp_equiv2 t1 t2 ->
-        fp_equiv2 (cons_nel (inr h1) t1) (cons_nel (inr h2) t2)
-    | cons_mismatch1 : forall (x : X) (y : Y) (t1 t2 : nel (X + Y)),
-        fp_equiv2 t1 t2 ->
-        fp_equiv2 (cons_nel (inl x) t1) (cons_nel (inr y) t2)
-    | cons_mismatch2 : forall (x : X) (y : Y) (t1 t2 : nel (X + Y)),
-        fp_equiv2 t1 t2 ->
-        fp_equiv2 (cons_nel (inr y) t1) (cons_nel (inl x) t2).
-(*    | trans : forall (l1 l2 l3 : nel (X + Y)),
-        fp_equiv2 l1 l2 -> fp_equiv2 l2 l3 -> fp_equiv2 l1 l3.*)
+Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
+match l with
+    | singl s => singl s
+    | inl x ::: singl (inl x') => singl (inl (op x x'))
+    | inr y ::: singl (inr y') => singl (inr (op y y'))
+    | inl _ ::: singl (inr _) => l
+    | inr _ ::: singl (inl _) => l
+    | inl x ::: t =>
+        match normalize t with
+            | singl (inl x') => singl (inl (op x x'))
+            | inl x' ::: t' => inl (op x x') ::: t'
+            | t' => inl x ::: t'
+        end
+    | inr y ::: t =>
+        match normalize t with
+            | singl (inr y') => singl (inr (op y y'))
+            | inr y' ::: t' => inr (op y y') ::: t'
+            | t' => inr y ::: t'
+        end
+end.
 
-Ltac fp_equiv2 := repeat
+Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
+    fp_equiv (normalize l1) (normalize l2).
+
+Ltac fpeq4 := unfold fpeq4; repeat
 match goal with
     | x : _ + _ |- _ => destruct x; simpl in *
-    | H : fp_equiv2 (singl _) _ |- _ => inversion H; subst; clear H
-    | H : fp_equiv2 _ (singl _) |- _ => inversion H; subst; clear H
-    | H : fp_equiv2 (cons_nel _ _) (cons_nel _ _) |- _ =>
-        inversion H; subst; clear H
-    | |- ?x == ?y => solve_equiv
-    | H : ?P |- ?P => assumption
-    | _ => constructor
-end; eauto.
+    | H : match normalize ?l with | _ => _ end |- _ =>
+        destruct (normalize l); simpl in *
+    | |- match normalize ?l with | _ => _ end =>
+        destruct (normalize l); simpl in *
+    | _ => solve_equiv
+end.
 
-Theorem fp_equiv2_refl : forall (X Y : Setoid') (l : nel (X + Y)),
-    fp_equiv2 l l.
+Theorem fpeq4_refl : forall (X Y : Sgr) (l : nel (X + Y)),
+    fpeq4 l l.
 Proof.
-  induction l as [| h t]; fp_equiv2.
+  unfold fpeq4. induction l as [| h [| h' t]]; fpeq4.
 Qed.
 
-Theorem fp_equiv2_sym : forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
-    fp_equiv2 l1 l2 -> fp_equiv2 l2 l1.
+Theorem fpeq4_sym : forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+    fpeq4 l1 l2 -> fpeq4 l2 l1.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; intros;
-  fp_equiv2.
+  unfold fpeq4. induction l1 as [| h [| h' t]]; fpeq4.
 Qed.
 
-Theorem fp_equiv2_trans : forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
-    fp_equiv2 l1 l2 -> fp_equiv2 l2 l3 -> fp_equiv2 l1 l3.
+Theorem fpeq4_trans : forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
+    fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2, l3; intros;
-  try (fp_equiv2; fail).
-    destruct a, s, s0; constructor.
-      inversion H; inversion H0; subst; solve_equiv.
-      inversion H; inversion H0; subst; solve_equiv.
-      inversion H; inversion H0; subst; solve_equiv.
-      inversion H; inversion H0; subst; solve_equiv.
-Abort.
+  unfold fpeq4. induction l1 as [| h1 t1]; fpeq4.
+Qed.
 
-Instance CoqSetoid_freeprod (X Y : Setoid') : Setoid' :=
+Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
+
+Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 {
     carrier := nel (X + Y);
-    setoid := {| equiv := @fp_equiv X Y |}
+    setoid := {| equiv := @fpeq4 X Y |}
 }.
 Proof. solve_equiv. Defined.
 
-Definition CoqSetoid_freeprod_coproj1 (X Y : Setoid')
-    : SetoidHom X (CoqSetoid_freeprod X Y).
+Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
+    : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
   red. exists (fun x : X => singl (inl x)). proper.
 Defined.
 
-Definition CoqSetoid_freeprod_coproj2 (X Y : Setoid')
-    : SetoidHom Y (CoqSetoid_freeprod X Y).
+Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
+    : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
   red. exists (fun y : Y => singl (inr y)). proper.
 Defined.
 
-Fixpoint Sgr_freeprod_op {X Y : Sgr} (l1 l2 : nel (X + Y))
-    : nel (X + Y) :=
-match l1, l2 with
-    (*| singl (inl x), singl (inl x') => singl (inl (op x x'))
-    | singl (inr y), singl (inr y') => singl (inr (op y y'))
-    | singl s, l2 => cons_nel s l2
-    | cons_nel (inl x) t1, cons_nel (inl x') t2 =>
-        cons_nel (inl (op x x')) (Sgr_freeprod_op t1 t2)
-    | cons_nel (inr y) t1, cons_nel (inr y') t2 =>
-        cons_nel (inr (op y y')) (Sgr_freeprod_op t1 t2)
-    | cons_nel h1 t1, cons_nel h2 t2 =>
-        cons_nel h1 (cons_nel h2 (Sgr_freeprod_op t1 t2))*)
-    | singl s, singl s' =>
-        match s, s' with
-            | inl x, inl x' => singl (inl (op x x'))
-            | inr y, inr y' => singl (inr (op y y'))
-            | _, _ => cons_nel s l2
-        end
-    | singl s, cons_nel h t =>
-        match s, h with
-            | inl x, inl x' => cons_nel (inl (op x x')) t
-            | inr y, inr y' => cons_nel (inr (op y y')) t
-            | _, _ => cons_nel s l2
-        end
-    | cons_nel h t, singl s =>
-        match s, h with
-            | inl x, inl x' => cons_nel (inl (op x x')) t
-            | inr y, inr y' => cons_nel (inr (op y y')) t
-            | _, _ => cons_nel s l2
-        end
-    | cons_nel h1 t1, cons_nel h2 t2 =>
-        match h1, h2 with
-            | inl x, inl x' => cons_nel (inl (op x x')) (Sgr_freeprod_op t1 t2)
-            | inr y, inr y' => cons_nel (inr (op y y')) (Sgr_freeprod_op t1 t2)
-            | _, _ => cons_nel h1 (cons_nel h2 (Sgr_freeprod_op t1 t2))
-        end
-end.
-
-Theorem Sgr_freeprod_op_assoc : forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
-    fp_equiv2 (Sgr_freeprod_op l1 (Sgr_freeprod_op l2 l3))
-      (Sgr_freeprod_op (Sgr_freeprod_op l1 l2) l3).
-Proof.
-  induction l1 as [| h1 t1].
-    destruct l2, l3.
-    repeat match goal with
-        | x : _ + _ |- _ => destruct x; simpl in *
-    end; try constructor; sgr. Focus 2. 
-        
-
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
-    carrier := CoqSetoid_freeprod X Y;
-    op := Sgr_freeprod_op
+    carrier := Sgr_freeprod_setoid X Y;
+    op := app_nel
 }.
 Proof.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 
-Definition Sgr_coproj1 (X Y : Sgr) : Hom X (Sgr_freeprod X Y).
+Definition Sgr_coproj1 (X Y : Sgr)
+    : SgrHom X (Sgr_freeprod X Y).
 Proof.
-  sgr_simpl. exists (CoqSetoid_freeprod_coproj1 X Y).
-Abort.
+  red. exists (Sgr_freeprod_setoid_coproj1 X Y).
+  simpl. unfold fpeq4; simpl. reflexivity.
+Defined.
+
+Definition Sgr_coproj2 (X Y : Sgr)
+    : SgrHom Y (Sgr_freeprod X Y).
+Proof.
+  red. exists (Sgr_freeprod_setoid_coproj2 X Y).
+  simpl; unfold fpeq4; simpl. reflexivity.
+Defined.
+
+Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A)
+    (l : nel (X + Y)) : nel A :=
+match l with
+    | singl (inl x) => singl (f x)
+    | singl (inr y) => singl (g y)
+    | inl x ::: t => f x ::: freemap f g t
+    | inr y ::: t => g y ::: freemap f g t
+end.
+
+Fixpoint fold {A : Sgr} (l : nel A) : A :=
+match l with
+    | singl a => a
+    | a ::: singl a' => op a a'
+    | a ::: t => op a (fold t)
+end.
+
+Fixpoint equiv_nel {A : Sgr} (l1 l2 : nel A) : Prop :=
+match l1, l2 with
+    | singl h, singl h' => h == h'
+    | h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
+    | _, _ => False
+end.
+
+Theorem fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
+    equiv_nel l1 l2 -> fold l1 == fold l2.
+Proof.
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; simpl; cat.
+  destruct t1, t2; simpl in *.
+    rewrite H, H0.
+    
+
+Definition Sgr_setoid_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
+    : SetoidHom (Sgr_freeprod X Y) A.
+Proof.
+  red. exists (fun l => fold (freemap f g l)). proper. fpeq4.
+  do 2 red; simpl. unfold fpeq4.
+  induction x as [| h t]; simpl; intro.
+    destruct a, (normalize y).
+    destruct y as [| h' t'].
+      fpeq4; sgr.
+      intros. simpl in H.
+
+Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
+    : SgrHom (Sgr_freeprod X Y) A.
+Proof.
+  red. exists 

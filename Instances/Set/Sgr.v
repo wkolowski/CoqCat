@@ -89,7 +89,7 @@ end.
 
 Ltac length' l :=
 match l with
-    | nil => constr:0
+    | nil => constr:(0)
     | cons _ ?t => let n := length' t in constr:(S n)
 end.
 

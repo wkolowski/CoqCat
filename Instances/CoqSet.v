@@ -7,7 +7,7 @@ Require Export Limits.InitTerm.
 Require Import Limits.BinProdCoprod.
 Require Import Limits.BigProdCoprod.
 Require Import OldLimits.Equalizer.
-Require Import Limits.Pullback.
+Require Import Limits.NewPullback.
 Require Import Exponential.
 Require Import CartesianClosed.
 
