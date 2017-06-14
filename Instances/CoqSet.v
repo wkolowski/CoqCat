@@ -88,16 +88,21 @@ Proof. cat. Defined.
 Definition is_singleton (A : Set) : Prop :=
     exists a : A, True /\ forall (x y : A), x = y.
 
-Theorem CoqSet_terminal_ob : forall A : Set,
-    is_singleton A -> @terminal CoqSet A.
+Definition is_singleton_delete :
+  forall A : Set, is_singleton A -> forall X : Set, X -> A.
 Proof.
-  unfold is_singleton, terminal; intros.
-  destruct H as [a [_ H]]. exists (fun _ : X => a).
-  simpl; unfold unique; split; [trivial | intros].
-  simpl. intros. apply H.
-Restart.
-  unfold is_singleton, terminal; intros.
-  destruct H as [a [_ H]]. exists (fun _ : X => a). cat.
+  unfold is_singleton. intros.
+  apply constructive_indefinite_description in H.
+  destruct H as [a [_ H]]. exact a.
+Defined.
+
+Theorem CoqSet_terminal_ob :
+  forall (A : Set) (H : is_singleton A),
+    @terminal CoqSet A (is_singleton_delete A H).
+Proof.
+  unfold is_singleton, terminal; intros. cat.
+  compute. destruct (constructive_indefinite_description _ _).
+  destruct a. erewrite e. reflexivity.
 Qed.
 
 Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)

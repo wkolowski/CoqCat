@@ -6,11 +6,11 @@ Require Import BinProdCoprod.
 
 Require Import Cat.Instances.Setoids.
 
-(* TODO : op should be a setoid homomorphism *)
 Class Sgr : Type :=
 {
     carrier : Setoid';
     op : carrier -> carrier -> carrier;
+    op_Proper : Proper (equiv ==> equiv ==> equiv) op;
     assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
@@ -39,7 +39,8 @@ Ltac sgrob S := try intros until S;
 match type of S with
   | Sgr =>
     let a := fresh S "_op" in
-    let b := fresh S "_assoc" in destruct S as [S a b]; setoidob S
+    let a' := fresh S "_op_Proper" in 
+    let b := fresh S "_assoc" in destruct S as [S a a' b]; setoidob S
   | Ob _ => progress simpl in S; sgrob S
 end; sgr_simpl.
 
@@ -106,7 +107,7 @@ Instance Sgr_init : Sgr :=
     carrier := CoqSetoid_init;
     op := fun (e : Empty_set) _ => match e with end
 }.
-Proof. sgr. Defined.
+Proof. proper. all: sgr. Defined.
 
 Definition Sgr_create (X : Sgr) : Hom Sgr_init X.
 Proof.
@@ -125,7 +126,7 @@ Instance Sgr_term : Sgr :=
     carrier := CoqSetoid_term;
     op := fun _ _ => tt
 }.
-Proof. sgr. Defined.
+Proof. proper. sgr. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
@@ -144,7 +145,10 @@ Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
     carrier := CoqSetoid_prodOb X Y;
     op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
-Proof. sgr. Defined.
+Proof.
+  proper. destruct H, H0. split; apply op_Proper; auto.
+  sgr.
+Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
@@ -184,6 +188,13 @@ Proof.
     left. exact x.
     left. exact x'.
     right. exact (op y y').
+  proper. repeat
+  match goal with
+      | H : match ?x with _ => _ end |- _ => destruct x
+      | |- match ?x with _ => _ end => destruct x
+      | |- op _ _ == op _ _ => apply op_Proper
+      | H : False |- _ => inversion H
+  end; auto.
   destruct x, y, z; sgr.
 Defined.
 
@@ -209,6 +220,91 @@ Proof.
     trivial.
     rewrite IHt. trivial.
 Qed.
+
+Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
+match l1, l2 with
+    | singl h, singl h' => h == h'
+    | h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
+    | _, _ => False
+end.
+
+Theorem equiv_nel_refl : forall (X : Setoid') (l : nel X),
+    equiv_nel l l.
+Proof.
+  induction l as [| h t]; simpl; try rewrite IHt; solve_equiv.
+Qed.
+
+Theorem equiv_nel_sym : forall (X : Setoid') (l1 l2 : nel X),
+    equiv_nel l1 l2 -> equiv_nel l2 l1.
+Proof.
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; simpl;
+  intros; solve_equiv.
+Qed.
+
+Theorem equiv_nel_trans : forall (X : Setoid') (l1 l2 l3 : nel X),
+    equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
+Proof.
+  induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
+Qed.
+
+Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans.
+
+Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
+{
+    carrier := nel X;
+    setoid := {| equiv := @equiv_nel X |}
+}.
+Proof. solve_equiv. Defined.
+
+
+Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
+match l with
+    | singl s => singl s
+    | inl x ::: singl (inl x') => singl (inl (op x x'))
+    | inr y ::: singl (inr y') => singl (inr (op y y'))
+    | inl _ ::: singl (inr _) => l
+    | inr _ ::: singl (inl _) => l
+    | inl x ::: t =>
+        match normalize t with
+            | singl (inl x') => singl (inl (op x x'))
+            | inl x' ::: t' => inl (op x x') ::: t'
+            | t' => inl x ::: t'
+        end
+    | inr y ::: t =>
+        match normalize t with
+            | singl (inr y') => singl (inr (op y y'))
+            | inr y' ::: t' => inr (op y y') ::: t'
+            | t' => inr y ::: t'
+        end
+end.
+
+Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
+{
+    carrier := nel (X + Y);
+    setoid := Setoid_kernel_equiv
+      (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
+}.
+(*Proof. solve_equiv. Defined.*)
+
+Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
+    : SetoidHom X (Sgr_freeprod_setoid X Y).
+Proof.
+  red. exists (fun x : X => singl (inl x)). proper.
+Defined.
+
+Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
+    : SetoidHom Y (Sgr_freeprod_setoid X Y).
+Proof.
+  red. exists (fun y : Y => singl (inr y)). proper.
+Defined.
+
+(*Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y))
+    : Prop :=
+match l1, l2 with
+    | singl h, singl h' => h == h'
+    | h1 ::: t1, h2 ::: t2 => h1 == h2 /\ fp_equiv t1 t2
+    | _, _ => False
+end.*)
 
 Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (X + Y)) : Prop :=
 match l1, l2 with
@@ -252,27 +348,6 @@ Qed.
 
 Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans.
 
-Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
-match l with
-    | singl s => singl s
-    | inl x ::: singl (inl x') => singl (inl (op x x'))
-    | inr y ::: singl (inr y') => singl (inr (op y y'))
-    | inl _ ::: singl (inr _) => l
-    | inr _ ::: singl (inl _) => l
-    | inl x ::: t =>
-        match normalize t with
-            | singl (inl x') => singl (inl (op x x'))
-            | inl x' ::: t' => inl (op x x') ::: t'
-            | t' => inl x ::: t'
-        end
-    | inr y ::: t =>
-        match normalize t with
-            | singl (inr y') => singl (inr (op y y'))
-            | inr y' ::: t' => inr (op y y') ::: t'
-            | t' => inr y ::: t'
-        end
-end.
-
 Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
     fp_equiv (normalize l1) (normalize l2).
 
@@ -306,24 +381,13 @@ Qed.
 
 Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
 
-Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
-{
-    carrier := nel (X + Y);
-    setoid := {| equiv := @fpeq4 X Y |}
-}.
-Proof. solve_equiv. Defined.
-
-Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
-    : SetoidHom X (Sgr_freeprod_setoid X Y).
+Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
+    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (app_nel l1 l2) (app_nel l1' l2').
 Proof.
-  red. exists (fun x : X => singl (inl x)). proper.
-Defined.
-
-Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
-    : SetoidHom Y (Sgr_freeprod_setoid X Y).
-Proof.
-  red. exists (fun y : Y => singl (inr y)). proper.
-Defined.
+  unfold fpeq4. induction l1 as [| h1 t1].
+    simpl; intros. fpeq4. destruct l2.
+      fpeq4. Focus 2.
+Abort.
 
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
@@ -331,6 +395,9 @@ Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
     op := app_nel
 }.
 Proof.
+  proper. pose op_Proper. induction x as [| h t].
+    destruct y, x0, y0, a, s, s0, s1; simpl in *; repeat
+    match goal with | |- op _ _ == op _ _ => apply op_Proper end; solve_equiv.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 
@@ -362,13 +429,6 @@ match l with
     | singl a => a
     | a ::: singl a' => op a a'
     | a ::: t => op a (fold t)
-end.
-
-Fixpoint equiv_nel {A : Sgr} (l1 l2 : nel A) : Prop :=
-match l1, l2 with
-    | singl h, singl h' => h == h'
-    | h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
-    | _, _ => False
 end.
 
 Theorem fold_Proper : forall (A : Sgr) (l1 l2 : nel A),

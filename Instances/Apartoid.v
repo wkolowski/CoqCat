@@ -230,7 +230,7 @@ Instance Apartoid_has_products : has_products ApartoidCat :=
 }.
 Proof.
   (* Proper *) apartoid.
-  (* Products law *) apartoid.
+  (* Product law *) apartoid.
 Defined.
 
 Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=

@@ -1,8 +1,8 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
-Require Export OldLimits.OldInitTerm.
-Require Export BinProdCoprod.
+Require Import Cat.
+Require Import Limits.InitTerm.
+Require Import BinProdCoprod.
 
 Definition big_product (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C)
@@ -103,20 +103,24 @@ Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
     f true = A /\ f false = B /\ big_product C P p.
 Proof. *)
 
-Theorem nullary_prod : forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
-    (p : forall j : Empty_set, Hom T (A j)),
-    terminal T -> big_product C T p.
+Theorem nullary_prod :
+  forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
+  (delete : forall X : Ob C, Hom X T)
+  (p : forall j : Empty_set, Hom T (A j)),
+    terminal T delete -> big_product C T p.
 Proof.
   unfold big_product, terminal; intros.
-  destruct (H X) as [u [_ unique]]. exists u. cat.
+  exists (delete X). destruct (H X). cat.
 Qed.
 
-Theorem nullary_coprod : forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
-    (p : forall j : Empty_set, Hom (A j) I),
-    initial I -> big_coproduct C I p.
+Theorem nullary_coprod :
+  forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
+  (create : forall X : Ob C, Hom I X)
+  (p : forall j : Empty_set, Hom (A j) I),
+    initial I create -> big_coproduct C I p.
 Proof.
   unfold big_coproduct, initial; intros.
-  edestruct H. eexists. cat.
+  exists (create X). destruct (H X). cat.
 Qed.
 
 Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
