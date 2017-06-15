@@ -6,15 +6,14 @@ Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Cat.Instances.Set.Mon.
+Require Export Cat.Instances.Setoid.Mon.
 
-Print Graph.
 Class Grp : Type :=
 {
     mon :> Mon;
-    inv : mon -> mon;
-    inv_l : forall x : mon, op (inv x) x = neutr;
-    inv_r : forall x : mon, op x (inv x) = neutr
+    inv : SetoidHom mon mon; (*mon -> mon;*)
+    inv_l : forall x : mon, op (inv x) x == neutr;
+    inv_r : forall x : mon, op x (inv x) == neutr
 }.
 
 Hint Resolve inv_l inv_r.
@@ -29,7 +28,7 @@ try match goal with
   | |- context [?op (?inv ?x) ?x] => rewrite inv_l
   | |- context [?op ?x (?inv ?x)] => rewrite inv_r
   (* There's some group that was destructed. *)
-  | inv_l : forall g : _, ?op (?inv g) g = ?neutr |- _ =>
+  | inv_l : forall g : _, ?op (?inv g) g == ?neutr |- _ =>
     try match goal with
       (*| H : context [?op (?inv ?x) ?x] |- _ => rewrite inv_l in H*)
       | |- context [?op (?inv ?x) ?x] => rewrite inv_l
@@ -40,7 +39,7 @@ try match goal with
       | |- context [?op ?x (?inv ?x)] => rewrite inv_r
     end
   (* Homomorphisms preserve inv. *)
-  | (*f : ?X -> ?Y,*) pres_inv : forall g : _, ?f (?inv1 g) = ?inv2 (?f g)  |- _ =>
+  | (*f : ?X -> ?Y,*) pres_inv : forall g : _, ?f (?inv1 g) == ?inv2 (?f g)  |- _ =>
     match goal with
       | |- context [?f (?inv _)] => rewrite pres_inv
     end
@@ -67,7 +66,7 @@ Ltac grpobs := grpobs_template grpob.
 Ltac grpobs' := grpobs_template grpob'.
 
 Definition GrpHom (X Y : Grp) : Type := 
-    {f : MonHom X Y | forall x : X, f (inv x) = inv (f x)}.
+    {f : MonHom X Y | forall x : X, f (inv x) == inv (f x)}.
 
 Definition GrpHom_MonHom (X Y : Grp) (f : GrpHom X Y)
     : MonHom X Y := proj1_sig f.
@@ -104,13 +103,11 @@ Proof. apply Setoid_kernel_equiv. Defined.
 Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z)
     : GrpHom X Z.
 Proof.
-  red. destruct f as [f Hf0], g as [g Hg0]. exists (MonComp _ _ _ f g).
-  destruct f as [[f Hf1] Hf2], g as [[g Hg1] Hg2]; simpl in *.
-  intro. rewrite Hf0, Hg0. auto.
+  red. exists (MonComp f g). grp.
 Defined.
 
 Definition GrpId (X : Grp) : GrpHom X X.
-Proof. red. exists (MonId X). simpl. auto. Defined.
+Proof. red. exists (MonId X). grp. Defined.
 
 Instance GrpCat : Cat :=
 {
@@ -121,16 +118,17 @@ Instance GrpCat : Cat :=
     id := GrpId;
 }.
 Proof.
-  (* Proper *) repeat red; intros. destruct x, y, x0, y0; cat.
+  (* Proper *) proper. Time repeat red; intros; destruct x, y, x0, y0; cat;
     eapply (@comp_Proper MonCat); auto.
-  (* Category laws *) all: intros; grphoms'; grp.
+  (* Category laws *) Time all: grp.
 Defined.
 
 Theorem inv_involutive : forall (G : Grp) (g : G),
-    inv (inv g) = g.
+    inv (inv g) == g.
 Proof.
-  intros. assert (H : op (op (inv (inv g)) (inv g)) g = g).
-    grp_simpl. auto.
+  intros. assert (H : op (op (inv (inv g)) (inv g)) g == g).
+    grp'. rewrite G_inv_l. simpl in G_inv.
+    (* TODO : coherences and reflective tactics for sgr, mon, grp *)
   rewrite <- assoc in H. rewrite inv_l in H. rewrite neutr_r in H. auto.
 Qed.
 

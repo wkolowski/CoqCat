@@ -4,17 +4,19 @@ Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
-Require Import Cat.Instances.Setoids.
+Require Export Cat.Instances.Setoids.
+
+Set Implicit Arguments.
 
 Class Sgr : Type :=
 {
-    carrier : Setoid';
+    setoid :> Setoid';
     op : carrier -> carrier -> carrier;
     op_Proper : Proper (equiv ==> equiv ==> equiv) op;
     assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
-Coercion carrier : Sgr >-> Setoid'.
+Coercion setoid : Sgr >-> Setoid'.
 
 Hint Resolve assoc.
 
@@ -104,7 +106,7 @@ Proof. all: sgr. Defined.
 
 Instance Sgr_init : Sgr :=
 {
-    carrier := CoqSetoid_init;
+    setoid := CoqSetoid_init;
     op := fun (e : Empty_set) _ => match e with end
 }.
 Proof. proper. all: sgr. Defined.
@@ -123,7 +125,7 @@ Proof. sgr. Defined.
 
 Instance Sgr_term : Sgr :=
 {
-    carrier := CoqSetoid_term;
+    setoid := CoqSetoid_term;
     op := fun _ _ => tt
 }.
 Proof. proper. sgr. Defined.
@@ -142,7 +144,7 @@ Proof. sgr. Defined.
 
 Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
 {
-    carrier := CoqSetoid_prodOb X Y;
+    setoid := CoqSetoid_prodOb X Y;
     op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
@@ -180,7 +182,7 @@ Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
-    carrier := CoqSetoid_coprodOb X Y
+    setoid := CoqSetoid_coprodOb X Y
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y'].
@@ -389,9 +391,9 @@ Proof.
       fpeq4. Focus 2.
 Abort.
 
-Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
+(*Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
-    carrier := Sgr_freeprod_setoid X Y;
+    setoid := Sgr_freeprod_setoid X Y;
     op := app_nel
 }.
 Proof.
@@ -453,4 +455,5 @@ Proof.
 Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SgrHom (Sgr_freeprod X Y) A.
 Proof.
-  red. exists 
+  red.
+Abort.*)

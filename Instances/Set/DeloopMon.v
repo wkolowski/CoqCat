@@ -1,10 +1,10 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Export Cat.
-Require Export InitTerm.
-Require Export BinProdCoprod.
+Require Import Cat.
+Require Import Cat.Limits.InitTerm.
+Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Instances.Set.Mon.
+Require Import Cat.Instances.Set.Mon.
 
 Instance DeloopMon (M : Mon) : Cat :=
 {

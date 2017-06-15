@@ -6,7 +6,7 @@ Require Import BinProdCoprod.
 
 Class Sgr : Type :=
 {
-    carrier : Type;
+    carrier :> Type;
     op : carrier -> carrier -> carrier;
     assoc : forall x y z : carrier, op x (op y z) = op (op x y) z
 }.

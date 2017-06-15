@@ -4,7 +4,9 @@ Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Cat.Instances.Set.Sgr.
+Require Export Cat.Instances.Setoid.Sgr.
+
+Set Implicit Arguments.
 
 Class Mon : Type :=
 {
@@ -25,7 +27,7 @@ match goal with
   | H : context [?op _ neutr] |- _ => rewrite neutr_r in H
   | |- context [?op neutr _] => rewrite neutr_l
   | |- context [?op _ neutr] => rewrite neutr_r
-  | f : ?X -> ?Y, X_neutr : ?X, pres_neutr : ?f ?X_neutr = ?neutr2 |- _ =>
+  | f : ?X -> ?Y, X_neutr : ?X, pres_neutr : ?f ?X_neutr == ?neutr2 |- _ =>
     match goal with
       (* This can't be here because H gets rewritten in itself and thus
          effectively destroyed. *)
@@ -33,7 +35,7 @@ match goal with
       | |- context [?f ?neutr1] => rewrite pres_neutr
     end
   (* Homomorphisms *)
-  | f : ?X -> ?Y, H : ?f neutr = neutr |- context [?f neutr] =>
+  | f : ?X -> ?Y, H : ?f neutr == neutr |- context [?f neutr] =>
     rewrite H
   | _ => idtac
 end; sgr_simpl.
@@ -67,7 +69,7 @@ Ltac monobs := monobs_template monob.
 Ltac monobs' := monobs_template monob'.
 
 Definition MonHom (X Y : Mon) : Type :=
-    {f : SgrHom X Y | f neutr = neutr}.
+    {f : SgrHom X Y | f neutr == neutr}.
 
 Definition MonHom_SgrHom (X Y : Mon) (f : MonHom X Y)
     : SgrHom X Y := proj1_sig f.
@@ -97,8 +99,11 @@ match goal with
   | _ => cat
 end.
 
-Ltac mon' := repeat (mon_simpl || monobs || monhoms || mon_aux || cat).
-Ltac mon := try (mon'; fail).
+Ltac mon_wut := repeat (mon_simpl || monobs || monhoms || mon_aux || cat).
+Ltac mon := try (mon_wut; fail).
+
+Ltac mon_wut' := repeat (mon_simpl || monobs' || monhoms' || mon_aux || cat).
+Ltac mon' := try (mon_wut'; fail).
 
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
@@ -110,12 +115,11 @@ Proof. apply Setoid_kernel_equiv. Defined.
 Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
     : MonHom X Z.
 Proof.
-  mon_simpl. monhoms. exists (SgrComp _ _ _ f g).
-  sgrhoms. rewrite f_pres_neutr, g_pres_neutr. auto.
+  red. exists (SgrComp f g). mon'.
 Defined.
 
 Definition MonId (X : Mon) : MonHom X X.
-Proof. mon_simpl. exists (SgrId X). mon. Defined.
+Proof. red. exists (SgrId X). mon. Defined.
 
 Instance MonCat : Cat :=
 {
@@ -126,8 +130,8 @@ Instance MonCat : Cat :=
     id := MonId
 }.
 Proof.
-  (* Proper *) mon_simpl. monhoms. rewrite H, H0. auto.
-  (* Category laws *) all: mon.
+  (* Proper *) proper. mon.
+  (* Category laws *) Time all: mon'.
 Defined.
 
 Instance Mon_init : Mon :=
@@ -139,8 +143,12 @@ Proof. all: mon. Defined.
 
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
 Proof.
-  mon_simpl. exists (fun _ => neutr). auto.
-Defined. 
+  Definition Mon_Setoid_create (X : Mon) : SetoidHom Mon_init X.
+  Proof.
+    red. exists (fun _ => neutr). proper.
+  Defined.
+  red. exists (Mon_Setoid_create X). mon.
+Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
 Proof.
@@ -163,7 +171,11 @@ Proof. all: mon. Defined.
 
 Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
 Proof.
-  sgr_simpl. exists (fun _ => tt). auto.
+  Definition Mon_Setoid_delete (X : Mon) : SetoidHom X Mon_term.
+  Proof.
+    red. exists (fun _ => tt). proper.
+  Defined.
+  red. exists (Mon_Setoid_delete X). mon.
 Defined.
 
 Definition Mon_delete (X : Mon) : Hom X Mon_term.
@@ -185,38 +197,37 @@ Instance Mon_has_zero : has_zero MonCat :=
 }.
 Proof. mon. Defined.
 
-Instance Mon_prod (X Y : Mon) : Mon :=
+Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
-    sgr := Sgr_prod X Y;
+    sgr := Sgr_prodOb X Y;
     neutr := (neutr, neutr);
 }.
 Proof. all: destruct a; mon. Defined.
 
-Definition Mon_proj1 (X Y : Mon) : Hom (Mon_prod X Y) X.
+Definition Mon_proj1 (X Y : Mon) : Hom (Mon_prodOb X Y) X.
 Proof.
   mon_simpl. exists (Sgr_proj1 X Y). mon.
 Defined.
 
-Definition Mon_proj2 (X Y : Mon) : Hom (Mon_prod X Y) Y.
+Definition Mon_proj2 (X Y : Mon) : Hom (Mon_prodOb X Y) Y.
 Proof.
   mon_simpl. exists (Sgr_proj2 X Y). mon.
 Defined.
 
 Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
-    : MonHom X (Mon_prod A B).
+    : MonHom X (Mon_prodOb A B).
 Proof.
-  mon_simpl. exists (Sgr_fpair _ _ _ f g). mon.
+  red. exists (Sgr_fpair f g). mon.
 Defined.
 
 Instance Mon_has_products : has_products MonCat :=
 {
-    prodOb := Mon_prod;
+    prodOb := Mon_prodOb;
     proj1 := Mon_proj1;
     proj2 := Mon_proj2;
     fpair := Mon_fpair
 }.
 Proof.
-  mon.
-  repeat red. intros. mon'.
-    rewrite H, H0. destruct (y x). auto.
+  proper.
+  repeat red. intros. mon.
 Defined.
