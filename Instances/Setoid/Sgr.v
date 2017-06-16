@@ -6,6 +6,8 @@ Require Import BinProdCoprod.
 
 Require Export Cat.Instances.Setoids.
 
+Require Import Cat.Nel.
+
 Set Implicit Arguments.
 
 Class Sgr : Type :=
@@ -77,6 +79,121 @@ end; sgr_simpl.
 Ltac sgr' := repeat (sgr_simpl || sgrobs || sgrhoms || cat).
 Ltac sgr := try (sgr'; fail).
 
+Inductive exp : Sgr -> Type :=
+    | Var : forall X : Sgr, X -> exp X
+    | Op : forall X : Sgr, exp X -> exp X -> exp X
+    | Mor : forall X Y : Sgr, SgrHom X Y -> exp X -> exp Y.
+
+Arguments Var [X] _.
+Arguments Op [X] _ _.
+Arguments Mor [X Y] _ _ .
+
+Fixpoint expDenote {X : Sgr} (e : exp X) : X :=
+match e with
+    | Var v => v
+    | Op e1 e2 => op (expDenote e1) (expDenote e2)
+    | Mor f e' => f (expDenote e')
+end.
+
+Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
+match l with
+    | singl x => x
+    | h ::: t => op h (expDenoteNel t)
+end.
+
+Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
+match e with
+    | Var v => singl v
+    | Op e1 e2 => flatten e1 +++ flatten e2
+    | Mor f e' => nel_map f (flatten e')
+end.
+
+Lemma flatten_Hom : forall (X : Sgr) (f : SgrHom X X) (e : exp X),
+  flatten (Mor f e) = nel_map f (flatten e).
+Proof.
+  trivial.
+Qed.
+
+Lemma expDenoteNel_app :
+  forall (X : Sgr) (l1 l2 : nel X),
+    expDenoteNel (l1 +++ l2) == op (expDenoteNel l1) (expDenoteNel l2).
+Proof.
+  induction l1 as [| h1 t1]; simpl; intros.
+    reflexivity.
+    pose op_Proper. rewrite IHt1. rewrite assoc. reflexivity.
+Qed.
+
+Lemma expDenoteNel_hom :
+  forall (X Y : Sgr) (f : SgrHom X Y) (l : nel X),
+    expDenoteNel (nel_map f l) == f (expDenoteNel l).
+Proof.
+  induction l as [| h t]; simpl.
+    reflexivity.
+    assert (f (op h (expDenoteNel t)) == op (f h) (f (expDenoteNel t))).
+      sgr.
+      rewrite H. apply op_Proper.
+        reflexivity.
+        assumption.
+Qed.
+
+Theorem flatten_correct :
+  forall (X : Sgr) (e : exp X),
+    expDenoteNel (flatten e) == expDenote e.
+Proof.
+  induction e; simpl.
+    reflexivity.
+    pose op_Proper. rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
+    rewrite expDenoteNel_hom. sgr.
+Qed.
+
+Theorem sgr_reflect :
+  forall (X : Sgr) (e1 e2 : exp X),
+    expDenoteNel (flatten e1) == expDenoteNel (flatten e2) ->
+      expDenote e1 == expDenote e2.
+Proof.
+  induction e1; simpl; intros; rewrite flatten_correct in H.
+    assumption.
+    rewrite <- H. rewrite expDenoteNel_app. pose op_Proper.
+      repeat rewrite flatten_correct. reflexivity.
+    rewrite expDenoteNel_hom in H. rewrite <- H.
+      assert (Proper (equiv ==> equiv) s).
+        sgr.
+        apply H0. rewrite flatten_correct. reflexivity.
+Qed.
+
+Ltac reify e :=
+match e with
+    | op ?e1 ?e2 =>
+        let e1' := reify e1 in
+        let e2' := reify e2 in constr:(Op e1' e2')
+    | (SetoidHom_Fun (SgrHom_Fun ?f)) ?e =>
+        let e' := reify e in constr:(Mor f e')
+    | ?v => constr:(Var v)
+end.
+
+Ltac sgr2 := simpl; intros;
+match goal with
+    | |- ?e1 == ?e2 =>
+        let e1' := reify e1 in
+        let e2' := reify e2 in
+          change (expDenote e1' == expDenote e2');
+          apply sgr_reflect; simpl
+end.
+
+Ltac sgr2' := sgr2; try reflexivity.
+
+Goal forall (X : Sgr) (a b c : X),
+  op a (op b c) == op (op a b) c.
+Proof.
+  sgr2'.
+Qed.
+
+Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
+  f (op a b) == op (f a) (f b).
+Proof.
+  sgr2'.
+Qed.
+
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
@@ -86,12 +203,12 @@ Proof. solve_equiv. Defined.
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
 Proof.
-  sgr_simpl. exists (SetoidComp f g). sgr.
+  sgr_simpl. exists (SetoidComp f g). sgr2'.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
 Proof.
-  sgr_simpl. exists (SetoidId A). sgr.
+  sgr_simpl. exists (SetoidId A). sgr2'.
 Defined.
 
 Instance SgrCat : Cat :=
@@ -102,7 +219,7 @@ Instance SgrCat : Cat :=
     comp := SgrComp;
     id := SgrId
 }.
-Proof. all: sgr. Defined.
+Proof. all: cat; sgr. Defined.
 
 Instance Sgr_init : Sgr :=
 {
@@ -154,18 +271,18 @@ Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
-  sgr_simpl. exists (CoqSetoid_proj1 X Y). sgr.
+  sgr_simpl. exists (CoqSetoid_proj1 X Y). Time sgr2'.
 Defined.
 
 Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
 Proof.
-  sgr_simpl. exists (CoqSetoid_proj2 X Y). sgr.
+  sgr_simpl. exists (CoqSetoid_proj2 X Y). Time sgr2'.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_prodOb A B).
 Proof.
-  sgr_simpl. exists (CoqSetoid_fpair f g). sgr.
+  sgr_simpl. exists (CoqSetoid_fpair f g). Time split; sgr2'.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=
@@ -177,7 +294,7 @@ Instance Sgr_has_products : has_products SgrCat :=
 }.
 Proof.
   proper.
-  repeat split; cat.
+  Time repeat split; sgr.
 Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
@@ -197,31 +314,8 @@ Proof.
       | |- op _ _ == op _ _ => apply op_Proper
       | H : False |- _ => inversion H
   end; auto.
-  destruct x, y, z; sgr.
+  Time destruct x, y, z; sgr2'.
 Defined.
-
-Inductive nel (A : Type) : Type :=
-    | singl : A -> nel A
-    | cons_nel : A -> nel A -> nel A.
-
-Arguments singl [A] _.
-Arguments cons_nel [A] _ _.
-
-Notation "h ::: t" := (cons_nel h t) (right associativity, at level 30).
-
-Fixpoint app_nel {A : Type} (l1 l2 : nel A) : nel A :=
-match l1 with
-    | singl a => cons_nel a l2
-    | a ::: l1' => cons_nel a (app_nel l1' l2)
-end.
-
-Theorem app_nel_assoc : forall (A : Type) (x y z : nel A),
-    app_nel x (app_nel y z) = app_nel (app_nel x y) z.
-Proof.
-  induction x as [h | h t]; simpl; intros.
-    trivial.
-    rewrite IHt. trivial.
-Qed.
 
 Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
 match l1, l2 with
@@ -257,7 +351,6 @@ Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
     setoid := {| equiv := @equiv_nel X |}
 }.
 Proof. solve_equiv. Defined.
-
 
 Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
 match l with
@@ -384,7 +477,7 @@ Qed.
 Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
 
 Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
-    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (app_nel l1 l2) (app_nel l1' l2').
+    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1].
     simpl; intros. fpeq4. destruct l2.
