@@ -11,7 +11,7 @@ Require Export Cat.Instances.Setoid.Mon.
 Class Grp : Type :=
 {
     mon :> Mon;
-    inv : SetoidHom mon mon; (*mon -> mon;*)
+    inv : SetoidHom mon mon;
     inv_l : forall x : mon, op (inv x) x == neutr;
     inv_r : forall x : mon, op x (inv x) == neutr
 }.
@@ -126,10 +126,10 @@ Defined.
 Theorem inv_involutive : forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
-  intros. assert (H : op (op (inv (inv g)) (inv g)) g == g).
-    grp'. rewrite G_inv_l. simpl in G_inv.
-    (* TODO : coherences and reflective tactics for sgr, mon, grp *)
-  rewrite <- assoc in H. rewrite inv_l in H. rewrite neutr_r in H. auto.
+  intros. pose (@op_Proper G).
+  assert (op (inv (inv g)) (op (inv g) g) == g).
+    rewrite assoc, inv_l, neutr_l. reflexivity.
+    rewrite inv_l , neutr_r in H. assumption.
 Qed.
 
 Theorem neutr_unique_l : forall (G : Grp) (e : G),
@@ -152,14 +152,19 @@ Defined.
 Theorem inv_op : forall (G : Grp) (a b : G),
     inv (op a b) = op (inv b) (inv a).
 Proof.
-  intros.
-  assert (forall x y : G, op (op x y) (inv (op x y)) = neutr). auto.
-  assert (forall x y : G, op (op x y) (op (inv y) (inv x)) = neutr).
+  intros. pose (@op_Proper G).
+  assert (forall x y : G, op (op x y) (inv (op x y)) == neutr). auto.
+  assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr).
     intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
     rewrite neutr_l. auto.
   replace (inv (op a b)) with (op (inv (op a b)) neutr); auto.
-    rewrite <- (H0 a b). rewrite assoc. rewrite inv_l. auto.
-Defined.
+    specialize (H a b).
+    rewrite <- (H0 a b) in H. rewrite inv_r in H.
+      pose (@op_Proper G).
+      (*rewrite H.
+      repeat rewrite <- assoc in H.
+Defined.*)
+(* TODO : group lemmas *)
 
 Theorem inv_neutr : forall (G : Grp), inv neutr = neutr.
 Proof.

@@ -105,6 +105,146 @@ Ltac mon := try (mon_wut; fail).
 Ltac mon_wut' := repeat (mon_simpl || monobs' || monhoms' || mon_aux || cat).
 Ltac mon' := try (mon_wut'; fail).
 
+Inductive exp : Mon -> Type :=
+    | Id : forall X : Mon, exp X
+    | Var : forall X : Mon, X -> exp X
+    | Op : forall X : Mon, exp X -> exp X -> exp X
+    | Mor : forall X Y : Mon, MonHom X Y -> exp X -> exp Y.
+
+Arguments Id [X].
+Arguments Var [X] _.
+Arguments Op [X] _ _.
+Arguments Mor [X Y] _ _ .
+
+Fixpoint expDenote {X : Mon} (e : exp X) : X :=
+match e with
+    | Id => neutr
+    | Var v => v
+    | Op e1 e2 => op (expDenote e1) (expDenote e2)
+    | Mor f e' => f (expDenote e')
+end.
+
+Require Import List.
+Import ListNotations.
+
+Fixpoint expDenoteL {X : Mon} (l : list X) : X :=
+match l with
+    | [] => neutr
+    | h :: t => op h (expDenoteL t)
+end.
+
+Fixpoint flatten {X : Mon} (e : exp X) : list X :=
+match e with
+    | Id => []
+    | Var v => [v]
+    | Op e1 e2 => flatten e1 ++ flatten e2
+    | Mor f Id => []
+    | Mor f e' => map f (flatten e')
+end.
+
+Lemma flatten_Hom : forall (X : Mon) (f : MonHom X X) (e : exp X),
+  e <> Id -> flatten (Mor f e) = map f (flatten e).
+Proof.
+  destruct e; auto.
+Qed.
+
+Lemma expDenoteL_app :
+  forall (X : Mon) (l1 l2 : list X),
+    expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
+Proof.
+  induction l1 as [| h1 t1]; simpl; intros.
+    rewrite neutr_l. reflexivity.
+    rewrite <- assoc. apply op_Proper.
+      reflexivity.
+      rewrite IHt1. reflexivity.
+Qed.
+
+Lemma expDenoteL_hom :
+  forall (X Y : Mon) (f : MonHom X Y) (l : list X),
+    expDenoteL (map f l) == f (expDenoteL l).
+Proof.
+  induction l as [| h t]; simpl.
+    mon'.
+    assert (f (op h (expDenoteL t)) == op (f h) (f (expDenoteL t))).
+      mon'.
+      rewrite H. apply op_Proper.
+        reflexivity.
+        assumption.
+Qed.
+
+Theorem flatten_correct :
+  forall (X : Mon) (e : exp X),
+    expDenoteL (flatten e) == expDenote e.
+Proof.
+  induction e.
+    reflexivity.
+    mon.
+    simpl. rewrite expDenoteL_app. apply op_Proper; assumption.
+    destruct e; simpl.
+      mon'.
+      mon'.
+      rewrite expDenoteL_hom. monhom' m. mon'.
+      rewrite expDenoteL_hom. mon'.
+Qed.
+
+Theorem mon_reflect :
+  forall (X : Mon) (e1 e2 : exp X),
+    expDenoteL (flatten e1) == expDenoteL (flatten e2) ->
+      expDenote e1 == expDenote e2.
+Proof.
+  induction e1; intros; repeat rewrite flatten_correct in H;
+  assumption.
+Qed.
+
+Ltac reify e :=
+lazymatch e with
+    | @neutr ?X => constr:(@Id X)
+    (*| neutr _ => constr:(Id)*)
+    | op ?e1 ?e2 =>
+        let e1' := reify e1 in
+        let e2' := reify e2 in constr:(Op e1' e2')
+    | SetoidHom_Fun (SgrHom_Fun (MonHom_SgrHom ?f)) ?e =>
+        let e' := reify e in constr:(Mor f e')
+    | ?f ?e =>
+        let e' := reify e in constr:(Mor f e')
+    | ?v => constr:(Var v)
+end.
+
+Ltac mon2 := simpl; intros;
+match goal with
+    | |- ?e1 == ?e2 =>
+        let e1' := reify e1 in
+        let e2' := reify e2 in
+          change (expDenote e1' == expDenote e2');
+          apply mon_reflect; simpl
+end.
+
+Ltac mon2' := mon2; try reflexivity.
+
+Goal forall (X : Mon) (a b c : X),
+  op a (op b c) == op (op a b) c.
+Proof.
+  mon2'.
+Qed.
+
+Goal forall (X : Mon) (f : MonHom X X) (a b : X),
+  f (op a b) == op (f a) (f b).
+Proof.
+  mon2'.
+Qed.
+
+Goal forall (X : Mon) (f : MonHom X X) (a b c : X),
+  op (f (f neutr)) (op (f a) (f (op b c))) ==
+  op (f a) (op (f b) (f c)).
+Proof.
+  mon2'.
+Qed.
+
+Goal forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
+  g (f neutr) == neutr.
+Proof. mon2'.
+Qed.
+
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>
@@ -115,11 +255,11 @@ Proof. apply Setoid_kernel_equiv. Defined.
 Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
     : MonHom X Z.
 Proof.
-  red. exists (SgrComp f g). mon'.
+  red. exists (SgrComp f g). Time mon2'.
 Defined.
 
 Definition MonId (X : Mon) : MonHom X X.
-Proof. red. exists (SgrId X). mon. Defined.
+Proof. red. exists (SgrId X). Time mon2'. Defined.
 
 Instance MonCat : Cat :=
 {
@@ -130,7 +270,7 @@ Instance MonCat : Cat :=
     id := MonId
 }.
 Proof.
-  (* Proper *) proper. mon.
+  (* Proper *) proper. mon'.
   (* Category laws *) Time all: mon'.
 Defined.
 
@@ -147,12 +287,12 @@ Proof.
   Proof.
     red. exists (fun _ => neutr). proper.
   Defined.
-  red. exists (Mon_Setoid_create X). mon.
+  red. exists (Mon_Setoid_create X). Time mon2'.
 Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
 Proof.
-  mon_simpl. exists (Mon_Sgr_create X). mon.
+  mon_simpl. exists (Mon_Sgr_create X). mon2'.
 Defined.
 
 Instance Mon_has_init : has_init MonCat :=
