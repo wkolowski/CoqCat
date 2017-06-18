@@ -38,6 +38,7 @@ General TODO:
  * Use Set Implicit Arguments more.
  * Prove more properties of universal constructions (like these for equalizers).
  * Revise equalities and equivalences and write a few more (like JMequiv_dep).
+ * Implement Bifunctors and Profunctors.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.

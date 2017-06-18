@@ -162,7 +162,7 @@ Proof.
 Qed.
 
 Ltac reify e :=
-match e with
+lazymatch e with
     | op ?e1 ?e2 =>
         let e1' := reify e1 in
         let e2' := reify e2 in constr:(Op e1' e2')

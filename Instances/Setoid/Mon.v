@@ -199,13 +199,10 @@ Qed.
 Ltac reify e :=
 lazymatch e with
     | @neutr ?X => constr:(@Id X)
-    (*| neutr _ => constr:(Id)*)
     | op ?e1 ?e2 =>
         let e1' := reify e1 in
         let e2' := reify e2 in constr:(Op e1' e2')
     | SetoidHom_Fun (SgrHom_Fun (MonHom_SgrHom ?f)) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | ?f ?e =>
         let e' := reify e in constr:(Mor f e')
     | ?v => constr:(Var v)
 end.
