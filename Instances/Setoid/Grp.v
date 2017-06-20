@@ -77,51 +77,6 @@ Defined.
 
 Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr.
 
-Ltac grp_simpl := simpl; intros;
-try match goal with
-  (* There's a group that wasn't destructed. *)
-  (*| H : context [?op (?inv ?x) ?x] |- _ => rewrite inv_l in H
-  | H : context [?op ?x (?inv ?x)] |- _ => rewrite inv_r in H*)
-  | |- context [?op (?inv ?x) ?x] => rewrite inv_l
-  | |- context [?op ?x (?inv ?x)] => rewrite inv_r
-  (* There's some group that was destructed. *)
-  | inv_l : forall g : _, ?op (?inv g) g == ?neutr |- _ =>
-    try match goal with
-      (*| H : context [?op (?inv ?x) ?x] |- _ => rewrite inv_l in H*)
-      | |- context [?op (?inv ?x) ?x] => rewrite inv_l
-    end
-  | inv_r : forall g : _, ?op g (?inv g) = ?neutr |- _ =>
-    try match goal with
-      (*| H : context [?op ?x (?inv ?x)] |- _ => rewrite inv_r in H*)
-      | |- context [?op ?x (?inv ?x)] => rewrite inv_r
-    end
-  (* Homomorphisms preserve inv. *)
-  | (*f : ?X -> ?Y,*) pres_inv : forall g : _, ?f (?inv1 g) == ?inv2 (?f g)  |- _ =>
-    match goal with
-      | |- context [?f (?inv _)] => rewrite pres_inv
-    end
-end; mon_simpl.
-
-Ltac grpob G := try intros until G;
-match type of G with
-  | Grp =>
-    let a := fresh G "_inv" in 
-    let b := fresh G "_inv_l" in
-    let c := fresh G "_inv_r" in destruct G as [G a b c]
-  | Ob _ => progress simpl in G; grpob G
-end.
-
-Ltac grpob' G := grpob G; monob' G.
-
-Ltac grpobs_template tac := repeat
-match goal with
-  | G : Grp |- _ => tac G
-  | G : Ob _ |- _ => tac G
-end.
-
-Ltac grpobs := grpobs_template grpob.
-Ltac grpobs' := grpobs_template grpob'.
-
 Definition GrpHom (X Y : Grp) : Type := 
     {f : MonHom X Y | forall x : X, f (inv x) == inv (f x)}.
 
@@ -129,209 +84,11 @@ Definition GrpHom_MonHom (X Y : Grp) (f : GrpHom X Y)
     : MonHom X Y := proj1_sig f.
 Coercion GrpHom_MonHom : GrpHom >-> MonHom.
 
-Ltac grphom f :=
-match type of f with
-  | GrpHom _ _ =>
-    let a := fresh f "_pres_inv" in destruct f as [f a]
-  | Hom _ _ => progress simpl in f; grphom f
-end; simpl in *.
-
-Ltac grphom' f := grphom f; monhom' f.
-
-Ltac grphoms_template tac := intros; repeat
-match goal with
-  | f : GrpHom _ _ |- _ => tac f
-  | f : Hom _ _ |- _ => tac f
-end; grp_simpl.
-
-Ltac grphoms := grphoms_template grphom.
-Ltac grphoms' := grphoms_template grphom'.
-
-Ltac grp' := repeat (grp_simpl || grpobs' || grphoms' || mon').
-Ltac grp := try (grp'; fail).
-
 Lemma inv_Proper : forall (X : Grp), Proper (equiv ==> equiv) inv.
 Proof.
-  unfold Proper, respectful; intros. grpob X.
-  simpl in *. destruct X_inv. simpl in *. f_equiv. assumption.
+  unfold Proper, respectful; intros.
+  destruct X, inv0; simpl in *. apply p. assumption.
 Qed.
-
-(*Inductive exp : Grp -> Type :=
-    | Id : forall X : Grp, exp X
-    | Var : forall X : Grp, X -> exp X
-    | Op : forall X : Grp, exp X -> exp X -> exp X
-    | Mor : forall X Y : Grp, GrpHom X Y -> exp X -> exp Y
-    | Inv : forall X : Grp, exp X -> exp X.
-
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X Y] _ _ .
-Arguments Inv [X] _.*)
-
-(*Inductive exp (X : Grp) : Type :=
-    | Id : exp X
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
-    | Inv : exp X -> exp X.
-
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
-Arguments Inv [X] _.
-
-Fixpoint expDenote {X : Grp} (e : exp X) : X :=
-match e with
-    | Id => neutr
-    | Var v => v
-    | Op e1 e2 => op (expDenote e1) (expDenote e2)
-    | Mor f e' => f (expDenote e')
-    | Inv x => inv (expDenote x)
-end.
-
-Require Import List.
-Import ListNotations.
-
-Fixpoint expDenoteL {X : Grp} (l : list X) : X :=
-match l with
-    | [] => neutr
-    | h :: t => op h (expDenoteL t)
-end.
-
-Fixpoint flatten {X : Grp} (e : exp X) {struct e} : list X :=
-match e with
-    | Id => []
-    | Var v => [v]
-    | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor f Id => []
-    (*| Mor f (Inv e') => *)
-    | Mor f e' => map f (flatten e')
-    | Inv (Inv e') => flatten e'
-    | Inv e' => rev (map inv (flatten e'))
-end.
-
-Lemma flatten_Hom : forall (X : Grp) (f : GrpHom X X) (e : exp X),
-  e <> Id -> flatten (Mor f e) = map f (flatten e).
-Proof.
-  destruct e; auto.
-Qed.
-
-Lemma flatten_Inv : forall (X : Grp) (e : exp X),
-  (forall e' : exp X, e <> Inv e') ->
-  flatten (Inv e) = rev (map inv (flatten e)).
-Proof.
-  induction e; intros; trivial.
-  contradiction (H e). trivial.
-Qed.
-
-Lemma expDenoteL_app :
-  forall (X : Grp) (l1 l2 : list X),
-    expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
-Proof.
-  induction l1 as [| h1 t1]; simpl; intros.
-    rewrite neutr_l. reflexivity.
-    rewrite <- assoc. apply op_Proper.
-      reflexivity.
-      rewrite IHt1. reflexivity.
-Qed.
-
-Lemma expDenoteL_hom :
-  forall (X Y : Grp) (f : MonHom X Y) (l : list X),
-    expDenoteL (map f l) == f (expDenoteL l).
-Proof.
-  induction l as [| h t]; simpl.
-    grp.
-    assert (f (op h (expDenoteL t)) == op (f h) (f (expDenoteL t))).
-      grp'.
-      rewrite H. apply op_Proper.
-        reflexivity.
-        assumption.
-Qed.
-
-Lemma expDenoteL_inv :
-  forall (X : Grp) (l : list X),
-    expDenoteL (map inv l) == inv (expDenoteL (rev l)).
-Proof.
-  induction l as [| h t]; simpl.
-    rewrite inv_neutr. reflexivity.
-    assert (inv (op h (expDenoteL t)) == op (inv (expDenoteL t)) (inv h)).
-      rewrite inv_op. reflexivity.
-      pose inv_Proper. rewrite expDenoteL_app. rewrite inv_op. simpl.
-        apply op_Proper.
-          grp.
-          assumption.
-Qed.
-
-Theorem flatten_correct :
-  forall (X : Grp) (e : exp X),
-    expDenoteL (flatten e) == expDenote e.
-Proof.
-  induction e.
-    reflexivity.
-    mon.
-    simpl. rewrite expDenoteL_app. apply op_Proper; assumption.
-    destruct e; simpl; try rewrite expDenoteL_hom; grp.
-    destruct e; simpl in *.
-      rewrite inv_neutr. reflexivity.
-      grp.
-      pose inv_Proper. rewrite <- IHe.
-      rewrite map_app. rewrite rev_app_distr. do 2 rewrite <- map_rev.
-        rewrite expDenoteL_app.
-          replace (flatten e1 ++ flatten e2) with
-            (rev (rev (flatten e1 ++ flatten e2))).
-          rewrite <- expDenoteL_inv. rewrite rev_app_distr.
-            rewrite map_app. rewrite expDenoteL_app. reflexivity.
-          apply rev_involutive.
-      rewrite <- map_rev. rewrite expDenoteL_inv. rewrite rev_involutive.
-        apply inv_Proper. assumption.
-      (*rewrite <- map_rev. rewrite expDenoteL_inv. apply inv_Proper.
-        rewrite rev_involutive. assumption.*)
-      generalize dependent IHe. rename e into e'.
-      induction e'; simpl in *; intros.
-        rewrite inv_involutive. reflexivity.
-        rewrite neutr_r, inv_involutive. reflexivity.
-        rewrite <- map_rev in IHe. rewrite expDenoteL_inv in IHe.
-          rewrite rev_involutive in IHe. pose inv_Proper. rewrite <- IHe.
-          rewrite inv_involutive. reflexivity.
-        rewrite <- map_rev in IHe.
-          rewrite expDenoteL_inv in IHe. pose inv_Proper. rewrite <- IHe.
-          rewrite inv_involutive, rev_involutive. reflexivity.
-Admitted.
-
-Theorem grp_reflect :
-  forall (X : Grp) (e1 e2 : exp X),
-    expDenoteL (flatten e1) == expDenoteL (flatten e2) ->
-      expDenote e1 == expDenote e2.
-Proof.
-  induction e1; intros; repeat rewrite flatten_correct in H;
-  assumption.
-Qed.
-
-Ltac reify e :=
-lazymatch e with
-    | @neutr (@mon ?X) => constr:(@Id X)
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | SetoidHom_Fun (SgrHom_Fun (MonHom_SgrHom (GrpHom_MonHom ?f))) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | (SetoidHom_Fun inv) ?e =>
-        let e' := reify e in constr:(Inv e')
-    | ?v => constr:(Var v)
-end.
-
-Ltac grp2 := simpl; intros;
-match goal with
-    | |- ?e1 == ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in
-          change (expDenote e1' == expDenote e2');
-          apply grp_reflect; simpl
-end.
-
-Ltac grp2' := mon2; try reflexivity.*)
 
 Inductive exp (X : Grp) : Type :=
     | Id : exp X
@@ -358,121 +115,6 @@ end.
 Require Import List.
 Import ListNotations.
 
-Fixpoint simplify_Op_Id {X : Grp} (e : exp X) : exp X :=
-match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 =>
-        match simplify_Op_Id e1, simplify_Op_Id e2 with
-            | Id, e2' => e2'
-            | e1', Id => e1'
-            | e1', e2' => Op e1' e2'
-        end
-    | Mor f e' => Mor f (simplify_Op_Id e')
-    | Inv e' => Inv (simplify_Op_Id e')
-end.
-
-Lemma GrpHom_Proper : forall (X Y : Grp) (f : GrpHom X Y),
-  Proper (equiv ==> equiv) f.
-Proof. grp. Qed.
-
-Theorem expDenote_simplify_Op_Id :
-  forall (X : Grp) (e : exp X),
-    expDenote (simplify_Op_Id e) == expDenote e.
-Proof.
-  induction e; simpl; try reflexivity; pose (@op_Proper X).
-    destruct (simplify_Op_Id e1).
-      rewrite <- IHe1, IHe2. grp.
-      destruct (simplify_Op_Id e2); simpl in *;
-        try rewrite IHe1, <- IHe2; grp.
-      destruct (simplify_Op_Id e2); simpl in *;
-        try rewrite IHe1, <- IHe2; grp.
-      destruct (simplify_Op_Id e2); simpl in *;
-        try rewrite IHe1, <- IHe2; grp.
-      destruct (simplify_Op_Id e2); simpl in *;
-        try rewrite IHe1, <- IHe2; grp.
-      apply (GrpHom_Proper g). assumption.
-      apply inv_Proper. assumption.
-Qed.
-
-Fixpoint simplify_inv {X : Grp} (e : exp X) : exp X :=
-match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 => Op (simplify_inv e1) (simplify_inv e2)
-    | Mor f e' => Mor f (simplify_inv e')
-    | Inv e' => match simplify_inv e' with
-        | Inv e'' => e''
-        | e'' => Inv e''
-    end
-end.
-
-Theorem expDenote_simplify_inv :
-  forall (X : Grp) (e : exp X),
-    expDenote (simplify_inv e) == expDenote e.
-Proof.
-  induction e; simpl; pose (@op_Proper X); pose inv_Proper.
-    reflexivity.
-    reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
-    apply (GrpHom_Proper g). assumption.
-    destruct (simplify_inv e); simpl in *; try (rewrite IHe; reflexivity).
-      assert (inv (inv (expDenote e0)) == inv (expDenote e)).
-        rewrite IHe. reflexivity.
-        rewrite <- H. rewrite inv_involutive. reflexivity.
-Qed.
-
-Fixpoint simplify_Mor_Id {X : Grp} (e : exp X) : exp X :=
-match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 => Op (simplify_Mor_Id e1) (simplify_Mor_Id e2)
-    | Mor f e' =>
-        match simplify_Mor_Id e' with
-            | Id => Id
-            | e'' => Mor f e''
-        end
-    | Inv e' => Inv (simplify_Mor_Id e')
-end.
-
-Theorem expDenote_simplify_Mor_Id :
-  forall (X : Grp) (e : exp X),
-    expDenote (simplify_Mor_Id e) == expDenote e.
-Proof.
-  induction e; simpl; pose (@op_Proper X); pose inv_Proper.
-    reflexivity.
-    reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify_Mor_Id e); try rewrite IHe; grp.
-    rewrite IHe. reflexivity.
-Qed.
-
-Fixpoint simplify_Inv_Id {X : Grp} (e : exp X) : exp X :=
-match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 => Op (simplify_Inv_Id e1) (simplify_Inv_Id e2)
-    | Mor f e' => Mor f (simplify_Inv_Id e')
-    | Inv e' => match simplify_Inv_Id e' with
-        | Id => Id
-        | e'' => Inv e''
-    end
-end.
-
-Theorem expDenote_simplify_Inv_Id :
-  forall (X : Grp) (e : exp X),
-    expDenote (simplify_Inv_Id e) == expDenote e.
-Proof.
-  induction e; simpl; pose (@op_Proper X); pose inv_Proper.
-    reflexivity.
-    reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
-    apply (GrpHom_Proper g). assumption.
-    destruct (simplify_Inv_Id e); simpl in *;
-    try (rewrite IHe; reflexivity).
-      rewrite <- IHe. rewrite inv_neutr. reflexivity.
-Qed.
-Print exp.
 Fixpoint simplify {X : Grp} (e : exp X) : exp X :=
 match e with
     | Id => Id
@@ -494,6 +136,27 @@ match e with
         end
 end.
 
+(* TODO *) Lemma MonHom_pres_neutr :
+  forall (X Y : Mon) (f : MonHom X Y),
+    f neutr == neutr.
+Proof.
+  destruct f; simpl. assumption.
+Qed.
+
+Lemma SgrHom_pres_op :
+  forall (X Y : Sgr) (f : SgrHom X Y) (a b : X),
+    f (op a b) == op (f a) (f b).
+Proof.
+  destruct f; simpl; intros. rewrite e. reflexivity.
+Qed.
+
+Lemma GrpHom_pres_inv :
+  forall (X Y : Grp) (f : GrpHom X Y) (x : X),
+    f (inv x) == inv (f x).
+Proof.
+  destruct f; simpl; intros. rewrite e. reflexivity.
+Qed.
+
 Theorem simplify_correct :
   forall (X : Grp) (e : exp X),
     expDenote (simplify e) == expDenote e.
@@ -502,9 +165,12 @@ Proof.
     reflexivity.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; try pose (GrpHom_Proper g);
-      rewrite <- IHe; grp.
-    destruct (simplify e); simpl in *; try pose (GrpHom_Proper g);
+    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
+    rewrite <- IHe; try reflexivity.
+      rewrite MonHom_pres_neutr. reflexivity.
+      rewrite SgrHom_pres_op. reflexivity.
+      rewrite GrpHom_pres_inv. reflexivity.
+    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
     try rewrite <- IHe.
       rewrite inv_neutr. reflexivity.
       reflexivity.
@@ -518,28 +184,6 @@ match l with
     | [] => neutr
     | h :: t => op h (expDenoteL t)
 end.
-
-Fixpoint flatten {X : Grp} (e : exp X) {struct e} : list X :=
-match e with
-    | Id => []
-    | Var v => [v]
-    | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor f e' => map f (flatten e')
-    | Inv e' => rev (map inv (flatten e'))
-end.
-
-Lemma flatten_Hom : forall (X : Grp) (f : GrpHom X X) (e : exp X),
-  e <> Id -> flatten (Mor f e) = map f (flatten e).
-Proof.
-  destruct e; auto.
-Qed.
-
-Lemma flatten_Inv : forall (X : Grp) (e : exp X),
-  (forall e' : exp X, e <> Inv e') ->
-  flatten (Inv e) = rev (map inv (flatten e)).
-Proof.
-  induction e; intros; trivial.
-Qed.
 
 Lemma expDenoteL_app :
   forall (X : Grp) (l1 l2 : list X),
@@ -557,35 +201,36 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; simpl.
-    grp.
-    assert (f (op h (expDenoteL t)) == op (f h) (f (expDenoteL t))).
-      grp'.
-      rewrite H. apply op_Proper.
-        reflexivity.
-        assumption.
+    rewrite MonHom_pres_neutr. reflexivity.
+    rewrite SgrHom_pres_op. apply op_Proper; try rewrite IHt; reflexivity.
 Qed.
 
 Lemma expDenoteL_inv :
   forall (X : Grp) (l : list X),
     expDenoteL (map inv l) == inv (expDenoteL (rev l)).
 Proof.
-  induction l as [| h t]; simpl.
+  induction l as [| h t]; simpl; pose (@op_Proper X); pose inv_Proper.
     rewrite inv_neutr. reflexivity.
-    assert (inv (op h (expDenoteL t)) == op (inv (expDenoteL t)) (inv h)).
-      rewrite inv_op. reflexivity.
-      pose inv_Proper. rewrite expDenoteL_app. rewrite inv_op. simpl.
-        apply op_Proper.
-          grp.
-          assumption.
+    rewrite expDenoteL_app, inv_op; simpl. rewrite neutr_r.
+      rewrite IHt. reflexivity.
 Qed.
+
+Fixpoint flatten {X : Grp} (e : exp X) : list X :=
+match e with
+    | Id => []
+    | Var v => [v]
+    | Op e1 e2 => flatten e1 ++ flatten e2
+    | Mor f e' => map f (flatten e')
+    | Inv e' => rev (map inv (flatten e'))
+end.
 
 Theorem flatten_correct :
   forall (X : Grp) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); try pose (GrpHom_Proper g).
+  induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper g).
     reflexivity.
-    grp.
+    rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
     rewrite expDenoteL_hom, IHe. reflexivity.
     rewrite <- map_rev, expDenoteL_inv, rev_involutive.
@@ -598,8 +243,10 @@ Theorem grp_reflect :
     expDenoteL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. repeat rewrite flatten_correct in H.
-  repeat rewrite simplify_correct in H. assumption.
+  intros.
+  do 2 rewrite flatten_correct in H.
+  do 2 rewrite simplify_correct in H.
+  assumption.
 Qed.
 
 Theorem grp_reflect2 :
@@ -608,8 +255,10 @@ Theorem grp_reflect2 :
     expDenoteL (flatten (simplify (simplify e2))) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. repeat rewrite flatten_correct in H.
-  repeat rewrite simplify_correct in H. assumption.
+  intros.
+  do 2 rewrite flatten_correct in H.
+  repeat rewrite simplify_correct in H.
+  assumption.
 Qed.
 
 Ltac reify e :=
@@ -625,7 +274,7 @@ lazymatch e with
     | ?v => constr:(Var v)
 end.
 
-Ltac grp2 := simpl; intros;
+Ltac reflect_grp := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
         let e1' := reify e1 in
@@ -634,7 +283,54 @@ match goal with
           apply grp_reflect2; simpl
 end.
 
-Ltac grp2' := grp2; try reflexivity.
+Ltac grp_simpl := mon_simpl. 
+
+Ltac grpob G := try intros until G;
+match type of G with
+  | Grp =>
+    let a := fresh G "_inv" in 
+    let b := fresh G "_inv_l" in
+    let c := fresh G "_inv_r" in destruct G as [G a b c]
+  | Ob _ => progress simpl in G; grpob G
+end.
+
+Ltac grpob' G := grpob G; monob' G.
+
+Ltac grpobs_template tac := repeat
+match goal with
+  | G : Grp |- _ => tac G
+  | G : Ob _ |- _ => tac G
+end.
+
+Ltac grpobs := grpobs_template grpob.
+Ltac grpobs' := grpobs_template grpob'.
+
+Ltac grphom f :=
+match type of f with
+  | GrpHom _ _ =>
+    let a := fresh f "_pres_inv" in destruct f as [f a]
+  | Hom _ _ => progress simpl in f; grphom f
+end; simpl in *.
+
+Ltac grphom' f := grphom f; monhom' f.
+
+Ltac grphoms_template tac := intros; repeat
+match goal with
+  | f : GrpHom _ _ |- _ => tac f
+  | f : Hom _ _ |- _ => tac f
+end; grp_simpl.
+
+Ltac grphoms := grphoms_template grphom.
+Ltac grphoms' := grphoms_template grphom'.
+
+Ltac grp := intros; try (reflect_grp; try reflexivity; fail); repeat
+match goal with
+    | |- _ == _ => reflect_grp; reflexivity
+    | |- Equivalence _ => solve_equiv
+    | |- Proper _ _ => proper
+(*    | |- (_, _) = (_, _) => f_equal*)
+    | _ => grp_simpl || grpobs' || grphoms' || cat
+end.
 
 Section test.
 
@@ -651,41 +347,41 @@ Variable h : GrpHom X X.
 (** Associativity *)
 Goal op a (op b c) == op (op a b) c.
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 (** Homomorphism *)
 Goal f (op a b) == op (f a) (f b).
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 (** Neutral element *)
 Goal f neutr == neutr.
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 Goal
   op (h (h neutr)) (op (h a) (h (op b c))) ==
   op (h a) (op (h b) (h c)).
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 Goal inv (op a b) == op (inv b) (inv a).
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 Goal inv (inv a) == a.
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 Goal f (inv (op a b)) == op (inv (f b)) (inv (f a)).
 Proof.
-  grp2. reflexivity.
+  reflect_grp. reflexivity.
 Qed.
 
 End test.
@@ -700,11 +396,13 @@ Proof. apply Setoid_kernel_equiv. Defined.
 Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z)
     : GrpHom X Z.
 Proof.
-  red. exists (MonComp f g). grp2'.
+  red. exists (MonComp f g). grp.
 Defined.
 
 Definition GrpId (X : Grp) : GrpHom X X.
-Proof. red. exists (MonId X). grp2'. Defined.
+Proof.
+  red. exists (MonId X). grp.
+Defined.
 
 Instance GrpCat : Cat :=
 {
@@ -715,16 +413,16 @@ Instance GrpCat : Cat :=
     id := GrpId;
 }.
 Proof.
-  (* Proper *) proper. Time repeat red; intros; destruct x, y, x0, y0; cat;
+  (* Proper *) Time proper; repeat red; intros; destruct x, y, x0, y0; cat;
     eapply (@comp_Proper MonCat); auto.
-  (* Category laws *) Time all: grp.
+  (* Category laws *) all: grp.
 Defined.
 
 Require Import Cat.Instances.Setoids.
 
 Definition Grp_zero_inv : SetoidHom Mon_init Mon_init.
 Proof.
-  red. exists (fun _ => tt). proper.
+  red. exists (fun _ => tt). grp.
 Defined.
 
 Instance Grp_zero : Grp :=
@@ -736,7 +434,7 @@ Proof. all: grp. Defined.
 
 Definition Grp_create (X : Grp) : Hom Grp_zero X.
 Proof.
-  repeat red. exists (Mon_create X). grp2'.
+  do 3 red. exists (Mon_create X). grp.
 Defined.
 
 Instance Grp_has_init : has_init GrpCat :=
@@ -744,11 +442,7 @@ Instance Grp_has_init : has_init GrpCat :=
     init := Grp_zero;
     create := Grp_create
 }.
-Proof.
-  Time grpobs; grphoms'; destruct x; auto.
-Restart.
-  Time grp2; grp.
-Defined.
+Proof. grp. Defined.
 
 Definition Grp_delete (X : Grp) : Hom X Grp_zero.
 Proof.
@@ -773,7 +467,7 @@ Definition Grp_prodOb_inv (X Y : Grp)
   : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
 Proof.
   red. exists (fun p : X * Y => (inv (fst p), inv (snd p))).
-  proper. destruct H. split; apply inv_Proper; assumption.
+  (* TODO *) proper. destruct H. split; apply inv_Proper; assumption.
 Defined.
 
 Instance Grp_prodOb (X Y : Grp) : Grp :=
@@ -785,18 +479,18 @@ Proof. all: destruct x; grp. Defined.
 
 Definition Grp_proj1 (X Y : Grp) : Hom (Grp_prodOb X Y) X.
 Proof.
-  grp_simpl. exists (Mon_proj1 X Y). grp2'.
+  grp_simpl. exists (Mon_proj1 X Y). grp.
 Defined.
 
 Definition Grp_proj2 (X Y : Grp) : Hom (Grp_prodOb X Y) Y.
 Proof.
-  grp_simpl. exists (Mon_proj2 X Y). grp2'.
+  grp_simpl. exists (Mon_proj2 X Y). grp.
 Defined.
 
 Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B)
     : Hom X (Grp_prodOb A B).
 Proof.
-  grp_simpl. exists (Mon_fpair f g). grp.
+  grp_simpl. exists (Mon_fpair f g). Time split; grp.
 Defined.
 
 Instance Grp_has_products : has_products GrpCat :=
@@ -807,13 +501,8 @@ Instance Grp_has_products : has_products GrpCat :=
     fpair := Grp_fpair
 }.
 Proof.
-  proper.
-  grp_simpl. repeat split.
-    grp.
-    grp.
-    all: destruct y, H; simpl in *.
-      rewrite H. reflexivity.
-      rewrite H0. reflexivity.
+  grp.
+  repeat split; cat.
 Defined.
 
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
@@ -832,7 +521,7 @@ Instance AutHomSetoid (C : Cat) (X : Ob C)
     equiv := fun f g : AutHom A B =>
       @equiv _ (@HomSetoid C X X) f g
 }.
-Proof. repeat split; red; solve_equiv. Defined.
+Proof. grp. Defined.
 
 Definition AutComp (C : Cat) (A : Ob C) (X Y Z : AutOb C A)
     (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
@@ -854,7 +543,7 @@ Instance AutCat (C : Cat) (X : Ob C) : Cat :=
     comp := @AutComp C X;
     id := @AutId C X;
 }.
-Proof. proper. all: cat. Defined.
+Proof. all: grp. Defined.
 
 (* TODO : finish Instance Cayley_Sgr (G : Grp) : Sgr :=
 {
