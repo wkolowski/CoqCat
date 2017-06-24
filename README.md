@@ -28,6 +28,7 @@ Accomplished:
    * iso — working with isomorphisms
    * curry — rewriting with exponential objects
    * mor/mor2 — new reflective tactic for diagram chasing (it can't do much more than cat at the moment)
+   * new sgr/mon/grp — new reflective tactics that can solve simple semigroup/monoid/group equations quite fast
 
 General TODO:
  * Define representability and adjoints.

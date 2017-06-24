@@ -233,5 +233,3 @@ Hint Constructors JMequiv.
 Theorem eta : forall (A B : Type) (f : A -> B),
     f = fun x : A => f x.
 Proof. trivial. Qed.
-
-(* TODO : write JMequiv_dep *)

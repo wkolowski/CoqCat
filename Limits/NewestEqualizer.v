@@ -32,6 +32,39 @@ Definition biequalizer
       equalizer C f g E e factorize /\
       coequalizer C f g E q cofactorize.
 
+(* TODO : write JMequiv_dep *)
+
+Instance SetoidFunExt_setoid (A B : Type) (A' : Setoid A) (B' : Setoid B)
+    : Setoid (A -> B) :=
+{
+    equiv := fun f g : A -> B => forall x : A, f x == g x
+}.
+Proof. solve_equiv. Defined.
+
+(* TODO : Instance SetoidFunExt (A B : Setoid') : Setoid' :=
+{
+    carrier := A -> B;
+    setoid := @SetoidFunExt_setoid A B _ _
+}.
+
+Inductive JMequiv_ext : forall (A B : Setoid'), A -> B -> Prop :=
+    | JMequiv_step : forall (A B : Setoid') (x y : A),
+        x == y -> JMequiv_ext A A x y
+    | JMequiv_ext' : forall (A B : Setoid') (f g : A -> B),
+        (forall x : A, f x == g x) ->
+        JMequiv_ext (SetoidFunExt A B) (SetoidFunExt A B) f g.
+
+Arguments JMequiv_ext [A B] _ _.
+Arguments JMequiv_step [A B] _ _ _.
+Arguments JMequiv_ext' [A B] _ _ _.
+
+Theorem JMequiv_ext_Setoid' :
+  forall (A B : Setoid') (x : A) (y : B),
+    JMequiv_ext x y -> A = B.
+Proof.
+  destruct 1; trivial.
+Qed.*)
+
 Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
@@ -39,7 +72,8 @@ Class has_equalizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
     eq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (eq_mor f g) (eq_mor f' g');
+      f == f' -> g == g' -> eq_ob f g = eq_ob f' g' ->
+      JMequiv (eq_mor f g) (eq_mor f' g');
     factorize : forall {X Y : Ob C} (f g : Hom X Y)
       (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' (eq_ob f g);
     (* TODO : factorize_Proper : forall (X Y E' : Ob C) (f f' g g' : Hom X Y)

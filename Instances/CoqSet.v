@@ -234,12 +234,7 @@ Proof.
   intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     f_equal. extensionality x. rewrite H, H0. trivial.
     rewrite H1 in *. constructor. reflexivity.
-  Focus 2. simpl; intros. unfold CoqSet_factorize.
-    assert ((fun x : X => f x = g x) = (fun x : X => f' x = g' x)).
-      extensionality x. rewrite H0, H1. trivial.
-      
-
-intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+  intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     f_equal. extensionality x. rewrite H, H0. trivial.
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
