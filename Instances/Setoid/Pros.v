@@ -7,11 +7,13 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Require Import Cat.Instances.Setoids.
+Require Export Cat.Instances.Setoids.
+
+Set Implicit Arguments.
 
 Class Pros : Type :=
 {
-    carrier : Setoid';
+    carrier :> Setoid';
     leq : carrier -> carrier -> Prop;
     leq_Proper : Proper (equiv ==> equiv ==> equiv) leq;
     leq_refl : forall a b : carrier, a == b -> leq a b;
@@ -35,11 +37,16 @@ match type of P with
   | Ob _ => progress simpl in P; prosob P
 end; simpl in *.
 
-Ltac prosobs := intros; repeat
+Ltac prosob' P := prosob P; setoidob P.
+
+Ltac prosobs_template tac := intros; repeat
 match goal with
-  | P : Pros |- _ => prosob P
-  | X : Ob _ |- _ => prosob X
+  | P : Pros |- _ => tac P
+  | X : Ob _ |- _ => tac X
 end.
+
+Ltac prosobs := prosobs_template prosob.
+Ltac prosobs' := prosobs_template prosob'.
 
 Definition ProsHom (A B : Pros) : Type :=
     {f : SetoidHom A B| forall a a', a ≤ a' -> f a ≤ f a'}.
@@ -56,13 +63,18 @@ match type of f with
   | Hom _ _ => progress simpl in f; proshom f
 end; simpl in *.
 
-Ltac proshoms := intros; repeat
+Ltac proshom' f := proshom f; setoidhom f.
+
+Ltac proshoms_template tac := intros; repeat
 match goal with
-  | f : ProsHom _ _ |- _ => proshom f; setoidhom f
-  | f : Hom _ _ |- _ => proshom f
+  | f : ProsHom _ _ |- _ => tac f
+  | f : Hom _ _ |- _ => tac f
 end.
 
-Ltac pros' := repeat (pros_simpl || proshoms || prosobs || cat || omega).
+Ltac proshoms := proshoms_template proshom.
+Ltac proshoms' := proshoms_template proshom'.
+
+Ltac pros' := repeat (pros_simpl || proshoms || prosobs || setoid' || omega).
 Ltac pros := try (pros'; fail).
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
@@ -200,3 +212,52 @@ Defined.
 
 Definition thin (C : Cat) : Prop :=
     forall (X Y : Ob C) (f g : Hom X Y), f == g.
+
+Instance Pros_coprodOb (X Y : Pros) : Pros :=
+{
+    carrier := CoqSetoid_coprodOb X Y;
+    leq := fun a b : X + Y =>
+        match a, b with
+            | inl x, inl x' => x ≤ x'
+            | inr y, inr y' => y ≤ y'
+            | _, _ => False
+        end
+}.
+Proof.
+  proper. destruct x, y, x0, y0; split; intros;
+    pose (@leq_Proper X); pose (@leq_Proper Y); intuition;
+    rewrite H, H0 in *; assumption.
+  destruct a, b; pros.
+  destruct a, b; destruct c1; pros.
+Defined.
+
+Definition Pros_coproj1 (X Y : Pros) :
+    ProsHom X (Pros_coprodOb X Y).
+Proof.
+  red. exists (CoqSetoid_coproj1 X Y). pros.
+Defined.
+
+Definition Pros_coproj2 (X Y : Pros) :
+    ProsHom Y (Pros_coprodOb X Y).
+Proof.
+  red. exists (CoqSetoid_coproj2 X Y). pros.
+Defined.
+
+Definition Pros_copair (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X)
+    : ProsHom (Pros_coprodOb A B) X.
+Proof.
+  red. exists (CoqSetoid_copair f g). destruct a, a'; pros.
+Defined.
+
+Instance Pros_has_coproducts : has_coproducts ProsCat :=
+{
+    coprodOb := Pros_coprodOb;
+    coproj1 := Pros_coproj1;
+    coproj2 := Pros_coproj2;
+    copair := Pros_copair
+}.
+Proof.
+  proper. destruct x1; proper.
+  repeat split; simpl; try reflexivity.
+    destruct x; pros.
+Defined.

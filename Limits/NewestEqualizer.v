@@ -72,7 +72,7 @@ Class has_equalizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
     eq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> eq_ob f g = eq_ob f' g' ->
+      f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
       JMequiv (eq_mor f g) (eq_mor f' g');
     factorize : forall {X Y : Ob C} (f g : Hom X Y)
       (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' (eq_ob f g);

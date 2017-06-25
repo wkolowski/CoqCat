@@ -47,7 +47,6 @@ Instances:
  * Characterize morphisms and universal constructions of setoids/apartoids etc.
  * Find a general boilerplate for a file with concrete category — apply it to all instances.
  * Define heterogenous apartoids.
- * Implement prosets and semigroups wth respect to setoids/apartoids etc.
  * Refactor the directory structure.
 
 Further ideas:

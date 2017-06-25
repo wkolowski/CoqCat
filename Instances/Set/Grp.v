@@ -8,7 +8,6 @@ Require Import Cat.Limits.BinProdCoprod.
 
 Require Export Cat.Instances.Set.Mon.
 
-Print Graph.
 Class Grp : Type :=
 {
     mon :> Mon;
