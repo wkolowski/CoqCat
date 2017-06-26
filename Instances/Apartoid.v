@@ -362,7 +362,7 @@ Proof.
 Defined.
 
 (* This run for about ~10 secs. *)
-Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
+(* TODO : make faster Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 {
     eq_ob := @Apartoid_eq_ob;
     eq_mor := @Apartoid_eq_mor;
@@ -372,7 +372,7 @@ Proof.
     (* Equalizer law *) apartoid.
     (* Uniqueness *) exists (trick2 X Y E' f g e' H). apartoid'.
       apply (H0 x). apply X_neq_sym. assumption.
-Time Defined. (* TODO: make faster *)
+Time Defined.*)
 
 (* TODO: likely this can't be done at all.
 Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)

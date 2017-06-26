@@ -141,7 +141,7 @@ Proof.
     rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
 Qed.
 
-Ltac fpair := pose fpair_Proper; try split;
+Ltac fpair := intros; pose fpair_Proper; try split;
 repeat match goal with
     | |- context [fpair (_ .> proj1) (_ .> proj2)] =>
         rewrite <- fpair_pre, fpair_id
@@ -155,6 +155,8 @@ repeat match goal with
     | |- context [_ .> id _] => rewrite id_right
     | |- fpair _ _ == id (prodOb _ _) =>
         rewrite <- fpair_id; apply fpair_Proper
+    | |- ?f .> ?g == ?f .> ?g' => f_equiv
+    | |- ?f .> ?g == ?f' .> ?g => f_equiv
     | _ => repeat rewrite <- comp_assoc; auto
 end.
 
@@ -362,7 +364,7 @@ Proof.
     rewrite comp_assoc. rewrite copair_coproj2. reflexivity.
 Qed.
 
-Ltac copair := pose copair_Proper; try split;
+Ltac copair := intros; pose copair_Proper; try split;
 repeat match goal with
     | |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] =>
         rewrite <- copair_post, copair_id
@@ -376,6 +378,8 @@ repeat match goal with
     | |- context [_ .> id _] => rewrite id_right
     | |- copair _ _ == id (coprodOb _ _) =>
         rewrite <- copair_id; apply copair_Proper
+    | |- ?f .> ?g == ?f .> ?g' => f_equiv
+    | |- ?f .> ?g == ?f' .> ?g => f_equiv
     | _ => repeat rewrite comp_assoc; auto
 end.
 
