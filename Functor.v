@@ -128,3 +128,11 @@ Proof.
   (* Proper *) proper. my_simpl; solve_depExtEq.
   (* Category laws *) all: cat.
 Defined.
+
+Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat)
+    : Functor C D :=
+{
+    fob := fun _ => X;
+    fmap := fun _ _ _ => id X
+}.
+Proof. proper. all: functor. Defined.

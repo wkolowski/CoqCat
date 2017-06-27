@@ -51,7 +51,7 @@ Instances:
 
 Further ideas:
  * Implement concrete categories and use them for theorems about individual categories.
- * Implement limits and colimits.
+ * Implement colimits.
  * Implement monoidal categories.
  * Implement enriched categories.
 
