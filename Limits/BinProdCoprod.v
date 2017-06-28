@@ -160,6 +160,56 @@ repeat match goal with
     | _ => repeat rewrite <- comp_assoc; auto
 end.
 
+Module Tactic.
+
+Inductive exp {C : Cat} {hp : has_products C} : Ob C -> Ob C -> Type :=
+    | Id : forall X : Ob C, exp X X
+    | Var : forall X Y : Ob C, Hom X Y -> exp X Y
+    | Comp : forall X Y Z : Ob C,
+        exp X Y -> exp Y Z -> exp X Z
+    | Proj1 : forall X Y : Ob C, exp (prodOb X Y) X
+    | Proj2 : forall X Y : Ob C, exp (prodOb X Y) Y
+    | Fpair : forall A B X : Ob C,
+        exp X A -> exp X B -> exp X (prodOb A B).
+
+Arguments Id [C hp] _.
+Arguments Var [C hp X Y] _.
+Arguments Comp [C hp X Y Z] _ _.
+Arguments Proj1 [C hp X Y].
+Arguments Proj2 [C hp X Y].
+Arguments Fpair [C hp A B X] _ _.
+
+Fixpoint expDenote {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
+    : Hom X Y :=
+match e with
+    | Id X => id X
+    | Var f => f
+    | Comp e1 e2 => expDenote e1 .> expDenote e2
+    | Proj1 => proj1
+    | Proj2 => proj2
+    | Fpair e1 e2 => fpair (expDenote e1) (expDenote e2)
+end.
+
+(* TODO *) Fixpoint simplify {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
+    : exp X Y :=
+match e with
+    | Id X => Id X
+    | Var f => Var f
+    | Comp e1 e2 =>
+        match simplify e1, simplify e2 with
+            | Id _, e2' => e2'
+            | e1', Id _ => e1'
+        end
+    | Proj1 => Proj1
+    | Proj2 => Proj2
+    | Fpair e1 e2 => Fpair (simplify e1) (simplify e2)
+end.
+
+End Tactic.
+
+
+
+
 Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)

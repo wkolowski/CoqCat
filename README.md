@@ -36,10 +36,10 @@ General TODO:
  * Refactor the products and coproducts — put them in separate files in a new directory. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects (or not).
  * Port all properties of universal constructions to skolemized definitions.
  * Use more duality.
- * Use Set Implicit Arguments more.
  * Prove more properties of universal constructions (like these for equalizers).
  * Revise equalities and equivalences and write a few more (like JMequiv_dep).
  * Possibly reimplement the fpair and copair tactics using reification.
+ * Check if it's possible to do "continuous reification".
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.

@@ -61,24 +61,90 @@ Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
 }.
 Proof. proper. all: cat. Defined.
 
-Check @terminal.
-
 Definition limit {J C : Cat} {F : Functor J C}
     (K : Cone F) (del : forall K' : Cone F, ConeHom K' K)
     : Prop := @terminal (ConeCat F) K del.
 
+Definition limit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
+    forall K' : Cone F, exists!! _ : ConeHom K' K, True.
 
+Class Cocone {J C : Cat} (F : Functor J C) : Type :=
+{
+    coapex : Ob C;
+    colegs : NatTrans F (ConstFunctor coapex J);
+}.
 
+Arguments coapex [J C F] _.
+Arguments colegs [J C F] _.
+
+Class CoconeHom {J C : Cat} {F : Functor J C}
+    (C1 C2 : Cocone F) :=
+{
+    mor' : Hom (@coapex J C F C1) (@coapex J C F C2);
+    cond' : forall X : Ob J,
+        component (colegs C1) X .> mor' == component (colegs C2) X
+}.
+
+Arguments mor' [J C F C1 C2] _.
+Arguments cond' [J C F C1 C2] _ _.
+
+Instance CoconeHomSetoid {J C : Cat} {F : Functor J C}
+    (C1 C2 : Cocone F) : Setoid (CoconeHom C1 C2) :=
+{
+    equiv := fun f g : CoconeHom C1 C2 => mor' f == mor' g
+}.
+Proof. solve_equiv. Defined.
+
+Instance CoconeComp {J C : Cat} {F : Functor J C}
+   (C1 C2 C3 : Cocone F) (f : CoconeHom C1 C2) (g : CoconeHom C2 C3)
+    : CoconeHom C1 C3 :=
+{
+    mor' := mor' f .> mor' g
+}.
+Proof.
+  intros. rewrite <- comp_assoc. rewrite cond'.
+  destruct C2. destruct g. simpl in *. apply cond'0.
+Defined.
+
+Instance CoconeId {J C : Cat} {F : Functor J C}
+   (C1 : Cocone F) : CoconeHom C1 C1 :=
+{
+    mor' := id (coapex C1)
+}.
+Proof. cat. Defined.
+
+Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
+{
+    Ob := Cocone F;
+    Hom := CoconeHom;
+    HomSetoid := CoconeHomSetoid;
+    comp := CoconeComp;
+    id := CoconeId
+}.
+Proof. proper. all: cat. Defined.
+
+Definition colimit {J C : Cat} {F : Functor J C}
+    (K : Cocone F) (create : forall K' : Cocone F, CoconeHom K K')
+    : Prop := @initial (CoconeCat F) K create.
+
+Definition colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
+    forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
+
+(* TODO : coherence conditions for (co)limits *)
+(* TODO : continuous functors (see Bartosz Milewski's blog post from 2015/04/15 *)
+
+(* TODO : kill the code below *)
 Require Import Bool.
-
-(* TODO : fix *)
 
 Instance Two : Cat :=
 {
     Ob := bool;
-    Hom := fun b b' : bool => if eqb b b' then True else False
+    Hom := fun b b' : bool => if eqb b b' then True else False;
+    HomSetoid := fun b b' : bool =>
+      {| equiv := fun _ _ => True |}
 }.
 Proof.
+  (* Equivalence *) solve_equiv.
   (* Composition *) destruct A, B, C; simpl; tauto.
   (* Proper *) proper.
   (* Assoc *) cat.
