@@ -190,20 +190,96 @@ match e with
     | Fpair e1 e2 => fpair (expDenote e1) (expDenote e2)
 end.
 
-(* TODO *) Fixpoint simplify {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
+(* TODO *)
+Fixpoint simplify {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
     : exp X Y :=
 match e with
     | Id X => Id X
     | Var f => Var f
-    | Comp e1 e2 =>
-        match simplify e1, simplify e2 with
-            | Id _, e2' => e2'
-            | e1', Id _ => e1'
-        end
+    | Comp e1 e2 => Comp (simplify e1) (simplify e2)
     | Proj1 => Proj1
     | Proj2 => Proj2
     | Fpair e1 e2 => Fpair (simplify e1) (simplify e2)
 end.
+
+Section simplify.
+
+Variable C : Cat.
+Variable hp : has_products C.
+
+Fixpoint simpl_Id_l {X Y : Ob C} (e : exp X Y) : exp X Y :=
+match e with
+    | Comp e1 e2 =>
+        match simpl_Id_l e1 with
+            | Id _ => fun e2 => simpl_Id_l e2
+            | e1' => fun e2 => Comp e1' (simpl_Id_l e2)
+        end e2
+    | Fpair e1 e2 => Fpair (simpl_Id_l e1) (simpl_Id_l e2)
+    | e' => e'
+end.
+
+Theorem simpl_Id_l_correct :
+  forall (X Y : Ob C) (e : exp X Y),
+    expDenote (simpl_Id_l e) == expDenote e.
+Proof.
+  induction e; simpl; try reflexivity.
+    destruct (simpl_Id_l e1); simpl in *;
+     try rewrite <- IHe1; try rewrite <- IHe2; cat.
+    apply fpair_Proper; auto.
+Qed.
+
+Fixpoint simpl_Id_r {X Y : Ob C} (e : exp X Y) : exp X Y :=
+match e with
+    | Comp e1 e2 =>
+        match simpl_Id_r e2 with
+            | Id _ => fun e1 => simpl_Id_r e1
+            | e2' => fun e1 => Comp (simpl_Id_r e1) e2'
+        end e1
+    | Fpair e1 e2 => Fpair (simpl_Id_r e1) (simpl_Id_r e2)
+    | e' => e'
+end.
+
+Theorem simpl_Id_r_correct :
+  forall (X Y : Ob C) (e : exp X Y),
+    expDenote (simpl_Id_r e) == expDenote e.
+Proof.
+  induction e; simpl; try reflexivity.
+    destruct (simpl_Id_r e2); simpl in *;
+     try rewrite <- IHe1; try rewrite <- IHe2; cat.
+    apply fpair_Proper; auto.
+Qed.
+
+(* TODO Fixpoint simpl_fpair_Id {X Y : Ob C} (e : exp X Y) : exp X Y :=
+match e with
+    | Fpair e1 e2 =>
+        match simpl_fpair_Id e1 with
+            | Proj1 => fun _ =>
+                match simpl_fpair_Id e2 with
+                    | Proj2 => fun _ => id _
+                    | _ => fun e2 => Fpair Proj1 (simpl_fpair_Id e2)
+                end e2
+            | e1' => fun _ => Fpair e1' (simpl_fpair_Id e2)
+        end e1
+    | e' => e'
+end.
+        match e1
+
+
+Fixpoint simpl_fpair_proj1 {X Y : Ob C} (e : exp X Y) : exp X Y :=
+match e with
+    | Comp e1 e2 =>
+        match simpl_fpair_proj1 e1 with
+            | Fpair ef eg => fun _ e2 =>
+                match simpl_fpair_proj1 e2 with
+                    | Proj1 => fun ef eg => ef
+                    | e2' => fun ef eg => Comp (Fpair ef eg) e2'
+                end ef eg
+            | e1' => fun _ e2 => Comp e1' (simpl_fpair_proj1 e2)
+        end e1 e2
+    | Fpair e1 e2 => Fpair (simpl_fpair_proj1 e1) (simpl_fpair_proj1 e2)
+    | e' => e'
+end.*)
+
 
 End Tactic.
 

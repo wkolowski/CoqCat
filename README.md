@@ -40,6 +40,8 @@ General TODO:
  * Revise equalities and equivalences and write a few more (like JMequiv_dep).
  * Possibly reimplement the fpair and copair tactics using reification.
  * Check if it's possible to do "continuous reification".
+ * Try to do reification syntax using classes, instances and many inductive types instead of a single one.
+ * Stop using depending types for doing reification of Cat.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.
@@ -51,7 +53,6 @@ Instances:
 
 Further ideas:
  * Implement concrete categories and use them for theorems about individual categories.
- * Implement colimits.
  * Implement monoidal categories.
  * Implement enriched categories.
 

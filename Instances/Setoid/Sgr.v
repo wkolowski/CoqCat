@@ -301,8 +301,7 @@ Instance Sgr_has_products : has_products SgrCat :=
     proj2 := Sgr_proj2;
     fpair := Sgr_fpair
 }.
-Proof. all: sgr.
-Defined.
+Proof. all: sgr. Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
