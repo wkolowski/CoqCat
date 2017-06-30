@@ -29,3 +29,21 @@ Proof.
     rewrite f. trivial.
     exists g. auto.
 Defined.
+
+Require Import Bool.
+
+Instance Two : Cat :=
+{
+    Ob := bool;
+    Hom := fun b b' : bool => if eqb b b' then True else False;
+    HomSetoid := fun b b' : bool =>
+      {| equiv := fun _ _ => True |}
+}.
+Proof.
+  (* Equivalence *) solve_equiv.
+  (* Composition *) destruct A, B, C; simpl; tauto.
+  (* Proper *) proper.
+  (* Assoc *) cat.
+  (* Id *) destruct A; simpl; tauto.
+  (* Id laws *) all: cat.
+Defined.

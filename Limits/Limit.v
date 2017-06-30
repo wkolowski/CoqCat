@@ -131,53 +131,18 @@ Definition colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
     forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
 
 (* TODO : coherence conditions for (co)limits *)
-(* TODO : continuous functors (see Bartosz Milewski's blog post from 2015/04/15 *)
 
-(* TODO : kill the code below *)
-Require Import Bool.
-
-Instance Two : Cat :=
+Instance ConeImage {J C D : Cat} {Diagram : Functor J C}
+    (F : Functor C D) (K : Cone Diagram) : Cone (FunctorComp Diagram F) :=
 {
-    Ob := bool;
-    Hom := fun b b' : bool => if eqb b b' then True else False;
-    HomSetoid := fun b b' : bool =>
-      {| equiv := fun _ _ => True |}
+    apex := fob F (apex K);
+    legs := {| component := fun X : Ob J => _ |}
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Composition *) destruct A, B, C; simpl; tauto.
-  (* Proper *) proper.
-  (* Assoc *) cat.
-  (* Id *) destruct A; simpl; tauto.
-  (* Id laws *) all: cat.
+  simpl. apply (fmap F). exact (component (legs K) X).
+  cat. rewrite <- pres_comp. rewrite (coherence (legs K) f). cat.
 Defined.
 
-Instance DiagramProd (C : Cat) (X Y : Ob C)
-    : Functor Two C :=
-{
-    fob := fun A : Ob Two => if A then X else Y;
-}.
-Proof.
-  (* fmap *) destruct A, B; simpl; inversion 1.
-    exact (id X).
-    exact (id Y).
-  destruct A, B; proper; cat.
-  destruct A, B, C0; cat.
-  destruct A; cat.
-Defined.
-
-Instance ProdCone_legs (C : Cat) (X : Ob C)
-    : NatTrans (ConstFunctor X Two) (DiagramProd C X X) := {}.
-Proof.
-  (* component *) simpl. destruct X0; exact (id X).
-  (* naturality *) destruct X0, Y, f; simpl; cat.
-Defined.
-
-Instance ProdCone (C : Cat) (X : Ob C)
-    : Cone (DiagramProd _ X X) :=
-{
-    apex := X;
-    legs := ProdCone_legs C X
-}.
-
-Eval simpl in  @apex Two Two (DiagramProd Two true true) (ProdCone Two true).
+Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
+  forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
+    limit' K -> limit' (ConeImage F K).

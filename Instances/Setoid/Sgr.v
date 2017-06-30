@@ -203,6 +203,25 @@ Proof.
   reflect_sgr. reflexivity.
 Qed.
 
+Goal forall (X : Sgr) (a b : X) (l1 l2 : nel X), a == b ->
+  expDenoteNel (l1 +++ a ::: l2) == expDenoteNel (l1 +++ b ::: l2).
+Proof.
+  intros. do 2 rewrite expDenoteNel_app. apply op_Proper.
+    reflexivity.
+    simpl. apply op_Proper.
+      assumption.
+      reflexivity.
+Qed.
+
+Goal forall (X : Sgr) (l1 l2 l2' l3 : nel X),
+  expDenoteNel l2 == expDenoteNel l2' ->
+    expDenoteNel (l1 +++ l2 +++ l3) == expDenoteNel (l1 +++ l2' +++ l3).
+Proof.
+  intros. pose (@op_Proper X). repeat rewrite expDenoteNel_app.
+  rewrite H. reflexivity.
+Qed.
+  
+
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x == g x

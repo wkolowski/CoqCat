@@ -6,6 +6,8 @@ Require Import Functor.
 Require Import BinProdCoprod.
 Require Import Exponential.
 
+Set Implicit Arguments.
+
 Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 {
     component : forall X : Ob C, Hom (fob T X) (fob S X);
@@ -13,7 +15,8 @@ Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
       component X .> fmap S f == fmap T f .> component Y
 }.
 
-Arguments component [C] [D] [T] [S] _ _.
+Arguments component [C D T S] _ _.
+Arguments coherence [C D T S] _ [X Y] _.
 
 Instance NatTransSetoid {C D : Cat} (F G : Functor C D)
     : Setoid (NatTrans F G) :=

@@ -280,6 +280,7 @@ match e with
     | e' => e'
 end.*)
 
+End simplify.
 
 End Tactic.
 

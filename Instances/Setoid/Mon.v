@@ -16,6 +16,8 @@ Class Mon : Type :=
     neutr_r : forall a : sgr, op a neutr = a
 }.
 
+Arguments sgr _ : clear implicits.
+
 Coercion sgr : Mon >-> Sgr.
 
 Hint Resolve neutr_l neutr_r.
@@ -364,4 +366,94 @@ Instance Mon_has_products : has_products MonCat :=
 Proof.
   proper.
   repeat split; cat. (* TODO : mon doesn't work *)
+Defined.
+
+Instance forgetful : Functor MonCat CoqSetoid :=
+{
+    fob := fun X : Mon => @setoid (sgr X);
+}.
+Proof.
+  destruct 1. destruct x. exact x.
+  proper. all: mon.
+Time Defined.
+
+Notation "'U'" := forgetful.
+
+Definition free_monoid
+  (X : Ob CoqSetoid) (M : Mon) (p : Hom X (fob U M)) : Prop :=
+    forall (N : Mon) (q : SetoidHom X (fob U N)),
+      exists!! h : MonHom M N, q == p .> fmap U h.
+Print Setoid'.
+Require Import Arith.
+
+Instance MonListUnit_Setoid' : Setoid' :=
+{
+    carrier := nat;
+    (*setoid := {| equiv := fun n m => beq_nat n m = true |}*)
+    setoid := {| equiv := eq |}
+}.
+(*Proof.
+  split; red; intro.
+    erewrite beq_nat_refl. auto.
+    induction x as [| x']; destruct y; simpl; auto.
+    induction x as [| x']; destruct y; simpl; auto.
+      inversion 1.
+      inversion 1.
+      destruct z.
+        inversion 2.
+        intros. eapply IHx'; eauto.
+Defined.*)
+
+Instance MonListUnit : Mon :=
+{
+    sgr :=
+    {|
+        setoid := MonListUnit_Setoid';
+        op := plus
+    |};
+    neutr := 0
+}.
+Proof.
+  all: simpl; intros.
+    rewrite plus_assoc_reverse. trivial.
+    trivial.
+    rewrite plus_n_O. trivial.
+Defined.
+
+Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
+Proof.
+  red; simpl. exists (fun _ => 1). proper.
+Defined.
+
+Theorem free_monoid_MonListUnit :
+  @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
+Proof.
+  unfold free_monoid. intros.
+  Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+    : SetoidHom MonListUnit N.
+    red. exists (fix f (n : nat) : N :=
+      match n with
+          | 0 => @neutr N
+          | S n' => op (q tt) (f n')
+      end).
+    proper. subst. reflexivity.
+  Defined.
+  Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+    : SgrHom MonListUnit N.
+    red. exists (f1 N q). induction x as [| x']. simpl.
+      mon.
+      simpl. intro. rewrite <- assoc. apply op_Proper.
+        reflexivity.
+        rewrite IHx'. reflexivity.
+  Defined.
+  Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+    : MonHom MonListUnit N.
+    red. exists (f2 N q). mon.
+  Defined.
+  exists (f3 N q). repeat split.
+    simpl. destruct x. mon.
+    destruct y, x; simpl in *; intros ? n. induction n as [| n'].
+      mon.
+      pose (H' := e0). specialize (H' n' 1). rewrite plus_comm in H'.
+        rewrite H'. rewrite e0 in H'. rewrite <- H'. apply op_Proper; mon.
 Defined.
