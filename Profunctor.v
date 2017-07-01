@@ -65,3 +65,39 @@ Proof.
   intros ? ? ? ? f g. exact (dimap (fmap F f) (fmap G g)).
   all: profunctor.
 Defined.
+
+Require Import Contravariant.
+
+Instance HomFunctor (C : Cat) (X : Ob C)
+    : Functor C CoqSetoid :=
+{
+    fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
+}.
+Proof.
+  intros A B f. do 3 red; simpl. exists (fun g => g .> f). proper.
+  proper. all: cat.
+Defined.
+
+Instance HomContravariant (C : Cat) (X : Ob C)
+    : Contravariant C CoqSetoid :=
+{
+    coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
+}.
+Proof.
+  intros Y Z f. do 3 red; simpl. exists (fun g => f .> g). proper.
+  proper. all: cat.
+Defined.
+
+Require Import NatTrans.
+
+Check @natural_isomorphism.
+
+Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
+  exists (X : Ob C) (α : NatTrans F (HomFunctor C X)),
+    natural_isomorphism α.
+
+Definition corepresentable {C : Cat} (F : Functor (Dual C) CoqSetoid) : Prop :=
+  exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)),
+    natural_isomorphism α.
+
+(* TODO : meditate on the definitions of (co)representability. *)

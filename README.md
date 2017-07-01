@@ -31,7 +31,7 @@ Accomplished:
    * new sgr/mon/grp — new reflective tactics that can solve simple semigroup/monoid/group equations quite fast
 
 General TODO:
- * Define representability and adjoints.
+ * Define adjoints.
  * Do stuff related to distributive categories.
  * Refactor the products and coproducts — put them in separate files in a new directory. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects (or not).
  * Port all properties of universal constructions to skolemized definitions.
@@ -41,7 +41,7 @@ General TODO:
  * Possibly reimplement the fpair and copair tactics using reification.
  * Check if it's possible to do "continuous reification".
  * Try to do reification syntax using classes, instances and many inductive types instead of a single one.
- * Stop using depending types for doing reification of Cat.
+ * Stop using dependent types for doing reification of Cat.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.
@@ -55,6 +55,9 @@ Further ideas:
  * Implement concrete categories and use them for theorems about individual categories.
  * Implement monoidal categories.
  * Implement enriched categories.
+
+TODO from Bartosz Milewski's blog:
+ * 2-Categories (see post from 2015-04-07)
 
 Tips for future me:
  * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper). This likely has something to do with registering morphisms as Proper. I should read the docs...
