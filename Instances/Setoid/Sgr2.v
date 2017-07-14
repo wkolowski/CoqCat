@@ -125,10 +125,7 @@ Theorem sgr_reflect :
     expDenoteNel (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros.
-  do 2 rewrite flatten_correct in H.
-  do 2 rewrite simplify_correct in H.
-  assumption.
+  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
 Class Reify (X : Sgr) (x : X) : Type :=
@@ -140,15 +137,14 @@ Class Reify (X : Sgr) (x : X) : Type :=
 Arguments Reify [X] _.
 Arguments reify [X] _ [Reify].
 
-Instance ReifyVar (X : Sgr) (x : X)
-    : (*(~ exists a b : X, x = op a b) ->*) Reify x :=
+Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 {
     reify := Var x
 }.
 Proof. reflexivity. Defined.
 
 Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
-    : Reify (@op X a b) :=
+    : Reify (@op X a b) | 0 :=
 {
     reify := Op (reify a) (reify b)
 }.
@@ -156,8 +152,8 @@ Proof.
   destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
 Defined.
 
-Instance ReifyHom (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
-    : Reify (f x) :=
+Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
+    : Reify (f x) | 0 :=
 {
     reify := Mor f (reify x)
 }.
@@ -165,29 +161,12 @@ Proof.
   destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
 Defined.
 
-(*Theorem sgr_reflect' :
-  forall (X : Sgr) (a b : X),
-    expDenoteNel (flatten (simplify (reify a))) ==
-    expDenoteNel (flatten (simplify (reify b))) ->
-      a == b.
-Proof.
-  trivial.
-Qed.*)
-
-(*Ltac reify e :=
-lazymatch e with
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | (SetoidHom_Fun (SgrHom_Fun ?f)) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | ?v => constr:(Var v)
-end.*)
-
-(*Ltac reflect_sgr := simpl; intros;
+Ltac reflect_sgr := simpl; intros;
 match goal with
-    | |- ?e1 == ?e2 => apply sgr_reflect'; simpl
-end.*)
+    | |- ?e1 == ?e2 =>
+        change (expDenote (reify e1) == expDenote (reify e2));
+        apply sgr_reflect; simpl
+end.
 
 Ltac sgr_simpl := repeat red; simpl in *; intros.
 
@@ -221,28 +200,23 @@ match goal with
   | _ => idtac
 end; sgr_simpl.
 
-(*Ltac sgr := intros; try (reflect_sgr; try reflexivity; fail); repeat
+Ltac sgr := intros; try (reflect_sgr; try reflexivity; fail); repeat
 match goal with
     | |- _ == _ => reflect_sgr; reflexivity
     | |- Equivalence _ => solve_equiv
     | |- Proper _ _ => proper
     | _ => sgr_simpl || sgrobs || sgrhoms || cat
-end.*)
-
-
+end.
 
 Goal forall (X : Sgr) (a b c : X),
   op a (op b c) == op (op a b) c.
 Proof.
-  intros.
-  Eval compute in reify a.
-  Eval simpl in reify (op a b).
-  Eval compute in simplify (reify (op a b)). Abort.
+  reflect_sgr. reflexivity.
+Qed.
 
 Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
   f (op a b) == op (f a) (f b).
 Proof.
-  intros. Eval simpl in reify (@op X a a).
   reflect_sgr. reflexivity.
 Qed.
 
@@ -255,12 +229,12 @@ Proof. sgr. Defined.
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
 Proof.
-  red. exists (SetoidComp f g). sgr.
+  exists (SetoidComp f g). sgr.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
 Proof.
-  sgr_simpl. exists (SetoidId A). sgr.
+  exists (SetoidId A). sgr.
 Defined.
 
 Instance SgrCat : Cat :=
@@ -301,7 +275,7 @@ Proof. all: sgr. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  do 3 red. exists (CoqSetoid_delete X). sgr.
+  exists (CoqSetoid_delete X). sgr.
 Defined.
 
 Instance Sgr_has_term : has_term SgrCat :=
@@ -323,18 +297,18 @@ Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
-  red. exists (CoqSetoid_proj1 X Y). sgr.
+  exists (CoqSetoid_proj1 X Y). sgr.
 Defined.
 
 Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
 Proof.
-  red. exists (CoqSetoid_proj2 X Y). sgr.
+  exists (CoqSetoid_proj2 X Y). sgr.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_prodOb A B).
 Proof.
-  red. exists (CoqSetoid_fpair f g). split; sgr.
+  exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=

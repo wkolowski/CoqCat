@@ -35,8 +35,8 @@ Instance NatTransComp {C D : Cat}
     component := fun X : Ob C => component α X .> component β X
 }.
 Proof.
-  intros. destruct α, β; simpl in *. repeat rewrite comp_assoc.
-  rewrite coherence1. rewrite <- comp_assoc. rewrite coherence0. cat.
+  intros. destruct α, β; simpl in *.
+  rewrite !comp_assoc, coherence1, <- comp_assoc, coherence0. cat.
 Defined.
 
 Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
@@ -86,7 +86,7 @@ Proof.
           rewrite <- (comp_assoc (fmap F g) _).
           rewrite <- (comp_assoc _ (fmap G g)).
           rewrite H2, H1, coherence_α. cat.
-        rewrite H3 in H4. repeat rewrite comp_assoc in H4.
+        rewrite H3 in H4. rewrite !comp_assoc in H4.
         rewrite H0 in H4. cat.
     destruct component_β as [component_β [inverse_α_β coherence_β]].
     eexists {| component := component_β; coherence := coherence_β |}.
@@ -102,9 +102,9 @@ Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
 }.
 Proof.
   proper. apply ProductFunctor_fmap_Proper; rewrite H; reflexivity.
-  intros. pose ProductFunctor_fmap_Proper. do 2 rewrite pres_comp.
+  intros. pose ProductFunctor_fmap_Proper. rewrite 2 pres_comp.
     rewrite ProductFunctor_fmap_pres_comp. reflexivity.
-  intros. pose ProductFunctor_fmap_Proper. do 2 rewrite pres_id.
+  intros. pose ProductFunctor_fmap_Proper. rewrite 2 pres_id.
     rewrite ProductFunctor_fmap_pres_id. reflexivity.
 Defined.
 
@@ -162,9 +162,9 @@ Instance FunCat_coprodOb {C D : Cat} {hp : has_coproducts D}
 }.
 Proof.
   proper. apply CoproductFunctor_fmap_Proper; rewrite H; reflexivity.
-  intros. pose CoproductFunctor_fmap_Proper. do 2 rewrite pres_comp.
+  intros. pose CoproductFunctor_fmap_Proper. rewrite 2 pres_comp.
     rewrite CoproductFunctor_fmap_pres_comp. reflexivity.
-  intros. pose CoproductFunctor_fmap_Proper. do 2 rewrite pres_id.
+  intros. pose CoproductFunctor_fmap_Proper. rewrite 2 pres_id.
     rewrite CoproductFunctor_fmap_pres_id. reflexivity.
 Defined.
 

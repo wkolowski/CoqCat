@@ -22,57 +22,112 @@ Coercion setoid : Sgr >-> Setoid'.
 
 Hint Resolve assoc.
 
-Definition SgrHom (A B : Sgr) : Type :=
-    {f : SetoidHom A B | forall x y : A, f (op x y) == op (f x) (f y)}.
+Class SgrHom (A B : Sgr) : Type :=
+{
+    func :> SetoidHom A B;
+    pres_op : forall x y : A, func (op x y) == op (func x) (func y)
+}.
 
-Definition SgrHom_Fun (A B : Sgr) (f : SgrHom A B)
-    : SetoidHom A B := proj1_sig f.
-Coercion SgrHom_Fun : SgrHom >-> SetoidHom.
+Coercion func : SgrHom >-> SetoidHom.
 
 Inductive exp (X : Sgr) : Type :=
+    | Id : exp X
     | Var : X -> exp X
     | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X.
+    | Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X
+    | Inv : exp X -> exp X.
 
+Arguments Id [X].
 Arguments Var [X] _.
 Arguments Op [X] _ _.
-Arguments Mor [X A] _ _ .
+Arguments Mor [X A] _ _.
+Arguments Inv [X] _.
 
-Fixpoint expDenote {X : Sgr} (e : exp X) : X :=
-match e with
-    | Var v => v
-    | Op e1 e2 => op (expDenote e1) (expDenote e2)
-    | Mor f e' => f (expDenote e')
-end.
+Set Typeclasses Unique Instances.
 
-Fixpoint simplify {X : Sgr} (e : exp X) : exp X :=
-match e with
-    | Var v => Var v
-    | Op e1 e2 => Op (simplify e1) (simplify e2)
-    | Mor f e' => match simplify e' with
-        | Op e1' e2' => Op (Mor f e1') (Mor f e2')
-        | e'' => Mor f e''
-    end
-end.
+Class Denote {X : Sgr} (e : exp X) :=
+{
+    denote : X
+}.
+
+Arguments denote [X] _ [Denote].
+
+Instance DenoteVar {X : Sgr} (v : X) : Denote (Var v) :=
+{
+    denote := v
+}.
+
+Instance DenoteOp {X : Sgr} (e1 e2 : exp X) (D1 : Denote e1) (D2 : Denote e2)
+    : Denote (Op e1 e2) :=
+{
+    denote := op (denote e1) (denote e2)
+}.
+
+Instance DenoteMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X) (D : Denote e)
+    : Denote (Mor f e) :=
+{
+    denote := f (denote e)
+}.
+
+Class Simplify {X : Sgr} (e : exp X) : Type :=
+{
+    simplify : exp X;
+    spec : exists (De : Denote e) (Ds : Denote simplify),
+      denote simplify == denote e
+}.
+
+Arguments simplify [X] _ [Simplify].
+
+Instance SimplifyOp {X : Sgr} (e1 e2 : exp X)
+  (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) :=
+{
+    simplify := Op (simplify e1) (simplify e2)
+}.
+Proof.
+  destruct S1, S2; intros. cbn.
+  do 2 eexists.
+  (*replace (denote (Op simplify0 simplify1)) with (Op (denote simplify0) (denote simplify1)).*)
+Admitted.
+
+Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
+  (S : Simplify e) : Simplify (Mor f e) :=
+{
+    simplify :=
+      match simplify e with
+          | Op e1' e2' => Op (Mor f e1') (Mor f e2')
+          | e' => Mor f e'
+      end
+}.
+Admitted.
+
+Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
+{
+    simplify := e
+}.
+Admitted.
+
+Goal forall (X : Sgr) (a b c : X), a = b.
+Proof.
+  intros.
+  Eval simpl in denote (Op (Var a) (Var b)).
+  assert (f : SgrHom X X). admit.
+  Eval simpl in simplify (Mor f (Op (Var a) (Var b))).
+Abort.
 
 Theorem SgrHom_Proper :
   forall (X Y : Sgr) (f : SgrHom X Y),
     Proper (equiv ==> equiv) f.
 Proof.
-  unfold Proper, respectful; destruct f, x; simpl in *.
-  intros. apply p. assumption.
+  unfold Proper, respectful; destruct f; simpl in *.
+  intros. destruct func0. simpl in *. rewrite H. reflexivity.
 Qed.
 
 Theorem simplify_correct :
-  forall (X : Sgr) (e : exp X),
-    expDenote (simplify e) == expDenote e.
+  forall (X : Sgr) (e : exp X) (S : Simplify e) (De : Denote e)
+    (DSe : Denote (simplify e)),
+    @denote _ (simplify e) DSe == @denote _ e De.
 Proof.
-  induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper s).
-    reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; rewrite <- IHe;
-    try reflexivity.
-      destruct s. rewrite e0. reflexivity.
+  destruct S; cbn; intros. rewrite spec0. reflexivity.
 Qed.
 
 Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
@@ -87,7 +142,7 @@ Lemma expDenoteNel_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     reflexivity.
-    pose op_Proper. rewrite IHt1. rewrite assoc. reflexivity.
+    pose op_Proper. rewrite IHt1, assoc. reflexivity.
 Qed.
 
 Lemma expDenoteNel_hom :
@@ -96,18 +151,18 @@ Lemma expDenoteNel_hom :
 Proof.
   induction l as [| h t]; simpl.
     reflexivity.
-    assert (f (op h (expDenoteNel t)) == op (f h) (f (expDenoteNel t))).
-      destruct f; simpl in *. rewrite e. reflexivity.
-      rewrite H. apply op_Proper.
-        reflexivity.
-        assumption.
+    rewrite pres_op. apply op_Proper.
+      reflexivity.
+      assumption.
 Qed.
 
-Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
+(*Fixpoint flatten {X : Grp} (e : exp X) : list X :=
 match e with
-    | Var v => singl v
-    | Op e1 e2 => flatten e1 +++ flatten e2
-    | Mor f e' => nel_map f (flatten e')
+    | Id => []
+    | Var v => [v]
+    | Op e1 e2 => flatten e1 ++ flatten e2
+    | Mor f e' => map f (flatten e')
+    | Inv e' => rev (map inv (flatten e'))
 end.
 
 Theorem flatten_correct :
@@ -118,34 +173,56 @@ Proof.
     reflexivity.
     rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
     rewrite expDenoteNel_hom. apply (SgrHom_Proper s). assumption.
-Qed.
+Qed.*)
 
 Theorem sgr_reflect :
-  forall (X : Sgr) (e1 e2 : exp X),
-    expDenoteNel (flatten (simplify e1)) ==
-    expDenoteNel (flatten (simplify e2)) ->
-      expDenote e1 == expDenote e2.
+  forall (X : Sgr) (e1 e2 : exp X) (S1 : Simplify e1) (S2 : Simplify e2)
+  (De1 : Denote e1) (De2 : Denote e2) (Ds1 : Denote (simplify e1))
+  (Ds2 : Denote (simplify e2)),
+    denote (simplify e1) == denote (simplify e2) ->
+      denote e1 == denote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  intros. rewrite !simplify_correct in H. eassumption.
 Qed.
 
-Ltac reify e :=
-lazymatch e with
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | (SetoidHom_Fun (SgrHom_Fun ?f)) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | ?v => constr:(Var v)
-end.
+Class Reify (X : Sgr) (x : X) : Type :=
+{
+    reify : exp X;
+    spec : denote reify == x
+}.
+
+Arguments Reify [X] _.
+Arguments reify [X] _ [Reify].
+
+Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
+{
+    reify := Var x
+}.
+Proof. reflexivity. Defined.
+
+Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
+    : Reify (@op X a b) | 0 :=
+{
+    reify := Op (reify a) (reify b)
+}.
+Proof.
+  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+Defined.
+
+Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
+    : Reify (f x) | 0 :=
+{
+    reify := Mor f (reify x)
+}.
+Proof.
+  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+Defined.
 
 Ltac reflect_sgr := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in
-          change (expDenote e1' == expDenote e2');
-          apply sgr_reflect; simpl
+        change (expDenote (reify e1) == expDenote (reify e2));
+        apply sgr_reflect; simpl
 end.
 
 Ltac sgr_simpl := repeat red; simpl in *; intros.
@@ -191,30 +268,14 @@ end.
 Goal forall (X : Sgr) (a b c : X),
   op a (op b c) == op (op a b) c.
 Proof.
-  reflect_sgr. reflexivity.
+  intros. reflect_sgr. reflexivity.
 Qed.
 
 Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
   f (op a b) == op (f a) (f b).
 Proof.
+  intros. Eval simpl in reify (@op X a a).
   reflect_sgr. reflexivity.
-Qed.
-
-Goal forall (X : Sgr) (a b : X) (l1 l2 : nel X), a == b ->
-  expDenoteNel (l1 +++ a ::: l2) == expDenoteNel (l1 +++ b ::: l2).
-Proof.
-  intros. rewrite !expDenoteNel_app. apply op_Proper.
-    reflexivity.
-    simpl. apply op_Proper.
-      assumption.
-      reflexivity.
-Qed.
-
-Goal forall (X : Sgr) (l1 l2 l2' l3 : nel X),
-  expDenoteNel l2 == expDenoteNel l2' ->
-    expDenoteNel (l1 +++ l2 +++ l3) == expDenoteNel (l1 +++ l2' +++ l3).
-Proof.
-  intros. pose (@op_Proper X). rewrite !expDenoteNel_app, H. reflexivity.
 Qed.
 
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
@@ -226,12 +287,12 @@ Proof. sgr. Defined.
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
 Proof.
-  red. exists (SetoidComp f g). sgr.
+  exists (SetoidComp f g). sgr.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
 Proof.
-  sgr_simpl. exists (SetoidId A). sgr.
+  exists (SetoidId A). sgr.
 Defined.
 
 Instance SgrCat : Cat :=
@@ -272,7 +333,7 @@ Proof. all: sgr. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  do 3 red. exists (CoqSetoid_delete X). sgr.
+  exists (CoqSetoid_delete X). sgr.
 Defined.
 
 Instance Sgr_has_term : has_term SgrCat :=
@@ -294,18 +355,18 @@ Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
-  red. exists (CoqSetoid_proj1 X Y). sgr.
+  exists (CoqSetoid_proj1 X Y). sgr.
 Defined.
 
 Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
 Proof.
-  red. exists (CoqSetoid_proj2 X Y). sgr.
+  exists (CoqSetoid_proj2 X Y). sgr.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_prodOb A B).
 Proof.
-  red. exists (CoqSetoid_fpair f g). split; sgr.
+  exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=
@@ -315,7 +376,8 @@ Instance Sgr_has_products : has_products SgrCat :=
     proj2 := Sgr_proj2;
     fpair := Sgr_fpair
 }.
-Proof. all: sgr. Defined.
+Proof. all: sgr.
+Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {

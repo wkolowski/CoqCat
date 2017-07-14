@@ -77,8 +77,7 @@ Proof.
   induction e1; cat.
     rewrite flatten_correct. assumption.
     rewrite flatten_correct. assumption.
-      rewrite <- flatten_correct' in H.
-      do 3 rewrite <- flatten_correct in H. assumption.
+    rewrite <- flatten_correct', <- 3 flatten_correct in H. assumption.
 Qed.
 
 Ltac reify mor :=

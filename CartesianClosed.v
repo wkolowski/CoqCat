@@ -87,6 +87,6 @@ Proof.
     assert (@curry C ccc ccc Y (term C) (term C) proj1
       .> delete _ .> curry proj1 .> g == curry proj1 .> g).
       assocr'. rewrite is_sec. term.
-    repeat rewrite comp_assoc in H1. rewrite is_sec in H1.
+    rewrite !comp_assoc, is_sec in H1.
     cat.*)
 Abort.

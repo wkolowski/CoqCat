@@ -2,6 +2,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
 
+Set Implicit Arguments.
+
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
     | Id : forall X : Ob C, exp X X
     | Var : forall X Y : Ob C, Hom X Y -> exp X Y
@@ -11,6 +13,8 @@ Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
 Arguments Id [C] _.
 Arguments Var [C X Y] _.
 Arguments Comp [C X Y Z] _ _.
+
+Hint Constructors exp.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
     : Hom X Y :=
@@ -24,8 +28,7 @@ Fixpoint simplify {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y.
 Proof.
   destruct e.
     exact (Id _).
-    exact (Var h).
-    Hint Constructors exp. destruct (simplify _ _ _ e1) as [| ? ? f1 | ? ? ? e11 e12]; clear e1.
+    exact (Var h). destruct (simplify _ _ _ e1) as [| ? ? f1 | ? ? ? e11 e12]; clear e1.
       exact (simplify _ _ _ e2).
       destruct (simplify _ _ _ e2) as [| ? ? f2 | ? ? ? e21 e22]; clear e2.
         exact (Var f1).
@@ -36,8 +39,6 @@ Proof.
         exact (Comp (Comp e11 e12) (Var f2)).
         exact (Comp (Comp e11 e12) (Comp e21 e22)).
 Defined.
-
-Print simplify.
 
 Theorem simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
@@ -103,10 +104,7 @@ Theorem cat_reflect :
     expDenoteHL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros.
-  do 2 rewrite flatten_correct in H.
-  do 2 rewrite simplify_correct in H.
-  assumption.
+  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
 Ltac reify mor :=

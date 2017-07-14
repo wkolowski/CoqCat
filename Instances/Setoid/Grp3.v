@@ -6,7 +6,7 @@ Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Cat.Instances.Setoid.Mon.
+Require Export Cat.Instances.Setoid.Mon2.
 
 Set Implicit Arguments.
 
@@ -77,31 +77,19 @@ Defined.
 
 Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr.
 
-Definition GrpHom (X Y : Grp) : Type := 
-    {f : MonHom X Y | forall x : X, f (inv x) == inv (f x)}.
+Class GrpHom (X Y : Grp) : Type :=
+{
+    monHom :> MonHom X Y;
+    pres_inv : forall x : X, monHom (inv x) == inv (monHom x)
+}.
 
-Definition GrpHom_MonHom (X Y : Grp) (f : GrpHom X Y)
-    : MonHom X Y := proj1_sig f.
-Coercion GrpHom_MonHom : GrpHom >-> MonHom.
+Coercion monHom : GrpHom >-> MonHom.
 
 Lemma inv_Proper : forall (X : Grp), Proper (equiv ==> equiv) inv.
 Proof.
   unfold Proper, respectful; intros.
   destruct X, inv0; simpl in *. apply p. assumption.
 Qed.
-
-Inductive exp (X : Grp) : Type :=
-    | Id : exp X
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
-    | Inv : exp X -> exp X.
-
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
-Arguments Inv [X] _.
 
 Fixpoint expDenote {X : Grp} (e : exp X) : X :=
 match e with
@@ -147,14 +135,14 @@ Lemma SgrHom_pres_op :
   forall (X Y : Sgr) (f : SgrHom X Y) (a b : X),
     f (op a b) == op (f a) (f b).
 Proof.
-  destruct f; simpl; intros. rewrite e. reflexivity.
+  destruct f; simpl; intros. auto.
 Qed.
 
 Lemma GrpHom_pres_inv :
   forall (X Y : Grp) (f : GrpHom X Y) (x : X),
     f (inv x) == inv (f x).
 Proof.
-  destruct f; simpl; intros. rewrite e. reflexivity.
+  destruct f; simpl; intros. cbn in *. apply pres_inv0.
 Qed.
 
 Theorem simplify_correct :
@@ -255,26 +243,60 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
-Ltac reify e :=
-lazymatch e with
-    | @neutr (@mon ?X) => constr:(@Id X)
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | SetoidHom_Fun (SgrHom_Fun (MonHom_SgrHom (GrpHom_MonHom ?f))) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | (SetoidHom_Fun inv) ?e =>
-        let e' := reify e in constr:(Inv e')
-    | ?v => constr:(Var v)
-end.
+Class Reify (X : Grp) (x : X) : Type :=
+{
+    reify : exp X;
+    spec : expDenote reify == x
+}.
+
+Arguments Reify [X] _.
+Arguments reify [X] _ [Reify].
+
+Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
+{
+    reify := Var x
+}.
+Proof. reflexivity. Defined.
+
+Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
+    : Reify (@op X a b) | 0 :=
+{
+    reify := Op (reify a) (reify b)
+}.
+Proof.
+  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+Defined.
+
+Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
+    : Reify (f x) | 0 :=
+{
+    reify := Mor f (reify x)
+}.
+Proof.
+  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+Defined.
+
+Instance ReifyId (X : Grp) : Reify neutr | 0 :=
+{
+    reify := Id
+}.
+Proof.
+  simpl. reflexivity.
+Defined.
+
+Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
+{
+    reify := Inv (reify x)
+}.
+Proof.
+  destruct Rx. cbn. apply inv_Proper. assumption.
+Defined.
 
 Ltac reflect_grp := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in
-          change (expDenote e1' == expDenote e2');
-          apply grp_reflect2; simpl
+        change (expDenote (reify e1) == expDenote (reify e2));
+        apply grp_reflect2; simpl
 end.
 
 Ltac grp_simpl := mon_simpl. 
@@ -383,19 +405,19 @@ End test.
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
   equiv := fun f g : GrpHom X Y =>
-      @equiv _ (SgrHomSetoid X Y) (proj1_sig f) (proj1_sig g)
+      @equiv _ (SgrHomSetoid X Y) f g
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
 Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z)
     : GrpHom X Z.
 Proof.
-  red. exists (MonComp f g). grp.
+  exists (MonComp f g). grp.
 Defined.
 
 Definition GrpId (X : Grp) : GrpHom X X.
 Proof.
-  red. exists (MonId X). grp.
+  exists (MonId X). grp.
 Defined.
 
 Instance GrpCat : Cat :=
@@ -428,7 +450,7 @@ Proof. all: grp. Defined.
 
 Definition Grp_create (X : Grp) : Hom Grp_zero X.
 Proof.
-  do 3 red. exists (Mon_create X). grp.
+  exists (Mon_create X). grp.
 Defined.
 
 Instance Grp_has_init : has_init GrpCat :=
@@ -440,7 +462,7 @@ Proof. grp. Defined.
 
 Definition Grp_delete (X : Grp) : Hom X Grp_zero.
 Proof.
-  do 3 red. exists (Mon_delete X). grp.
+  exists (Mon_delete X). grp.
 Defined.
 
 Instance Grp_has_term : has_term GrpCat :=

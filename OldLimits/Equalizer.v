@@ -98,9 +98,9 @@ Proof.
   rename X0 into Z. rename g0 into h'.
   destruct H as [eq H].
   destruct (H Z (h .> e)) as [u Hh].
-    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+    rewrite !comp_assoc, eq. reflexivity.
   destruct (H Z (h' .> e)) as [u' Hh'].
-    do 2 rewrite comp_assoc. rewrite eq. reflexivity.
+    rewrite !comp_assoc, eq. reflexivity.
   destruct Hh, Hh'. assert (u' == u).
     apply H4. rewrite H1, H0. reflexivity.
   specialize (H2 h); specialize (H4 h').

@@ -126,7 +126,7 @@ Theorem CoqSetoid_sec_is_inj : forall (X Y : Setoid') (f : SetoidHom X Y),
 Proof.
   unfold Sec, injectiveS; intros.
   destruct H as [g H]. simpl in *. cut (g (f a) == g (f a')).
-    intro. repeat rewrite H in H1. assumption.
+    intro. rewrite !H in H1. assumption.
     setoid.
 Defined.
 
@@ -370,7 +370,7 @@ Proof.
     assert (u : SetoidHom (CoqSetoid_coeq_ob f g) Q').
       red. exists (proj1_sig u'). proper. destruct u' as [u' Hu'].
       setoidhom q'; setoidhom u'; setoidob Q'; simpl in *.
-      do 2 rewrite Hu'.
+      rewrite !Hu'.
       induction H0; subst.
         apply q'_pres_equiv. assumption.
         apply H.

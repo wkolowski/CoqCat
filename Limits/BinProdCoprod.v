@@ -157,7 +157,7 @@ repeat match goal with
         rewrite <- fpair_id; apply fpair_Proper
     | |- ?f .> ?g == ?f .> ?g' => f_equiv
     | |- ?f .> ?g == ?f' .> ?g => f_equiv
-    | _ => repeat rewrite <- comp_assoc; auto
+    | _ => rewrite <- ?comp_assoc; auto
 end.
 
 Module Tactic.
@@ -392,7 +392,7 @@ Qed.
         end).
 Proof.
   unfold product_skolem in *. intros.
-  destruct (constructive_indefinite_description _ _) as [f_inv [eq1 eq2]].
+  destruct (constructive_indefinite_description _ _) as (f_inv & eq1 & eq2).
   edestruct H as [[H1 H2] H3]. repeat split.
     rewrite comp_assoc, <- (comp_assoc f_inv f).
       rewrite eq2. cat.
@@ -507,7 +507,7 @@ repeat match goal with
         rewrite <- copair_id; apply copair_Proper
     | |- ?f .> ?g == ?f .> ?g' => f_equiv
     | |- ?f .> ?g == ?f' .> ?g => f_equiv
-    | _ => repeat rewrite comp_assoc; auto
+    | _ => rewrite ?comp_assoc; auto
 end.
 
 Theorem coproduct_skolem_uiso :
@@ -534,12 +534,12 @@ Proof.
       cat.
         rewrite <- (HP3 (copair0 Q q1 q2 .> copair' P p1 p2)).
           apply HP3. cat.
-          cat; repeat rewrite <- comp_assoc.
+          cat; rewrite <- comp_assoc.
             rewrite <- HQ1. assumption.
             rewrite <- HQ2. assumption.
         rewrite <- (HQ3' (copair' P p1 p2 .> copair0 Q q1 q2)).
           apply HQ3'. cat.
-          cat; repeat rewrite <- comp_assoc.
+          cat; rewrite <- comp_assoc.
             rewrite <- HP1'. assumption.
             rewrite <- HP2'. assumption.
     edestruct H as [[H1 H2] _]. rewrite <- H1. reflexivity.

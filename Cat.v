@@ -33,8 +33,8 @@ end.
 Ltac assocr := rewrite comp_assoc.
 Ltac assocl := rewrite <- comp_assoc.
 
-Ltac assocr' := repeat rewrite comp_assoc.
-Ltac assocl' := repeat rewrite <- comp_assoc.
+Ltac assocr' := rewrite !comp_assoc.
+Ltac assocl' := rewrite <- !comp_assoc.
 
 Ltac cat_aux := repeat (my_simpl || intros || rw_id || assocr ||
     reflexivity || subst; eauto).
@@ -107,7 +107,7 @@ Proof.
       | |- ?x = ?x => reflexivity
   end.
   f_equal.
-  assert (setoid_equiv = setoid_equiv'). apply proof_irrelevance.
+  assert (setoid_equiv = setoid_equiv') by apply proof_irrelevance.
   rewrite H. trivial.
 Qed.
 
@@ -153,9 +153,6 @@ Qed.
 Theorem dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Bim C A B f <-> @Bim (Dual C) B A f.
 Proof.
-  intros C A B f; unfold Bim. repeat rewrite (dual_mon_epi).
-  repeat split; destruct H; assumption.
-Restart.
   unfold Bim; cat.
 Qed.
 
@@ -182,8 +179,8 @@ Theorem iso_inv_unique : forall {C : Cat} {A B : Ob C} (f : Hom A B),
 Proof.
   unfold Iso; split; intros.
     destruct H as [g [inv1 inv2]]. exists g. cat.
-      assert (eq1 : y .> f .> g == g). rewrite H0. cat.
-      assert (eq2 : y .> f .> g == y). rewrite comp_assoc, inv1. cat.
+      assert (eq1 : y .> f .> g == g) by (rewrite H0; cat).
+      assert (eq2 : y .> f .> g == y) by (rewrite comp_assoc, inv1; cat).
       rewrite <- eq1, eq2. reflexivity.
     cat.
 Qed.
@@ -286,7 +283,7 @@ Proof.
   intros; unfold Sec, Mon in *; intros X h1 h2 eq. destruct H as (g, H).
   assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g).
     rewrite eq; reflexivity.
-  do 2 rewrite comp_assoc in eq2. rewrite H in eq2. cat.
+    rewrite !comp_assoc, H in eq2. cat.
 Qed.
 
 Theorem ret_is_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -295,7 +292,7 @@ Proof.
   intros. unfold Ret, Epi in *. intros X h1 h2 eq. destruct H as (g, H).
   assert (eq2 : g .> (f .> h1) == g .> (f .> h2)).
     rewrite eq; reflexivity.
-  do 2 rewrite <- comp_assoc in eq2. rewrite H in eq2. cat.
+    rewrite <- 2 comp_assoc, H in eq2. cat.
 Qed.
 
 Theorem iso_is_sec : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -421,7 +418,7 @@ Hint Resolve aut_comp.
 Theorem mon_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Mon (f .> g) -> Mon f.
 Proof.
-  unfold Mon; intros. apply H. repeat rewrite <- comp_assoc.
+  unfold Mon; intros. apply H. rewrite <- !comp_assoc.
   rewrite H0. reflexivity.
 Defined.
 
@@ -429,7 +426,7 @@ Theorem epi_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Epi (f .> g) -> Epi g.
 Proof.
   unfold Epi; intros. apply H.
-  repeat rewrite comp_assoc. rewrite H0. reflexivity.
+  rewrite !comp_assoc. rewrite H0. reflexivity.
 Defined.
 
 Theorem sec_prop : forall (C : Cat) (X Y Z : Ob C)

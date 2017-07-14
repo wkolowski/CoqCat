@@ -4,7 +4,7 @@ Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Cat.Instances.Setoid.Sgr.
+Require Export Cat.Instances.Setoid.Sgr2.
 
 Set Implicit Arguments.
 
@@ -22,12 +22,13 @@ Coercion sgr : Mon >-> Sgr.
 
 Hint Resolve neutr_l neutr_r.
 
-Definition MonHom (X Y : Mon) : Type :=
-    {f : SgrHom X Y | f neutr == neutr}.
+Class MonHom (X Y : Mon) : Type :=
+{
+    sgrHom :> SgrHom X Y;
+    pres_neutr : sgrHom neutr == neutr;
+}.
 
-Definition MonHom_SgrHom (X Y : Mon) (f : MonHom X Y)
-    : SgrHom X Y := proj1_sig f.
-Coercion MonHom_SgrHom : MonHom >-> SgrHom.
+Coercion sgrHom : MonHom >-> SgrHom.
 
 Inductive exp (X : Mon) : Type :=
     | Id : exp X
@@ -82,7 +83,7 @@ Proof.
     rewrite <- IHe.
       destruct m; simpl in *. symmetry. assumption.
       reflexivity.
-      destruct m, x; simpl in *. rewrite e1. reflexivity.
+      destruct m, sgrHom0; simpl in *. rewrite pres_op. reflexivity.
       reflexivity.
 Qed.
 
@@ -109,7 +110,7 @@ Lemma expDenoteL_hom :
 Proof.
   induction l as [| h t]; simpl.
     destruct f; simpl in *. symmetry. assumption.
-    destruct f, x; simpl in *. rewrite e0. apply op_Proper.
+    destruct f, sgrHom0; simpl in *. rewrite pres_op. apply op_Proper.
       reflexivity.
       assumption.
 Qed.
@@ -142,24 +143,52 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
-Ltac reify e :=
-lazymatch e with
-    | @neutr ?X => constr:(@Id X)
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | SetoidHom_Fun (SgrHom_Fun (MonHom_SgrHom ?f)) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | ?v => constr:(Var v)
-end.
+Class Reify (X : Mon) (x : X) : Type :=
+{
+    reify : exp X;
+    spec : expDenote reify == x
+}.
+
+Arguments Reify [X] _.
+Arguments reify [X] _ [Reify].
+
+Instance ReifyVar (X : Mon) (x : X) : Reify x | 1 :=
+{
+    reify := Var x
+}.
+Proof. reflexivity. Defined.
+
+Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
+    : Reify (@op X a b) | 0 :=
+{
+    reify := Op (reify a) (reify b)
+}.
+Proof.
+  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+Defined.
+
+Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
+    : Reify (f x) | 0 :=
+{
+    reify := Mor f (reify x)
+}.
+Proof.
+  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+Defined.
+
+Instance ReifyId (X : Mon) : Reify neutr | 0 :=
+{
+    reify := Id
+}.
+Proof.
+  simpl. reflexivity.
+Defined.
 
 Ltac reflect_mon := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in
-          change (expDenote e1' == expDenote e2');
-          apply mon_reflect; simpl
+        change (expDenote (reify e1) == expDenote (reify e2));
+        apply mon_reflect; simpl
 end.
 
 Ltac mon_simpl := sgr_simpl.
@@ -240,19 +269,19 @@ Qed.
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>
-      @equiv _ (SgrHomSetoid X Y) (proj1_sig f) (proj1_sig g)
+      @equiv _ (SgrHomSetoid X Y) f g
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
 Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
     : MonHom X Z.
 Proof.
-  red. exists (SgrComp f g). mon.
+  exists (SgrComp f g). mon.
 Defined.
 
 Definition MonId (X : Mon) : MonHom X X.
 Proof.
-  red. exists (SgrId X). mon.
+  exists (SgrId X). mon.
 Defined.
 
 Instance MonCat : Cat :=
@@ -279,12 +308,12 @@ Defined.
 
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
 Proof.
-  red. exists (Mon_Setoid_create X). mon.
+  exists (Mon_Setoid_create X). mon.
 Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
 Proof.
-  do 3 red. exists (Mon_Sgr_create X). mon.
+  exists (Mon_Sgr_create X). mon.
 Defined.
 
 Instance Mon_has_init : has_init MonCat :=
@@ -308,12 +337,12 @@ Defined.
 
 Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
 Proof.
-  red. exists (Mon_Setoid_delete X). mon.
+  exists (Mon_Setoid_delete X). mon.
 Defined.
 
 Definition Mon_delete (X : Mon) : Hom X Mon_term.
 Proof.
-  do 3 red. exists (Mon_Sgr_delete X). mon.
+  exists (Mon_Sgr_delete X). mon.
 Defined.
 
 Instance Mon_has_term : has_term MonCat :=
@@ -350,7 +379,7 @@ Defined.
 Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
     : MonHom X (Mon_prodOb A B).
 Proof.
-  red. exists (Sgr_fpair f g). (* TODO : make faster *) Time mon.
+  exists (Sgr_fpair f g). mon.
 Defined.
 
 Instance Mon_has_products : has_products MonCat :=
@@ -370,7 +399,7 @@ Instance forgetful : Functor MonCat CoqSetoid :=
     fob := fun X : Mon => @setoid (sgr X);
 }.
 Proof.
-  destruct 1. destruct x. exact x.
+  cbn. intros. exact X.
   proper. all: mon.
 Time Defined.
 
@@ -380,26 +409,14 @@ Definition free_monoid
   (X : Ob CoqSetoid) (M : Mon) (p : Hom X (fob U M)) : Prop :=
     forall (N : Mon) (q : SetoidHom X (fob U N)),
       exists!! h : MonHom M N, q == p .> fmap U h.
-Print Setoid'.
+
 Require Import Arith.
 
 Instance MonListUnit_Setoid' : Setoid' :=
 {
     carrier := nat;
-    (*setoid := {| equiv := fun n m => beq_nat n m = true |}*)
     setoid := {| equiv := eq |}
 }.
-(*Proof.
-  split; red; intro.
-    erewrite beq_nat_refl. auto.
-    induction x as [| x']; destruct y; simpl; auto.
-    induction x as [| x']; destruct y; simpl; auto.
-      inversion 1.
-      inversion 1.
-      destruct z.
-        inversion 2.
-        intros. eapply IHx'; eauto.
-Defined.*)
 
 Instance MonListUnit : Mon :=
 {
@@ -411,10 +428,7 @@ Instance MonListUnit : Mon :=
     neutr := 0
 }.
 Proof.
-  all: simpl; intros.
-    rewrite plus_assoc_reverse. trivial.
-    trivial.
-    rewrite plus_n_O. trivial.
+  all: simpl; intros; ring.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
@@ -437,7 +451,7 @@ Proof.
   Defined.
   Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SgrHom MonListUnit N.
-    red. exists (f1 N q). induction x as [| x']. simpl.
+    exists (f1 N q). induction x as [| x']. simpl.
       mon.
       simpl. intro. rewrite <- assoc. apply op_Proper.
         reflexivity.
@@ -445,12 +459,12 @@ Proof.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.
-    red. exists (f2 N q). mon.
+    exists (f2 N q). mon.
   Defined.
   exists (f3 N q). repeat split.
     simpl. destruct x. mon.
-    destruct y, x; simpl in *; intros ? n. induction n as [| n'].
+    destruct y, sgrHom0; simpl in *; intros ? n. induction n as [| n'].
       mon.
-      pose (H' := e0). specialize (H' n' 1). rewrite plus_comm in H'.
-        rewrite H'. rewrite e0 in H'. rewrite <- H'. apply op_Proper; mon.
+      pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
+        rewrite H'. rewrite pres_op in H'. rewrite <- H'. apply op_Proper; mon.
 Defined.

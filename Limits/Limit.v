@@ -41,7 +41,7 @@ Instance ConeComp {J C : Cat} {F : Functor J C}
     mor := mor f .> mor g
 }.
 Proof.
-  intros. assocr. do 2 rewrite cond. reflexivity.
+  intros. rewrite !comp_assoc, !cond. reflexivity.
 Defined.
 
 Instance ConeId {J C : Cat} {F : Functor J C}

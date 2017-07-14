@@ -56,10 +56,8 @@ Instance BiComp {C C' D D' E : Cat}
 }.
 Proof.
   proper.
-  intros. repeat rewrite pres_comp; repeat rewrite bimap_pres_comp.
-    reflexivity.
-  intros. do 2 rewrite pres_id. rewrite bimap_pres_id.
-    reflexivity.
+  intros. rewrite !pres_comp, !bimap_pres_comp. reflexivity.
+  intros. rewrite 2 pres_id, bimap_pres_id. reflexivity.
 Defined.
 
 Instance Const {E : Cat} (X : Ob E) (C D : Cat)
