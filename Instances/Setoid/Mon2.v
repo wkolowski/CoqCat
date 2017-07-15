@@ -266,6 +266,60 @@ Proof.
   reflect_mon. reflexivity.
 Qed.
 
+(* TODO : improve reflection *)
+Theorem flat_reflect_goal :
+  forall (X : Mon) (e1 e2 : exp X),
+    flatten (simplify e1) = flatten (simplify e2) ->
+      expDenote e1 == expDenote e2.
+Proof.
+  intros. apply mon_reflect. rewrite H. reflexivity.
+Qed.
+
+Theorem flat_reflect_hyp :
+  forall (X : Mon) (e1 e2 : exp X),
+    expDenote e1 == expDenote e2 ->
+      flatten (simplify e1) = flatten (simplify e2).
+Proof.
+  induction e1. destruct e2; cbn; intros; auto.
+    Focus 2.
+Admitted.
+
+Theorem flat_reflect_hyp' :
+  forall (X : Mon) (e1 e2 : exp X),
+    expDenote e1 == expDenote e2 ->
+      expDenoteL (flatten (simplify e1)) == expDenoteL (flatten (simplify e2)).
+Proof.
+  intros. rewrite !flatten_correct, !simplify_correct. assumption.
+Qed.
+
+Ltac reflect_goal := simpl; intros;
+match goal with
+    | |- ?e1 == ?e2 =>
+        change (expDenote (reify e1) == expDenote (reify e2));
+          apply flat_reflect_goal
+end.
+
+Theorem cons_nil_all :
+  forall (A : Type) (h h' : A),
+    [h] = [h'] -> forall l : list A, cons h l = cons h' l.
+Proof.
+  inversion 1. subst. auto.
+Qed.
+
+Goal forall (X : Mon) (a b b' c : X),
+  b == b' -> op a (op b c) == op (op a b') c.
+Proof.
+  intros. reflect_goal. cbn.
+  match goal with
+      | H : ?x == ?y |- _ =>
+          change (expDenote (reify x) == expDenote (reify y)) in H;
+            apply flat_reflect_hyp in H; cbn in H
+  end.
+  assert (forall l, cons b l = cons b' l). apply cons_nil_all. auto.
+  assert (exists l1 l2, [a; b'; c] = l1 ++ [b] ++ l2).
+    do 2 eexists. eauto.
+Abort.
+
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>

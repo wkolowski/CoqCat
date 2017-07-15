@@ -23,11 +23,148 @@ Notation "f .> g" := (comp f g) (at level 50).
 
 Hint Resolve comp_Proper comp_assoc id_left id_right.
 
-Ltac rw_id := match goal with
-    | |- context [id _ .> _] => rewrite id_left
-    | |- context [_ .> id _] => rewrite id_right
-    | H : context [id _ .> _] |- _ => rewrite id_left in H
-    | H : context [_ .> id _] |- _ => rewrite id_right in H
+Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
+    | Id : forall X : Ob C, exp X X
+    | Var : forall X Y : Ob C, Hom X Y -> exp X Y
+    | Comp : forall X Y Z : Ob C,
+        exp X Y -> exp Y Z -> exp X Z.
+
+Arguments Id [C] _.
+Arguments Var [C X Y] _.
+Arguments Comp [C X Y Z] _ _.
+
+Hint Constructors exp.
+
+Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
+    : Hom X Y :=
+match e with
+    | Id X => id X
+    | Var f => f
+    | Comp e1 e2 => expDenote e1 .> expDenote e2
+end.
+
+Fixpoint simplify {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y.
+Proof.
+  destruct e.
+    exact (Id _).
+    exact (Var h). destruct (simplify _ _ _ e1) as [| ? ? f1 | ? ? ? e11 e12]; clear e1.
+      exact (simplify _ _ _ e2).
+      destruct (simplify _ _ _ e2) as [| ? ? f2 | ? ? ? e21 e22]; clear e2.
+        exact (Var f1).
+        exact (Comp (Var f1) (Var f2)).
+        exact (Comp (Var f1) (Comp e21 e22)).
+      destruct (simplify _ _ _ e2) as [| ? ? f2 | ? ? ? e21 e22]; clear e2.
+        exact (Comp e11 e12).
+        exact (Comp (Comp e11 e12) (Var f2)).
+        exact (Comp (Comp e11 e12) (Comp e21 e22)).
+Defined.
+
+Theorem simplify_correct :
+  forall (C : Cat) (X Y : Ob C) (e : exp X Y),
+    expDenote (simplify e) == expDenote e.
+Proof.
+  induction e; simpl; try reflexivity.
+    destruct (simplify e1); destruct (simplify e2); simpl in *;
+    rewrite <- ?IHe1, <- ?IHe2, ?id_left, ?id_right; reflexivity.
+Qed.
+
+Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
+    | HomNil : forall X : Ob C, HomList X X
+    | HomCons : forall X Y Z : Ob C,
+        Hom X Y -> HomList Y Z -> HomList X Z.
+
+Arguments HomNil [C] _.
+Arguments HomCons [C X Y Z] _ _.
+
+Fixpoint expDenoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y)
+    : Hom X Y :=
+match l with
+    | HomNil X => id X
+    | HomCons h t => h .> expDenoteHL t
+end.
+
+Fixpoint Happ {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y)
+    : HomList Y Z -> HomList X Z :=
+match l1 with
+    | HomNil _ => fun l2 => l2
+    | HomCons h t => fun l2 => HomCons h (Happ t l2)
+end.
+
+Local Infix "+++" := (Happ) (at level 40).
+
+Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y)
+    : HomList X Y :=
+match e with
+    | Id X => HomNil X
+    | Var f => HomCons f (HomNil _)
+    | Comp e1 e2 => flatten e1 +++ flatten e2
+end.
+
+Lemma expDenoteHL_comp_app :
+  forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
+    expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
+Proof.
+  induction l1; simpl; intros.
+    rewrite id_left. reflexivity.
+    rewrite comp_assoc, IHl1. reflexivity.
+Qed.
+
+Theorem flatten_correct :
+  forall (C : Cat) (X Y : Ob C) (e : exp X Y),
+    expDenoteHL (flatten e) == expDenote e.
+Proof.
+  induction e; cbn; rewrite <- ?expDenoteHL_comp_app, ?id_right.
+    1-2: reflexivity.
+    apply comp_Proper; auto.
+Qed.
+
+Theorem cat_reflect :
+  forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
+    expDenoteHL (flatten (simplify e1)) ==
+    expDenoteHL (flatten (simplify e2)) ->
+      expDenote e1 == expDenote e2.
+Proof.
+  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+Qed.
+
+Theorem cat_expand :
+  forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
+    expDenote e1 == expDenote e2 ->
+      expDenoteHL (flatten (simplify e1)) ==
+      expDenoteHL (flatten (simplify e2)).
+Proof.
+  intros. rewrite !flatten_correct, !simplify_correct. assumption.
+Qed.
+
+Ltac reify mor :=
+match mor with
+    | id ?X => constr:(Id X)
+    | ?f .> ?g =>
+        let e1 := reify f in
+        let e2 := reify g in constr:(Comp e1 e2)
+    | ?f => match type of f with
+        | Hom ?X ?Y => constr:(Var f)
+        | _ => fail
+    end
+end.
+
+Ltac reflect_eqv H :=
+match type of H with
+    | ?f == ?g =>
+        let e1 := reify f in
+        let e2 := reify g in
+          change (expDenote e1 == expDenote e2) in H;
+          apply cat_expand in H; cbn in H;
+          rewrite ?id_left, ?id_right in H
+end.
+
+Ltac reflect_cat :=
+match goal with
+    | |- ?f == ?g =>
+        let e1 := reify f in
+        let e2 := reify g in
+          change (expDenote e1 == expDenote e2);
+          apply cat_reflect; cbn; rewrite ?id_left, ?id_right
 end.
 
 Ltac assocr := rewrite comp_assoc.
@@ -36,11 +173,34 @@ Ltac assocl := rewrite <- comp_assoc.
 Ltac assocr' := rewrite !comp_assoc.
 Ltac assocl' := rewrite <- !comp_assoc.
 
+(*Ltac rw_id := repeat
+match goal with
+    | |- context [id _ .> _] => rewrite id_left
+    | |- context [_ .> id _] => rewrite id_right
+    | H : context [id _ .> _] |- _ => rewrite id_left in H
+    | H : context [_ .> id _] |- _ => rewrite id_right in H
+end.*)
+
+(*Ltac rw_id := rewrite ?id_left, ?id_right in *.*)
+
+(*
 Ltac cat_aux := repeat (my_simpl || intros || rw_id || assocr ||
     reflexivity || subst; eauto).
 Ltac cat_aux' := repeat (my_simpl || intros || rw_id || assocl ||
     reflexivity || subst; eauto).
-Ltac cat := cat_aux || cat_aux'.
+Ltac cat := cat_aux || cat_aux'.*)
+
+(*Hint Extern 0 (?x == ?x) => reflexivity.*)
+
+Ltac cat := repeat (intros; my_simpl; cbn in *; eauto;
+match goal with
+    | |- _ == _ => progress reflect_cat
+    | |- ?x == ?x => reflexivity
+    | H : _ == _ |- _ => progress (reflect_eqv H)
+    | |- Equivalence _ => solve_equiv
+    | |- Proper _ _ => proper
+    | _ => cbn in *
+end; eauto).
 
 Instance Dual (C : Cat) : Cat :=
 {|
@@ -51,11 +211,7 @@ Instance Dual (C : Cat) : Cat :=
     comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
     id := @id C
 |}.
-Proof.
-  (* Equivalence *) solve_equiv.
-  (* Composition is proper *) proper.
-  (* Category laws *) all: cat.
-Defined.
+Proof. Time all: cat. Defined.
 
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
 
@@ -111,14 +267,14 @@ Proof.
   rewrite H. trivial.
 Qed.
 
-Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
+(*Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
 Proof.
   destruct C. unfold Dual. apply cat_split; simpl; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
     intros. rewrite H. reflexivity.
     apply H. extensionality A. extensionality B. apply JMeq_eq.
       destruct (HomSetoid0 A B). apply setoid_split; trivial.
-Qed.
+Qed.*)
 
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
@@ -178,7 +334,7 @@ Theorem iso_inv_unique : forall {C : Cat} {A B : Ob C} (f : Hom A B),
     Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
 Proof.
   unfold Iso; split; intros.
-    destruct H as [g [inv1 inv2]]. exists g. cat.
+    destruct H as [g [inv1 inv2]]. exists g. cat; auto.
       assert (eq1 : y .> f .> g == g) by (rewrite H0; cat).
       assert (eq2 : y .> f .> g == y) by (rewrite comp_assoc, inv1; cat).
       rewrite <- eq1, eq2. reflexivity.
@@ -367,13 +523,13 @@ Hint Resolve mon_char epi_char.
 Theorem mon_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Mon f -> Mon g -> Mon (f .> g).
 Proof.
-  unfold Mon. cat. apply H, H0. cat.
+  unfold Mon. cat. apply H, H0. reflect_cat. cat.
 Defined.
 
 Theorem epi_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Epi f -> Epi g -> Epi (f .> g).
 Proof.
-  unfold Epi. cat. apply H0, H. cat.
+  unfold Epi. cat.
 Defined.
 
 Hint Resolve mon_comp epi_comp.

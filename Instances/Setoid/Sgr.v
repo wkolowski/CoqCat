@@ -129,6 +129,13 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
+(*Theorem flat_reflect_goal :
+  forall (X : Sgr) (e1 e2 : exp X),
+    flatten (simplify e1) == flatten (simplify e2). ->
+      expDenote e1 == expDenote e2.
+Proof.
+  intros.*)
+
 Ltac reify e :=
 lazymatch e with
     | op ?e1 ?e2 =>

@@ -170,7 +170,7 @@ Theorem iso_to_init_is_init :
       initial X (fun X' : Ob C => f .> create X').
 Proof.
   repeat split; intros. iso.
-  edestruct H. rewrite (H1 (f_inv .> y)).
+  edestruct H. rewrite (H1 (f_inv .> y)). cat.
     assocl. rewrite f_inv_eq1. cat.
     trivial.
 Defined.

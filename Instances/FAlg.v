@@ -77,5 +77,9 @@ Instance CatFAlg {C : Cat} (F : Functor C C) : Cat :=
     id := @FAlgId C F
 }.
 Proof.
-  all: falg. rewrite H, H0. reflexivity.
+  proper.
+  all: intros; repeat
+  match goal with
+      | f : FAlgHom _ _ |- _ => destruct f
+  end; falgobs; rewrite ?H, ?H0; cat.
 Defined.

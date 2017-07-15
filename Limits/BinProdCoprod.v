@@ -348,7 +348,7 @@ Theorem product_skolem_fpair_equiv :
       forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
         fpair A f g == fpair' A f g.
 Proof.
-  intros. edestruct H, H0. apply H2. cat.
+  intros. edestruct H, H0. cat.
 Qed.
 
 Theorem product_skolem_p1_equiv :

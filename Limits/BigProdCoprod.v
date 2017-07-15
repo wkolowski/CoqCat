@@ -261,7 +261,7 @@ Proof.
   intros. edestruct is_big_coproduct.
   rewrite <- H0.
     reflexivity.
-    intros; simpl in *. cat. rewrite cotuple_bigCoproj. reflexivity.
+    intros; simpl in *. assocl. rewrite cotuple_bigCoproj. reflexivity.
 Qed.
 
 Theorem cotuple_id :

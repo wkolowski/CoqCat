@@ -139,7 +139,7 @@ Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
     Ret f <-> surjectiveS_skolem f.
 Proof.
   unfold Ret, surjectiveS; split; simpl; intros.
-    destruct H as [g H]. red. exists g. cat. setoid'.
+    destruct H as [g H]. red. exists g. setoid'.
     do 2 destruct H. exists (exist _ _ H). cat.
 Qed.
 

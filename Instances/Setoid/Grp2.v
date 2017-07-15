@@ -352,7 +352,7 @@ end; grp_simpl.
 Ltac grphoms := grphoms_template grphom.
 Ltac grphoms' := grphoms_template grphom'.
 
-Ltac grp := intros; try (reflect_grp; try reflexivity; fail); repeat
+Ltac grp := intros; try (cat; fail); repeat
 match goal with
     | |- _ == _ => reflect_grp; reflexivity
     | |- Equivalence _ => solve_equiv
