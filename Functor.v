@@ -52,7 +52,7 @@ Proof.
   unfold Ret; intros. destruct H as (g, H'). exists (fmap T g).
   functor_simpl'. f_equiv. assumption.
 Restart.
-  unfold Ret; cat. exists (fmap T x). rewrite <- pres_comp. rewrite e.
+  unfold Ret; cat. exists (fmap T x). rewrite <- pres_comp, e.
   functor.
 Defined.
 

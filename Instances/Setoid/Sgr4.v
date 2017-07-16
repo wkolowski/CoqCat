@@ -30,14 +30,29 @@ Class SgrHom (A B : Sgr) : Type :=
 
 Coercion func : SgrHom >-> SetoidHom.
 
-Inductive exp (X : Sgr) : Type :=
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X.
+Record exp (X : Sgr) : Type := {}.
 
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
+Record Var_ (X : Sgr) : Type :=
+{
+    Var_exp :> exp X;
+    Var : X
+}.
+
+Record Op_ (X : Sgr) : Type :=
+{
+    Op_exp :> exp X;
+    Op : exp X -> exp X -> exp X
+}.
+
+Record Mor_ (X : Sgr) : Type :=
+{
+    Mor_exp :> exp X;
+    Mor : forall A : Sgr, SgrHom X A -> exp X -> exp X
+}.
+
+Arguments Var [X v].
+Arguments Op [X o] _ _.
+Arguments Mor [X m A] _ _.
 
 Fixpoint expDenote {X : Sgr} (e : exp X) : X :=
 match e with
