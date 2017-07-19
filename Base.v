@@ -189,6 +189,7 @@ match goal with
     | H : {_ : _ & _} |- _ => destruct H
     | H : context [setoid_unique] |- _ => red in H
     | |- context [setoid_unique] => split
+    | H : _ = _ |- _ => subst
 end.
 
 Ltac solve_equiv := intros; repeat

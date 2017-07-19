@@ -25,7 +25,7 @@ Coercion mon : Grp >-> Mon.
 Theorem inv_involutive : forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
-  intros. pose (@op_Proper G).
+  intros.
   assert (op (inv (inv g)) (op (inv g) g) == g).
     rewrite assoc, inv_l, neutr_l. reflexivity.
     rewrite inv_l , neutr_r in H. assumption.
@@ -52,7 +52,7 @@ Defined.
 Theorem inv_op : forall (G : Grp) (a b : G),
     inv (op a b) == op (inv b) (inv a).
 Proof.
-  intros. pose (@op_Proper G).
+  intros.
   assert (forall x y : G, op (op x y) (inv (op x y)) == neutr). auto.
   assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr).
     intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
@@ -137,42 +137,19 @@ match e with
         end
 end.
 
-(* TODO *) Lemma MonHom_pres_neutr :
-  forall (X Y : Mon) (f : MonHom X Y),
-    f neutr == neutr.
-Proof.
-  destruct f; simpl. assumption.
-Qed.
-
-Lemma SgrHom_pres_op :
-  forall (X Y : Sgr) (f : SgrHom X Y) (a b : X),
-    f (op a b) == op (f a) (f b).
-Proof.
-  destruct f; simpl; intros. auto.
-Qed.
-
-Lemma GrpHom_pres_inv :
-  forall (X Y : Grp) (f : GrpHom X Y) (x : X),
-    f (inv x) == inv (f x).
-Proof.
-  destruct f; simpl; intros. cbn in *. apply pres_inv0.
-Qed.
-
 Theorem simplify_correct :
   forall (X : Grp) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); pose inv_Proper.
+  induction e; cbn.
     reflexivity.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
-    rewrite <- IHe; try reflexivity.
-      rewrite MonHom_pres_neutr. reflexivity.
-      rewrite SgrHom_pres_op. reflexivity.
-      rewrite GrpHom_pres_inv. reflexivity.
-    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
-    try rewrite <- IHe.
+    destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
+      rewrite pres_neutr. reflexivity.
+      rewrite pres_op. reflexivity.
+      rewrite pres_inv. reflexivity.
+    destruct (simplify e); cbn in *; try rewrite <- IHe.
       rewrite inv_neutr. reflexivity.
       reflexivity.
       rewrite inv_op. reflexivity.
@@ -192,9 +169,7 @@ Lemma expDenoteL_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     rewrite neutr_l. reflexivity.
-    rewrite <- assoc. apply op_Proper.
-      reflexivity.
-      rewrite IHt1. reflexivity.
+    rewrite <- assoc. rewrite IHt1. reflexivity.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -202,17 +177,17 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; simpl.
-    rewrite MonHom_pres_neutr. reflexivity.
-    rewrite SgrHom_pres_op. apply op_Proper; try rewrite IHt; reflexivity.
+    rewrite pres_neutr. reflexivity.
+    rewrite pres_op, IHt; reflexivity.
 Qed.
 
 Lemma expDenoteL_inv :
   forall (X : Grp) (l : list X),
     expDenoteL (map inv l) == inv (expDenoteL (rev l)).
 Proof.
-  induction l as [| h t]; simpl; pose (@op_Proper X); pose inv_Proper.
+  induction l as [| h t]; cbn.
     rewrite inv_neutr. reflexivity.
-    rewrite expDenoteL_app, inv_op; simpl. rewrite neutr_r.
+    rewrite expDenoteL_app, inv_op; cbn. rewrite neutr_r.
       rewrite IHt. reflexivity.
 Qed.
 
@@ -229,7 +204,7 @@ Theorem flatten_correct :
   forall (X : Grp) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper g).
+  induction e; cbn.
     reflexivity.
     rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
@@ -259,7 +234,7 @@ Qed.
 Class Reify (X : Grp) (x : X) : Type :=
 {
     reify : exp X;
-    spec : expDenote reify == x
+    reify_spec : expDenote reify == x
 }.
 
 Arguments Reify [X] _.
@@ -277,7 +252,7 @@ Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
     reify := Op (reify a) (reify b)
 }.
 Proof.
-  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+  cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
 Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
@@ -286,7 +261,7 @@ Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
     reify := Mor f (reify x)
 }.
 Proof.
-  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+  cbn. rewrite reify_spec. reflexivity.
 Defined.
 
 Instance ReifyId (X : Grp) : Reify neutr | 0 :=
@@ -294,7 +269,7 @@ Instance ReifyId (X : Grp) : Reify neutr | 0 :=
     reify := Id
 }.
 Proof.
-  simpl. reflexivity.
+  cbn. reflexivity.
 Defined.
 
 Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
@@ -302,7 +277,7 @@ Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
     reify := Inv (reify x)
 }.
 Proof.
-  destruct Rx. cbn. apply inv_Proper. assumption.
+  cbn. rewrite reify_spec. reflexivity.
 Defined.
 
 Ltac reflect_grp := simpl; intros;

@@ -25,7 +25,7 @@ Coercion mon : Grp >-> Mon.
 Theorem inv_involutive : forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
-  intros. pose (@op_Proper G).
+  intros.
   assert (op (inv (inv g)) (op (inv g) g) == g).
     rewrite assoc, inv_l, neutr_l. reflexivity.
     rewrite inv_l , neutr_r in H. assumption.
@@ -52,7 +52,7 @@ Defined.
 Theorem inv_op : forall (G : Grp) (a b : G),
     inv (op a b) == op (inv b) (inv a).
 Proof.
-  intros. pose (@op_Proper G).
+  intros.
   assert (forall x y : G, op (op x y) (inv (op x y)) == neutr). auto.
   assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr).
     intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
@@ -84,12 +84,6 @@ Definition GrpHom_MonHom (X Y : Grp) (f : GrpHom X Y)
     : MonHom X Y := proj1_sig f.
 Coercion GrpHom_MonHom : GrpHom >-> MonHom.
 
-Lemma inv_Proper : forall (X : Grp), Proper (equiv ==> equiv) inv.
-Proof.
-  unfold Proper, respectful; intros.
-  destruct X, inv0; simpl in *. apply p. assumption.
-Qed.
-
 Inductive exp (X : Grp) : Type :=
     | Id : exp X
     | Var : X -> exp X
@@ -115,6 +109,7 @@ end.
 Require Import List.
 Import ListNotations.
 
+(* Maybe factor Inv out of Op? *)
 Fixpoint simplify {X : Grp} (e : exp X) : exp X :=
 match e with
     | Id => Id
@@ -161,17 +156,15 @@ Theorem simplify_correct :
   forall (X : Grp) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); pose inv_Proper.
+  induction e; cbn.
     reflexivity.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
-    rewrite <- IHe; try reflexivity.
+    destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
       rewrite MonHom_pres_neutr. reflexivity.
       rewrite SgrHom_pres_op. reflexivity.
       rewrite GrpHom_pres_inv. reflexivity.
-    destruct (simplify e); simpl in *; try pose (SgrHom_Proper g);
-    try rewrite <- IHe.
+    destruct (simplify e); simpl in *; try rewrite <- IHe.
       rewrite inv_neutr. reflexivity.
       reflexivity.
       rewrite inv_op. reflexivity.
@@ -191,9 +184,7 @@ Lemma expDenoteL_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     rewrite neutr_l. reflexivity.
-    rewrite <- assoc. apply op_Proper.
-      reflexivity.
-      rewrite IHt1. reflexivity.
+    rewrite <- assoc, IHt1. reflexivity.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -202,14 +193,14 @@ Lemma expDenoteL_hom :
 Proof.
   induction l as [| h t]; simpl.
     rewrite MonHom_pres_neutr. reflexivity.
-    rewrite SgrHom_pres_op. apply op_Proper; try rewrite IHt; reflexivity.
+    rewrite SgrHom_pres_op. rewrite IHt; reflexivity.
 Qed.
 
 Lemma expDenoteL_inv :
   forall (X : Grp) (l : list X),
     expDenoteL (map inv l) == inv (expDenoteL (rev l)).
 Proof.
-  induction l as [| h t]; simpl; pose (@op_Proper X); pose inv_Proper.
+  induction l as [| h t]; simpl.
     rewrite inv_neutr. reflexivity.
     rewrite expDenoteL_app, inv_op; simpl. rewrite neutr_r.
       rewrite IHt. reflexivity.
@@ -228,13 +219,12 @@ Theorem flatten_correct :
   forall (X : Grp) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper g).
+  induction e; cbn.
     reflexivity.
     rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
     rewrite expDenoteL_hom, IHe. reflexivity.
-    rewrite <- map_rev, expDenoteL_inv, rev_involutive.
-      apply inv_Proper. assumption.
+    rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe. reflexivity.
 Qed.
 
 Theorem grp_reflect :
@@ -461,7 +451,7 @@ Definition Grp_prodOb_inv (X Y : Grp)
   : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
 Proof.
   red. exists (fun p : X * Y => (inv (fst p), inv (snd p))).
-  (* TODO *) proper. destruct H. split; apply inv_Proper; assumption.
+  (* TODO *) proper. destruct H. split; rewrite ?H, ?H0; reflexivity.
 Defined.
 
 Instance Grp_prodOb (X Y : Grp) : Grp :=
@@ -495,8 +485,8 @@ Instance Grp_has_products : has_products GrpCat :=
     fpair := Grp_fpair
 }.
 Proof.
-  grp.
-  repeat split; cat.
+  proper.
+  repeat split; cat; grp.
 Defined.
 
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
@@ -537,7 +527,7 @@ Instance AutCat (C : Cat) (X : Ob C) : Cat :=
     comp := @AutComp C X;
     id := @AutId C X;
 }.
-Proof. all: grp. Defined.
+Proof. all: cat. Defined.
 
 (* TODO : finish Instance Cayley_Sgr (G : Grp) : Sgr :=
 {

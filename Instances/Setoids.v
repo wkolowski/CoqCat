@@ -52,6 +52,21 @@ Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
     := proj1_sig f.
 Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
 
+Module Wut.
+
+Definition wut (X : Setoid') := @equiv X (@setoid X).
+
+Require Import Setoid.
+
+Add Parametric Morphism (X Y : Setoid') (f : SetoidHom X Y) : f
+with signature (wut X ==> wut Y) as SetoidHom_mor.
+Proof.
+  destruct f; auto.
+Qed.
+
+End Wut.
+Export Wut.
+
 Ltac setoidhom f := try intros until f;
 match type of f with
   | SetoidHom _ _ =>

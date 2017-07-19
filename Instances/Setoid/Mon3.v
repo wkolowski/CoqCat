@@ -4,7 +4,7 @@ Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
 
-Require Export Cat.Instances.Setoid.Sgr2.
+Require Export Cat.Instances.Setoid.Sgr3.
 
 Set Implicit Arguments.
 
@@ -73,17 +73,15 @@ Theorem simplify_correct :
   forall (X : Mon) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X).
+  induction e; cbn.
     reflexivity.
     reflexivity.
-    destruct (simplify e1), (simplify e2); simpl in *; try
-    rewrite <- IHe1, <- IHe2; try rewrite neutr_l; try rewrite neutr_r;
-    try reflexivity.
-    destruct (simplify e); simpl in *; pose (wut := SgrHom_Proper m);
-    rewrite <- IHe.
-      destruct m; simpl in *. symmetry. assumption.
+    destruct (simplify e1), (simplify e2); cbn in *;
+      rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r; reflexivity.
+    destruct (simplify e); cbn in *; rewrite <- IHe.
+      rewrite pres_neutr. reflexivity.
       reflexivity.
-      destruct m, sgrHom0; simpl in *. rewrite pres_op. reflexivity.
+      rewrite pres_op. reflexivity.
       reflexivity.
 Qed.
 
@@ -99,9 +97,7 @@ Lemma expDenoteL_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     rewrite neutr_l. reflexivity.
-    rewrite <- assoc. apply op_Proper.
-      reflexivity.
-      rewrite IHt1. reflexivity.
+    rewrite <- assoc, IHt1. reflexivity.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -109,10 +105,8 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; simpl.
-    destruct f; simpl in *. symmetry. assumption.
-    destruct f, sgrHom0; simpl in *. rewrite pres_op. apply op_Proper.
-      reflexivity.
-      assumption.
+    rewrite pres_neutr. reflexivity.
+    rewrite pres_op, IHt. reflexivity.
 Qed.
 
 Fixpoint flatten {X : Mon} (e : exp X) : list X :=
@@ -130,8 +124,8 @@ Proof.
   induction e; simpl.
     reflexivity.
     rewrite neutr_r. reflexivity.
-    rewrite expDenoteL_app. apply op_Proper; assumption.
-    rewrite expDenoteL_hom. apply (SgrHom_Proper m); assumption.
+    rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
+    rewrite expDenoteL_hom, IHe. reflexivity.
 Qed.
 
 Theorem mon_reflect :
@@ -146,7 +140,7 @@ Qed.
 Class Reify (X : Mon) (x : X) : Type :=
 {
     reify : exp X;
-    spec : expDenote reify == x
+    reify_spec : expDenote reify == x
 }.
 
 Arguments Reify [X] _.
@@ -164,7 +158,7 @@ Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
     reify := Op (reify a) (reify b)
 }.
 Proof.
-  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+  cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
 Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
@@ -173,7 +167,7 @@ Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
     reify := Mor f (reify x)
 }.
 Proof.
-  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+  cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
 Instance ReifyId (X : Mon) : Reify neutr | 0 :=
@@ -181,7 +175,7 @@ Instance ReifyId (X : Mon) : Reify neutr | 0 :=
     reify := Id
 }.
 Proof.
-  simpl. reflexivity.
+  cbn. reflexivity.
 Defined.
 
 Ltac reflect_mon := simpl; intros;
@@ -453,9 +447,7 @@ Proof.
     : SgrHom MonListUnit N.
     exists (f1 N q). induction x as [| x']. simpl.
       mon.
-      simpl. intro. rewrite <- assoc. apply op_Proper.
-        reflexivity.
-        rewrite IHx'. reflexivity.
+      simpl. intro. rewrite <- assoc, IHx'. reflexivity.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.
@@ -466,5 +458,5 @@ Proof.
     destruct y, sgrHom0; simpl in *; intros ? n. induction n as [| n'].
       mon.
       pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
-        rewrite H'. rewrite pres_op in H'. rewrite <- H'. apply op_Proper; mon.
+        rewrite H'. rewrite pres_op in H'. rewrite <- H'. f_equiv; mon.
 Defined.

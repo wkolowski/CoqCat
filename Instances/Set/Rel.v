@@ -148,9 +148,10 @@ Instance Rel_has_all_products : has_all_products Rel :=
 }.
 Proof.
   (* tuple is proper *) cat.
-  (* Product law *) red; cat; simpl in *.
+  (* Product law *) red; cat; cbn in *.
     exists (existT A j b); simpl. auto.
-    destruct (H x a a0), (H1 H0), x0; simpl in *. cat.
+    apply JMeq_eq in H1. subst. auto.
+    destruct (H x a a0), (H1 H0), x0; simpl in *. my_simpl. cat.
     destruct (H x a a0); simpl in *. cat.
 Defined.
 

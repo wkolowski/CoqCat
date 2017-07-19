@@ -72,17 +72,16 @@ Theorem simplify_correct :
   forall (X : Mon) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X).
+  induction e; cbn.
     reflexivity.
     reflexivity.
     destruct (simplify e1), (simplify e2); simpl in *; try
     rewrite <- IHe1, <- IHe2; try rewrite neutr_l; try rewrite neutr_r;
     try reflexivity.
-    destruct (simplify e); simpl in *; pose (wut := SgrHom_Proper m);
-    rewrite <- IHe.
-      destruct m; simpl in *. symmetry. assumption.
+    destruct (simplify e); cbn in *; rewrite <- IHe.
+      destruct m; cbn in *. symmetry. assumption.
       reflexivity.
-      destruct m, x; simpl in *. rewrite e1. reflexivity.
+      destruct m, x; cbn in *. rewrite e1. reflexivity.
       reflexivity.
 Qed.
 
@@ -98,9 +97,7 @@ Lemma expDenoteL_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     rewrite neutr_l. reflexivity.
-    rewrite <- assoc. apply op_Proper.
-      reflexivity.
-      rewrite IHt1. reflexivity.
+    rewrite <- assoc, IHt1. reflexivity.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -109,9 +106,7 @@ Lemma expDenoteL_hom :
 Proof.
   induction l as [| h t]; simpl.
     destruct f; simpl in *. symmetry. assumption.
-    destruct f, x; simpl in *. rewrite e0. apply op_Proper.
-      reflexivity.
-      assumption.
+    destruct f, x; simpl in *. rewrite e0, IHt. reflexivity.
 Qed.
 
 Fixpoint flatten {X : Mon} (e : exp X) : list X :=
@@ -129,8 +124,8 @@ Proof.
   induction e; simpl.
     reflexivity.
     rewrite neutr_r. reflexivity.
-    rewrite expDenoteL_app. apply op_Proper; assumption.
-    rewrite expDenoteL_hom. apply (SgrHom_Proper m); assumption.
+    rewrite expDenoteL_app. rewrite IHe1, IHe2. reflexivity.
+    rewrite expDenoteL_hom. rewrite IHe. reflexivity.
 Qed.
 
 Theorem mon_reflect :
@@ -362,7 +357,7 @@ Instance Mon_has_products : has_products MonCat :=
 }.
 Proof.
   proper.
-  repeat split; cat. (* TODO : mon doesn't work *)
+  repeat split; mon.
 Defined.
 
 Instance forgetful : Functor MonCat CoqSetoid :=
@@ -439,9 +434,7 @@ Proof.
     : SgrHom MonListUnit N.
     red. exists (f1 N q). induction x as [| x']. simpl.
       mon.
-      simpl. intro. rewrite <- assoc. apply op_Proper.
-        reflexivity.
-        rewrite IHx'. reflexivity.
+      simpl. intro. rewrite <- assoc, IHx'. reflexivity.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.
@@ -452,5 +445,5 @@ Proof.
     destruct y, x; simpl in *; intros ? n. induction n as [| n'].
       mon.
       pose (H' := e0). specialize (H' n' 1). rewrite plus_comm in H'.
-        rewrite H'. rewrite e0 in H'. rewrite <- H'. apply op_Proper; mon.
+        rewrite H'. rewrite e0 in H'. rewrite <- H'. f_equiv; mon.
 Defined.

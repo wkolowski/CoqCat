@@ -20,7 +20,18 @@ Class Sgr : Type :=
 
 Coercion setoid : Sgr >-> Setoid'.
 
-Hint Resolve assoc.
+Module Wut.
+
+Require Import Setoid.
+
+Add Parametric Morphism (X : Sgr) : (@op X)
+with signature @wut X ==> @wut X ==> @wut X as op_Proper'.
+Proof.
+  apply op_Proper.
+Qed.
+
+End Wut.
+Export Wut.
 
 Class SgrHom (A B : Sgr) : Type :=
 {
@@ -46,12 +57,13 @@ match e with
     | Mor f e' => f (expDenote e')
 end.
 
-Class Simplify {X : Sgr} (e : exp X) : Type :=
+Class Simplify (X : Sgr) (e : exp X) : Type :=
 {
     simplify : exp X;
     spec : expDenote simplify == expDenote e
 }.
 
+Arguments Simplify [X] _.
 Arguments simplify [X] _ [Simplify].
 
 Instance SimplifyOp {X : Sgr} (e1 e2 : exp X)
@@ -60,7 +72,7 @@ Instance SimplifyOp {X : Sgr} (e1 e2 : exp X)
     simplify := Op (simplify e1) (simplify e2)
 }.
 Proof.
-  cbn. destruct S1, S2. apply op_Proper; assumption.
+  cbn. destruct S1, S2. rewrite spec0, spec1. reflexivity.
 Defined.
 
 Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
@@ -93,14 +105,6 @@ Proof.
   Eval simpl in simplify (Mor f (Op (Var a) (Var b))).
 Abort.
 
-Theorem SgrHom_Proper :
-  forall (X Y : Sgr) (f : SgrHom X Y),
-    Proper (equiv ==> equiv) f.
-Proof.
-  unfold Proper, respectful; destruct f; simpl in *.
-  intros. destruct func0. simpl in *. rewrite H. reflexivity.
-Qed.
-
 Theorem simplify_correct :
   forall (X : Sgr) (e : exp X) (S : Simplify e),
     expDenote (simplify e) == expDenote e.
@@ -120,18 +124,16 @@ Lemma expDenoteNel_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     reflexivity.
-    pose op_Proper. rewrite IHt1, assoc. reflexivity.
+    rewrite IHt1, assoc. reflexivity.
 Qed.
 
 Lemma expDenoteNel_hom :
   forall (X Y : Sgr) (f : SgrHom X Y) (l : nel X),
     expDenoteNel (nel_map f l) == f (expDenoteNel l).
 Proof.
-  induction l as [| h t]; simpl.
+  induction l as [| h t]; cbn.
     reflexivity.
-    rewrite pres_op. apply op_Proper.
-      reflexivity.
-      assumption.
+    rewrite pres_op, IHt. reflexivity.
 Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
@@ -145,10 +147,10 @@ Theorem flatten_correct :
   forall (X : Sgr) (e : exp X),
     expDenoteNel (flatten e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X).
+  induction e; cbn.
     reflexivity.
     rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteNel_hom. apply (SgrHom_Proper s). assumption.
+    rewrite expDenoteNel_hom, IHe. reflexivity.
 Qed.
 
 Theorem sgr_reflect :
@@ -181,7 +183,7 @@ Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
     reify := Op (reify a) (reify b)
 }.
 Proof.
-  destruct Ra, Rb; simpl in *. apply op_Proper; assumption.
+  cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
 Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
@@ -190,7 +192,7 @@ Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
     reify := Mor f (reify x)
 }.
 Proof.
-  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+  cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
 Ltac reflect_sgr := simpl; intros;
@@ -323,7 +325,7 @@ Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
     op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
-  proper. destruct H, H0. split; apply op_Proper; auto.
+  proper. destruct H, H0. rewrite H, H0, H1, H2. split; reflexivity.
   sgr.
 Defined.
 
@@ -350,8 +352,7 @@ Instance Sgr_has_products : has_products SgrCat :=
     proj2 := Sgr_proj2;
     fpair := Sgr_fpair
 }.
-Proof. all: sgr.
-Defined.
+Proof. all: sgr. Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
@@ -367,7 +368,6 @@ Proof.
   match goal with
       | H : match ?x with _ => _ end |- _ => destruct x
       | |- match ?x with _ => _ end => destruct x
-      | |- op _ _ == op _ _ => apply op_Proper
       | H : False |- _ => inversion H
   end; auto.
   Time destruct x, y, z; sgr.
@@ -545,9 +545,9 @@ Abort.
     op := app_nel
 }.
 Proof.
-  proper. pose op_Proper. induction x as [| h t].
+  proper. induction x as [| h t].
     destruct y, x0, y0, a, s, s0, s1; simpl in *; repeat
-    match goal with | |- op _ _ == op _ _ => apply op_Proper end; solve_equiv.
+    match goal with | |- op _ _ == op _ _ => apply WHUUUT end; solve_equiv.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 
@@ -615,13 +615,15 @@ Class SgrWut : Type :=
 
 Coercion sgr : SgrWut >-> Sgr.
 
-Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut)) :=
+Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut))
+    | 1 :=
 {
     simplify := Var wut
 }.
 Proof.
   cbn. rewrite wut_eq. reflexivity.
 Defined.
+
 
 Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
 {
@@ -631,7 +633,8 @@ Proof.
   cbn. rewrite wut_eq. reflexivity.
 Defined.
 
-Ltac reflect_sgr2 := intros; do 2 (rewrite <- reify_spec; symmetry); cbn.
+Ltac reflect_sgr2 := intros; do 2 (rewrite <- reify_spec; symmetry);
+  apply sgr_reflect; cbn.
 
 Goal forall (X : SgrWut) (a b c : X),
   op a (op wut wut) == op a wut.

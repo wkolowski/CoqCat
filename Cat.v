@@ -173,28 +173,9 @@ Ltac assocl := rewrite <- comp_assoc.
 Ltac assocr' := rewrite !comp_assoc.
 Ltac assocl' := rewrite <- !comp_assoc.
 
-(*Ltac rw_id := repeat
-match goal with
-    | |- context [id _ .> _] => rewrite id_left
-    | |- context [_ .> id _] => rewrite id_right
-    | H : context [id _ .> _] |- _ => rewrite id_left in H
-    | H : context [_ .> id _] |- _ => rewrite id_right in H
-end.*)
-
-(*Ltac rw_id := rewrite ?id_left, ?id_right in *.*)
-
-(*
-Ltac cat_aux := repeat (my_simpl || intros || rw_id || assocr ||
-    reflexivity || subst; eauto).
-Ltac cat_aux' := repeat (my_simpl || intros || rw_id || assocl ||
-    reflexivity || subst; eauto).
-Ltac cat := cat_aux || cat_aux'.*)
-
-(*Hint Extern 0 (?x == ?x) => reflexivity.*)
-
 Ltac cat := repeat (intros; my_simpl; cbn in *; eauto;
 match goal with
-    | |- _ == _ => progress reflect_cat
+    | |- _ == _ => progress (reflect_cat; try reflexivity)
     | |- ?x == ?x => reflexivity
     | H : _ == _ |- _ => progress (reflect_eqv H)
     | |- Equivalence _ => solve_equiv

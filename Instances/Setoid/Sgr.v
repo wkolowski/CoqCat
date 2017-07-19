@@ -20,7 +20,18 @@ Class Sgr : Type :=
 
 Coercion setoid : Sgr >-> Setoid'.
 
-Hint Resolve assoc.
+Module Wut.
+
+Require Import Setoid.
+
+Add Parametric Morphism (X : Sgr) : (@op X)
+with signature @wut X ==> @wut X ==> @wut X as op_Proper'.
+Proof.
+  apply op_Proper.
+Qed.
+
+End Wut.
+Export Wut.
 
 Definition SgrHom (A B : Sgr) : Type :=
     {f : SetoidHom A B | forall x y : A, f (op x y) == op (f x) (f y)}.
@@ -55,19 +66,11 @@ match e with
     end
 end.
 
-Theorem SgrHom_Proper :
-  forall (X Y : Sgr) (f : SgrHom X Y),
-    Proper (equiv ==> equiv) f.
-Proof.
-  unfold Proper, respectful; destruct f, x; simpl in *.
-  intros. apply p. assumption.
-Qed.
-
 Theorem simplify_correct :
   forall (X : Sgr) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper s).
+  induction e; cbn.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
     destruct (simplify e); simpl in *; rewrite <- IHe;
@@ -87,7 +90,7 @@ Lemma expDenoteNel_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     reflexivity.
-    pose op_Proper. rewrite IHt1. rewrite assoc. reflexivity.
+    rewrite IHt1. rewrite assoc. reflexivity.
 Qed.
 
 Lemma expDenoteNel_hom :
@@ -114,10 +117,10 @@ Theorem flatten_correct :
   forall (X : Sgr) (e : exp X),
     expDenoteNel (flatten e) == expDenote e.
 Proof.
-  induction e; simpl; pose (@op_Proper X).
+  induction e; cbn.
     reflexivity.
     rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteNel_hom. apply (SgrHom_Proper s). assumption.
+    rewrite expDenoteNel_hom. rewrite IHe. reflexivity.
 Qed.
 
 Theorem sgr_reflect :
@@ -221,7 +224,7 @@ Goal forall (X : Sgr) (l1 l2 l2' l3 : nel X),
   expDenoteNel l2 == expDenoteNel l2' ->
     expDenoteNel (l1 +++ l2 +++ l3) == expDenoteNel (l1 +++ l2' +++ l3).
 Proof.
-  intros. pose (@op_Proper X). rewrite !expDenoteNel_app, H. reflexivity.
+  intros. rewrite !expDenoteNel_app, H. reflexivity.
 Qed.
 
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=

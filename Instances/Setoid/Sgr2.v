@@ -20,7 +20,18 @@ Class Sgr : Type :=
 
 Coercion setoid : Sgr >-> Setoid'.
 
-Hint Resolve assoc.
+Module Wut.
+
+Require Import Setoid.
+
+Add Parametric Morphism (X : Sgr) : (@op X)
+with signature @wut X ==> @wut X ==> @wut X as op_Proper'.
+Proof.
+  apply op_Proper.
+Qed.
+
+End Wut.
+Export Wut.
 
 Class SgrHom (A B : Sgr) : Type :=
 {
@@ -56,14 +67,6 @@ match e with
     end
 end.
 
-Theorem SgrHom_Proper :
-  forall (X Y : Sgr) (f : SgrHom X Y),
-    Proper (equiv ==> equiv) f.
-Proof.
-  unfold Proper, respectful; destruct f; simpl in *.
-  intros. destruct func0. simpl in *. rewrite H. reflexivity.
-Qed.
-
 Theorem simplify_correct :
   forall (X : Sgr) (e : exp X),
     expDenote (simplify e) == expDenote e.
@@ -71,8 +74,7 @@ Proof.
   induction e; simpl; pose (@op_Proper X); try pose (SgrHom_Proper s).
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; rewrite <- IHe;
-    try reflexivity.
+    destruct (simplify e); simpl in *; rewrite <- IHe; try reflexivity.
       rewrite pres_op. reflexivity.
 Qed.
 
@@ -116,7 +118,7 @@ Proof.
   induction e; simpl; pose (@op_Proper X).
     reflexivity.
     rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteNel_hom. apply (SgrHom_Proper s). assumption.
+    rewrite expDenoteNel_hom. rewrite IHe. reflexivity.
 Qed.
 
 Theorem sgr_reflect :
@@ -131,7 +133,7 @@ Qed.
 Class Reify (X : Sgr) (x : X) : Type :=
 {
     reify : exp X;
-    spec : expDenote reify == x
+    reify_spec : expDenote reify == x
 }.
 
 Arguments Reify [X] _.
@@ -158,15 +160,19 @@ Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
     reify := Mor f (reify x)
 }.
 Proof.
-  destruct Rx; simpl. apply (SgrHom_Proper f). assumption.
+  destruct Rx; simpl. rewrite reify_spec0. reflexivity.
 Defined.
 
 Ltac reflect_sgr := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
         change (expDenote (reify e1) == expDenote (reify e2));
-        apply sgr_reflect; simpl
+        apply sgr_reflect; cbn
 end.
+
+Ltac reflect_sgr' := intros;
+  do 2 (rewrite <- reify_spec; symmetry);
+  apply sgr_reflect; cbn.
 
 Ltac sgr_simpl := repeat red; simpl in *; intros.
 
@@ -211,13 +217,13 @@ end.
 Goal forall (X : Sgr) (a b c : X),
   op a (op b c) == op (op a b) c.
 Proof.
-  reflect_sgr. reflexivity.
+  reflect_sgr'. reflexivity. Show Proof.
 Qed.
 
 Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
   f (op a b) == op (f a) (f b).
 Proof.
-  reflect_sgr. reflexivity.
+  reflect_sgr. reflexivity. Show Proof.
 Qed.
 
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
@@ -318,8 +324,7 @@ Instance Sgr_has_products : has_products SgrCat :=
     proj2 := Sgr_proj2;
     fpair := Sgr_fpair
 }.
-Proof. all: sgr.
-Defined.
+Proof. all: sgr. Defined.
 
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
@@ -327,10 +332,6 @@ Instance Sgr_sum (X Y : Sgr) : Sgr :=
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
- (*   left. exact (op x x').
-    left. exact x.
-    left. exact x'.
-    right. exact (op y y').*)
   proper. repeat
   match goal with
       | H : match ?x with _ => _ end |- _ => destruct x
