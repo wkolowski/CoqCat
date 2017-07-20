@@ -152,7 +152,7 @@ Theorem flatten_correct :
     expDenoteHL (flatten e) == expDenote e.
 Proof.
   induction e; cat.
-    rewrite <- expDenoteHL_comp_app. apply comp_Proper; auto.
+    rewrite <- expDenoteHL_comp_app. 
 Qed.
 
 Theorem cat_reflect :
@@ -187,9 +187,6 @@ match goal with
 end.
 
 Ltac mor := mor'; reflexivity.
-
-Ltac wut := repeat apply comp_Proper; cat.
-Ltac wuut := mor'; wut.
 
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),

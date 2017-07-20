@@ -26,7 +26,7 @@ Hint Constructors extEq.
 Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
 Proof. split; eauto. Defined.
 
-Theorem extEq_Proper : forall (A B : Type) (f : A -> B),
+Instance extEq_Proper : forall (A B : Type) (f : A -> B),
     Proper (@extEq A ==> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -37,7 +37,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
-Theorem extEq_Proper' : forall (A B : Type) (f : A -> B),
+Instance extEq_Proper' : forall (A B : Type) (f : A -> B),
     Proper (@extEq A --> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -48,7 +48,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
-Theorem extEq_Proper'' : forall (A : Type),
+Instance extEq_Proper'' : forall (A : Type),
     Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
 Proof.
   repeat red. intros. eapply extEq_trans. eauto. eauto.
@@ -101,14 +101,14 @@ repeat (auto; match goal with
     | |- depExtEq (_, _) ?x => rewrite (surjective_pairing x)
 end); auto.
 
-Theorem depExtEq_Proper : forall (A B : Type) (f : A -> B),
+Instance depExtEq_Proper : forall (A B : Type) (f : A -> B),
     Proper (@depExtEq A A ==> @depExtEq B B) f.
 Proof.
   unfold Proper, respectful; intros. solve_depExtEq. (*
   apply (depExtEq_unext f f); auto.*)
 Qed.
 
-Theorem depExtEq_Proper' : forall (A : Type),
+Instance depExtEq_Proper' : forall (A : Type),
     Proper (@depExtEq A A ==> @depExtEq A A ==>
       (Basics.flip Basics.impl)) (@depExtEq A A).
 Proof.

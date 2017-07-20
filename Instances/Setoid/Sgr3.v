@@ -14,24 +14,11 @@ Class Sgr : Type :=
 {
     setoid :> Setoid';
     op : carrier -> carrier -> carrier;
-    op_Proper : Proper (equiv ==> equiv ==> equiv) op;
+    op_Proper :> Proper (equiv ==> equiv ==> equiv) op;
     assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
 Coercion setoid : Sgr >-> Setoid'.
-
-Module Wut.
-
-Require Import Setoid.
-
-Add Parametric Morphism (X : Sgr) : (@op X)
-with signature @wut X ==> @wut X ==> @wut X as op_Proper'.
-Proof.
-  apply op_Proper.
-Qed.
-
-End Wut.
-Export Wut.
 
 Class SgrHom (A B : Sgr) : Type :=
 {

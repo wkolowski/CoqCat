@@ -42,8 +42,22 @@ match goal with
   | f : Hom _ _ |- _ => setoidrelhom f
 end.
 
+Ltac rel' := repeat (intros;
+match goal with
+    | |- Proper _ _ => proper
+    | |- Equivalence _ => solve_equiv
+    | |- context [match ?x with _ => _ end] => destruct x; auto
+    | _ : context [match ?x with _ => _ end] |- _ => destruct x; auto
+    | |- _ <-> _ => split; intros; my_simpl
+    | H : _ == _ |- _ => progress (rewrite H in *)
+    | H : forall _ _, _ <-> _ |- _ => edestruct H; clear H
+    | |- exists _, _ => eexists
+end); cat.
+
 Ltac setoidrel' := repeat (my_simpl || setoidobs || setoidrelhoms || cat).
 Ltac setoidrel := try (setoidrel'; fail).
+
+Ltac rel := repeat rel'; setoidrel'; rel'.
 
 Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
 {
@@ -51,23 +65,19 @@ Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
       forall (x : X) (y : Y), P x y <-> Q x y
 }.
 Proof.
-  solve_equiv; intros; try (edestruct H; eauto; fail).
-    rewrite <- H0, <- H. auto.
-    rewrite H, H0. auto.
+  solve_equiv; intro; edestruct H; try edestruct H0; eauto.
 Defined.
 
 Definition SetoidRelComp (X Y Z : Setoid')
     (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z.
 Proof.
   red. exists (fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z).
-  proper. split; destruct 1 as [y1 [H1 H2]].
-    exists y1. rewrite <- H, <- H0. auto.
-    exists y1. rewrite H, H0. auto.
+  rel.
 Defined.
 
 Definition SetoidRelId (X : Setoid') : SetoidRel X X.
 Proof.
-  red. exists equiv. proper. reflexivity.
+  red. exists equiv. rel.
 Defined.
 
 Instance SetoidRelCat : Cat :=
@@ -78,41 +88,30 @@ Instance SetoidRelCat : Cat :=
     comp := SetoidRelComp;
     id := SetoidRelId
 |}.
-Proof.
-  (* Proper *) repeat red; split; intros; destruct H1; simpl in *.
-    eexists. erewrite <- H, <- H0. eauto.
-    eexists. rewrite H, H0. eauto.
-  (* Category laws *) all: cat; repeat
-    match goal with
-        | |- ?x == ?x => reflexivity
-        | H : ?P |- ?P => assumption
-        | H : _ == _ |- _ => rewrite H + rewrite <- H
-        | |- exists _, _ => eexists; split; eauto
-    end.
-Defined.
+Proof. all: rel. Defined.
 
 Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 {
     init := CoqSetoid_init;
     create := fun (X : Setoid') (e : Empty_set) _ => match e with end
 }.
-Next Obligation. proper. destruct x. Defined.
-Next Obligation. destruct x. Defined.
+Next Obligation. rel. Defined.
+Next Obligation. rel. Defined.
 
 Program Instance SetoidRel_has_term : has_term SetoidRelCat :=
 {
     term := CoqSetoid_init;
     delete := fun (X : Setoid') _ (e : Empty_set) => match e with end
 }.
-Next Obligation. proper. destruct x0. Defined.
-Next Obligation. destruct y. Defined.
+Next Obligation. rel. Defined.
+Next Obligation. rel. Defined.
 
 Instance SetoidRel_has_zero : has_zero SetoidRelCat :=
 {
     zero_is_initial := SetoidRel_has_init;
     zero_is_terminal := SetoidRel_has_term
 }.
-Proof. setoidrel. Defined.
+Proof. rel. Defined.
 
 Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
 {
@@ -126,12 +125,7 @@ Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
       end
     |}
 }.
-Proof.
-  repeat match goal with
-    | p : _ + _ |- _ => destruct p
-    | _ => solve_equiv
-  end.
-Defined.
+Proof. rel. Defined.
 
 Definition SetoidRel_proj1 (X Y : Setoid')
     : SetoidRel (SetoidRel_prodOb X Y) X.
@@ -141,9 +135,7 @@ Proof.
       | inl x' => x == x'
       | _ => False
     end).
-  repeat red.  destruct x, y; simpl; intros; intuition eauto.
-    rewrite <- H0, <- H. auto.
-    rewrite H, H0. auto.
+  rel.
 Defined.
 
 Definition SetoidRel_proj2 (X Y : Setoid')
@@ -154,9 +146,7 @@ Proof.
       | inr y' => y == y'
       | _ => False
     end).
-  repeat red. destruct x, y; simpl; intros; intuition eauto.
-    rewrite <- H0, <- H. auto.
-    rewrite H0, H. auto.
+  rel.
 Defined.
 
 Definition SetoidRel_fpair (A B X : Setoid')
@@ -168,9 +158,7 @@ Proof.
       | inl a => R x a
       | inr b => S x b
     end).
-  repeat red; destruct x0, y0; setoidrelhoms; simpl in *; intuition eauto;
-    rewrite <- ?H0, <- ?H; auto;
-    rewrite ?H, ?H0; auto.
+  rel.
 Defined.
 
 Instance SetoidRel_has_products : has_products SetoidRelCat :=
@@ -181,7 +169,7 @@ Instance SetoidRel_has_products : has_products SetoidRelCat :=
     fpair := SetoidRel_fpair
 }.
 Proof.
-  (* Proper *) proper. destruct y1; auto.
+  (* Proper *) rel.
   (* Product laws *) red. setoidrel'; repeat
   match goal with
     | p : _ + _ |- _ => destruct p
@@ -211,10 +199,7 @@ Proof.
       | inl x' => x == x'
       | _ => False
     end).
-  repeat red; destruct x0, y0; simpl; split; intros; eauto;
-  try (inversion H0; fail).
-    rewrite <- H, H1, H0. reflexivity.
-    rewrite H, H0, H1. reflexivity.
+  rel.
 Defined.
 
 Definition SetoidRel_coproj2 (X Y : Setoid')
@@ -225,9 +210,7 @@ Proof.
       | inr y' => y == y'
       | _ => False
     end).
-  proper. destruct x0, y0; intuition eauto.
-    rewrite <- H0, <- H1, H. reflexivity.
-    rewrite H, H0, H1. reflexivity. 
+  rel.
 Defined.
 
 Definition SetoidRel_copair (A B X : Setoid')
@@ -239,7 +222,7 @@ Proof.
       | inl a => R a x
       | inr b => S b x
     end).
-  proper. destruct x, y; rewrite ?H, ?H0; intuition.
+  rel.
 Defined.
 
 Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
@@ -250,7 +233,7 @@ Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
     copair := SetoidRel_copair;
 }.
 Proof.
-  (* copair is proper *) proper. destruct x1; auto.
+  (* copair is proper *) rel.
   (* Coproduct law *) red; setoidrel'; repeat
   match goal with
     | p : _ + _ |- _ => destruct p

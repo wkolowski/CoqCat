@@ -30,7 +30,7 @@ Class has_products (C : Cat) : Type :=
     proj2 : forall A B : Ob C, Hom (prodOb A B) B;
     fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
       Hom X (prodOb A B);
-    fpair_Proper : forall (A B X : Ob C),
+    fpair_Proper :> forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
     is_product : forall (A B : Ob C),
       product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
@@ -48,7 +48,7 @@ Class has_coproducts (C : Cat) : Type :=
     coproj2 : forall A B : Ob C, Hom B (coprodOb A B);
     copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X),
       Hom (coprodOb A B) X;
-    copair_Proper : forall (A B X : Ob C),
+    copair_Proper :> forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@copair A B X);
     is_coproduct : forall A B : Ob C,
       coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@copair A B)
@@ -136,12 +136,11 @@ Theorem fpair_comp :
       fpair (f .> h1) (g .> h2) ==
       fpair f g .> fpair (proj1 .> h1) (proj2 .> h2).
 Proof.
-  intros. rewrite fpair_pre. apply fpair_Proper.
-    rewrite <- comp_assoc. rewrite fpair_proj1. reflexivity.
-    rewrite <- comp_assoc. rewrite fpair_proj2. reflexivity.
+  intros. rewrite fpair_pre, <- ?comp_assoc, ?fpair_proj1, ?fpair_proj2.
+  reflexivity.
 Qed.
 
-Ltac fpair := intros; pose fpair_Proper; try split;
+Ltac fpair := intros; try split;
 repeat match goal with
     | |- context [fpair (_ .> proj1) (_ .> proj2)] =>
         rewrite <- fpair_pre, fpair_id
@@ -223,9 +222,8 @@ Theorem simpl_Id_l_correct :
     expDenote (simpl_Id_l e) == expDenote e.
 Proof.
   induction e; simpl; try reflexivity.
-    destruct (simpl_Id_l e1); simpl in *;
-     try rewrite <- IHe1; try rewrite <- IHe2; cat.
-    apply fpair_Proper; auto.
+    destruct (simpl_Id_l e1); cbn in *; rewrite <- ?IHe1, <- ?IHe2; cat.
+    rewrite IHe1, IHe2. reflexivity.
 Qed.
 
 Fixpoint simpl_Id_r {X Y : Ob C} (e : exp X Y) : exp X Y :=
@@ -243,10 +241,9 @@ Theorem simpl_Id_r_correct :
   forall (X Y : Ob C) (e : exp X Y),
     expDenote (simpl_Id_r e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simpl_Id_r e2); simpl in *;
-     try rewrite <- IHe1; try rewrite <- IHe2; cat.
-    apply fpair_Proper; auto.
+  induction e; cbn; try reflexivity.
+    destruct (simpl_Id_r e2); cbn in *; rewrite <- IHe1, <- IHe2; cat.
+    rewrite IHe1, IHe2. reflexivity.
 Qed.
 
 (* TODO Fixpoint simpl_fpair_Id {X Y : Ob C} (e : exp X Y) : exp X Y :=
@@ -486,12 +483,11 @@ Theorem copair_comp :
       copair (h1 .> f) (h2 .> g) ==
       copair (h1 .> coproj1) (h2 .> coproj2) .> copair f g.
 Proof.
-  intros. rewrite copair_post. apply copair_Proper.
-    rewrite comp_assoc. rewrite copair_coproj1. reflexivity.
-    rewrite comp_assoc. rewrite copair_coproj2. reflexivity.
+  intros. rewrite copair_post, !comp_assoc, copair_coproj1, copair_coproj2.
+  reflexivity.
 Qed.
 
-Ltac copair := intros; pose copair_Proper; try split;
+Ltac copair := intros; try split;
 repeat match goal with
     | |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] =>
         rewrite <- copair_post, copair_id
@@ -671,7 +667,7 @@ Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     : Hom (prodOb X X') (prodOb Y Y') :=
       (fpair (proj1 .> f) (proj2 .> g)).
 
-Theorem ProductFunctor_fmap_Proper : forall (C : Cat)
+Instance ProductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_products C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
       (@equiv _ (HomSetoid X' Y'))  ==>
@@ -679,9 +675,7 @@ Theorem ProductFunctor_fmap_Proper : forall (C : Cat)
       (@ProductFunctor_fmap C hp X X' Y Y').
 Proof.
   unfold Proper, respectful, ProductFunctor_fmap. intros.
-  apply fpair_Proper.
-    rewrite H. reflexivity.
-    rewrite H0. reflexivity.
+  rewrite H, H0. reflexivity.
 Qed.
 
 Theorem ProductFunctor_fmap_pres_id : forall (C : Cat)
@@ -697,7 +691,7 @@ Theorem ProductFunctor_fmap_pres_comp : forall (C : Cat)
     ProductFunctor_fmap (f1 .> g1) (f2 .> g2) ==
     ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.
 Proof.
-  unfold ProductFunctor_fmap; intros. fpair.
+  unfold ProductFunctor_fmap. fpair.
 Defined.
 
 Theorem ProductFunctor_fmap_pres_comp_l :
@@ -706,8 +700,7 @@ Theorem ProductFunctor_fmap_pres_comp_l :
     ProductFunctor_fmap (f .> g) (id Z) == 
     ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp.
-  apply (ProductFunctor_fmap_Proper); cat.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
 Defined.
 
 Theorem ProductFunctor_fmap_pres_comp_r :
@@ -716,8 +709,7 @@ Theorem ProductFunctor_fmap_pres_comp_r :
     ProductFunctor_fmap (id Z) (f .> g) ==
     ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp.
-  apply (ProductFunctor_fmap_Proper); cat.
+  intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
 Defined.
 
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
@@ -738,17 +730,14 @@ Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
       : Hom (coprodOb X X') (coprodOb Y Y') :=
       (copair (f .> coproj1) (g .> coproj2)).
 
-Theorem CoproductFunctor_fmap_Proper : forall (C : Cat)
+Instance CoproductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_coproducts C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
       (@equiv _ (HomSetoid X' Y'))  ==>
       (@equiv _ (HomSetoid (coprodOb X X') (coprodOb Y Y'))))
       (@CoproductFunctor_fmap C hp X X' Y Y').
 Proof.
-  unfold Proper, respectful, CoproductFunctor_fmap. intros.
-  apply copair_Proper.
-    rewrite H. reflexivity.
-    rewrite H0. reflexivity.
+  unfold Proper, respectful, CoproductFunctor_fmap. copair.
 Qed.
 
 Theorem CoproductFunctor_fmap_pres_id : forall (C : Cat)
@@ -773,8 +762,7 @@ Theorem CoproductFunctor_fmap_pres_comp_l :
     CoproductFunctor_fmap (f .> g) (id Z) == 
     CoproductFunctor_fmap f (id Z) .> CoproductFunctor_fmap g (id Z).
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_pres_comp.
-  apply (CoproductFunctor_fmap_Proper); cat.
+  intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
 Defined.
 
 Theorem CoproductFunctor_fmap_pres_comp_r :
@@ -783,8 +771,7 @@ Theorem CoproductFunctor_fmap_pres_comp_r :
     CoproductFunctor_fmap (id Z) (f .> g) ==
     CoproductFunctor_fmap (id Z) f .> CoproductFunctor_fmap (id Z) g.
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_pres_comp.
-  apply (CoproductFunctor_fmap_Proper); cat.
+  intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
 Defined.
 
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
@@ -799,7 +786,6 @@ Proof.
   intros. apply CoproductFunctor_fmap_pres_comp.
   intros. apply CoproductFunctor_fmap_pres_id.
 Defined.
-
 
 Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
 Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).

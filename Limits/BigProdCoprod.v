@@ -173,7 +173,7 @@ Class has_all_products (C : Cat) : Type :=
         Hom (bigProdOb J A) (A j);
     tuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
-    tuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    tuple_Proper :> forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
       (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
     is_big_product : forall (J : Set) (A : J -> Ob C),
@@ -233,7 +233,7 @@ Class has_all_coproducts (C : Cat) : Type :=
         Hom (A j) (bigCoprodOb J A);
     cotuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
-    cotuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    cotuple_Proper :> forall (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
       (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
     is_big_coproduct : forall (J : Set) (A : J -> Ob C),

@@ -151,7 +151,8 @@ Proof.
   (* Product law *) red; cat; cbn in *.
     exists (existT A j b); simpl. auto.
     apply JMeq_eq in H1. subst. auto.
-    destruct (H x a a0), (H1 H0), x0; simpl in *. my_simpl. cat.
+    destruct (H x a a0), (H1 H0), x0; simpl in *.
+      specialize (H1 H0). cat. apply JMeq_eq in H5. cat.
     destruct (H x a a0); simpl in *. cat.
 Defined.
 
@@ -168,7 +169,8 @@ Proof.
   (* cotuple is proper *) cat.
   (* Coproduct law *) red; cat; simpl in *.
     exists (existT A j a); simpl. auto.
-    destruct (H x a b), (H1 H0), x0. cat.
+    apply JMeq_eq in H1. cat.
+    destruct (H x a b). specialize (H1 H0). cat. apply JMeq_eq in H4. cat.
     destruct (H x a b). apply H2. eexists. cat.
 Defined.
 

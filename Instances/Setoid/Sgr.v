@@ -14,24 +14,11 @@ Class Sgr : Type :=
 {
     setoid :> Setoid';
     op : carrier -> carrier -> carrier;
-    op_Proper : Proper (equiv ==> equiv ==> equiv) op;
+    op_Proper :> Proper (equiv ==> equiv ==> equiv) op;
     assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
 Coercion setoid : Sgr >-> Setoid'.
-
-Module Wut.
-
-Require Import Setoid.
-
-Add Parametric Morphism (X : Sgr) : (@op X)
-with signature @wut X ==> @wut X ==> @wut X as op_Proper'.
-Proof.
-  apply op_Proper.
-Qed.
-
-End Wut.
-Export Wut.
 
 Definition SgrHom (A B : Sgr) : Type :=
     {f : SetoidHom A B | forall x y : A, f (op x y) == op (f x) (f y)}.
@@ -100,10 +87,8 @@ Proof.
   induction l as [| h t]; simpl.
     reflexivity.
     assert (f (op h (expDenoteNel t)) == op (f h) (f (expDenoteNel t))).
-      destruct f; simpl in *. rewrite e. reflexivity.
-      rewrite H. apply op_Proper.
-        reflexivity.
-        assumption.
+      destruct f; cbn in *. rewrite e. reflexivity.
+      rewrite H, IHt. reflexivity.
 Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
@@ -213,11 +198,7 @@ Qed.
 Goal forall (X : Sgr) (a b : X) (l1 l2 : nel X), a == b ->
   expDenoteNel (l1 +++ a ::: l2) == expDenoteNel (l1 +++ b ::: l2).
 Proof.
-  intros. rewrite !expDenoteNel_app. apply op_Proper.
-    reflexivity.
-    simpl. apply op_Proper.
-      assumption.
-      reflexivity.
+  intros. rewrite !expDenoteNel_app. cbn. rewrite H. reflexivity.
 Qed.
 
 Goal forall (X : Sgr) (l1 l2 l2' l3 : nel X),
@@ -298,7 +279,7 @@ Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
     op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
-  proper. destruct H, H0. split; apply op_Proper; auto.
+  proper. destruct H, H0. rewrite H, H0, H1, H2. split; reflexivity.
   sgr.
 Defined.
 
@@ -341,7 +322,6 @@ Proof.
   match goal with
       | H : match ?x with _ => _ end |- _ => destruct x
       | |- match ?x with _ => _ end => destruct x
-      | |- op _ _ == op _ _ => apply op_Proper
       | H : False |- _ => inversion H
   end; auto.
   Time destruct x, y, z; sgr.
@@ -505,12 +485,11 @@ Qed.
 
 Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
 
-Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
-    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
+Instance app_nel_Proper : forall (X Y : Sgr),
+    Proper (@fpeq4 X Y ==> fpeq4 ==> fpeq4) nel_app.
 Proof.
-  unfold fpeq4. induction l1 as [| h1 t1].
-    simpl; intros. fpeq4. destruct l2.
-      fpeq4. Focus 2.
+  proper.
+
 Abort.
 
 (*Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
@@ -519,9 +498,9 @@ Abort.
     op := app_nel
 }.
 Proof.
-  proper. pose op_Proper. induction x as [| h t].
+  proper. induction x as [| h t].
     destruct y, x0, y0, a, s, s0, s1; simpl in *; repeat
-    match goal with | |- op _ _ == op _ _ => apply op_Proper end; solve_equiv.
+    match goal with | |- op _ _ == op _ _ => apply WUUUT end; solve_equiv.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 

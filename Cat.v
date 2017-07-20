@@ -21,7 +21,7 @@ Arguments Ob _ : clear implicits.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
-Hint Resolve comp_Proper comp_assoc id_left id_right.
+Hint Resolve comp_assoc id_left id_right.
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
     | Id : forall X : Ob C, exp X X
@@ -115,7 +115,7 @@ Theorem flatten_correct :
 Proof.
   induction e; cbn; rewrite <- ?expDenoteHL_comp_app, ?id_right.
     1-2: reflexivity.
-    apply comp_Proper; auto.
+    rewrite IHe1, IHe2. reflexivity.
 Qed.
 
 Theorem cat_reflect :

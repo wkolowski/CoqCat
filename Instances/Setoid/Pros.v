@@ -15,7 +15,7 @@ Class Pros : Type :=
 {
     carrier :> Setoid';
     leq : carrier -> carrier -> Prop;
-    leq_Proper : Proper (equiv ==> equiv ==> equiv) leq;
+    leq_Proper :> Proper (equiv ==> equiv ==> equiv) leq;
     leq_refl : forall a b : carrier, a == b -> leq a b;
     leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
 }.
@@ -59,7 +59,6 @@ Ltac proshom f := try intros until f;
 match type of f with
   | ProsHom _ _ =>
     let a := fresh f "_pres_leq" in destruct f as [f a]
-(* TODO        let x := fresh f "_Proper" in pose *)
   | Hom _ _ => progress simpl in f; proshom f
 end; simpl in *.
 
@@ -179,8 +178,7 @@ Instance Pros_prodOb (X Y : Pros) : Pros :=
     leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
-  proper. destruct H, H0. pose (@leq_Proper X). pose (@leq_Proper Y).
-    rewrite H, H0, H1, H2. reflexivity.
+  proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
   all: pros.
 Defined.
 
@@ -224,9 +222,8 @@ Instance Pros_coprodOb (X Y : Pros) : Pros :=
         end
 }.
 Proof.
-  proper. destruct x, y, x0, y0; split; intros;
-    pose (@leq_Proper X); pose (@leq_Proper Y); intuition;
-    rewrite H, H0 in *; assumption.
+  proper. destruct x, y, x0, y0; split; intros; rewrite ?H, ?H0 in *;
+    intuition.
   destruct a, b; pros.
   destruct a, b; destruct c1; pros.
 Defined.

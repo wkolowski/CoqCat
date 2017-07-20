@@ -17,7 +17,7 @@ Proof.
   split; red; eauto. induction 1; auto. eapply ext_trans; eauto.
 Defined.
 
-Theorem ext_Proper : forall (A B : Set) (f : A -> B),
+Instance ext_Proper : forall (A B : Set) (f : A -> B),
     Proper (@ext A ==> @ext B) f.
 Proof.
   repeat red; intros. induction H; subst.

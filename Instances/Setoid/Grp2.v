@@ -85,7 +85,7 @@ Class GrpHom (X Y : Grp) : Type :=
 
 Coercion monHom : GrpHom >-> MonHom.
 
-Lemma inv_Proper : forall (X : Grp), Proper (equiv ==> equiv) inv.
+Instance inv_Proper : forall (X : Grp), Proper (equiv ==> equiv) inv.
 Proof.
   unfold Proper, respectful; intros.
   destruct X, inv0; simpl in *. apply p. assumption.
@@ -209,8 +209,7 @@ Proof.
     rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
     rewrite expDenoteL_hom, IHe. reflexivity.
-    rewrite <- map_rev, expDenoteL_inv, rev_involutive.
-      apply inv_Proper. assumption.
+    rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe. reflexivity.
 Qed.
 
 Theorem grp_reflect :
@@ -471,7 +470,7 @@ Definition Grp_prodOb_inv (X Y : Grp)
   : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
 Proof.
   red. exists (fun p : X * Y => (inv (fst p), inv (snd p))).
-  (* TODO *) proper. destruct H. split; apply inv_Proper; assumption.
+  proper. destruct H. rewrite H, H0. split; reflexivity.
 Defined.
 
 Instance Grp_prodOb (X Y : Grp) : Grp :=

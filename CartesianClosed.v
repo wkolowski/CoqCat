@@ -63,7 +63,7 @@ Proof.
 
  remember (fpair (curry proj1) (delete Y)) as x.
       replace x with (x .> id _). rewrite <- ProductFunctor_fmap_pres_id.
-      pose ProductFunctor_fmap_Proper. rewrite <- curry_eval.
+      rewrite <- curry_eval.
       assocr. destruct ccc, ccc_exp. simpl in *.
       do 2 red in is_exponential.
       specialize (is_exponential (term C) Y).

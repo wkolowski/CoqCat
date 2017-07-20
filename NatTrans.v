@@ -101,11 +101,9 @@ Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
       ProductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
-  proper. apply ProductFunctor_fmap_Proper; rewrite H; reflexivity.
-  intros. pose ProductFunctor_fmap_Proper. rewrite 2 pres_comp.
-    rewrite ProductFunctor_fmap_pres_comp. reflexivity.
-  intros. pose ProductFunctor_fmap_Proper. rewrite 2 pres_id.
-    rewrite ProductFunctor_fmap_pres_id. reflexivity.
+  proper.
+  intros. rewrite 2 pres_comp, ProductFunctor_fmap_pres_comp. reflexivity.
+  intros. rewrite 2 pres_id, ProductFunctor_fmap_pres_id. reflexivity.
 Defined.
 
 Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
@@ -114,7 +112,7 @@ Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
     component := fun _ : Ob C => proj1
 }.
 Proof.
-  intros. simpl. unfold ProductFunctor_fmap. fpair.
+  intros. cbn. unfold ProductFunctor_fmap. fpair.
 Defined.
 
 Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
@@ -123,7 +121,7 @@ Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
     component := fun _ : Ob C => proj2
 }.
 Proof.
-  intros. simpl. unfold ProductFunctor_fmap. fpair.
+  intros. cbn. unfold ProductFunctor_fmap. fpair.
 Defined.
 
 Instance FunCat_fpair
@@ -161,11 +159,9 @@ Instance FunCat_coprodOb {C D : Cat} {hp : has_coproducts D}
       CoproductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
-  proper. apply CoproductFunctor_fmap_Proper; rewrite H; reflexivity.
-  intros. pose CoproductFunctor_fmap_Proper. rewrite 2 pres_comp.
-    rewrite CoproductFunctor_fmap_pres_comp. reflexivity.
-  intros. pose CoproductFunctor_fmap_Proper. rewrite 2 pres_id.
-    rewrite CoproductFunctor_fmap_pres_id. reflexivity.
+  proper.
+  intros. rewrite 2 pres_comp, CoproductFunctor_fmap_pres_comp. reflexivity.
+  intros. rewrite 2 pres_id, CoproductFunctor_fmap_pres_id. reflexivity.
 Defined.
 
 Instance FunCat_coproj1 {C D : Cat} {hp : has_coproducts D}
