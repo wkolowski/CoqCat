@@ -7,16 +7,17 @@ Require Import BigProdCoprod.
 
 Require Export Cat.Instances.Setoids.
 
-(* TODO : Automate this shit. Clean up AltSetoidRel.v. Improve generalized rewriting outside of Instances.*)
+(* TODO : Clean up AltSetoidRel.v. *)
 
-Definition SetoidRel (X Y : Setoid') : Type :=
-    {R : X -> Y -> Prop | Proper (equiv ==> equiv ==> iff) R}.
+Class SetoidRel (X Y : Setoid') : Type :=
+{
+    rel : X -> Y -> Prop;
+    rel_Proper :> Proper (equiv ==> equiv ==> iff) rel
+}.
 
-Definition SetoidRel_Fun (X Y : Setoid') (R : SetoidRel X Y)
-    : X -> Y -> Prop := proj1_sig R.
-Coercion SetoidRel_Fun : SetoidRel >-> Funclass.
+Coercion rel : SetoidRel >-> Funclass.
 
-Module Wut.
+(*Module Wut.
 
 Require Import Setoid.
 
@@ -27,7 +28,7 @@ Proof.
 Qed.
 
 End Wut.
-Export Wut.
+Export Wut.*)
 
 Ltac setoidrelhom R := try intros until R;
 match type of R with
@@ -68,17 +69,17 @@ Proof.
   solve_equiv; intro; edestruct H; try edestruct H0; eauto.
 Defined.
 
-Definition SetoidRelComp (X Y Z : Setoid')
-    (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z.
-Proof.
-  red. exists (fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z).
-  rel.
-Defined.
+Instance SetoidRelComp (X Y Z : Setoid')
+    (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z :=
+{
+    rel := fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z
+}.
+Proof. rel. Defined.
 
-Definition SetoidRelId (X : Setoid') : SetoidRel X X.
-Proof.
-  red. exists equiv. rel.
-Defined.
+Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
+{
+    rel := equiv
+}.
 
 Instance SetoidRelCat : Cat :=
 {|
@@ -93,7 +94,8 @@ Proof. all: rel. Defined.
 Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 {
     init := CoqSetoid_init;
-    create := fun (X : Setoid') (e : Empty_set) _ => match e with end
+    create := fun X : Setoid' =>
+        {| rel := fun (e : Empty_set) _ => match e with end |}
 }.
 Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
@@ -101,7 +103,8 @@ Next Obligation. rel. Defined.
 Program Instance SetoidRel_has_term : has_term SetoidRelCat :=
 {
     term := CoqSetoid_init;
-    delete := fun (X : Setoid') _ (e : Empty_set) => match e with end
+    delete := fun X : Setoid' =>
+        {| rel := fun _ (e : Empty_set) => match e with end |}
 }.
 Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
@@ -127,39 +130,39 @@ Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
 }.
 Proof. rel. Defined.
 
-Definition SetoidRel_proj1 (X Y : Setoid')
-    : SetoidRel (SetoidRel_prodOb X Y) X.
-Proof.
-  red. exists (fun (p : X + Y) (x : X) =>
+Instance SetoidRel_proj1 (X Y : Setoid')
+    : SetoidRel (SetoidRel_prodOb X Y) X :=
+{
+    rel := fun (p : X + Y) (x : X) =>
     match p with
       | inl x' => x == x'
       | _ => False
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
-Definition SetoidRel_proj2 (X Y : Setoid')
-    : SetoidRel (SetoidRel_prodOb X Y) Y.
-Proof.
-  red. exists (fun (p : X + Y) (y : Y) =>
+Instance SetoidRel_proj2 (X Y : Setoid')
+    : SetoidRel (SetoidRel_prodOb X Y) Y :=
+{
+    rel := fun (p : X + Y) (y : Y) =>
     match p with
       | inr y' => y == y'
       | _ => False
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
-Definition SetoidRel_fpair (A B X : Setoid')
+Instance SetoidRel_fpair (A B X : Setoid')
     (R : SetoidRel X A) (S : SetoidRel X B)
-    : SetoidRel X (SetoidRel_prodOb A B).
-Proof.
-  red. exists (fun (x : X) (p : A + B) =>
+    : SetoidRel X (SetoidRel_prodOb A B) :=
+{
+    rel := fun (x : X) (p : A + B) =>
     match p with
       | inl a => R x a
       | inr b => S x b
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
 Instance SetoidRel_has_products : has_products SetoidRelCat :=
 {
@@ -191,39 +194,39 @@ Defined.
 
 Definition SetoidRel_coprodOb := SetoidRel_prodOb.
 
-Definition SetoidRel_coproj1 (X Y : Setoid')
-    : SetoidRel X (SetoidRel_coprodOb X Y).
-Proof.
-  red. exists (fun (x : X) (p : X + Y) =>
+Instance SetoidRel_coproj1 (X Y : Setoid')
+    : SetoidRel X (SetoidRel_coprodOb X Y) :=
+{
+    rel := fun (x : X) (p : X + Y) =>
     match p with
       | inl x' => x == x'
       | _ => False
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
-Definition SetoidRel_coproj2 (X Y : Setoid')
-    : SetoidRel Y (SetoidRel_coprodOb X Y).
-Proof.
-  red. exists (fun (y : Y) (p : X + Y) =>
+Instance SetoidRel_coproj2 (X Y : Setoid')
+    : SetoidRel Y (SetoidRel_coprodOb X Y) :=
+{
+    rel := fun (y : Y) (p : X + Y) =>
     match p with
       | inr y' => y == y'
       | _ => False
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
-Definition SetoidRel_copair (A B X : Setoid')
+Instance SetoidRel_copair (A B X : Setoid')
     (R : SetoidRel A X) (S : SetoidRel B X)
-    : SetoidRel (SetoidRel_coprodOb A B) X.
-Proof.
-  red. exists (fun (p : A + B) (x : X) =>
+    : SetoidRel (SetoidRel_coprodOb A B) X :=
+{
+    rel := fun (p : A + B) (x : X) =>
     match p with
       | inl a => R a x
       | inr b => S b x
-    end).
-  rel.
-Defined.
+    end
+}.
+Proof. rel. Defined.
 
 Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
 {

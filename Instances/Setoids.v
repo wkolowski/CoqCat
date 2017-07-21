@@ -452,9 +452,12 @@ Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
 Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
     carrier := {j : J & A j};
-    setoid := {| equiv := fun x y : {j : J & A j} =>
-      projT1 x = projT1 y /\
-      equiv_hetero (A (projT1 x)) (projT2 x) (projT2 y) |}
+    setoid :=
+    {|
+        equiv := fun x y : {j : J & A j} =>
+          projT1 x = projT1 y /\
+            equiv_hetero (A (projT1 x)) (projT2 x) (projT2 y)
+    |}
 }.
 Proof.
   split; red; destruct x; try destruct y; try destruct z;
@@ -468,12 +471,54 @@ Proof.
       subst. eapply (equiv_hetero_trans (eq_refl) (JMeq_refl) H1 H2).
 Defined.
 
+Definition CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
+    : SetoidHom (A j) (CoqSetoid_bigCoprodOb A).
+Proof.
+  red.
+  Definition wut (J : Set) (A : J -> Setoid') (j : J)
+    : A j -> CoqSetoid_bigCoprodOb A.
+  Proof.
+    intro. do 2 red. exists j. assumption.
+  Defined.
+  exists (wut A j). proper.
+Defined.
+
+Definition CoqSetoid_cotuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
+    (f : forall j : J, SetoidHom (A j) X)
+    : SetoidHom (CoqSetoid_bigCoprodOb A) X.
+Proof.
+  red.
+  Definition wuuut (J : Set) (A : J -> Setoid') (X : Setoid')
+    (f : forall j : J, SetoidHom (A j) X) : CoqSetoid_bigCoprodOb A -> X.
+  Proof.
+    cbn. intro x. apply (f (projT1 x)). exact (projT2 x).
+  Defined.
+  exists (wuuut f). proper.
+  destruct x, y. cbn in *. destruct H; subst. inversion H0.
+  apply inj_pair2 in H. subst. cbn in H1.
+  unfold wuuut. cbn. destruct f. rewrite H1. reflexivity.
+Defined.
+
+Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
+{
+    bigCoprodOb := @CoqSetoid_bigCoprodOb;
+    bigCoproj := @CoqSetoid_bigCoproj;
+    cotuple := @CoqSetoid_cotuple
+}.
+Proof.
+  simpl; intros; eauto.
+  unfold big_coproduct_skolem; red; cbn; split; intros.
+    unfold wuuut; cbn. destruct f. cbn. reflexivity.
+    unfold wuuut; cbn. destruct x. specialize (H x c).
+      destruct f. cbn in *. unfold wut in H. assumption.
+Defined.
+
+(* TODO : rename wuts *)
+
 Instance CoqSetoid_expOb_setoid (X Y : Setoid')
     : Setoid (SetoidHom X Y) :=
 {
     equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x
-    (*equiv := fun f g : X -> Y =>
-        forall x x' : X, x == x' -> f x == g x'*)
 }.
 Proof.
   solve_equiv.

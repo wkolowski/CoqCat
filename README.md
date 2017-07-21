@@ -16,10 +16,10 @@ Accomplished:
  * Universal constructions: initial, terminal and zero objects, products, coproducts, biproducts (both binary and general), equalizers and coequalizers together with more or less of their properties. This is one of my greatest accomplishments — after changing, improving and correcting the definitions a gazillion times I'm starting to be pretty sure that they are correct and convenient. However, they're not perfect yet: there are issues with coherence conditions.
  * Functors: defined different kinds of functors, proved their properties, defined the category of categories.
  * Natural transformations: defined functor categories, characterized natural isomorphisms.
- * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc.
+ * Defined and proved properties of these categories: Set, Rel, Sgr, Mon, Grp, Pros, Pos etc. Also got other hierarchies based not on Set, but rather on Setoid, Apartoid etc (or rather I wanted to make an Apartoid-based hierarchy, but it's not done yet).
  * Got some quite useful general tactics:
-   * cat — working with categories in general (it can solve the category laws for many categories)
-   * Tactics for particular categories (sgr, mon, grp, pros, pos etc.) — they can, for example, elegantly destruct objects and morphisms of these categories and perform some simplifications
+   * cat — working with categories in general (it can solve the category laws for many categories). It has a reflective component for solving morphism equations.
+   * Tactics for particular categories (sgr, mon, grp, pros, pos etc.) — they can, for example, elegantly destruct objects and morphisms of these categories and perform some simplifications. Additionally, reflective tactics for solving semigroup/monoid/group equations are integrated into them.
    * proper — solving instances of proper
    * solve_equiv —  proving that a relation is an equivalence
    * init/term — rewriting with with initial/terminal objects
@@ -27,8 +27,6 @@ Accomplished:
    * functor — simplification for functors
    * iso — working with isomorphisms
    * curry — rewriting with exponential objects
-   * mor/mor2 — new reflective tactic for diagram chasing (it can't do much more than cat at the moment)
-   * new sgr/mon/grp — new reflective tactics that can solve simple semigroup/monoid/group equations quite fast
 
 General TODO:
  * Define adjoints.
@@ -40,8 +38,8 @@ General TODO:
  * Revise equalities and equivalences and write a few more (like JMequiv_dep).
  * Possibly reimplement the fpair and copair tactics using reification.
  * Check if it's possible to do "continuous reification".
- * Try to do reification syntax using classes, instances and many inductive types instead of a single one.
  * Stop using dependent types for doing reification of Cat.
+ * Implement morphisms of various categories using classes instead of sigma types.
 
 Instances:
  * Solve the dependent type problems with setoid coproducts.
