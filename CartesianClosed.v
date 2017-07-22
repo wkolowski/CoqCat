@@ -50,23 +50,28 @@ Proof.
   intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
 Qed.
 
-(* TODO *) Theorem exp_term_dom :
-    forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
+(* TODO *)
+Theorem exp_term_dom :
+  forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb (term C) Y ~ Y.
 Proof.
   symmetry.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
   split.
-    
-    fpair. term. Print exponential_skolem. Check curry proj1.
+    Focus 2. Print exponential_skolem.
+    Check (delete (expOb (term C) Y)).
+    Check fpair (id (expOb (term C) Y)) (delete (expOb (term C) Y)) .> eval.
+Abort.
 
- remember (fpair (curry proj1) (delete Y)) as x.
-      replace x with (x .> id _). rewrite <- ProductFunctor_fmap_pres_id.
-      rewrite <- curry_eval.
-      assocr. destruct ccc, ccc_exp. simpl in *.
-      do 2 red in is_exponential.
-      specialize (is_exponential (term C) Y).
+Lemma wuuut :
+  forall (C : Cat) (ccc : cartesian_closed C) (X Y A : Ob C)
+  (f : Hom A (expOb X Y)) (g : Hom A X),
+    fpair f g .> eval .> curry proj1 == f.
+Proof.
+  intros. destruct ccc, ccc_term0, ccc_prod0, ccc_exp0. cbn in *.
+    do 2 red in is_exponential.
+    do 2 red in is_product. unfold ProductFunctor_fmap in is_exponential. cbn in *.
 Abort.
 
 (* TODO *) Theorem exp_term_cod :

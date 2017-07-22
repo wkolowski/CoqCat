@@ -47,19 +47,19 @@ end.
 Class Simplify (X : Sgr) (e : exp X) : Type :=
 {
     simplify : exp X;
-    spec : expDenote simplify == expDenote e
+    simplify_spec : expDenote simplify == expDenote e
 }.
 
 Arguments Simplify [X] _.
 Arguments simplify [X] _ [Simplify].
 
-Instance SimplifyOp {X : Sgr} (e1 e2 : exp X)
+Instance SimplifyOp {X : Sgr} {e1 e2 : exp X}
   (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
 {
     simplify := Op (simplify e1) (simplify e2)
 }.
 Proof.
-  cbn. destruct S1, S2. rewrite spec0, spec1. reflexivity.
+  cbn. rewrite !simplify_spec. reflexivity.
 Defined.
 
 Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
@@ -73,7 +73,13 @@ Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
 }.
 Proof.
   destruct S, f, func0; cbn in *. destruct simplify0; cbn in *;
-  rewrite <- spec0, ?pres_op0; reflexivity.
+  rewrite <- simplify_spec0, ?pres_op0; reflexivity.
+(*Restart.
+  case_eq (simplify e); intros.
+    rewrite <- H. cbn. rewrite simplify_spec. reflexivity.
+    cbn. cbn in H. rewrite <- H. cbn. rewrite simplify_spec. reflexivity.
+    
+    cbn. destruct S. cbn in *. rewrite simplify_spec0.*)
 Defined.
 
 Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
@@ -83,21 +89,6 @@ Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
 Proof.
   reflexivity.
 Defined.
-
-Goal forall (X : Sgr) (a b c : X), a = b.
-Proof.
-  intros.
-  Eval simpl in expDenote (Op (Var a) (Var b)).
-  assert (f : SgrHom X X). admit.
-  Eval simpl in simplify (Mor f (Op (Var a) (Var b))).
-Abort.
-
-Theorem simplify_correct :
-  forall (X : Sgr) (e : exp X) (S : Simplify e),
-    expDenote (simplify e) == expDenote e.
-Proof.
-  destruct S; cbn; intros. assumption.
-Qed.
 
 Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
 match l with
@@ -146,7 +137,7 @@ Theorem sgr_reflect :
     expDenoteNel (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  intros. rewrite !flatten_correct, !simplify_spec in H. assumption.
 Qed.
 
 Class Reify (X : Sgr) (x : X) : Type :=
@@ -603,7 +594,7 @@ Class SgrWut : Type :=
 Coercion sgr : SgrWut >-> Sgr.
 
 Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut))
-    | 1 :=
+    | 11 :=
 {
     simplify := Var wut
 }.
@@ -611,26 +602,99 @@ Proof.
   cbn. rewrite wut_eq. reflexivity.
 Defined.
 
-
-Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
+(*Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
 {
     reify := Var wut
 }.
 Proof.
   cbn. rewrite wut_eq. reflexivity.
-Defined.
+Defined.*)
 
 Ltac reflect_sgr2 := intros; do 2 (rewrite <- reify_spec; symmetry);
   apply sgr_reflect; cbn.
 
+Ltac reflect_sgr3 := intros;
+   do 2 (rewrite <- reify_spec, <- simplify_spec at 1; symmetry); cbn.
+
 Goal forall (X : SgrWut) (a b c : X),
-  op a (op wut wut) == op a wut.
+  op a (op b c) == op (op a b) c.
 Proof.
   reflect_sgr2. reflexivity.
 Qed.
 
 Goal forall (X : SgrWut) (a b c : X),
+  op a (op wut wut) == op a wut.
+Proof.
+  intros.
+  reflect_sgr.
+  reflect_sgr2.
+  reflect_sgr3.
+  rewrite <- reify_spec. rewrite <- simplify_spec. cbn.
+  (* instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).*)
+  (* TODO: zdechło *)
+  cbn.
+Abort.
+
+Theorem simplify_correct2 :
+  forall (X : Sgr) (e : exp X) (S : Simplify e),
+    expDenote (simplify e) == expDenote e.
+Proof.
+  destruct S; cbn; intros. assumption.
+Qed.
+
+Goal forall (X : SgrWut) (a b c : X),
+  op a (op wut wut) == op a wut.
+Proof.
+  intros.
+  reflect_sgr.
+  reflect_sgr2.
+  reflect_sgr3.
+  rewrite <- reify_spec. rewrite <- simplify_correct2. cbn.
+  
+  instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).
+  cbn. reflexivity.
+Qed.
+
+Axiom troll : forall (X : Sgr) (x : X), op x x == x.
+
+Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x))
+    | 1 :=
+{
+    simplify := Var x
+}.
+Proof.
+  cbn. rewrite troll. reflexivity.
+Defined.
+
+Goal forall (X : Sgr) (a b c : X),
+  op a (op b b) == op a b.
+Proof.
+  intros.
+  reflect_sgr.
+  reflect_sgr2.
+  reflect_sgr3.
+  Eval simpl in simplify (reify (op a (op b b))).
+  match goal with
+      | |- ?x == ?y =>
+          let x' := constr:(simplify (reify x)) in
+          let y' := constr:(simplify (reify y)) in
+          pose x'; pose y'
+  end.
+  reflexivity.
+Qed.
+
+(* Does it work recursively? *)
+Goal forall (X : Sgr) (x : X),
+  op (op x x) (op x x) == x.
+Proof.
+  repeat reflect_sgr3.
+Abort.
+
+(* TODO: Note to self: class-based Simplify could work, but the instance
+   Simplify_wut_eq for some reason can't be found by the resolution engine. *)
+
+Goal forall (X : SgrWut) (a b c : X),
   op (op a wut) (op wut b) == op a (op wut b).
 Proof.
-  reflect_sgr2.
+  reflect_sgr3.
 Abort.

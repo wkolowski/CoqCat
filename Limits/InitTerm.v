@@ -225,3 +225,10 @@ Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
     zero_is_terminal := Dual_has_term hz
 }.
 Proof. cat. Defined.
+
+(*Theorem init_Hom :
+  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) (X : Ob C),
+    initial I create <-> Hom I X ~ CoqSetoid_term.
+Proof.*)
+  
+    
