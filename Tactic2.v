@@ -1,6 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
+Require Import Functor.
 
 Set Implicit Arguments.
 
@@ -119,16 +120,30 @@ match mor with
     end
 end.
 
-Ltac mor' := intros;
+Ltac reflect_cat := intros;
 match goal with
     | |- ?f == ?g =>
         let e1 := reify f in
         let e2 := reify g in
           change (expDenote e1 == expDenote e2);
-          apply cat_reflect; simpl
+          apply cat_reflect; cbn
 end.
 
-Ltac mor := mor'; reflexivity.
+(*Ltac mor := mor'; reflexivity.*)
+
+Lemma test_id_l :
+  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
+    id X .> f == f.
+Proof.
+  reflect_cat. try reflexivity.
+Qed.
+
+Lemma test_id_r :
+  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
+    f .> id Y == f.
+Proof.
+  reflect_cat. try reflexivity.
+Qed.
 
 
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)

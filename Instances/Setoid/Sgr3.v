@@ -613,8 +613,9 @@ Defined.*)
 Ltac reflect_sgr2 := intros; do 2 (rewrite <- reify_spec; symmetry);
   apply sgr_reflect; cbn.
 
-Ltac reflect_sgr3 := intros;
-   do 2 (rewrite <- reify_spec, <- simplify_spec at 1; symmetry); cbn.
+Ltac reflect_sgr3 := intros; repeat progress
+  (do 2 (rewrite <- reify_spec, <- simplify_spec at 1; symmetry); cbn);
+  reflect_sgr.
 
 Goal forall (X : SgrWut) (a b c : X),
   op a (op b c) == op (op a b) c.
@@ -640,7 +641,7 @@ Theorem simplify_correct2 :
     expDenote (simplify e) == expDenote e.
 Proof.
   destruct S; cbn; intros. assumption.
-Qed.
+Defined.
 
 Goal forall (X : SgrWut) (a b c : X),
   op a (op wut wut) == op a wut.
@@ -672,23 +673,15 @@ Proof.
   intros.
   reflect_sgr.
   reflect_sgr2.
-  reflect_sgr3.
-  Eval simpl in simplify (reify (op a (op b b))).
-  match goal with
-      | |- ?x == ?y =>
-          let x' := constr:(simplify (reify x)) in
-          let y' := constr:(simplify (reify y)) in
-          pose x'; pose y'
-  end.
-  reflexivity.
+  reflect_sgr3. try reflexivity.
 Qed.
 
 (* Does it work recursively? *)
 Goal forall (X : Sgr) (x : X),
   op (op x x) (op x x) == x.
 Proof.
-  repeat reflect_sgr3.
-Abort.
+  reflect_sgr3. reflexivity.
+Qed.
 
 (* TODO: Note to self: class-based Simplify could work, but the instance
    Simplify_wut_eq for some reason can't be found by the resolution engine. *)
