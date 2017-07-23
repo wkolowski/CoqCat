@@ -52,20 +52,11 @@ Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
     := proj1_sig f.
 Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
 
-Module Wut.
-
-Definition wut (X : Setoid') := @equiv X (@setoid X).
-
-Require Import Setoid.
-
-Add Parametric Morphism (X Y : Setoid') (f : SetoidHom X Y) : f
-with signature (wut X ==> wut Y) as SetoidHom_mor.
+Instance wut_tmp (X Y : Setoid') (f : SetoidHom X Y)
+  : Proper (equiv ==> equiv) f.
 Proof.
-  destruct f; auto.
-Qed.
-
-End Wut.
-Export Wut.
+  destruct f. auto.
+Defined.
 
 Ltac setoidhom f := try intros until f;
 match type of f with
@@ -474,29 +465,16 @@ Defined.
 Definition CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
     : SetoidHom (A j) (CoqSetoid_bigCoprodOb A).
 Proof.
-  red.
-  Definition wut (J : Set) (A : J -> Setoid') (j : J)
-    : A j -> CoqSetoid_bigCoprodOb A.
-  Proof.
-    intro. do 2 red. exists j. assumption.
-  Defined.
-  exists (wut A j). proper.
+  red. exists (fun x : A j => existT _ j x). proper.
 Defined.
 
 Definition CoqSetoid_cotuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
     (f : forall j : J, SetoidHom (A j) X)
     : SetoidHom (CoqSetoid_bigCoprodOb A) X.
 Proof.
-  red.
-  Definition wuuut (J : Set) (A : J -> Setoid') (X : Setoid')
-    (f : forall j : J, SetoidHom (A j) X) : CoqSetoid_bigCoprodOb A -> X.
-  Proof.
-    cbn. intro x. apply (f (projT1 x)). exact (projT2 x).
-  Defined.
-  exists (wuuut f). proper.
+  red. exists (fun x => f (projT1 x) (projT2 x)). proper.
   destruct x, y. cbn in *. destruct H; subst. inversion H0.
-  apply inj_pair2 in H. subst. cbn in H1.
-  unfold wuuut. cbn. destruct f. rewrite H1. reflexivity.
+  apply inj_pair2 in H. subst. destruct (f x0). cbn. rewrite H1. reflexivity.
 Defined.
 
 Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
@@ -507,13 +485,8 @@ Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
 }.
 Proof.
   simpl; intros; eauto.
-  unfold big_coproduct_skolem; red; cbn; split; intros.
-    unfold wuuut; cbn. destruct f. cbn. reflexivity.
-    unfold wuuut; cbn. destruct x. specialize (H x c).
-      destruct f. cbn in *. unfold wut in H. assumption.
+  setoid.
 Defined.
-
-(* TODO : rename wuts *)
 
 Instance CoqSetoid_expOb_setoid (X Y : Setoid')
     : Setoid (SetoidHom X Y) :=

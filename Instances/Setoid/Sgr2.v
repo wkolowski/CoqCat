@@ -61,7 +61,7 @@ Proof.
   induction e; cbn.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; rewrite <- IHe; try reflexivity.
+    destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
       rewrite pres_op. reflexivity.
 Qed.
 

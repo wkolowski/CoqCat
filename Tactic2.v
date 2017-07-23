@@ -129,8 +129,6 @@ match goal with
           apply cat_reflect; cbn
 end.
 
-(*Ltac mor := mor'; reflexivity.*)
-
 Lemma test_id_l :
   forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
     id X .> f == f.
@@ -150,15 +148,13 @@ Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
 Proof.
-  mor'. reflexivity.
-Qed.
+Abort.
 
 Goal
   forall (C : Cat) (X Y Z W V T: Ob C) (f f' : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f == f' ->
       ((f .> (g .> h)) .> i) .> j == f' .> g .> h .> i .> j.
 Proof.
-  mor'.
 Abort.
 
 Goal
@@ -166,7 +162,6 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f .> g == f' .> g' ->
       ((f .> (g .> h)) .> i) .> j == f' .> (g' .> h) .> i .> j.
 Proof.
-  mor'.
 Abort.
 
 Goal
@@ -174,8 +169,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       f == f .> id _ .> id _.
 Proof.
-  mor'. reflexivity.
-Qed.
+Abort.
 
 Fixpoint simplify' {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y :=
 match e in (exp o o0) return (exp o o0) with

@@ -246,43 +246,9 @@ Proof.
     rewrite IHe1, IHe2. reflexivity.
 Qed.
 
-(* TODO Fixpoint simpl_fpair_Id {X Y : Ob C} (e : exp X Y) : exp X Y :=
-match e with
-    | Fpair e1 e2 =>
-        match simpl_fpair_Id e1 with
-            | Proj1 => fun _ =>
-                match simpl_fpair_Id e2 with
-                    | Proj2 => fun _ => id _
-                    | _ => fun e2 => Fpair Proj1 (simpl_fpair_Id e2)
-                end e2
-            | e1' => fun _ => Fpair e1' (simpl_fpair_Id e2)
-        end e1
-    | e' => e'
-end.
-        match e1
-
-
-Fixpoint simpl_fpair_proj1 {X Y : Ob C} (e : exp X Y) : exp X Y :=
-match e with
-    | Comp e1 e2 =>
-        match simpl_fpair_proj1 e1 with
-            | Fpair ef eg => fun _ e2 =>
-                match simpl_fpair_proj1 e2 with
-                    | Proj1 => fun ef eg => ef
-                    | e2' => fun ef eg => Comp (Fpair ef eg) e2'
-                end ef eg
-            | e1' => fun _ e2 => Comp e1' (simpl_fpair_proj1 e2)
-        end e1 e2
-    | Fpair e1 e2 => Fpair (simpl_fpair_proj1 e1) (simpl_fpair_proj1 e2)
-    | e' => e'
-end.*)
-
 End simplify.
 
 End Tactic.
-
-
-
 
 Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
@@ -305,15 +271,15 @@ Proof.
         (H Q q1 q2) as [[HQ1 HQ2] HQ3],
         (H0 P p1 p2) as [[HP1' HP2'] HP3'],
         (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
-      cat.
+      split.
         rewrite <- (HP3 (fpair' P p1 p2 .> fpair0 Q q1 q2)).
           apply HP3. cat.
-          cat.
+          split; assocr.
             rewrite <- HQ1. assumption.
             rewrite <- HQ2. assumption.
         rewrite <- (HQ3' (fpair0 Q q1 q2 .> fpair' P p1 p2)).
           apply HQ3'. cat.
-          cat.
+          split; assocr.
             rewrite <- HP1'. assumption.
             rewrite <- HP2'. assumption.
     edestruct H0 as [[H1 H2] _]. eauto.
@@ -427,12 +393,6 @@ Proof.
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
   Time fpair.
 Defined.
-
-(* TODO : likely false. Idea : bool x bool, projections id and negation *) Theorem wut :
-  forall (C : Cat) (hp : has_products C) (X : Ob C),
-    @proj1 C hp X X == @proj2 C hp X X.
-Proof.
-Abort.
 
 Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)

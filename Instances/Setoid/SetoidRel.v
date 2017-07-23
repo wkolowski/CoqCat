@@ -7,8 +7,6 @@ Require Import BigProdCoprod.
 
 Require Export Cat.Instances.Setoids.
 
-(* TODO : Clean up AltSetoidRel.v. *)
-
 Class SetoidRel (X Y : Setoid') : Type :=
 {
     rel : X -> Y -> Prop;
@@ -16,19 +14,6 @@ Class SetoidRel (X Y : Setoid') : Type :=
 }.
 
 Coercion rel : SetoidRel >-> Funclass.
-
-(*Module Wut.
-
-Require Import Setoid.
-
-Add Parametric Morphism (X Y : Setoid') (R : SetoidRel X Y) : R
-with signature @wut X ==> @wut Y ==> iff as SetoidRel_Proper.
-Proof.
-  destruct R. auto.
-Qed.
-
-End Wut.
-Export Wut.*)
 
 Ltac setoidrelhom R := try intros until R;
 match type of R with

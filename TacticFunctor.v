@@ -291,7 +291,7 @@ Goal
       ((f .> (g .> h)) .> i) .> j == f' .> g .> h .> i .> j.
 Proof.
   flat_reflect_cat. rewrite H. reflexivity.
-Abort.
+Qed.
 
 Goal
   forall (C : Cat) (X Y Z W V T: Ob C) (f f' : Hom X Y) (g g' : Hom Y Z)
