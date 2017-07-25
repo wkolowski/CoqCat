@@ -146,3 +146,57 @@ Defined.
 Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
     limit' K -> limit' (ConeImage F K).
+
+Check FunCat.
+
+Require Import Setoids.
+
+Print isomorphic.
+
+Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
+{
+    carrier := Hom X Y;
+    setoid := HomSetoid X Y
+}.
+
+Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
+
+Theorem limit_char :
+  forall (J C : Cat) (F : Functor J C)
+  (K : Cone F) (del : forall K' : Cone F, ConeHom K' K),
+    @limit J C F K del <-> forall c : Ob C, @isomorphic CoqSetoid
+      (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
+Proof.
+  split; intros.
+    red. unfold limit, terminal in H. cbn.
+    esplit. Unshelve. all: cycle 2.
+    esplit. Unshelve. all: cycle 3.
+    cbn. intro f.
+    Definition wut' (J C : Cat) (F : Functor J C) (K : Cone F) (c : Ob C)
+      (f : Hom c (apex K)) : NatTrans (ConstFunctor c J) F.
+    Proof.
+      split with (fun j => f .> component (legs K) j). cat.
+          destruct K, legs0. cbn in *. rewrite coherence. cat.
+    Defined.
+    eapply wut'; eauto. proper. red. cbn.
+    esplit. Unshelve. all: cycle 2. red. cbn.
+    esplit. Unshelve. all: cycle 3.
+    destruct 1. cbn in *. destruct K. cbn in *.
+    destruct legs0. cbn in *.
+
+
+    Definition wut'' (J C : Cat) (F : Functor J C) (K : Cone F) (c : Ob C)
+      (f : Hom c (apex K)) : NatTrans (ConstFunctor c J) F.
+    Proof.
+      split with (fun j => f .> component (legs K) j). cat.
+          destruct K, legs0. cbn in *. rewrite coherence. cat.
+    Defined.
+    proper. repeat red. cbn. esplit. eauto. all: cycle 1.
+    assert (SetoidHom (HomSetoid' C c (apex K))
+        (HomSetoid' (FunCat J C) (ConstFunctor c J) F)).
+      red.
+      set (HomSetoid' C c (apex K) -> HomSetoid' (FunCat J C) (ConstFunctor c J) F).
+        cbn. intro f.
+          split with (fun j => f .> component (legs K) j). cat.
+          destruct K, legs0. cbn in *. rewrite coherence. cat.
+        exists X. proper.
