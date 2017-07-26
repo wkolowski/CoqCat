@@ -191,12 +191,5 @@ Proof.
       split with (fun j => f .> component (legs K) j). cat.
           destruct K, legs0. cbn in *. rewrite coherence. cat.
     Defined.
-    proper. repeat red. cbn. esplit. eauto. all: cycle 1.
-    assert (SetoidHom (HomSetoid' C c (apex K))
-        (HomSetoid' (FunCat J C) (ConstFunctor c J) F)).
-      red.
-      set (HomSetoid' C c (apex K) -> HomSetoid' (FunCat J C) (ConstFunctor c J) F).
-        cbn. intro f.
-          split with (fun j => f .> component (legs K) j). cat.
-          destruct K, legs0. cbn in *. rewrite coherence. cat.
-        exists X. proper.
+    proper. repeat red. cbn.
+Abort.

@@ -6,11 +6,11 @@ Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
-Require Import Instances.Setoid.Pros.
+Require Export Instances.Setoid.Pros.
 
 Class Pos : Type :=
 {
-    pros : Pros;
+    pros :> Pros;
     leq_antisym : forall x y : carrier, x ≤ y -> y ≤ x -> x == y
 }.
 

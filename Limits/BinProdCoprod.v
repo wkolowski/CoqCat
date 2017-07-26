@@ -140,6 +140,14 @@ Proof.
   reflexivity.
 Qed.
 
+Theorem fpair_pre_id :
+  forall (C : Cat) (hp : has_products C) (A X Y : Ob C)
+  (f : Hom A (prodOb X Y)),
+    fpair (f .> proj1) (f .> proj2) == f.
+Proof.
+  intros. rewrite <- fpair_pre, fpair_id, id_right. reflexivity.
+Qed.
+
 Ltac fpair := intros; try split;
 repeat match goal with
     | |- context [fpair (_ .> proj1) (_ .> proj2)] =>
@@ -158,6 +166,57 @@ repeat match goal with
     | |- ?f .> ?g == ?f' .> ?g => f_equiv
     | _ => rewrite <- ?comp_assoc; auto
 end.
+
+Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
+  : fpair'_base.
+
+Ltac fpair' := autorewrite with fpair'_base.
+
+Module Wut.
+
+Require Export TacticFunctor.
+
+Instance Simplify_fpair_proj1
+  (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
+  : Simplify (Comp (Var (fpair f g)) (Var proj1)) | 1 :=
+{
+    simplify := Var f
+}.
+Proof.
+  cbn. rewrite fpair_proj1. reflexivity.
+Defined.
+
+Instance Simplify_fpair_proj2
+  (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
+  : Simplify (Comp (Var (fpair f g)) (Var proj2)) | 1 :=
+{
+    simplify := Var g
+}.
+Proof.
+  cbn. rewrite fpair_proj2. reflexivity.
+Defined.
+
+Instance Simplify_fpair_id
+  (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
+  : Simplify (Var (fpair proj1 proj2)) | 1 :=
+{
+    simplify := Id (prodOb X Y)
+}.
+Proof.
+  cbn. rewrite fpair_id. reflexivity.
+Defined.
+
+
+
+
+
+Goal forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
+  fpair (@proj1 _ _ X Y) proj2 .> proj1 == proj1.
+Proof.
+  intros. reflect_cat. reflexivity.
+Qed.
+
+End Wut.
 
 Module Tactic.
 
@@ -189,64 +248,8 @@ match e with
     | Fpair e1 e2 => fpair (expDenote e1) (expDenote e2)
 end.
 
-(* TODO *)
-Fixpoint simplify {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
-    : exp X Y :=
-match e with
-    | Id X => Id X
-    | Var f => Var f
-    | Comp e1 e2 => Comp (simplify e1) (simplify e2)
-    | Proj1 => Proj1
-    | Proj2 => Proj2
-    | Fpair e1 e2 => Fpair (simplify e1) (simplify e2)
-end.
+(* TODO: class-based simplification *)
 
-Section simplify.
-
-Variable C : Cat.
-Variable hp : has_products C.
-
-Fixpoint simpl_Id_l {X Y : Ob C} (e : exp X Y) : exp X Y :=
-match e with
-    | Comp e1 e2 =>
-        match simpl_Id_l e1 with
-            | Id _ => fun e2 => simpl_Id_l e2
-            | e1' => fun e2 => Comp e1' (simpl_Id_l e2)
-        end e2
-    | Fpair e1 e2 => Fpair (simpl_Id_l e1) (simpl_Id_l e2)
-    | e' => e'
-end.
-
-Theorem simpl_Id_l_correct :
-  forall (X Y : Ob C) (e : exp X Y),
-    expDenote (simpl_Id_l e) == expDenote e.
-Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simpl_Id_l e1); cbn in *; rewrite <- ?IHe1, <- ?IHe2; cat.
-    rewrite IHe1, IHe2. reflexivity.
-Qed.
-
-Fixpoint simpl_Id_r {X Y : Ob C} (e : exp X Y) : exp X Y :=
-match e with
-    | Comp e1 e2 =>
-        match simpl_Id_r e2 with
-            | Id _ => fun e1 => simpl_Id_r e1
-            | e2' => fun e1 => Comp (simpl_Id_r e1) e2'
-        end e1
-    | Fpair e1 e2 => Fpair (simpl_Id_r e1) (simpl_Id_r e2)
-    | e' => e'
-end.
-
-Theorem simpl_Id_r_correct :
-  forall (X Y : Ob C) (e : exp X Y),
-    expDenote (simpl_Id_r e) == expDenote e.
-Proof.
-  induction e; cbn; try reflexivity.
-    destruct (simpl_Id_r e2); cbn in *; rewrite <- IHe1, <- IHe2; cat.
-    rewrite IHe1, IHe2. reflexivity.
-Qed.
-
-End simplify.
 
 End Tactic.
 
@@ -376,13 +379,16 @@ Proof.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
 Qed.
 
+(* TODO: TESTS *)
+Import Wut.
+
 Theorem prodOb_comm : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     prodOb X Y ~ prodOb Y X.
 Proof.
   intros.
   red. exists (fpair proj2 proj1).
   red. exists (fpair proj2 proj1).
-  Time fpair.
+  fpair.
 Qed.
 
 Theorem prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
@@ -391,7 +397,7 @@ Proof.
   intros.
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
-  Time fpair.
+  Time Info 1 fpair.
 Defined.
 
 Theorem copair_coproj1 :

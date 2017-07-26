@@ -107,7 +107,7 @@ Defined.
 
 Instance SimplifyCompRec (C : Cat) (X Y Z : Ob C)
   (e1 : exp C X Y) (e2 : exp C Y Z) (S1 : Simplify e1) (S2 : Simplify e2)
-  : Simplify (Comp e1 e2) | 2 :=
+  : Simplify (Comp e1 e2) | 50 :=
 {
     simplify := Comp (simplify e1) (simplify e2)
 }.
