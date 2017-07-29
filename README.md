@@ -9,7 +9,6 @@ Design choices:
      - JMeq_eq — needed to prove that taking the dual category is involution with respect to equality.
  * Tried to stick to using normal equality (eq), but it's increasingly difficult. Did tests of other possible equality relations.
  * Using typeclasses and universe polymorphism where possible.
- * Got different directories for differents designs of the algebraic/order hierarchy (one based on types, setoids, apartoids etc.).
 
 Accomplished:
  * Basics: defined categories and proved properties of different kinds of morphisms.

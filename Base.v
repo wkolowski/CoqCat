@@ -234,3 +234,10 @@ Hint Constructors JMequiv.
 Theorem eta : forall (A B : Type) (f : A -> B),
     f = fun x : A => f x.
 Proof. trivial. Qed.
+
+(* Relation classes *)
+
+Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
+}.

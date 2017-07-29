@@ -2,6 +2,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
 
+Require Import Limits.InitTerm.
+
 Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
 {
     Ob := {X : Ob C | P X};
@@ -10,7 +12,8 @@ Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
     comp := fun X Y Z => @comp C (proj1_sig X) (proj1_sig Y) (proj1_sig Z);
     id := fun X => @id C (proj1_sig X)
 }.
-Proof.
-  all: cat.
-Defined.
+Proof. all: cat. Defined.
+
+(*Instance SubcatOb_has_init (C : Cat) (P : Ob C -> Prop) (hi : has_init C)
+  : has_init (SubcatOb C P).*)
 

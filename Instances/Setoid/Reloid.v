@@ -1,9 +1,9 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
-(*Require Import InitTerm.
+Require Import InitTerm.
 Require Import BinProdCoprod.
-Require Import BigProdCoprod. *)
+Require Import BigProdCoprod.
 
 Require Export Cat.Instances.Setoids.
 
@@ -167,4 +167,55 @@ Instance Reloid_has_products : has_products ReloidCat :=
 }.
 Proof.
   all: unfold product_skolem; reloid.
+Defined.
+
+Instance Reloid_coprodOb (X Y : Reloid) : Reloid :=
+{
+    carrier := CoqSetoid_coprodOb X Y;
+    rel := fun p p' =>
+    match p, p' with
+        | inl x, inl x' => rel x x'
+        | inr y, inr y' => rel y y'
+        | _, _ => False
+    end
+}.
+Proof.
+  proper. destruct x, x0, y, y0; intuition eauto;
+  rewrite <- ?H, <- ?H0; auto; rewrite ?H, ?H0; auto.
+Defined.
+
+Instance Reloid_coproj1 (X Y : Reloid)
+  : ReloidHom X (Reloid_coprodOb X Y) :=
+{
+    func := CoqSetoid_coproj1 X Y;
+}.
+Proof. reloid. Defined.
+
+Instance Reloid_coproj2 (X Y : Reloid)
+  : ReloidHom Y (Reloid_coprodOb X Y) :=
+{
+    func := CoqSetoid_coproj2 X Y;
+}.
+Proof. reloid. Defined.
+
+Instance Reloid_copair (X Y A : Reloid)
+  (f : ReloidHom X A) (g : ReloidHom Y A)
+  : ReloidHom (Reloid_coprodOb X Y) A :=
+{
+    func := CoqSetoid_copair f g
+}.
+Proof.
+  proper. destruct x, y; try apply pres_rel; intuition eauto.
+Defined.
+
+Instance Reloid_has_coproducts : has_coproducts ReloidCat :=
+{
+    coprodOb := Reloid_coprodOb;
+    coproj1 := Reloid_coproj1;
+    coproj2 := Reloid_coproj2;
+    copair := Reloid_copair;
+}.
+Proof.
+  proper. destruct x1; rewrite ?H, ?H0; reflexivity.
+  unfold coproduct_skolem. cat. destruct x; rewrite ?H, ?H0; reflexivity.
 Defined.

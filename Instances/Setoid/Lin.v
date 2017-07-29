@@ -110,7 +110,9 @@ Instance Lin_prod (X Y : Lin) : Lin :=
 }.
 Proof.
   destruct x, y; simpl.
-  destruct (leq_total c c1), (leq_total c0 c2).
+  destruct (leq_total c c1), (leq_total c1 c),
+    (leq_total c0 c2), (leq_total c2 c0); eauto.
+    assert (c0 == c2) by eauto. rewrite H3.
 Abort.
 
 (* TODO : products of linear orders suck because of constructivity *)
@@ -206,4 +208,6 @@ Proof.
   exists (CoqSetoid_copair f g). cbn. destruct f, g.
   destruct a, a'; intros; cbn.
     try apply l; try apply l0; auto.
+    Focus 2. inversion H.
+    Focus 2. apply l0. assumption.
 Abort.
