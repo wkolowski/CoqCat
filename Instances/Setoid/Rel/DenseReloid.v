@@ -5,7 +5,7 @@ Require Import InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 
-Require Export Cat.Instances.Setoid.Reloid.
+Require Export Cat.Instances.Setoid.Rel.Reloid.
 
 Set Implicit Arguments.
 
@@ -144,8 +144,10 @@ Instance DenseReloid_coprodOb (X Y : DenseReloid) : DenseReloid :=
     reloid := Reloid_coprodOb X Y
 }.
 Proof.
-  proper. destruct x, x0, y, y0; intuition eauto;
-  rewrite <- ?H, <- ?H0; auto; rewrite ?H, ?H0; auto.
+  split. destruct x, y; intro; cbn in H; intuition eauto;
+  destruct (dense c c0) as [x [H1 H2]]; auto.
+    exists (inl x). eauto.
+    exists (inr x). eauto.
 Defined.
 
 Instance DenseReloid_coproj1 (X Y : DenseReloid)

@@ -181,15 +181,26 @@ Proof.
     eapply wut'; eauto. proper. red. cbn.
     esplit. Unshelve. all: cycle 2. red. cbn.
     esplit. Unshelve. all: cycle 3.
-    destruct 1. cbn in *. destruct K. cbn in *.
-    destruct legs0. cbn in *.
-
-
+    destruct 1. cbn in *.
     Definition wut'' (J C : Cat) (F : Functor J C) (K : Cone F) (c : Ob C)
       (f : Hom c (apex K)) : NatTrans (ConstFunctor c J) F.
     Proof.
       split with (fun j => f .> component (legs K) j). cat.
           destruct K, legs0. cbn in *. rewrite coherence. cat.
     Defined.
+    pose (w := wut'' K c).
+    destruct K. cbn in *.
+    destruct legs0. cbn in *.
     proper. repeat red. cbn.
 Abort.
+
+(*Theorem limit_char :
+  forall (J C : Cat) (F : Functor J C)
+  (K : Cone F) (del : forall K' : Cone F, ConeHom K' K),
+    @limit J C F K del <-> exists α : NatTrans (ConstFunctor c J) F,
+      natural_isomorphism α.
+
+forall c : Ob C, @isomorphic CoqSetoid
+      (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
+Proof.
+*)

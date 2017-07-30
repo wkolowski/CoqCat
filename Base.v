@@ -237,7 +237,35 @@ Proof. trivial. Qed.
 
 (* Relation classes *)
 
+Class MyReflexive {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    reflexive : forall x : A, R x x;
+}.
+
+Class MySymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    symmetric : forall x y : A, R x y -> R y x;
+}.
+
+Class MyTransitive {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    transitive : forall x y z : A, R x y -> R y z -> R x z;
+}.
+
 Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
 {
     dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
 }.
+
+Class Antireflexive {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    irreflexive : forall x : A, ~ R x x;
+}.
+
+Class MyAntisymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    antisymmetric : forall x y : A, R x y -> ~ R y x;
+}.
+
+
+
