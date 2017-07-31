@@ -400,6 +400,16 @@ Proof.
   Time Info 1 fpair.
 Defined.
 
+Theorem prodOb_assoc' :
+  forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
+    {f : Hom (prodOb (prodOb X Y) Z) (prodOb X (prodOb Y Z)) | Iso f}.
+Proof.
+  intros.
+  exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
+  red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
+  Time Info 1 fpair.
+Defined.
+
 Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
     (f : Hom X A) (g : Hom Y A), coproj1 .> copair f g == f.
@@ -592,6 +602,16 @@ Proof.
   red. exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
   Time copair.
 Qed.
+
+Theorem coprodOb_assoc' :
+  forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
+    {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | Iso f}.
+Proof.
+  intros.
+  exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
+  red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
+  Time copair.
+Defined.
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).

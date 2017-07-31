@@ -17,38 +17,70 @@ Coercion ccc_prod : cartesian_closed >-> has_products.
 Coercion ccc_exp : cartesian_closed >-> has_exponentials.
 
 Theorem prod_term_iso_l : forall (C : Cat) (X : Ob C)
-    (ht : has_term C) (hp : has_products C),
-        prodOb (term C) X ~ X.
+  (ht : has_term C) (hp : has_products C), prodOb (term C) X ~ X.
 Proof.
   symmetry.
   red. exists (fpair (delete X) (id X)).
   red. exists proj2.
   fpair. term.
-Qed.
+Defined.
+
+Theorem prod_term_iso_l' :
+  forall (C : Cat) (X : Ob C) (ht : has_term C) (hp : has_products C),
+    {f : Hom (prodOb (term C) X) X | Iso f}.
+Proof.
+  intros. exists proj2.
+  red. exists (fpair (delete X) (id X)). fpair. term.
+Defined.
 
 Theorem prod_term_iso_r : forall (C : Cat) (X : Ob C)
-    (ht : has_term C) (hp : has_products C),
-        prodOb X (term C) ~ X.
+  (ht : has_term C) (hp : has_products C), prodOb X (term C) ~ X.
 Proof.
   intros. rewrite prodOb_comm. apply prod_term_iso_l.
-Qed.
+Defined.
+
+Theorem prod_term_iso_r' :
+  forall (C : Cat) (X : Ob C) (ht : has_term C) (hp : has_products C),
+    {f : Hom (prodOb X (term C)) X | Iso f}.
+Proof.
+  intros. exists proj1.
+  red. exists (fpair (id X) (delete X)). fpair. term.
+Defined.
 
 Theorem coprod_init_iso_l : forall (C : Cat) (X : Ob C)
-  (hi : has_init C) (hp : has_coproducts C),
-    coprodOb (init C) X ~ X.
+  (hi : has_init C) (hp : has_coproducts C), coprodOb (init C) X ~ X.
 Proof.
   intros.
   red. exists (copair (create X) (id X)).
   red. exists coproj2.
   copair. init.
-Qed.
+Defined.
+
+Theorem coprod_init_iso_l' :
+  forall (C : Cat) (X : Ob C) (hi : has_init C) (hp : has_coproducts C),
+    {f : Hom (coprodOb (init C) X) X | Iso f}.
+Proof.
+  intros.
+  exists (copair (create X) (id X)).
+  red. exists coproj2.
+  copair. init.
+Defined.
 
 Theorem coprod_init_iso_r : forall (C : Cat) (X : Ob C)
-  (hi : has_init C) (hp : has_coproducts C),
-    coprodOb X (init C) ~ X.
+  (hi : has_init C) (hp : has_coproducts C), coprodOb X (init C) ~ X.
 Proof.
   intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
 Qed.
+
+Theorem coprod_init_iso_r' :
+  forall (C : Cat) (X : Ob C) (hi : has_init C) (hp : has_coproducts C),
+    {f : Hom (coprodOb X (init C)) X | Iso f}.
+Proof.
+  intros.
+  exists (copair (id X) (create X)).
+  red. exists coproj1.
+  copair. init.
+Defined.
 
 (* TODO *)
 Theorem exp_term_dom :

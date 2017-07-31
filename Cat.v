@@ -2,6 +2,8 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.Base.
 
+(*Require Import Unicode.Utf8.*)
+
 Class Cat : Type :=
 {
     Ob : Type;

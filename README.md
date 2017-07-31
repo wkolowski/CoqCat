@@ -54,7 +54,11 @@ Further ideas:
  * Implement enriched categories.
 
 TODO from Bartosz Milewski's blog:
- * 2-Categories (see post from 2015-04-07)
+ * 2-Categories — 2015-04-07
+ * Limit as a Natural Isomorphism — 2015-04-15
+ * Representable Functors — 2015-07-29
+ * The Yoneda Lemma — 2015-09-01
+ * Yoneda Embedding — 2015-10-28
 
 Tips for future me:
  * If Coq doesn't see that some morphism is Proper, put the corresponding theorem in context using pose, eg. pose (P := fpair_Proper). This likely has something to do with registering morphisms as Proper. I should read the docs...
