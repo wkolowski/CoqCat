@@ -23,6 +23,14 @@ Class Bifunctor (C D E: Cat) : Type :=
 Arguments biob [C D E Bifunctor] _ _.
 Arguments bimap [C D E Bifunctor X Y X' Y'] _ _.
 
+Definition first
+  {C D E : Cat} {F : Bifunctor C D E} {X Y : Ob C} {A : Ob D} (f : Hom X Y)
+  : Hom (biob X A) (biob Y A) := bimap f (id A).
+
+Definition second
+  {C D E : Cat} {F : Bifunctor C D E} {A : Ob C} {X Y : Ob D} (f : Hom X Y)
+  : Hom (biob A X) (biob A Y) := bimap (id A) f.
+
 Instance ProductBifunctor {C : Cat} {hp : has_products C} :
     Bifunctor C C C :=
 {

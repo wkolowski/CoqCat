@@ -8,9 +8,11 @@ Require Import Limits.BinProdCoprod.
 
 Require Import CartesianClosed.
 
+Set Implicit Arguments.
+
 Class Monoidal : Type :=
 {
-    cat :> Cat;
+    cat : Cat;
     tensor : Bifunctor cat cat cat;
     tensor_unit : Ob cat;
     associator : forall X Y Z : Ob cat,
@@ -29,6 +31,8 @@ Class Monoidal : Type :=
         bimap (id W) (associator X Y Z) ==
       associator (biob W X) Y Z .> associator W X (biob Y Z)
 }.
+
+Coercion cat : Monoidal >-> Cat.
 
 Instance Monoidal_has_terminal_and_products
   (C : Cat) (ht : has_term C) (hp : has_products C) : Monoidal :=
