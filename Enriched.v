@@ -31,17 +31,27 @@ Class Enriched (V : Monoidal) : Type :=
 
 Check Monoidal_has_terminal_and_products.
 Require Import Instances.Setoids.
+
+Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
+{
+    carrier := @Hom C X Y;
+    setoid := @HomSetoid C X Y;
+}.
+
 Instance Enriched_CoqSetoid : Enriched
   (Monoidal_has_terminal_and_products
-    CoqSetoid
     CoqSetoid_has_term
     CoqSetoid_has_products) := {}.
 Proof.
   exact (Ob CoqSetoid).
-  cbn. Search Setoid'.
-  intros. cbn. change Setoid' with (Ob CoqSetoid). apply (@Hom CoqSetoid). 
-
-
+  intros X Y. exact (wut _ X Y).
+  cbn. intros. red. exists (fun p => fst p .> snd p). proper.
+    destruct H. rewrite H, H0. reflexivity.
+  intros. red. cbn. exists (fun _ => id X). proper.
+  cbn. reflexivity.
+  cbn. reflexivity.
+  cbn. reflexivity.
+Defined.
 
 
 

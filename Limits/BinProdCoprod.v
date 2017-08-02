@@ -630,7 +630,7 @@ Proof.
   try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
 Defined.
 
-Instance CAT_prod (C : Cat) (D : Cat) : Cat :=
+Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
     Hom := ProdCatHom;
@@ -651,7 +651,7 @@ Defined.
 Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
     : Hom (prodOb X X') (prodOb Y Y') :=
-      (fpair (proj1 .> f) (proj2 .> g)).
+      fpair (proj1 .> f) (proj2 .> g).
 
 Instance ProductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_products C) (X X' Y Y' : Ob C),
@@ -699,10 +699,10 @@ Proof.
 Defined.
 
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
-    Functor (CAT_prod C C) C :=
+    Functor (CAT_prodOb C C) C :=
 {
-    fob := fun P : Ob (CAT_prod C C) => prodOb (fst P) (snd P);
-    fmap := fun (X Y : Ob (CAT_prod C C)) (f : Hom X Y) =>
+    fob := fun P : Ob (CAT_prodOb C C) => prodOb (fst P) (snd P);
+    fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
       ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
@@ -761,10 +761,10 @@ Proof.
 Defined.
 
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
-    Functor (CAT_prod C C) C :=
+    Functor (CAT_prodOb C C) C :=
 {
-    fob := fun P : Ob (CAT_prod C C) => coprodOb (fst P) (snd P);
-    fmap := fun (X Y : Ob (CAT_prod C C)) (f : Hom X Y) =>
+    fob := fun P : Ob (CAT_prodOb C C) => coprodOb (fst P) (snd P);
+    fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
       CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.

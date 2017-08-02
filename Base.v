@@ -214,6 +214,10 @@ match goal with
     | H : forall _, ?a _ == ?b _ |- ?b _ == ?a _ => rewrite H; reflexivity
     | H : forall _, ?a _ == ?b _, H' : forall _, ?b _ == ?c _
       |- ?a _ == ?c _ => rewrite H, H'; reflexivity
+    (* JMeq *)
+    | |-  JMeq ?a ?a => reflexivity
+    | H : JMeq ?a ?b |- JMeq ?b ?a => symmetry; assumption
+    | H : JMeq ?a ?b, H' : JMeq ?b ?c |- ?a = ?c => rewrite H, H'; reflexivity
     | _ => my_simpl; eauto
 end.
 
@@ -266,6 +270,3 @@ Class MyAntisymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
 {
     antisymmetric : forall x y : A, R x y -> ~ R y x;
 }.
-
-
-
