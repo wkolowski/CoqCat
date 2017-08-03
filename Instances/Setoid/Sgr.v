@@ -20,12 +20,13 @@ Class Sgr : Type :=
 
 Coercion setoid : Sgr >-> Setoid'.
 
-Definition SgrHom (A B : Sgr) : Type :=
-    {f : SetoidHom A B | forall x y : A, f (op x y) == op (f x) (f y)}.
+Class SgrHom (A B : Sgr) : Type :=
+{
+    func :> SetoidHom A B;
+    pres_op : forall x y : A, func (op x y) == op (func x) (func y)
+}.
 
-Definition SgrHom_Fun (A B : Sgr) (f : SgrHom A B)
-    : SetoidHom A B := proj1_sig f.
-Coercion SgrHom_Fun : SgrHom >-> SetoidHom.
+Coercion func : SgrHom >-> SetoidHom.
 
 Inductive exp (X : Sgr) : Type :=
     | Var : X -> exp X
@@ -60,9 +61,8 @@ Proof.
   induction e; cbn.
     reflexivity.
     rewrite IHe1, IHe2. reflexivity.
-    destruct (simplify e); simpl in *; rewrite <- IHe;
-    try reflexivity.
-      destruct s. rewrite e0. reflexivity.
+    destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
+      rewrite pres_op. reflexivity.
 Qed.
 
 Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
@@ -77,7 +77,7 @@ Lemma expDenoteNel_app :
 Proof.
   induction l1 as [| h1 t1]; simpl; intros.
     reflexivity.
-    rewrite IHt1. rewrite assoc. reflexivity.
+    pose op_Proper. rewrite IHt1, assoc. reflexivity.
 Qed.
 
 Lemma expDenoteNel_hom :
@@ -86,9 +86,7 @@ Lemma expDenoteNel_hom :
 Proof.
   induction l as [| h t]; simpl.
     reflexivity.
-    assert (f (op h (expDenoteNel t)) == op (f h) (f (expDenoteNel t))).
-      destruct f; cbn in *. rewrite e. reflexivity.
-      rewrite H, IHt. reflexivity.
+    rewrite pres_op, IHt. reflexivity.
 Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
@@ -117,31 +115,49 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
-(*Theorem flat_reflect_goal :
-  forall (X : Sgr) (e1 e2 : exp X),
-    flatten (simplify e1) == flatten (simplify e2). ->
-      expDenote e1 == expDenote e2.
-Proof.
-  intros.*)
+Class Reify (X : Sgr) (x : X) : Type :=
+{
+    reify : exp X;
+    reify_spec : expDenote reify == x
+}.
 
-Ltac reify e :=
-lazymatch e with
-    | op ?e1 ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in constr:(Op e1' e2')
-    | (SetoidHom_Fun (SgrHom_Fun ?f)) ?e =>
-        let e' := reify e in constr:(Mor f e')
-    | ?v => constr:(Var v)
-end.
+Arguments Reify [X] _.
+Arguments reify [X] _ [Reify].
+
+Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
+{
+    reify := Var x
+}.
+Proof. reflexivity. Defined.
+
+Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
+    : Reify (@op X a b) | 0 :=
+{
+    reify := Op (reify a) (reify b)
+}.
+Proof.
+  cbn. rewrite !reify_spec. reflexivity.
+Defined.
+
+Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
+    : Reify (f x) | 0 :=
+{
+    reify := Mor f (reify x)
+}.
+Proof.
+  cbn. rewrite !reify_spec. reflexivity.
+Defined.
 
 Ltac reflect_sgr := simpl; intros;
 match goal with
     | |- ?e1 == ?e2 =>
-        let e1' := reify e1 in
-        let e2' := reify e2 in
-          change (expDenote e1' == expDenote e2');
-          apply sgr_reflect; simpl
+        change (expDenote (reify e1) == expDenote (reify e2));
+        apply sgr_reflect; cbn
 end.
+
+Ltac reflect_sgr' := intros;
+  do 2 (rewrite <- reify_spec; symmetry);
+  apply sgr_reflect; cbn.
 
 Ltac sgr_simpl := repeat red; simpl in *; intros.
 
@@ -186,26 +202,13 @@ end.
 Goal forall (X : Sgr) (a b c : X),
   op a (op b c) == op (op a b) c.
 Proof.
-  reflect_sgr. reflexivity.
+  reflect_sgr'. reflexivity.
 Qed.
 
 Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
   f (op a b) == op (f a) (f b).
 Proof.
   reflect_sgr. reflexivity.
-Qed.
-
-Goal forall (X : Sgr) (a b : X) (l1 l2 : nel X), a == b ->
-  expDenoteNel (l1 +++ a ::: l2) == expDenoteNel (l1 +++ b ::: l2).
-Proof.
-  intros. rewrite !expDenoteNel_app. cbn. rewrite H. reflexivity.
-Qed.
-
-Goal forall (X : Sgr) (l1 l2 l2' l3 : nel X),
-  expDenoteNel l2 == expDenoteNel l2' ->
-    expDenoteNel (l1 +++ l2 +++ l3) == expDenoteNel (l1 +++ l2' +++ l3).
-Proof.
-  intros. rewrite !expDenoteNel_app, H. reflexivity.
 Qed.
 
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
@@ -217,12 +220,12 @@ Proof. sgr. Defined.
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
     : SgrHom A C.
 Proof.
-  red. exists (SetoidComp f g). sgr.
+  exists (SetoidComp f g). sgr.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
 Proof.
-  sgr_simpl. exists (SetoidId A). sgr.
+  exists (SetoidId A). sgr.
 Defined.
 
 Instance SgrCat : Cat :=
@@ -263,7 +266,7 @@ Proof. all: sgr. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  do 3 red. exists (CoqSetoid_delete X). sgr.
+  exists (CoqSetoid_delete X). sgr.
 Defined.
 
 Instance Sgr_has_term : has_term SgrCat :=
@@ -285,18 +288,18 @@ Defined.
 
 Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
-  red. exists (CoqSetoid_proj1 X Y). sgr.
+  exists (CoqSetoid_proj1 X Y). sgr.
 Defined.
 
 Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
 Proof.
-  red. exists (CoqSetoid_proj2 X Y). sgr.
+  exists (CoqSetoid_proj2 X Y). sgr.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_prodOb A B).
 Proof.
-  red. exists (CoqSetoid_fpair f g). split; sgr.
+  exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
 
 Instance Sgr_has_products : has_products SgrCat :=
@@ -314,10 +317,6 @@ Instance Sgr_sum (X Y : Sgr) : Sgr :=
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
- (*   left. exact (op x x').
-    left. exact x.
-    left. exact x'.
-    right. exact (op y y').*)
   proper. repeat
   match goal with
       | H : match ?x with _ => _ end |- _ => destruct x
@@ -393,13 +392,13 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
     : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
-  red. exists (fun x : X => singl (inl x)). sgr.
+  exists (fun x : X => singl (inl x)). sgr.
 Defined.
 
 Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
     : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
-  red. exists (fun y : Y => singl (inr y)). sgr.
+  exists (fun y : Y => singl (inr y)). sgr.
 Defined.
 
 (*Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y))
@@ -485,11 +484,12 @@ Qed.
 
 Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
 
-Instance app_nel_Proper : forall (X Y : Sgr),
-    Proper (@fpeq4 X Y ==> fpeq4 ==> fpeq4) nel_app.
+Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
+    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
 Proof.
-  proper.
-
+  unfold fpeq4. induction l1 as [| h1 t1].
+    simpl; intros. fpeq4. destruct l2.
+      fpeq4. Focus 2.
 Abort.
 
 (*Instance Sgr_freeprod (X Y : Sgr) : Sgr :=

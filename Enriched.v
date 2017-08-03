@@ -29,7 +29,6 @@ Class Enriched (V : Monoidal) : Type :=
       right_unitor (EHom A B);
 }.
 
-Check Monoidal_has_terminal_and_products.
 Require Import Instances.Setoids.
 
 Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
@@ -45,13 +44,11 @@ Instance Enriched_CoqSetoid : Enriched
 Proof.
   exact (Ob CoqSetoid).
   intros X Y. exact (wut _ X Y).
-  cbn. intros. red. exists (fun p => fst p .> snd p). proper.
-    destruct H. rewrite H, H0. reflexivity.
-  intros. red. cbn. exists (fun _ => id X). proper.
+  cbn. intros.
+    split with (fun p => SetoidComp (fst p) (snd p)). proper.
+      destruct H, x, y. cbn in *. rewrite H, H0. reflexivity.
+  intros. cbn. exists (fun _ => id X). proper.
   cbn. reflexivity.
   cbn. reflexivity.
   cbn. reflexivity.
 Defined.
-
-
-

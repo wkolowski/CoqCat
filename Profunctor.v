@@ -40,7 +40,7 @@ Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
       {| carrier := Hom X Y; setoid := HomSetoid X Y |};
 }.
 Proof.
-  intros ? ? ? ? f g. do 3 red; simpl.
+  intros ? ? ? ? f g.
     exists (fun h : Hom Y X' => f .> h .> g). proper.
   all: profunctor.
 Defined.
@@ -52,8 +52,6 @@ Instance Const {E : Cat} (X : Ob E) (C D : Cat)
     dimap := fun _ _ _ _ _ _ => id X
 }.
 Proof. all: profunctor. Defined.
-
-Print Contravariant.
 
 Instance ProComp {C C' D D' E : Cat}
     (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
@@ -74,7 +72,7 @@ Instance HomFunctor (C : Cat) (X : Ob C)
     fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
 }.
 Proof.
-  intros A B f. do 3 red; simpl. exists (fun g => g .> f). proper.
+  intros A B f. exists (fun g => g .> f). proper.
   proper. all: cat.
 Defined.
 
@@ -84,13 +82,11 @@ Instance HomContravariant (C : Cat) (X : Ob C)
     coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
 }.
 Proof.
-  intros Y Z f. do 3 red; simpl. exists (fun g => f .> g). proper.
+  intros Y Z f. exists (fun g => f .> g). proper.
   proper. all: cat.
 Defined.
 
 Require Import NatTrans.
-
-Check @natural_isomorphism.
 
 Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
   exists (X : Ob C) (α : NatTrans F (HomFunctor C X)),

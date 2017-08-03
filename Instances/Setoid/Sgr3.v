@@ -417,13 +417,13 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
     : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
-  red. exists (fun x : X => singl (inl x)). sgr.
+  exists (fun x : X => singl (inl x)). sgr.
 Defined.
 
 Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
     : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
-  red. exists (fun y : Y => singl (inr y)). sgr.
+  exists (fun y : Y => singl (inr y)). sgr.
 Defined.
 
 (*Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y))

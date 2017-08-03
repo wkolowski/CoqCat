@@ -217,8 +217,6 @@ Defined.
 }.
 Proof.
   intros.
-  (*Check (curry (@uncurry D hp he (fob F A) (fob G A) (expOb (fob F A) (fob G A)) _
-  .> fmap G X)).*)
   Focus 2. unfold Proper, respectful. intros. proper.
 Abort.
 

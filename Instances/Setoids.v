@@ -45,18 +45,16 @@ match goal with
   | S : Ob _ |- _ => setoidob S
 end.
 
-Definition SetoidHom (X Y : Setoid') : Type := {f : X -> Y |
-    Proper ((@equiv _ (@setoid X)) ==> (@equiv _ (@setoid Y))) f}.
+Class SetoidHom (X Y : Setoid') : Type :=
+{
+    func :> X -> Y;
+    func_Proper :> Proper (@equiv _ X ==> @equiv _ Y) func
+}.
 
-Definition SetoidHom_Fun (X Y : Setoid') (f : SetoidHom X Y) : X -> Y
-    := proj1_sig f.
-Coercion SetoidHom_Fun : SetoidHom >-> Funclass.
+Arguments func [X Y] _.
+Arguments func_Proper [X Y] _.
 
-Instance wut_tmp (X Y : Setoid') (f : SetoidHom X Y)
-  : Proper (equiv ==> equiv) f.
-Proof.
-  destruct f. auto.
-Defined.
+Coercion func : SetoidHom >-> Funclass.
 
 Ltac setoidhom f := try intros until f;
 match type of f with
@@ -75,63 +73,74 @@ end.
 Ltac setoid_simpl := repeat (red || split || simpl in * || intros).
 Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
 
-Ltac setoid' := repeat (setoid_simpl || cat || setoidhoms || setoidobs).
+Ltac setoid' := repeat
+match goal with
+    | |- Proper _ _ => proper
+    | |- Equivalence _ _ => solve_equiv
+    | _ => setoid_simpl || cat || setoidhoms || setoidobs
+end.
+
 Ltac setoid := try (setoid'; fail).
 
-Definition SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
-    (g : SetoidHom Y Z) : SetoidHom X Z.
-Proof.
-  setoid. exists (fun x : X => g (f x)). setoid.
-Defined.
+Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
+    (g : SetoidHom Y Z) : SetoidHom X Z :=
+{
+    func := fun x : X => g (f x)
+}.
+Proof. setoid. Defined.
 
-Definition SetoidId (X : Setoid') : SetoidHom X X.
-Proof.
-  setoid_simpl. exists (fun x : X => x). setoid.
-Defined.
+Instance SetoidId (X : Setoid') : SetoidHom X X :=
+{
+    func := fun x : X => x
+}.
+Proof. setoid. Defined.
 
 Instance CoqSetoid : Cat :=
 {|
     Ob := Setoid';
     Hom := SetoidHom;
     HomSetoid := fun X Y : Setoid' =>
-      {| equiv := fun f g : SetoidHom X Y =>
-        forall x : X, @equiv _ (@setoid Y) (f x) (g x) |};
+    {|
+        equiv := fun f g : SetoidHom X Y =>
+          forall x : X, @equiv _ (@setoid Y) (f x) (g x)
+    |};
     comp := SetoidComp;
     id := SetoidId
 |}.
-Proof.
-  (* Equivalence *) solve_equiv.
-  (* Proper *) setoid.
-  (* Category laws *) all: setoid.
-Restart.
-  all: try solve_equiv; setoid. (* Faster than just setoid *)
-Defined.
+Proof. all: setoid. Defined.
+
+Instance const (X Y : Setoid') (y : Y) : SetoidHom X Y :=
+{
+    func := fun _ => y
+}.
+Proof. setoid. Defined.
+
+Arguments const _ [Y] _.
 
 Theorem CoqSetoid_mon_char : forall (X Y : Setoid') (f : SetoidHom X Y),
     Mon f <-> injectiveS f.
 Proof.
-  Lemma g1 : forall (X Y : Setoid') (y : Y), SetoidHom X Y.
-    Proof. intros. red. exists (fun _ => y). proper. Defined.
   unfold Mon, injectiveS; split; intros.
-    specialize (H _ (g1 Y X a) (g1 Y X a')). simpl in H.
+    specialize (H _ (const Y a) (const Y a')). cbn in H.
       apply H; auto. exact (f a).
-    simpl. intro. apply H. apply H0.
+    cbn. intro. apply H. apply H0.
 Defined.
 
 Theorem CoqSetoid_sur_is_epi : forall (X Y : Setoid') (f : SetoidHom X Y),
     surjectiveS f -> Epi f.
 Proof.
-  unfold Epi, surjectiveS; intros. simpl in *. intro.
-  destruct (H x) as [a eq]. setoid'. pose (eq' := eq).
-  apply g_pres_equiv in eq'. apply h_pres_equiv in eq.
-  do 2 eapply X0_equiv_trans; eauto.
+  unfold Epi, surjectiveS; intros. cbn in *. intro.
+  destruct (H x) as [a eq].
+  rewrite (func_Proper g x), (func_Proper h x).
+    apply H0.
+    all: rewrite eq; reflexivity.
 Defined.
 
 Theorem CoqSetoid_sec_is_inj : forall (X Y : Setoid') (f : SetoidHom X Y),
     Sec f -> injectiveS f.
 Proof.
   unfold Sec, injectiveS; intros.
-  destruct H as [g H]. simpl in *. cut (g (f a) == g (f a')).
+  destruct H as [g H]. cbn in *. cut (g (f a) == g (f a')).
     intro. rewrite !H in H1. assumption.
     setoid.
 Defined.
@@ -146,7 +155,7 @@ Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
 Proof.
   unfold Ret, surjectiveS; split; simpl; intros.
     destruct H as [g H]. red. exists g. setoid'.
-    do 2 destruct H. exists (exist _ _ H). cat.
+    do 2 destruct H. exists {| func := x; func_Proper := H |}. cat.
 Qed.
 
 Instance CoqSetoid_init : Setoid' :=
@@ -154,31 +163,33 @@ Instance CoqSetoid_init : Setoid' :=
     carrier := Empty_set;
     setoid := {| equiv := fun (x y : Empty_set) => match x with end |}
 }.
-Proof. solve_equiv. Defined.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_create (X : Setoid') : SetoidHom CoqSetoid_init X.
-Proof.
-  red. exists (fun e : Empty_set => match e with end). setoid.
-Defined.
+Instance CoqSetoid_create (X : Setoid') : SetoidHom CoqSetoid_init X :=
+{
+    func := fun e : Empty_set => match e with end
+}.
+Proof. setoid. Defined.
 
 Instance CoqSetoid_has_init : has_init CoqSetoid :=
 {
     init := CoqSetoid_init;
     create := CoqSetoid_create;
 }.
-Proof. setoid'. Defined.
+Proof. setoid. Defined.
 
 Instance CoqSetoid_term : Setoid' :=
 {
     carrier := unit;
     setoid := {| equiv := fun _ _ => True |};
 }.
-Proof. solve_equiv. Defined.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_delete (X : Setoid') : SetoidHom X CoqSetoid_term.
-Proof.
-  red. exists (fun _ => tt). setoid.
-Defined.
+Instance CoqSetoid_delete (X : Setoid') : SetoidHom X CoqSetoid_term :=
+{
+    func := fun _ => tt
+}.
+Proof. setoid. Defined.
 
 Instance CoqSetoid_has_term : has_term CoqSetoid :=
 {
@@ -194,26 +205,29 @@ Instance CoqSetoid_prodOb (X Y : Setoid') : Setoid' :=
       @equiv _ (@setoid X) (fst p1) (fst p2) /\
       @equiv _ (@setoid Y) (snd p1) (snd p2) |}
 }.
-Proof. solve_equiv. Defined.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_proj1 (X Y : Setoid')
-    : SetoidHom (CoqSetoid_prodOb X Y) X.
-Proof.
-  red. exists fst. setoid'.
-Defined.
+Instance CoqSetoid_proj1 (X Y : Setoid')
+    : SetoidHom (CoqSetoid_prodOb X Y) X :=
+{
+    func := fst
+}.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_proj2 (X Y : Setoid')
-    : SetoidHom (CoqSetoid_prodOb X Y) Y.
-Proof.
-  red. exists snd. setoid'.
-Defined.
+Instance CoqSetoid_proj2 (X Y : Setoid')
+    : SetoidHom (CoqSetoid_prodOb X Y) Y :=
+{
+    func := snd
+}.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_fpair (A B X : Setoid')
+Instance CoqSetoid_fpair (A B X : Setoid')
     (f : SetoidHom X A) (g : SetoidHom X B)
-    : SetoidHom X (CoqSetoid_prodOb A B).
-Proof.
-  red. exists (fun x : X => (f x, g x)). setoid'.
-Defined.
+    : SetoidHom X (CoqSetoid_prodOb A B) :=
+{
+    func := fun x : X => (f x, g x)
+}.
+Proof. setoid. Defined.
 
 Instance CoqSetoid_has_products : has_products CoqSetoid :=
 {
@@ -222,7 +236,7 @@ Instance CoqSetoid_has_products : has_products CoqSetoid :=
     proj2 := CoqSetoid_proj2;
     fpair := CoqSetoid_fpair
 }.
-Proof. all: setoid'. Defined.
+Proof. all: setoid'. Time Defined.
 
 Instance CoqSetoid_coprodOb (X Y : Setoid') : Setoid' :=
 {
@@ -238,23 +252,23 @@ Proof.
   setoid'; destruct x; try destruct y; try destruct z; setoid.
 Defined.
 
-Definition CoqSetoid_coproj1 (X Y : Setoid')
+Instance CoqSetoid_coproj1 (X Y : Setoid')
     : SetoidHom X (CoqSetoid_coprodOb X Y).
 Proof.
-  red. exists inl. proper.
+  split with inl. proper. (* TODO : finish *)
 Defined.
 
-Definition CoqSetoid_coproj2 (X Y : Setoid')
+Instance CoqSetoid_coproj2 (X Y : Setoid')
     : SetoidHom Y (CoqSetoid_coprodOb X Y).
 Proof.
-  red. exists inr. proper.
+  split with inr. proper.
 Defined.
 
-Definition CoqSetoid_copair (A B X : Setoid')
+Instance CoqSetoid_copair (A B X : Setoid')
     (f : SetoidHom A X) (g : SetoidHom B X)
     : SetoidHom (CoqSetoid_coprodOb A B) X.
 Proof.
-  red. exists (fun p : sum A B =>
+  split with (fun p : sum A B =>
   match p with
     | inl a => f a
     | inr b => g b
@@ -274,7 +288,7 @@ Proof.
     | p : _ + _ |- _ => destruct p
     | _ => setoid'
   end.
-Defined.
+Time Defined.
 
 Instance CoqSetoid_eq_ob {X Y : Setoid'} (f g : SetoidHom X Y)
     : Setoid' :=
@@ -283,31 +297,22 @@ Instance CoqSetoid_eq_ob {X Y : Setoid'} (f g : SetoidHom X Y)
     setoid := {| equiv := fun p1 p2 =>
       @equiv _ (@setoid X) (proj1_sig p1) (proj1_sig p2) |}
 }.
-Proof.
-  setoid'; destruct H; try destruct H0; eauto.
-Defined.
+Proof. setoid. Defined.
 
-Definition CoqSetoid_eq_mor {X Y : Setoid'} (f g : SetoidHom X Y)
-    : SetoidHom (CoqSetoid_eq_ob f g) X.
-Proof.
-  red. unfold CoqSetoid_eq_ob; simpl in *.
-  exists (@proj1_sig _ _). proper.
-Defined.
+Instance CoqSetoid_eq_mor {X Y : Setoid'} (f g : SetoidHom X Y)
+    : SetoidHom (CoqSetoid_eq_ob f g) X :=
+{
+    func := @proj1_sig _ _
+}.
+Proof. setoid. Defined.
 
-Lemma trick_eq {X Y E' : Setoid'} (f g : SetoidHom X Y)
+Program Instance factorize {X Y E' : Setoid'} (f g : SetoidHom X Y)
     (e' : SetoidHom E' X) (H : forall x : E', f (e' x) == g (e' x))
-    : E' -> CoqSetoid_eq_ob f g.
-Proof.
-  intro arg. setoidhom e'; simpl in *. exists (e' arg). apply H.
-Defined.
-
-Lemma trick_eq' {X Y E' : Setoid'} (f g : SetoidHom X Y)
-    (e' : SetoidHom E' X) (H : forall x : E', f (e' x) == g (e' x))
-    : SetoidHom E' (CoqSetoid_eq_ob f g).
-Proof.
-  red. exists (trick_eq f g e' H). do 2 red. intros.
-  unfold trick_eq. simpl. setoid'.
-Defined.
+    : SetoidHom E' (CoqSetoid_eq_ob f g) :=
+{
+    func := fun x => e' x
+}.
+Next Obligation. proper. Defined.
 
 Instance CoqSetoid_has_equalizers : has_equalizers CoqSetoid :=
 {
@@ -317,7 +322,7 @@ Instance CoqSetoid_has_equalizers : has_equalizers CoqSetoid :=
 Proof.
   repeat (red || split).
     destruct x. auto.
-    intros. exists (trick_eq' f g e' H). setoid'.
+    intros. exists (factorize f g e' H). setoid'.
 Defined.
 
 Inductive CoqSetoid_coeq_equiv {X Y : Setoid'} (f g : SetoidHom X Y)
@@ -342,25 +347,26 @@ Instance CoqSetoid_coeq_ob {X Y : Setoid'} (f g : SetoidHom X Y) :
       {| equiv := CoqSetoid_coeq_equiv f g |}
 }.
 Proof.
-  repeat (red || split).
-    intro y. constructor. reflexivity.
-    intros y y' H. apply coeq_sym. assumption.
-    intros y1 y2 y3 H1 H2. eapply coeq_trans; eauto.
+  solve_equiv.
+    apply coeq_step. reflexivity.
+    apply coeq_sym. assumption.
+    eapply coeq_trans; eauto.
 Defined.
 
-Definition CoqSetoid_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
-    : Hom Y (CoqSetoid_coeq_ob f g).
-Proof.
-  repeat red. unfold CoqSetoid_coeq_ob; simpl in *.
-  exists (fun y : Y => y). repeat red. intros. constructor. assumption.
-Defined.
+Instance CoqSetoid_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
+    : SetoidHom Y (CoqSetoid_coeq_ob f g) :=
+{
+    func := fun y : Y => y
+}.
+Proof. do 2 red. intros. constructor. assumption. Defined.
 
-Lemma trick (X Y Q' : Setoid') (f g : SetoidHom X Y)
+Instance cofactorize (X Y Q' : Setoid') (f g : SetoidHom X Y)
     (q' : SetoidHom Y Q') (H : forall x : X, q' (f x) == q' (g x))
-    : SetoidHom (CoqSetoid_coeq_ob f g) Q'.
-Proof.
-  red. exists q'. proper. induction H0; subst; setoid'.
-Defined.
+    : SetoidHom (CoqSetoid_coeq_ob f g) Q' :=
+{
+    func := q'
+}.
+Proof. proper. induction H0; subst; setoid'. Defined.
 
 Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
 {
@@ -370,19 +376,7 @@ Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
 Proof.
   setoid_simpl.
     apply coeq_quot.
-    assert (u' : {u : SetoidHom Y Q' |
-      forall y : Y, u y = q' y}).
-      exists q'. reflexivity.
-    assert (u : SetoidHom (CoqSetoid_coeq_ob f g) Q').
-      red. exists (proj1_sig u'). proper. destruct u' as [u' Hu'].
-      setoidhom q'; setoidhom u'; setoidob Q'; simpl in *.
-      rewrite !Hu'.
-      induction H0; subst.
-        apply q'_pres_equiv. assumption.
-        apply H.
-        apply Q'_equiv_sym. assumption.
-        eapply Q'_equiv_trans; eauto.
-    exists (trick f g q' H). setoid'.
+    exists (cofactorize _ _ _ H). setoid'.
 Defined.
 
 Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
@@ -395,19 +389,17 @@ Proof.
   split; red; intros; try rewrite H; try rewrite H0; reflexivity.
 Defined.
 
-Definition CoqSetoid_bigProj {J : Set} (A : J -> Setoid') (j : J)
+Instance CoqSetoid_bigProj {J : Set} (A : J -> Setoid') (j : J)
     : SetoidHom (CoqSetoid_bigProdOb A) (A j).
 Proof.
-  red. exists (fun (f : forall j : J, A j) => f j). proper.
+  split with (fun (f : forall j : J, A j) => f j). proper.
 Defined.
 
-Definition CoqSetoid_tuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
+Instance CoqSetoid_tuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
     (f : forall j : J, SetoidHom X (A j))
     : SetoidHom X (CoqSetoid_bigProdOb A).
 Proof.
-  red. exists (fun x : X => (fun j : J => f j x)).
-  do 2 red; simpl; intros. destruct (f j) as [g g_proper];
-  do 2 red in g_proper; simpl. apply g_proper. assumption.
+  split with (fun x : X => (fun j : J => f j x)). proper.
 Defined.
 
 Instance CoqSetoid_has_all_products : has_all_products CoqSetoid :=
@@ -433,7 +425,7 @@ Theorem equiv_hetero_trans :
   (x : A) (y : B) (z : C), A = B -> JMeq SA SB ->
     equiv_hetero SA x y -> equiv_hetero SB y z -> equiv_hetero SA x z.
 Proof.
-  intros. Check JMeq_eq. Require Import Program. subst.
+  intros. Require Import Program. subst.
   apply JMeq_eq in H0. subst. dependent destruction H1.
   dependent destruction H2. constructor. rewrite H. assumption.
 Qed.
@@ -462,19 +454,23 @@ Proof.
       subst. eapply (equiv_hetero_trans (eq_refl) (JMeq_refl) H1 H2).
 Defined.
 
-Definition CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
-    : SetoidHom (A j) (CoqSetoid_bigCoprodOb A).
-Proof.
-  red. exists (fun x : A j => existT _ j x). proper.
-Defined.
+Instance CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
+    : SetoidHom (A j) (CoqSetoid_bigCoprodOb A) :=
+{
+    func := fun x : A j => existT _ j x
+}.
+Proof. proper. Defined.
 
-Definition CoqSetoid_cotuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
+Instance CoqSetoid_cotuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
     (f : forall j : J, SetoidHom (A j) X)
-    : SetoidHom (CoqSetoid_bigCoprodOb A) X.
+    : SetoidHom (CoqSetoid_bigCoprodOb A) X :=
+{
+    func := fun x => f (projT1 x) (projT2 x)
+}.
 Proof.
-  red. exists (fun x => f (projT1 x) (projT2 x)). proper.
+  proper.
   destruct x, y. cbn in *. destruct H; subst. inversion H0.
-  apply inj_pair2 in H. subst. destruct (f x0). cbn. rewrite H1. reflexivity.
+  apply inj_pair2 in H. subst. rewrite H1. reflexivity.
 Defined.
 
 Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
@@ -484,8 +480,7 @@ Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
     cotuple := @CoqSetoid_cotuple
 }.
 Proof.
-  simpl; intros; eauto.
-  setoid.
+  simpl; intros; eauto. setoid.
 Defined.
 
 Instance CoqSetoid_expOb_setoid (X Y : Setoid')
@@ -493,39 +488,38 @@ Instance CoqSetoid_expOb_setoid (X Y : Setoid')
 {
     equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x
 }.
-Proof.
-  solve_equiv.
-Defined.
+Proof. setoid. Defined.
 
 Instance CoqSetoid_expOb (X Y : Setoid') : Setoid' :=
 {
     carrier := SetoidHom X Y;
     setoid := CoqSetoid_expOb_setoid X Y
+(*        {| equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x |}*)
 }.
 
-Definition CoqSetoid_eval (X Y : Setoid')
+Instance CoqSetoid_eval (X Y : Setoid')
     : SetoidHom (prodOb (CoqSetoid_expOb X Y) X) Y.
 Proof.
-  red; simpl. exists (fun fx : SetoidHom X Y * X => (fst fx) (snd fx)).
-  proper. destruct x, y, H; simpl in *. setoid.
+  split with (fun fx : SetoidHom X Y * X => (fst fx) (snd fx)).
+  proper. destruct x, y, H; cbn in *. setoid.
 Defined.
 
 Definition CoqSetoid_curry_fun
     (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
     : Z -> (CoqSetoid_expOb X Y).
 Proof.
-  intro z; do 3 red. destruct f as [f Hf]; do 2 red in Hf; simpl in *.
-  exists (fun x : X => f (z, x)). do 2 red. intros.
-  apply Hf. simpl. split; [reflexivity | assumption].
+  intro z. destruct f as [f Hf]; do 2 red in Hf; simpl in *.
+  split with (fun x : X => f (z, x)). do 2 red. intros.
+  apply Hf. cbn; split; [reflexivity | assumption].
 Defined.
 
-Definition CoqSetoid_curry
+Instance CoqSetoid_curry
     (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
     : SetoidHom Z (CoqSetoid_expOb X Y).
 Proof.
-  exists (CoqSetoid_curry_fun f). do 2 red. intros.
+  split with (CoqSetoid_curry_fun f). do 2 red. intros.
   setoidhom f; unfold CoqSetoid_curry_fun; simpl in *. intro x'.
-  apply f_pres_equiv. simpl. split; [assumption | reflexivity].
+  apply f_pres_equiv. cbn. split; [assumption | reflexivity].
 Defined.
 
 Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
@@ -552,12 +546,11 @@ Instance HomFunctor_fob (C : Cat) (X : Ob C)
     setoid := HomSetoid X Y
 |}.
 
-Definition HomFunctor_fmap (C : Cat) (X : Ob C)
+Instance HomFunctor_fmap (C : Cat) (X : Ob C)
     : forall Y Z : Ob C, Hom Y Z ->
     SetoidHom (HomFunctor_fob C X Y) (HomFunctor_fob C X Z).
 Proof.
-  intros Y Z g. red; simpl.
-  exists (fun f : Hom X Y => f .> g).
+  intros Y Z g. split with (fun f : Hom X Y => f .> g).
   proper.
 Defined.
 

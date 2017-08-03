@@ -147,11 +147,7 @@ Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
     limit' K -> limit' (ConeImage F K).
 
-Check FunCat.
-
 Require Import Setoids.
-
-Print isomorphic.
 
 Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
 {
@@ -166,7 +162,7 @@ Theorem limit_char :
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K),
     @limit J C F K del <-> forall c : Ob C, @isomorphic CoqSetoid
       (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
-Proof.
+Proof. (*
   split; intros.
     red. unfold limit, terminal in H. cbn.
     esplit. Unshelve. all: cycle 2.
@@ -191,7 +187,7 @@ Proof.
     pose (w := wut'' K c).
     destruct K. cbn in *.
     destruct legs0. cbn in *.
-    proper. repeat red. cbn.
+    proper. repeat red. cbn. *)
 Abort.
 
 (*Theorem limit_char :

@@ -14,15 +14,6 @@ Require Import Eqdep.
 
 Set Implicit Arguments.
 
-Ltac solve_JMeq := repeat
-match goal with
-    | H : JMeq _ _ |- _ => apply JMeq_eq in H; subst
-end;
-  subst; repeat
-match goal with
-    | H : JMeq _ _ |- _ => inversion H; apply inj_pair2 in H; clear H
-end.
-
 Instance CAT : Cat :=
 {
     Ob := Cat;
@@ -129,3 +120,15 @@ Proof.
   unfold product_skolem. repeat split; solve_depExtEq.
   all: cbn in *; my_simpl.
 Abort.
+
+Require Import Setoids.
+
+(*Inductive depExtHequiv :
+  forall {A : Setoid'} {B : Type}, A -> B -> Prop :=
+  | deh_step : forall (A : Setoid') (B : Type) (x y : A),
+      x == y -> depExtHequiv x y
+  | deh_sym : forall (A B : Setoid') (x : A) (y : B),
+      depExtHequiv x y -> depExtHequiv y x
+  | deh_trans : forall (A B : Setoid') (C : Type) (x : A) (y : B) (z : C),
+      depExtHequiv x y -> depExtHequiv y z -> depExtHequiv x z
+  | *)

@@ -246,7 +246,7 @@ Proof.
 
 
   unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. Print equalizer. intros.
+    destruct x; simpl. auto. intros.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
     cat. specialize (H0 x). destruct (y x). simpl in *. subst.
     f_equal. apply proof_irrelevance.
@@ -316,5 +316,5 @@ Proof.
     f_equal. extensionality p. rewrite H, H0. trivial.
   (*replace (fun p : CoqSet_pullbackOb f' g' => fst (proj1_sig p))
     with (fun p : CoqSet_pullbackOb f g => fst (proj1_sig p)).
-  intros. simpl. Print JMequiv. unfold CoqSet_pullbackOb.*)
+  intros. simpl. unfold CoqSet_pullbackOb.*)
 Abort.

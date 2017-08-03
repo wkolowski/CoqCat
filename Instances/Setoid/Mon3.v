@@ -297,7 +297,7 @@ Proof. all: mon. Defined.
 
 Definition Mon_Setoid_create (X : Mon) : SetoidHom Mon_init X.
 Proof.
-  red. exists (fun _ => neutr). mon.
+  exists (fun _ => neutr). mon.
 Defined.
 
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
@@ -326,7 +326,7 @@ Proof. all: mon. Defined.
 
 Definition Mon_Setoid_delete (X : Mon) : SetoidHom X Mon_term.
 Proof.
-  red. exists (fun _ => tt). mon.
+  exists (fun _ => tt). mon.
 Defined.
 
 Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
@@ -427,7 +427,7 @@ Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
 Proof.
-  red; simpl. exists (fun _ => 1). proper.
+  cbn. exists (fun _ => 1). proper.
 Defined.
 
 Theorem free_monoid_MonListUnit :
@@ -436,7 +436,7 @@ Proof.
   unfold free_monoid. intros.
   Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SetoidHom MonListUnit N.
-    red. exists (fix f (n : nat) : N :=
+    exists (fix f (n : nat) : N :=
       match n with
           | 0 => @neutr N
           | S n' => op (q tt) (f n')

@@ -68,7 +68,6 @@ Qed.*)
 (* TODO *) Definition eq_ob_Proper_T (C : Cat) (X Y : Ob C) (f f' g g' : Hom X Y)
   : f == f' -> g == g' -> Prop.
 Proof.
-  Print JMequiv.
 Abort.
 
 Class has_equalizers (C : Cat) : Type :=

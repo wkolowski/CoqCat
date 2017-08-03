@@ -421,8 +421,6 @@ Proof.
     left. intro. apply H.
 Abort.
 
-Check neq_cotrans.
-
 (* Theorem JMeq_cotrans : forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
     ~ JMeq x y -> ~ JMeq z x \/ ~ JMeq z y.
 Proof.

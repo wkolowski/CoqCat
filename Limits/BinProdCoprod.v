@@ -397,7 +397,7 @@ Proof.
   intros.
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
-  Time Info 1 fpair.
+  Time fpair.
 Defined.
 
 Theorem prodOb_assoc' :
@@ -407,7 +407,7 @@ Proof.
   intros.
   exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
-  Time Info 1 fpair.
+  Time fpair.
 Defined.
 
 Theorem copair_coproj1 :

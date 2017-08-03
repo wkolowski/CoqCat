@@ -91,9 +91,7 @@ Proof.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
   split.
-    Focus 2. Print exponential_skolem.
-    Check (delete (expOb (term C) Y)).
-    Check fpair (id (expOb (term C) Y)) (delete (expOb (term C) Y)) .> eval.
+    Focus 2. 
 Abort.
 
 Lemma wuuut :
