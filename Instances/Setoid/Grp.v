@@ -8,6 +8,9 @@ Require Import Cat.Limits.BinProdCoprod.
 
 Require Export Cat.Instances.Setoid.Mon.
 
+Require Import List.
+Import ListNotations.
+
 Set Implicit Arguments.
 
 Class Grp : Type :=
@@ -95,8 +98,10 @@ Inductive exp (X : Grp) : Type :=
 Arguments Id [X].
 Arguments Var [X] _.
 Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
+Arguments Mor {X A} _ _.
 Arguments Inv [X] _.
+
+Unset Asymmetric Patterns.
 
 Fixpoint expDenote {X : Grp} (e : exp X) : X :=
 match e with
@@ -106,9 +111,6 @@ match e with
     | Mor f e' => f (expDenote e')
     | Inv e' => inv (expDenote e')
 end.
-
-Require Import List.
-Import ListNotations.
 
 Fixpoint simplify {X : Grp} (e : exp X) : exp X :=
 match e with

@@ -484,10 +484,26 @@ Proof.
   cbn. exists (fun _ => 1). proper.
 Defined.
 
+From mathcomp Require Import ssreflect.
+
 Theorem free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.
   unfold free_monoid. intros.
+  (*pose f1 : SetoidHom MonListUnit N :=
+  {|
+      func := fix f n : N :=
+      match n with
+          | 0 => @neutr N
+          | S n' => op (q tt) (f n')
+      end;
+      func_Proper := ltac: (proper; subst; reflexivity)
+  |}.
+  pose f2 : SgrHom MonListUnit N :=
+  {|
+      setoidHom := @f1;
+      pres_op := ltac:(mon)
+  |}.*)
   Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SetoidHom MonListUnit N.
     exists (fix f (n : nat) : N :=
@@ -501,7 +517,7 @@ Proof.
     : SgrHom MonListUnit N.
     exists (f1 N q). induction x as [| x']. simpl.
       mon.
-      simpl. intro. rewrite <- assoc. rewrite IHx'. reflexivity.
+      simpl. intro. rewrite <- assoc. rewrite -> IHx'. reflexivity.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.
@@ -512,5 +528,5 @@ Proof.
     destruct y, sgrHom0; simpl in *; intros ? n. induction n as [| n'].
       mon.
       pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
-        rewrite H'. rewrite pres_op in H'. rewrite <- H', IHn'. f_equiv; mon.
+        rewrite H'. rewrite -> pres_op in H'. rewrite <- H', IHn'. f_equiv; mon.
 Defined.

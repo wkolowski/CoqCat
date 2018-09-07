@@ -8,7 +8,7 @@ Require Export BigProdCoprod.
 Require Import Exponential.
 Require Import CartesianClosed.
 
-Require Import Functor.
+Require Import Cat.Functor.
 
 Set Implicit Arguments.
 

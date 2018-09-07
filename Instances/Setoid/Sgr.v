@@ -22,11 +22,12 @@ Coercion setoid : Sgr >-> Setoid'.
 
 Class SgrHom (A B : Sgr) : Type :=
 {
-    func :> SetoidHom A B;
-    pres_op : forall x y : A, func (op x y) == op (func x) (func y)
+    setoidHom :> SetoidHom A B;
+    pres_op : forall x y : A,
+      setoidHom (op x y) == op (setoidHom x) (setoidHom y)
 }.
 
-Coercion func : SgrHom >-> SetoidHom.
+Coercion setoidHom : SgrHom >-> SetoidHom.
 
 Inductive exp (X : Sgr) : Type :=
     | Var : X -> exp X

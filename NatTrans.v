@@ -2,7 +2,7 @@ Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.Base.
 
-Require Import Functor.
+Require Import Cat.Functor.
 Require Import BinProdCoprod.
 Require Import Exponential.
 

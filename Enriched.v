@@ -8,7 +8,7 @@ Require Import Limits.BinProdCoprod.
 
 Require Import CartesianClosed.
 
-Require Import Monoidal.
+Require Import Cat.Monoidal.
 
 Class Enriched (V : Monoidal) : Type :=
 {

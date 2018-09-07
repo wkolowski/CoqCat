@@ -1,7 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Export Cat.
-Require Export Functor.
+Require Export Cat.Functor.
 
 Set Implicit Arguments.
 
@@ -172,7 +172,7 @@ Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
 
 Ltac fpair' := autorewrite with fpair'_base.
 
-Module Wut.
+(*Module Wut.
 
 Require Export TacticFunctor.
 
@@ -251,7 +251,7 @@ end.
 (* TODO: class-based simplification *)
 
 
-End Tactic.
+End Tactic.*)
 
 Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
@@ -380,7 +380,7 @@ Proof.
 Qed.
 
 (* TODO: TESTS *)
-Import Wut.
+(*Import Wut.*)
 
 Theorem prodOb_comm : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     prodOb X Y ~ prodOb Y X.

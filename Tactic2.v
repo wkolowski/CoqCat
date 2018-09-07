@@ -1,7 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
-Require Import Functor.
+Require Import Cat.Functor.
 
 Set Implicit Arguments.
 
@@ -148,6 +148,7 @@ Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
 Proof.
+  intros. reflect_cat.
 Abort.
 
 Goal

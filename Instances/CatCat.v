@@ -1,7 +1,7 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
 Require Import Cat.
-Require Import Functor.
+Require Import Cat.Functor.
 
 Require Import Limits.InitTerm.
 Require Import Limits.BinProdCoprod.

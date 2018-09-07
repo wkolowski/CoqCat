@@ -234,6 +234,8 @@ Proof.
   f_equal; apply proof_irrelevance.
 Qed.
 
+Print Assumptions cat_split.
+
 Theorem setoid_split : forall A A' equiv equiv' setoid_equiv setoid_equiv',
     A = A' -> JMeq equiv equiv' ->
     JMeq (@Build_Setoid A equiv setoid_equiv)
@@ -250,14 +252,14 @@ Proof.
   rewrite H. trivial.
 Qed.
 
-(*Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
+Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
 Proof.
   destruct C. unfold Dual. apply cat_split; simpl; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
     intros. rewrite H. reflexivity.
     apply H. extensionality A. extensionality B. apply JMeq_eq.
       destruct (HomSetoid0 A B). apply setoid_split; trivial.
-Qed.*)
+Qed.
 
 Theorem duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).

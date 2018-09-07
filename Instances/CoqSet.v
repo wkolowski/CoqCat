@@ -1,6 +1,6 @@
 Add Rec LoadPath "/home/zeimer/Code/Coq".
 
-Require Import Base.
+Require Import Cat.Base.
 
 Require Export Cat.
 Require Export Limits.InitTerm.
@@ -11,7 +11,7 @@ Require Import Limits.NewPullback.
 Require Import Exponential.
 Require Import CartesianClosed.
 
-Require Import Functor.
+Require Import Cat.Functor.
 
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
