@@ -29,17 +29,19 @@ Inductive exp (X : ComMon) : Type :=
     | Op : exp X -> exp X -> exp X
     | Mor : forall A : ComMon, MonHom A X -> exp A -> exp X.
 
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
+Check exp_ind.
+
+Arguments Id {X}.
+Arguments Var {X} _.
+Arguments Op {X} _ _.
+Arguments Mor {X A} _ _.
 
 Fixpoint expDenote {X : ComMon} (env : nat -> X) (e : exp X) : X :=
 match e with
     | Id => neutr
     | Var n => env n
     | Op e1 e2 => op (expDenote env e1) (expDenote env e2)
-    | Mor _ _ _ => neutr
+    | Mor _ _ => neutr
 end.
 
 Require Import List.
@@ -55,7 +57,7 @@ match e with
             | e1', Id => e1'
             | e1', e2' => Op e1' e2'
         end
-    | Mor _ f e' => match simplifyExp e' with
+    | Mor f e' => match simplifyExp e' with
         | Id => Id
         | Op e1 e2 => Op (Mor f e1) (Mor f e2)
         | e'' => Mor f e''
@@ -94,7 +96,7 @@ match e with
     | Id => []
     | Var v => [v]
     | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor _ f e' => []
+    | Mor f e' => []
 end.
 
 Theorem flatten_correct :
@@ -301,6 +303,8 @@ Inductive formula (X : ComMon) : Type :=
     | fAnd : formula X -> formula X -> formula X
     | fOr : formula X -> formula X -> formula X
     | fImpl : formula X -> formula X -> formula X.
+
+Arguments fVar {X} _.
 
 Fixpoint formulaDenote {X : ComMon} (env : nat -> X) (p : formula X)
   : Prop :=

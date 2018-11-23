@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Export Cat.Functor.
 
@@ -36,12 +34,12 @@ Class has_products (C : Cat) : Type :=
       product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
 }.
 
-Arguments prodOb  [C] [has_products] _ _.
-Arguments proj1   [C] [has_products] [A] [B].
-Arguments proj2   [C] [has_products] [A] [B].
-Arguments fpair   [C] [has_products] [A] [B] [X] _ _.
+Arguments prodOb {C has_products} _ _.
+Arguments proj1  {C has_products A B}.
+Arguments proj2  {C has_products A B}.
+Arguments fpair  {C has_products A B X} _ _.
 
-Class has_coproducts (C : Cat) : Type := 
+Class has_coproducts (C : Cat) : Type :=
 {
     coprodOb : Ob C -> Ob C -> Ob C;
     coproj1 : forall A B : Ob C, Hom A (coprodOb A B);

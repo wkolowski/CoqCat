@@ -209,6 +209,8 @@ Qed.
 Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
   f (op a b) == op (f a) (f b).
 Proof.
+  intros.
+  Eval cbn in reify (f a).
   reflect_sgr. reflexivity.
 Qed.
 

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import Cat.Limits.InitTerm.
 Require Import Cat.Limits.BinProdCoprod.
@@ -484,7 +482,7 @@ Proof.
   cbn. exists (fun _ => 1). proper.
 Defined.
 
-From mathcomp Require Import ssreflect.
+(*From mathcomp Require Import ssreflect.*)
 
 Theorem free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
