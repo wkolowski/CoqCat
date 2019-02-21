@@ -611,7 +611,7 @@ Proof.
   Time copair.
 Defined.
 
-Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
+Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
 Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)

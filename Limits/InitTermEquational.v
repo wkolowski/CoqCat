@@ -188,10 +188,20 @@ Lemma mor_to_init_is_ret :
 Proof.
   intros. red. exists (create X).
   rewrite !create_unique.
-  
-  edestruct H. rewrite <- H1; cat.
+  destruct hi. rewrite <- create_unique0. reflexivity.
 Qed.
 
+Lemma mor_from_term_is_sec :
+  forall
+    (C : Cat) (ht : has_term C) (X : Ob C) (f : Hom (term C) X),
+      Sec f.
+Proof.
+  intros. red. exists (delete X).
+  rewrite !delete_unique.
+  destruct ht. rewrite <- delete_unique0. reflexivity.
+Qed.
+
+(*
 Lemma mor_from_term_is_sec :
   forall (C : Cat) (T X : Ob C) (f : Hom T X)
   (delete : forall T' : Ob C, Hom T' T),
@@ -200,3 +210,4 @@ Proof.
   intros. red. exists (delete0 X).
   edestruct H. rewrite <- H1; cat.
 Qed.
+*)

@@ -285,3 +285,60 @@ Proof.
     edestruct H, (H2 _ _ _ H0), H3. assumption.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
+
+(** Category of spans *)
+
+Class SpanHom (C : Cat) (hp : has_pullbacks C) (A B : Ob C) : Type :=
+{
+    center : Ob C;
+    left : Hom center A;
+    right : Hom center B;
+}.
+
+Print Setoid.
+
+Definition transport
+  {A : Type} {P : A -> Type} {x y : A} (p : x = y) : P x -> P y.
+Proof.
+  destruct p. exact (fun a : P x => a).
+Defined.
+
+Instance SpanHomSetoid (C : Cat) (hp : has_pullbacks C) (A B : Ob C)
+  : Setoid (SpanHom hp A B).
+Proof.
+  esplit. Unshelve. Focus 2.
+    red. intros [X f g] [Y f' g'].
+    exact (
+      exists p : X = Y,
+        @transport _ (fun X => Hom X A) _ _ p f == f' /\
+        @transport _ (fun X => Hom X B) _ _ p g == g').
+  split; red; destruct x; try destruct y; try destruct z.
+    exists eq_refl. cbn. split; reflexivity.
+    intros [-> [H1 H2]]. exists eq_refl. cbn in *.
+      split; symmetry; assumption.
+    intros [-> [Hl1 Hr1]] [-> [Hl2 Hr2]]. exists eq_refl. cbn in *.
+      split; rewrite ?Hl1, ?Hr1; assumption.
+Defined.
+
+Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
+{
+    center := A;
+    left := id A;
+    right := id A;
+}.
+
+Instance Span (C' : Cat) (hp : has_pullbacks C') : Cat :=
+{
+    Ob := Ob C';
+    Hom := SpanHom hp;
+    HomSetoid := SpanHomSetoid hp;
+    id := SpanId hp;
+}.
+Proof.
+  intros A B C [X f g] [Y h i]. esplit. Unshelve.
+    Focus 7. exact (pullbackOb g h).
+    exact (pull1 g h .> f).
+    exact (pull2 g h .> i).
+  Focus 2. intros A B C D [X f g] [Y h i] [Z j k]. cbn.
+    Print has_pullbacks.
+Abort.

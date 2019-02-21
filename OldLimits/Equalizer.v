@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 
 Definition equalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
@@ -20,7 +18,8 @@ Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-    is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
+    is_equalizer :
+      forall (X Y : Ob C) (f g : Hom X Y),
         equalizer C f g (eq_ob f g) (eq_mor f g)
 }.
 

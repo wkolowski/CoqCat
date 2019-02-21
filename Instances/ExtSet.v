@@ -145,6 +145,8 @@ Proof.
   (* Coproduct law *) red; cat. apply extEq_ext. cat.
 Defined.
 
+Set Nested Proofs Allowed.
+
 (* TODO *)Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
     eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>

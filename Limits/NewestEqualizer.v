@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 
 Set Implicit Arguments.
@@ -73,14 +71,17 @@ Abort.
 Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-    eq_ob_Proper :> forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+    eq_ob_Proper :>
+      forall (X Y : Ob C) (f f' g g' : Hom X Y),
+        f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-    eq_mor_Proper :> forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
-      JMequiv (eq_mor f g) (eq_mor f' g');
-    factorize : forall {X Y : Ob C} (f g : Hom X Y)
-      (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' (eq_ob f g);
+    eq_mor_Proper :>
+      forall (X Y : Ob C) (f f' g g' : Hom X Y),
+        f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
+          JMequiv (eq_mor f g) (eq_mor f' g');
+    factorize :
+      forall {X Y : Ob C} (f g : Hom X Y) (E' : Ob C) (e' : Hom E' X),
+        e' .> f == e' .> g -> Hom E' (eq_ob f g);
     (* TODO : factorize_Proper : forall (X Y E' : Ob C) (f f' g g' : Hom X Y)
       (e' : Hom E' X) (H : e' .> f == e' .> g) (H' : e' .> f' == e' .> g'),
       f == f' -> g == g' ->
@@ -409,14 +410,38 @@ Proof.
     exact H0.
 Qed.
 
+Print factorize.
+Print is_equalizer.
+Print has_equalizers.
+
 Theorem factorize_eq_mor :
-  forall (C : Cat) (he : has_equalizers C) (X Y : Ob C) (f g : Hom X Y),
-    factorize f g _ (eq_mor f g) (proj1 (is_equalizer X Y f g)) ==
-    id (eq_ob f g).
+  forall
+    (C : Cat) (he : has_equalizers C)
+    (X Y : Ob C) (f g : Hom X Y),
+      factorize f g _ (eq_mor f g) (proj1 (is_equalizer X Y f g)) ==
+      id (eq_ob f g).
 Proof.
   intros. destruct he; simpl in *.
   edestruct is_equalizer0, s. cat.
 Defined.
+
+Check @factorize.
+
+(*
+TODO Theorem factorize_comp :
+  forall
+    (C : Cat) (he : has_equalizers C)
+    (X Y A : Ob C) (f g : Hom X Y)
+    (h1 : Hom (eq_ob f g) A) (h2 : Hom A X)
+    (H : h1 .> h2 .> f == h1 .> h2 .> g),
+      factorize f g _ (h1 .> h2) H ==
+(*      id (eq_ob f g).*)
+Proof.
+  intros. destruct he; simpl in *.
+  destruct (is_equalizer0 _ _ f g).
+  edestruct is_equalizer0, H1. rewrite H3. reflexivity. reflexivity. cat. apply H3. s. cat.
+Defined.
+*)
 
 Theorem cofactorize_eq_mor :
   forall (C : Cat) (he : has_coequalizers C) (X Y : Ob C) (f g : Hom X Y),

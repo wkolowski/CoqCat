@@ -19,8 +19,9 @@ Arguments legs [J C F] _.
 Class ConeHom {J C : Cat} {F : Functor J C}
     (C1 C2 : Cone F) :=
 {
-    mor : Hom (@apex J C F C1) (@apex J C F C2);
-    cond : forall X : Ob J,
+    mor : Hom (apex C1) (apex C2);
+    cond :
+      forall X : Ob J,
         mor .> component (legs C2) X == component (legs C1) X
 }.
 

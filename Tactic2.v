@@ -156,6 +156,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f == f' ->
       ((f .> (g .> h)) .> i) .> j == f' .> g .> h .> i .> j.
 Proof.
+  intros. reflect_cat.
 Abort.
 
 Goal
@@ -163,6 +164,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f .> g == f' .> g' ->
       ((f .> (g .> h)) .> i) .> j == f' .> (g' .> h) .> i .> j.
 Proof.
+  intros. reflect_cat.
 Abort.
 
 Goal
@@ -170,6 +172,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       f == f .> id _ .> id _.
 Proof.
+  intros. reflect_cat.
 Abort.
 
 Fixpoint simplify' {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y :=

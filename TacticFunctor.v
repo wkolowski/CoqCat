@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import Cat.Functor.
 
@@ -184,6 +182,7 @@ Proof.
     assocr. rewrite IHl1. reflexivity.
 Qed.
 
+(*
 Lemma expDenoteHL_fmap :
   forall (C D : Cat) (X Y : Ob C) (F : Functor C D) (e : exp C X Y),
     expDenoteHL (Hmap F (flatten e)) == expDenote (Fmap F e).
@@ -195,6 +194,7 @@ Proof.
       rewrite pres_comp. reflexivity.
     (*rewrite IHe.*)
 Abort.
+*)
 
 Lemma expDenoteHL_fmap :
   forall (C D : Cat) (X Y : Ob C) (F : Functor C D) (l : HomList X Y),
@@ -236,46 +236,47 @@ match goal with
         apply cat_reflect; cbn; rewrite !id_right
 end.
 
-Lemma test_comp_id_l :
-  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
-    id X .> f == f.
+Variables
+  (C D : Cat)
+  (X Y Z V W T : Ob C)
+  (F : Functor C D)
+  (f f' : Hom X Y) (g g' : Hom Y Z) (h h' : Hom Z W)
+  (i i' : Hom W V) (j j' : Hom V T).
+
+Lemma test_id_l :
+  id X .> f == f.
 Proof.
-  reflect_cat. try reflexivity.
+  reflect_cat. reflexivity.
+Qed.
+
+Lemma test_id_r :
+  f .> id Y == f.
+Proof.
+  reflect_cat. reflexivity.
 Qed.
 
 Lemma test_comp_id_l_many :
-  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
-    id X .> id X .> f == f.
+  id X .> id X .> f == f.
 Proof.
-  repeat reflect_cat. try reflexivity.
-Qed.
-
-Lemma test_comp_id_r :
-  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
-    f .> id Y == f.
-Proof.
-  reflect_cat. try reflexivity.
+  repeat reflect_cat. reflexivity.
 Qed.
 
 Lemma test_comp_id_r_many :
-  forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
-    f .> id Y .> id Y == f.
+  f .> id Y .> id Y == f.
 Proof.
-  reflect_cat. try reflexivity.
+  reflect_cat. reflexivity.
 Qed.
 
 Lemma test_fmap_id :
-  forall (C D : Cat) (X : Ob C) (F : Functor C D),
-    fmap F (id X) == id (fob F X).
+  fmap F (id X) == id (fob F X).
 Proof.
   reflect_cat. reflexivity.
 Qed.
 
 Lemma test_assoc :
-  forall (C : Cat) (X Y Z W : Ob C) (f : Hom X Y) (g : Hom Y Z) (h : Hom Z W),
-    (f .> g) .> h == f .> (g .> h).
+  (f .> g) .> h == f .> (g .> h).
 Proof.
-  flat_reflect_cat. try reflexivity.
+  flat_reflect_cat. reflexivity.
 Qed.
 
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)

@@ -3,10 +3,10 @@ Require Export InitTerm.
 Require Export BinProdCoprodEquational.
 
 (* TODO *)
-Class has_exponentials (C : Cat) {hp : has_products_eq C} : Type :=
+Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 {
     expOb : Ob C -> Ob C -> Ob C;
-    eval : forall X Y : Ob C,
+    eval : forall {X Y : Ob C},
       Hom (prodOb (expOb X Y) X) Y;
     curry : forall {X Y Z : Ob C},
       Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
@@ -39,6 +39,7 @@ Proof.
 Qed.
 *)
 
+(*
 Theorem uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
@@ -48,3 +49,4 @@ Proof.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
   unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
 Qed.
+*)

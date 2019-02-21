@@ -484,6 +484,8 @@ Defined.
 
 (*From mathcomp Require Import ssreflect.*)
 
+Set Nested Proofs Allowed.
+
 Theorem free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.

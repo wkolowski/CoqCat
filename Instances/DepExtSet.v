@@ -132,6 +132,8 @@ Proof.
     apply (depExtEq_unext _ _ (H x)). auto.
 Defined.
 
+Set Nested Proofs Allowed.
+
 (* TODO *) Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
