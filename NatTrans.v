@@ -227,4 +227,3 @@ Instance FunCat_has_exponentials
 {}.
 Proof.
 Abort.
-  

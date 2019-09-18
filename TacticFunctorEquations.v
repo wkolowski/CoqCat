@@ -37,15 +37,6 @@ Arguments HomCons {C X Y Z} _ _.
 Equations denoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y) : Hom X Y :=
 denoteHL (HomNil X) := id X;
 denoteHL (HomCons h t) := h .> denoteHL t.
-(* BEWARE *)
-(*
-denoteHL (HomCons h t) with t => {
-  | HomNil _ := h;
-  | _ := h .> denoteHL t
-}.
-*)
-(*
-*)
 
 Equations Happ
   {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y) (l2 : HomList Y Z)
