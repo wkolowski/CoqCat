@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import Limits.InitTerm.
 Require Import Limits.BinProdCoprod.
@@ -68,6 +66,7 @@ end.
 Ltac graph' := repeat (graphobs || graphhoms || cat).
 Ltac graph := try (graph'; fail).
 
+#[refine]
 Instance GraphHomSetoid (X Y : Graph) : Setoid (GraphHom X Y) :=
 {
     equiv := fun f g : GraphHom X Y =>
@@ -78,6 +77,7 @@ Proof.
   solve_equiv; intro; rewrite ?H, ?H2, ?H0, ?H1; try reflexivity.
 Defined.
 
+#[refine]
 Instance GraphComp (X Y Z : Graph)
     (f : GraphHom X Y) (g : GraphHom Y Z) : GraphHom X Z :=
 {
@@ -93,6 +93,7 @@ Proof.
     rewrite g_pres_tgt, f_pres_tgt. reflexivity.
 Defined.
 
+#[refine]
 Instance GraphId (X : Graph) : GraphHom X X :=
 {
     fver := SetoidId (vertices X);
@@ -100,6 +101,7 @@ Instance GraphId (X : Graph) : GraphHom X X :=
 }.
 Proof. all: graph. Defined.
 
+#[refine]
 Instance GraphCat : Cat :=
 {
     Ob := Graph;

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Logic.FunctionalExtensionality.
 
 Require Export Cat.
@@ -95,11 +93,11 @@ Inductive exp (X : Grp) : Type :=
     | Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
     | Inv : exp X -> exp X.
 
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
+Arguments Id  {X}.
+Arguments Var {X} _.
+Arguments Op  {X} _ _.
 Arguments Mor {X A} _ _.
-Arguments Inv [X] _.
+Arguments Inv {X} _.
 
 Unset Asymmetric Patterns.
 
@@ -232,15 +230,17 @@ Class Reify (X : Grp) (x : X) : Type :=
     reify_spec : expDenote reify == x
 }.
 
-Arguments Reify [X] _.
-Arguments reify [X] _ [Reify].
+Arguments Reify {X} _.
+Arguments reify {X} _ {Reify}.
 
+#[refine]
 Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
 {
     reify := Var x
 }.
 Proof. reflexivity. Defined.
 
+#[refine]
 Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
@@ -250,6 +250,7 @@ Proof.
   cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
@@ -259,6 +260,7 @@ Proof.
   cbn. rewrite reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyId (X : Grp) : Reify neutr | 0 :=
 {
     reify := Id
@@ -267,6 +269,7 @@ Proof.
   cbn. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
 {
     reify := Inv (reify x)
@@ -385,6 +388,7 @@ Qed.
 
 End test.
 
+#[refine]
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
   equiv := fun f g : GrpHom X Y =>
@@ -403,6 +407,7 @@ Proof.
   exists (MonId X). grp.
 Defined.
 
+#[refine]
 Instance GrpCat : Cat :=
 {
     Ob := Grp;
@@ -424,6 +429,7 @@ Proof.
   exists (fun _ => tt). grp.
 Defined.
 
+#[refine]
 Instance Grp_zero : Grp :=
 {
     mon := Mon_init;
@@ -436,6 +442,7 @@ Proof.
   exists (Mon_create X). grp.
 Defined.
 
+#[refine]
 Instance Grp_has_init : has_init GrpCat :=
 {
     init := Grp_zero;
@@ -448,6 +455,7 @@ Proof.
   exists (Mon_delete X). grp.
 Defined.
 
+#[refine]
 Instance Grp_has_term : has_term GrpCat :=
 {
     term := Grp_zero;
@@ -455,6 +463,7 @@ Instance Grp_has_term : has_term GrpCat :=
 }.
 Proof. grp. Defined.
 
+#[refine]
 Instance Grp_has_zero : has_zero GrpCat :=
 {
     zero_is_initial := Grp_has_init;
@@ -469,6 +478,7 @@ Proof.
   proper. destruct H. rewrite H, H0. split; reflexivity.
 Defined.
 
+#[refine]
 Instance Grp_prodOb (X Y : Grp) : Grp :=
 {
     mon := Mon_prodOb X Y;
@@ -492,6 +502,7 @@ Proof.
   grp_simpl. exists (Mon_fpair f g). Time split; grp.
 Defined.
 
+#[refine]
 Instance Grp_has_products : has_products GrpCat :=
 {
     prodOb := Grp_prodOb;
@@ -514,6 +525,7 @@ Definition AutHom_Fun {C : Cat} {X : Ob C} (A B : AutOb C X)
 
 Coercion AutHom_Fun : AutHom >-> Hom.
 
+#[refine]
 Instance AutHomSetoid (C : Cat) (X : Ob C)
     : forall A B : AutOb C X, Setoid (AutHom A B) :=
 {
@@ -534,6 +546,7 @@ Proof.
   red. exists (id A). apply id_is_aut.
 Defined.
 
+#[refine]
 Instance AutCat (C : Cat) (X : Ob C) : Cat :=
 {
     Ob := AutOb C X;
@@ -565,6 +578,7 @@ Proof.
   all: intro; simpl; extensionality x; trivial.
 Defined.
 
+#[refine]
 Instance Cayley_Grp (G : Grp) : Grp :=
 {
     mon := Cayley_Mon G;

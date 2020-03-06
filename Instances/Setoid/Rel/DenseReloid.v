@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -41,6 +39,7 @@ match goal with
     | _ => repeat (my_simpl || dreloidobs || dreloidhoms || cat)
 end.
 
+#[refine]
 Instance DenseReloidCat : Cat :=
 {
     Ob := DenseReloid;
@@ -51,6 +50,7 @@ Instance DenseReloidCat : Cat :=
 }.
 Proof. all: dreloid. Defined.
 
+#[refine]
 Instance DenseReloid_init : DenseReloid :=
 {
     reloid := Reloid_init
@@ -59,12 +59,14 @@ Proof.
   split. cbn. inversion 1.
 Defined.
 
+#[refine]
 Instance DenseReloid_create (X : DenseReloid) : ReloidHom DenseReloid_init X :=
 {
     func := Reloid_create X
 }.
 Proof. proper. destruct x. Defined.
 
+#[refine]
 Instance DenseReloid_has_init : has_init DenseReloidCat :=
 {
     init := DenseReloid_init;
@@ -72,6 +74,7 @@ Instance DenseReloid_has_init : has_init DenseReloidCat :=
 }.
 Proof. dreloid. Defined.
 
+#[refine]
 Instance DenseReloid_term : DenseReloid :=
 {
     reloid := Reloid_term
@@ -80,6 +83,7 @@ Proof.
   split. cbn. eauto.
 Defined.
 
+#[refine]
 Instance DenseReloid_delete (X : DenseReloid)
   : ReloidHom X DenseReloid_term :=
 {
@@ -87,6 +91,7 @@ Instance DenseReloid_delete (X : DenseReloid)
 }.
 Proof. proper. Defined.
 
+#[refine]
 Instance DenseReloid_has_term : has_term DenseReloidCat :=
 {
     term := DenseReloid_term;
@@ -94,6 +99,7 @@ Instance DenseReloid_has_term : has_term DenseReloidCat :=
 }.
 Proof. dreloid. Defined.
 
+#[refine]
 Instance DenseReloid_prodOb (X Y : DenseReloid) : DenseReloid :=
 {
     reloid := Reloid_prodOb X Y
@@ -106,6 +112,7 @@ Proof.
   exists (z1, z2). eauto.
 Defined.
 
+#[refine]
 Instance DenseReloid_proj1 (X Y : DenseReloid)
   : ReloidHom (DenseReloid_prodOb X Y) X :=
 {
@@ -113,6 +120,7 @@ Instance DenseReloid_proj1 (X Y : DenseReloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance DenseReloid_proj2 (X Y : DenseReloid)
   : ReloidHom (DenseReloid_prodOb X Y) Y :=
 {
@@ -120,6 +128,7 @@ Instance DenseReloid_proj2 (X Y : DenseReloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance DenseReloid_fpair (X Y A : DenseReloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (DenseReloid_prodOb X Y) :=
@@ -128,6 +137,7 @@ Instance DenseReloid_fpair (X Y A : DenseReloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance DenseReloid_has_products : has_products DenseReloidCat :=
 {
     prodOb := DenseReloid_prodOb;
@@ -139,6 +149,7 @@ Proof.
   all: unfold product_skolem; dreloid.
 Defined.
 
+#[refine]
 Instance DenseReloid_coprodOb (X Y : DenseReloid) : DenseReloid :=
 {
     reloid := Reloid_coprodOb X Y
@@ -150,6 +161,7 @@ Proof.
     exists (inr x). eauto.
 Defined.
 
+#[refine]
 Instance DenseReloid_coproj1 (X Y : DenseReloid)
   : ReloidHom X (DenseReloid_coprodOb X Y) :=
 {
@@ -157,6 +169,7 @@ Instance DenseReloid_coproj1 (X Y : DenseReloid)
 }.
 Proof. dreloid. Defined.
 
+#[refine]
 Instance DenseReloid_coproj2 (X Y : DenseReloid)
   : ReloidHom Y (DenseReloid_coprodOb X Y) :=
 {
@@ -164,6 +177,7 @@ Instance DenseReloid_coproj2 (X Y : DenseReloid)
 }.
 Proof. dreloid. Defined.
 
+#[refine]
 Instance DenseReloid_copair (X Y A : DenseReloid)
   (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (DenseReloid_coprodOb X Y) A :=
@@ -174,6 +188,7 @@ Proof.
   proper. destruct x, y; try apply pres_rel; intuition eauto.
 Defined.
 
+#[refine]
 Instance DenseReloid_has_coproducts : has_coproducts DenseReloidCat :=
 {
     coprodOb := DenseReloid_coprodOb;

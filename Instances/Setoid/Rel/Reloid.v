@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -61,12 +59,14 @@ match goal with
     | _ => repeat (my_simpl || reloidobs || reloidhoms || cat)
 end.
 
+#[refine]
 Instance ReloidHomSetoid (X Y : Reloid) : Setoid (ReloidHom X Y) :=
 {
     equiv := fun f g => forall x : X, f x == g x
 }.
 Proof. solve_equiv. Defined.
 
+#[refine]
 Instance ReloidComp {X Y Z : Reloid} (f : ReloidHom X Y) (g : ReloidHom Y Z)
   : ReloidHom X Z :=
 {
@@ -74,12 +74,14 @@ Instance ReloidComp {X Y Z : Reloid} (f : ReloidHom X Y) (g : ReloidHom Y Z)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance ReloidId (X : Reloid) : ReloidHom X X :=
 {
     func := SetoidId X
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance ReloidCat : Cat :=
 {
     Ob := Reloid;
@@ -90,6 +92,7 @@ Instance ReloidCat : Cat :=
 }.
 Proof. all: reloid. Defined.
 
+#[refine]
 Instance Reloid_init : Reloid :=
 {
     carrier := CoqSetoid_init;
@@ -97,12 +100,14 @@ Instance Reloid_init : Reloid :=
 }.
 Proof. proper. reflexivity. Defined.
 
+#[refine]
 Instance Reloid_create (X : Reloid) : ReloidHom Reloid_init X :=
 {
     func := CoqSetoid_create X
 }.
 Proof. proper. destruct x. Defined.
 
+#[refine]
 Instance Reloid_has_init : has_init ReloidCat :=
 {
     init := Reloid_init;
@@ -116,12 +121,14 @@ Instance Reloid_term : Reloid :=
     rel := fun _ _ => True
 }.
 
+#[refine]
 Instance Reloid_delete (X : Reloid) : ReloidHom X Reloid_term :=
 {
     func := CoqSetoid_delete X
 }.
 Proof. proper. Defined.
 
+#[refine]
 Instance Reloid_has_term : has_term ReloidCat :=
 {
     term := Reloid_term;
@@ -129,6 +136,7 @@ Instance Reloid_has_term : has_term ReloidCat :=
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_prodOb (X Y : Reloid) : Reloid :=
 {
     carrier := CoqSetoid_prodOb X Y;
@@ -138,18 +146,21 @@ Proof.
   proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
 Defined.
 
+#[refine]
 Instance Reloid_proj1 (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) X :=
 {
     func := CoqSetoid_proj1 X Y
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_proj2 (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) Y :=
 {
     func := CoqSetoid_proj2 X Y
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_fpair (X Y A : Reloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (Reloid_prodOb X Y) :=
@@ -158,6 +169,7 @@ Instance Reloid_fpair (X Y A : Reloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_has_products : has_products ReloidCat :=
 {
     prodOb := Reloid_prodOb;
@@ -169,6 +181,7 @@ Proof.
   all: unfold product_skolem; reloid.
 Defined.
 
+#[refine]
 Instance Reloid_coprodOb (X Y : Reloid) : Reloid :=
 {
     carrier := CoqSetoid_coprodOb X Y;
@@ -184,6 +197,7 @@ Proof.
   rewrite <- ?H, <- ?H0; auto; rewrite ?H, ?H0; auto.
 Defined.
 
+#[refine]
 Instance Reloid_coproj1 (X Y : Reloid)
   : ReloidHom X (Reloid_coprodOb X Y) :=
 {
@@ -191,6 +205,7 @@ Instance Reloid_coproj1 (X Y : Reloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_coproj2 (X Y : Reloid)
   : ReloidHom Y (Reloid_coprodOb X Y) :=
 {
@@ -198,6 +213,7 @@ Instance Reloid_coproj2 (X Y : Reloid)
 }.
 Proof. reloid. Defined.
 
+#[refine]
 Instance Reloid_copair (X Y A : Reloid)
   (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (Reloid_coprodOb X Y) A :=
@@ -208,6 +224,7 @@ Proof.
   proper. destruct x, y; try apply pres_rel; intuition eauto.
 Defined.
 
+#[refine]
 Instance Reloid_has_coproducts : has_coproducts ReloidCat :=
 {
     coprodOb := Reloid_coprodOb;

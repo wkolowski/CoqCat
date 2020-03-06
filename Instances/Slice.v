@@ -1,10 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 
 Class SliceOb (C : Cat) (Y : Ob C) : Type :=
 {
-    dom :> Ob C;
+    dom : Ob C;
     mor : Hom dom Y
 }.
 
@@ -16,6 +14,7 @@ Coercion dom : SliceOb >-> Ob.
 Definition SliceHom {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Type :=
     {f : Hom A B | mor A == f .> mor B}.
 
+#[refine]
 Instance SliceHomSetoid (C : Cat) (Y : Ob C) (A B : SliceOb C Y)
     : Setoid (SliceHom A B) :=
 {
@@ -37,6 +36,7 @@ Proof.
   red. exists (id X). rewrite id_left. reflexivity.
 Defined.
 
+#[refine]
 Instance Slice (C : Cat) (Y : Ob C) : Cat :=
 {
     Ob := SliceOb C Y;

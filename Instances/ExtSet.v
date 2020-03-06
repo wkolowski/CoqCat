@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -8,6 +6,7 @@ Require Import Equalizer.
 
 Require Import Logic.IndefiniteDescription.
 
+#[refine]
 Instance ExtSet : Cat :=
 {|
     Ob := Type;
@@ -56,6 +55,7 @@ Proof.
   simpl. assumption.
 Qed.
 
+#[refine]
 Instance ExtSet_has_init : has_init ExtSet :=
 {
     init := Empty_set;
@@ -63,6 +63,7 @@ Instance ExtSet_has_init : has_init ExtSet :=
 }.
 Proof. simpl; intros. apply extEq_ext. destruct a. Defined.
 
+#[refine]
 Instance ExtSet_has_term : has_term ExtSet :=
 {
     term := unit;
@@ -72,6 +73,7 @@ Proof.
   simpl; intros. apply extEq_ext. intro. destruct (f a). auto.
 Defined.
 
+#[refine]
 Instance ExtSet_has_products : has_products ExtSet :=
 {
     prodOb := prod;
@@ -93,7 +95,9 @@ Proof.
       destruct (y a); simpl in *. auto.
 Defined.
 
-(* TODO *) Instance ExtSet_has_all_products : has_all_products ExtSet :=
+(* TODO *)
+#[refine]
+Instance ExtSet_has_all_products : has_all_products ExtSet :=
 {
     bigProdOb := fun (J : Type) (A : J -> Ob ExtSet) =>
         forall j : J, A j;
@@ -112,6 +116,7 @@ Proof.
       change (y a) with (fun j => y a j).
 Abort.
 
+#[refine]
 Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
 {
     coprodOb := sum;
@@ -130,6 +135,7 @@ Proof.
     destruct a; cat.
 Defined.
 
+#[refine]
 Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
 {
     bigCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) =>
@@ -147,7 +153,9 @@ Defined.
 
 Set Nested Proofs Allowed.
 
-(* TODO *)Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
+(* TODO *)
+#[refine]
+Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
     eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
         {x : X | extEq (f x) (g x)};

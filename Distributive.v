@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import BinProdCoprod.
 Require Import InitTerm.
 

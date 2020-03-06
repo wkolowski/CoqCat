@@ -1,11 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
 
 Require Export Instances.Setoid.Pros.
 
+#[refine]
 Instance DeloopPros (P : Pros) : Cat :=
 {
     Ob := carrier;

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Base.
 
 Inductive ext : forall A : Set, A -> A -> Prop :=

@@ -1,11 +1,10 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Export InitTerm.
 Require Import BinProdCoprod.
 Require Import BigProdCoprod.
 Require Import Equalizer.
 
+#[refine]
 Instance DepExtSet : Cat :=
 {|
     Ob := Set;
@@ -35,6 +34,7 @@ Proof.
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 x x). auto.
 Qed.
 
+#[refine]
 Instance DepExtSet_has_init : has_init DepExtSet :=
 {
     init := Empty_set;
@@ -42,6 +42,7 @@ Instance DepExtSet_has_init : has_init DepExtSet :=
 }.
 Proof. simpl; intros. apply depExtEq_ext. destruct x. Defined.
 
+#[refine]
 Instance DepExtSet_has_term : has_term DepExtSet :=
 {
     term := unit;
@@ -51,6 +52,7 @@ Proof.
   simpl; intros. apply depExtEq_ext. intro. destruct (f x). auto.
 Defined.
 
+#[refine]
 Instance DepExtSet_has_products : has_products DepExtSet :=
 {
     prodOb := prod;
@@ -67,7 +69,9 @@ Proof.
     all: solve_depExtEq.
 Defined.
 
-(* TODO *) Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
+(* TODO *)
+#[refine]
+Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
         forall j : J, A j;
@@ -90,6 +94,7 @@ Proof.
       intros. apply depExtEq_ext. intro. admit.
 Abort.
 
+#[refine]
 Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 {
     coprodOb := sum;
@@ -113,6 +118,7 @@ Proof.
       apply (depExtEq_unext _ _ H0 b b). auto.
 Defined.
 
+#[refine]
 Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
 {
     bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
@@ -134,7 +140,9 @@ Defined.
 
 Set Nested Proofs Allowed.
 
-(* TODO *) Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
+(* TODO *)
+#[refine]
+Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
         {x : X | depExtEq (f x) (g x)};

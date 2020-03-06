@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import NPeano.
 Require Import Omega.
 
@@ -87,6 +85,7 @@ Proof.
   red. exists (@SetoidId A). pros.
 Defined.
 
+#[refine]
 Instance ProsCat : Cat :=
 {
     Ob := Pros;
@@ -134,6 +133,7 @@ Proof.
       rewrite H0. auto.
 Abort.*)
 
+#[refine]
 Instance Pros_init : Pros :=
 {
     carrier := CoqSetoid_init;
@@ -146,6 +146,7 @@ Proof.
   red. exists (CoqSetoid_create X). pros.
 Defined.
 
+#[refine]
 Instance Pros_has_init : has_init ProsCat :=
 {
     init := Pros_init;
@@ -153,6 +154,7 @@ Instance Pros_has_init : has_init ProsCat :=
 }.
 Proof. pros. Defined.
 
+#[refine]
 Instance Pros_term : Pros :=
 {
     carrier := CoqSetoid_term;
@@ -165,6 +167,7 @@ Proof.
   red. exists (CoqSetoid_delete X). pros.
 Defined.
 
+#[refine]
 Instance Pros_has_term : has_term ProsCat :=
 {
     term := Pros_term;
@@ -172,6 +175,7 @@ Instance Pros_has_term : has_term ProsCat :=
 }.
 Proof. pros. Defined.
 
+#[refine]
 Instance Pros_prodOb (X Y : Pros) : Pros :=
 {
     carrier := CoqSetoid_prodOb X Y;
@@ -196,6 +200,7 @@ Proof.
   red. exists (CoqSetoid_fpair f g). pros.
 Defined.
 
+#[refine]
 Instance Pros_has_products : has_products ProsCat :=
 {
     prodOb := Pros_prodOb;
@@ -211,6 +216,7 @@ Defined.
 Definition thin (C : Cat) : Prop :=
     forall (X Y : Ob C) (f g : Hom X Y), f == g.
 
+#[refine]
 Instance Pros_coprodOb (X Y : Pros) : Pros :=
 {
     carrier := CoqSetoid_coprodOb X Y;
@@ -246,6 +252,7 @@ Proof.
   red. exists (CoqSetoid_copair f g). destruct a, a'; pros.
 Defined.
 
+#[refine]
 Instance Pros_has_coproducts : has_coproducts ProsCat :=
 {
     coprodOb := Pros_coprodOb;

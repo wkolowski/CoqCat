@@ -22,9 +22,9 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
       exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
-Arguments expOb [C] [hp] [has_exponentials] _ _.
-Arguments eval [C] [hp] [has_exponentials] [X] [Y].
-Arguments curry [C] [hp] [has_exponentials] [X] [Y] [Z] _.
+Arguments expOb {C hp has_exponentials} _ _.
+Arguments eval  {C hp has_exponentials X Y}.
+Arguments curry {C hp has_exponentials X Y Z} _.
 
 Definition uncurry
     {C : Cat} {hp : has_products C} {he : has_exponentials C}
@@ -146,7 +146,7 @@ Proof.
       apply ProductFunctor_fmap_Proper; cat. rewrite H3; cat.
 Qed.
 
-Arguments exponential_skolem_uiso [C hp X Y E eval curry E' eval' curry'] _ _.
+Arguments exponential_skolem_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
 
 Theorem exponential_skolem_iso :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C)
@@ -172,6 +172,7 @@ Proof.
   cat.
 Qed.
 
+#[refine]
 Instance ExponentialFunctor
   (C : Cat) (hp : has_products C) (he : has_exponentials C)
   (X : Ob C) : Functor C C :=

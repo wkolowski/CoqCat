@@ -1,10 +1,9 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Arith.
 Require Import Omega.
 
 Require Import Cat.
 
+#[refine]
 Instance N (n : nat) : Cat :=
 {
     Ob := {k : nat | k <= n};

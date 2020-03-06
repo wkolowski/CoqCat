@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Base.
 
 Require Import Cat.Functor.
@@ -18,6 +16,7 @@ Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 Arguments component [C D T S] _ _.
 Arguments coherence [C D T S] _ [X Y] _.
 
+#[refine]
 Instance NatTransSetoid {C D : Cat} (F G : Functor C D)
     : Setoid (NatTrans F G) :=
 {
@@ -28,6 +27,7 @@ Proof.
   split; red; intros; try rewrite H; try rewrite H0; reflexivity.
 Defined.
 
+#[refine]
 Instance NatTransComp {C D : Cat}
     {F : Functor C D} {G : Functor C D} {H : Functor C D}
     (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H :=
@@ -39,12 +39,14 @@ Proof.
   rewrite !comp_assoc, coherence1, <- comp_assoc, coherence0. cat.
 Defined.
 
+#[refine]
 Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 {
     component := fun X : Ob C => id (fob F X)
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance FunCat (C D : Cat) : Cat :=
 {
     Ob := Functor C D;
@@ -93,6 +95,7 @@ Proof.
     cat; apply inverse_α_β.
 Defined.
 
+#[refine]
 Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
     (F G : Functor C D) : Functor C D :=
 {
@@ -106,6 +109,7 @@ Proof.
   intros. rewrite 2 pres_id, ProductFunctor_fmap_pres_id. reflexivity.
 Defined.
 
+#[refine]
 Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
 {
@@ -115,6 +119,7 @@ Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
 Defined.
 
+#[refine]
 Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
 {
@@ -124,6 +129,7 @@ Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
 Defined.
 
+#[refine]
 Instance FunCat_fpair
     {C D : Cat} {hp : has_products D} {F G H : Functor C D}
     (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
@@ -135,6 +141,7 @@ Proof.
   destruct α, β; simpl in *. fpair.
 Defined.
 
+#[refine]
 Instance FunCat_has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 {
@@ -151,6 +158,7 @@ Proof.
   destruct H. rewrite H, H0. fpair.
 Defined.
 
+#[refine]
 Instance FunCat_coprodOb {C D : Cat} {hp : has_coproducts D}
     (F G : Functor C D) : Functor C D :=
 {
@@ -164,6 +172,7 @@ Proof.
   intros. rewrite 2 pres_id, CoproductFunctor_fmap_pres_id. reflexivity.
 Defined.
 
+#[refine]
 Instance FunCat_coproj1 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans F (FunCat_coprodOb F G) :=
 {
@@ -173,6 +182,7 @@ Proof.
   intros. simpl. unfold CoproductFunctor_fmap. copair.
 Defined.
 
+#[refine]
 Instance FunCat_coproj2 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans G (FunCat_coprodOb F G) :=
 {
@@ -182,6 +192,7 @@ Proof.
   intros. simpl. unfold CoproductFunctor_fmap. copair.
 Defined.
 
+#[refine]
 Instance FunCat_copair
     {C D : Cat} {hp : has_coproducts D} {F G H : Functor C D}
     (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_coprodOb F G) H :=
@@ -193,6 +204,7 @@ Proof.
   destruct α, β; simpl in *. copair.
 Defined.
 
+#[refine]
 Instance FunCat_has_coproducts {C D : Cat} {hp : has_coproducts D}
   : has_coproducts (FunCat C D) :=
 {
@@ -209,7 +221,9 @@ Proof.
   destruct H. rewrite H, H0. copair.
 Defined.
 
-(* TODO *) Instance FunCat_expOb
+(* TODO *)
+#[refine]
+Instance FunCat_expOb
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   (F G : Functor C D) : Functor C D :=
 {
@@ -221,6 +235,7 @@ Proof.
 Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)
+#[refine]
 Instance FunCat_has_exponentials
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   : has_exponentials (FunCat C D) :=

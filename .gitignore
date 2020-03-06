@@ -1,10 +1,14 @@
 *vo
+*vos
+*vok
 *glob
-*~
 *aux
+
 *crashcoqide
 *v.d
+
 makefile
 _CoqProject
+
 .*
-Awodey*
+*~

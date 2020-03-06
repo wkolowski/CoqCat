@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -41,6 +39,7 @@ match goal with
     | _ => repeat (my_simpl || treloidobs || treloidhoms || cat)
 end.
 
+#[refine]
 Instance TransReloidCat : Cat :=
 {
     Ob := TransReloid;
@@ -51,12 +50,14 @@ Instance TransReloidCat : Cat :=
 }.
 Proof. all: treloid. Defined.
 
+#[refine]
 Instance TransReloid_init : TransReloid :=
 {
     reloid := Reloid_init;
 }.
 Proof. split. treloid. Defined.
 
+#[refine]
 Instance TransReloid_create (X : TransReloid)
   : ReloidHom TransReloid_init X :=
 {
@@ -64,6 +65,7 @@ Instance TransReloid_create (X : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_has_init : has_init TransReloidCat :=
 {
     init := TransReloid_init;
@@ -71,12 +73,14 @@ Instance TransReloid_has_init : has_init TransReloidCat :=
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_term : TransReloid :=
 {
     reloid := Reloid_term;
 }.
 Proof. split. treloid. Defined.
 
+#[refine]
 Instance TransReloid_delete (X : TransReloid)
   : ReloidHom X TransReloid_term :=
 {
@@ -84,6 +88,7 @@ Instance TransReloid_delete (X : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_has_term : has_term TransReloidCat :=
 {
     term := TransReloid_term;
@@ -91,6 +96,7 @@ Instance TransReloid_has_term : has_term TransReloidCat :=
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_prodOb (X Y : TransReloid) : TransReloid :=
 {
     reloid := Reloid_prodOb X Y;
@@ -100,6 +106,7 @@ Proof.
   eapply transitive; eauto.
 Defined.
 
+#[refine]
 Instance TransReloid_proj1 (X Y : TransReloid)
   : ReloidHom (TransReloid_prodOb X Y) X :=
 {
@@ -107,6 +114,7 @@ Instance TransReloid_proj1 (X Y : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_proj2 (X Y : TransReloid)
   : ReloidHom (TransReloid_prodOb X Y) Y :=
 {
@@ -114,6 +122,7 @@ Instance TransReloid_proj2 (X Y : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_fpair (X Y A : TransReloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (TransReloid_prodOb X Y) :=
@@ -122,6 +131,7 @@ Instance TransReloid_fpair (X Y A : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_has_products : has_products TransReloidCat :=
 {
     prodOb := TransReloid_prodOb;
@@ -133,6 +143,7 @@ Proof.
   all: unfold product_skolem; reloid.
 Defined.
 
+#[refine]
 Instance TransReloid_coprodOb (X Y : TransReloid) : TransReloid :=
 {
     reloid := Reloid_coprodOb X Y;
@@ -142,6 +153,7 @@ Proof.
   eapply transitive; eauto.
 Defined.
 
+#[refine]
 Instance TransReloid_coproj1 (X Y : TransReloid)
   : ReloidHom X (TransReloid_coprodOb X Y) :=
 {
@@ -149,6 +161,7 @@ Instance TransReloid_coproj1 (X Y : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_coproj2 (X Y : TransReloid)
   : ReloidHom Y (TransReloid_coprodOb X Y) :=
 {
@@ -156,6 +169,7 @@ Instance TransReloid_coproj2 (X Y : TransReloid)
 }.
 Proof. treloid. Defined.
 
+#[refine]
 Instance TransReloid_copair (X Y A : TransReloid)
   (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (TransReloid_coprodOb X Y) A :=
@@ -166,6 +180,7 @@ Proof.
   proper. destruct x, y; try apply pres_rel; intuition eauto.
 Defined.
 
+#[refine]
 Instance TransReloid_has_coproducts : has_coproducts TransReloidCat :=
 {
     coprodOb := TransReloid_coprodOb;

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import Cat.Functor.
 Require Import Cat.NatTrans.
@@ -28,6 +26,7 @@ Class ConeHom {J C : Cat} {F : Functor J C}
 Arguments mor [J C F C1 C2] _.
 Arguments cond [J C F C1 C2] _ _.
 
+#[refine]
 Instance ConeHomSetoid {J C : Cat} {F : Functor J C}
     (C1 C2 : Cone F) : Setoid (ConeHom C1 C2) :=
 {
@@ -35,6 +34,7 @@ Instance ConeHomSetoid {J C : Cat} {F : Functor J C}
 }.
 Proof. solve_equiv. Defined.
 
+#[refine]
 Instance ConeComp {J C : Cat} {F : Functor J C}
    (C1 C2 C3 : Cone F) (f : ConeHom C1 C2) (g : ConeHom C2 C3)
     : ConeHom C1 C3 :=
@@ -45,6 +45,7 @@ Proof.
   intros. rewrite !comp_assoc, !cond. reflexivity.
 Defined.
 
+#[refine]
 Instance ConeId {J C : Cat} {F : Functor J C}
    (C1 : Cone F) : ConeHom C1 C1 :=
 {
@@ -52,6 +53,7 @@ Instance ConeId {J C : Cat} {F : Functor J C}
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
 {
     Ob := Cone F;
@@ -89,6 +91,7 @@ Class CoconeHom {J C : Cat} {F : Functor J C}
 Arguments mor' [J C F C1 C2] _.
 Arguments cond' [J C F C1 C2] _ _.
 
+#[refine]
 Instance CoconeHomSetoid {J C : Cat} {F : Functor J C}
     (C1 C2 : Cocone F) : Setoid (CoconeHom C1 C2) :=
 {
@@ -96,6 +99,7 @@ Instance CoconeHomSetoid {J C : Cat} {F : Functor J C}
 }.
 Proof. solve_equiv. Defined.
 
+#[refine]
 Instance CoconeComp {J C : Cat} {F : Functor J C}
    (C1 C2 C3 : Cocone F) (f : CoconeHom C1 C2) (g : CoconeHom C2 C3)
     : CoconeHom C1 C3 :=
@@ -107,6 +111,7 @@ Proof.
   destruct C2. destruct g. simpl in *. apply cond'0.
 Defined.
 
+#[refine]
 Instance CoconeId {J C : Cat} {F : Functor J C}
    (C1 : Cocone F) : CoconeHom C1 C1 :=
 {
@@ -114,6 +119,7 @@ Instance CoconeId {J C : Cat} {F : Functor J C}
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
 {
     Ob := Cocone F;
@@ -133,6 +139,7 @@ Definition colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
 
 (* TODO : coherence conditions for (co)limits *)
 
+#[refine]
 Instance ConeImage {J C D : Cat} {Diagram : Functor J C}
     (F : Functor C D) (K : Cone Diagram) : Cone (FunctorComp Diagram F) :=
 {

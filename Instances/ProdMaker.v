@@ -1,10 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 
 Class ProdMakerOb (C : Cat) (A B : Ob C) : Type :=
 {
-    pmob :> Ob C;
+    pmob : Ob C;
     pmmorl : Hom pmob A;
     pmmorr : Hom pmob B
 }.
@@ -31,7 +29,7 @@ end.
 
 Class ProdMakerHom {C : Cat} {A B : Ob C} (X Y : ProdMakerOb C A B) : Type :=
 {
-    pmhom :> Hom X Y;
+    pmhom : Hom X Y;
     pmhom_coherence : pmhom .> pmmorl Y == pmmorl X;
     pmhom_coherence' : pmhom .> pmmorr Y == pmmorr X;
 }.
@@ -68,6 +66,7 @@ match goal with
     | _ => repeat (my_simpl || pmobs || pmhoms || cat)
 end.
 
+#[refine]
 Instance ProdMakerHomSetoid {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     : Setoid (ProdMakerHom P1 P2) :=
 {
@@ -76,6 +75,7 @@ Instance ProdMakerHomSetoid {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
 }.
 Proof. pm. Defined.
 
+#[refine]
 Instance ProdMakerComp {C : Cat} {A B : Ob C} (P1 P2 P3 : ProdMakerOb C A B)
   (h : ProdMakerHom P1 P2) (h' : ProdMakerHom P2 P3) : ProdMakerHom P1 P3 :=
 {
@@ -85,6 +85,7 @@ Proof.
   all: assocr; pm; reflexivity.
 Defined.
 
+#[refine]
 Instance ProdMakerId {C : Cat} {A B : Ob C} (P : ProdMakerOb C A B)
     : ProdMakerHom P P :=
 {
@@ -92,6 +93,7 @@ Instance ProdMakerId {C : Cat} {A B : Ob C} (P : ProdMakerOb C A B)
 }.
 Proof. all: pm; reflexivity. Defined.
 
+#[refine]
 Instance ProdMaker (C : Cat) (A B : Ob C) : Cat :=
 {
     Ob := ProdMakerOb C A B;

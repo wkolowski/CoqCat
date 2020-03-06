@@ -1,9 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 
 Require Import Limits.InitTerm.
 
+#[refine]
 Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
 {
     Ob := {X : Ob C | P X};

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Cat.
 
 Set Implicit Arguments.
@@ -34,6 +32,7 @@ match goal with
     | _ => cat; try functor_simpl; profunctor_simpl; cat
 end.
 
+#[refine]
 Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
 {
     diob := fun X Y : Ob C =>
@@ -45,6 +44,7 @@ Proof.
   all: profunctor.
 Defined.
 
+#[refine]
 Instance Const {E : Cat} (X : Ob E) (C D : Cat)
     : Profunctor C D E :=
 {
@@ -53,6 +53,7 @@ Instance Const {E : Cat} (X : Ob E) (C D : Cat)
 }.
 Proof. all: profunctor. Defined.
 
+#[refine]
 Instance ProComp {C C' D D' E : Cat}
     (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
     : Profunctor C D E :=
@@ -66,6 +67,7 @@ Defined.
 
 Require Import Contravariant.
 
+#[refine]
 Instance HomFunctor (C : Cat) (X : Ob C)
     : Functor C CoqSetoid :=
 {
@@ -76,6 +78,7 @@ Proof.
   proper. all: cat.
 Defined.
 
+#[refine]
 Instance HomContravariant (C : Cat) (X : Ob C)
     : Contravariant C CoqSetoid :=
 {

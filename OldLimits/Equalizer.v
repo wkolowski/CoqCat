@@ -131,6 +131,7 @@ Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
 }.
 
+#[refine]
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {

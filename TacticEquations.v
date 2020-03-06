@@ -11,8 +11,8 @@ Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
     | Comp : forall X Y Z : Ob C,
         exp X Y -> exp Y Z -> exp X Z.
 
-Arguments Id {C} _.
-Arguments Var {C X Y} _.
+Arguments Id   {C} _.
+Arguments Var  {C X Y} _.
 Arguments Comp {C X Y Z} _ _.
 
 Hint Constructors exp.
@@ -51,7 +51,7 @@ Lemma expDenoteHL_comp_app :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     expDenoteHL (l1 +++ l2) == expDenoteHL l1 .> expDenoteHL l2.
 Proof.
-  intros. funelim (Happ l1 l2); simp expDenoteHL.
+  intros. funelim (Happ l1 l2); simp Happ expDenoteHL.
     rewrite id_left. reflexivity.
     rewrite H, comp_assoc. reflexivity.
 Qed.
@@ -60,7 +60,7 @@ Theorem flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
-  intros. funelim (flatten e); simp expDenoteHL; simp expDenote.
+  intros. funelim (flatten e); simp flatten expDenoteHL expDenote.
     reflexivity.
     rewrite id_right. reflexivity.
     rewrite expDenoteHL_comp_app, H, H0. reflexivity.

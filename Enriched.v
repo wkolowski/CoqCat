@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Cat.
 Require Import Cat.Bifunctor.
 
@@ -37,6 +35,7 @@ Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
     setoid := @HomSetoid C X Y;
 }.
 
+#[refine]
 Instance Enriched_CoqSetoid : Enriched
   (Monoidal_has_terminal_and_products
     CoqSetoid_has_term

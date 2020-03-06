@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 
 Set Implicit Arguments.
@@ -24,8 +22,8 @@ Class has_init (C : Cat) : Type :=
     is_initial : forall (X : Ob C) (f : Hom init X), f == create X
 }.
 
-Arguments init _ [has_init].
-Arguments create [C] [has_init] _.
+Arguments init _ {has_init}.
+Arguments create {C has_init}_.
 
 Class has_term (C : Cat) : Type :=
 {
@@ -34,8 +32,8 @@ Class has_term (C : Cat) : Type :=
     is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
 }.
 
-Arguments term _ [has_term].
-Arguments delete [C] [has_term] _.
+Arguments term _ {has_term}.
+Arguments delete {C has_term} _.
 
 Class has_zero (C : Cat) : Type :=
 {
@@ -205,6 +203,7 @@ Proof.
   edestruct H. rewrite <- H1; cat.
 Qed.
 
+#[refine]
 Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 {
     term := init C;
@@ -212,6 +211,7 @@ Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 {
     init := term C;
@@ -219,6 +219,7 @@ Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
     zero_is_initial := Dual_has_init hz;
@@ -226,9 +227,10 @@ Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 }.
 Proof. cat. Defined.
 
-(*Theorem init_Hom :
+(*
+Theorem init_Hom :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) (X : Ob C),
     initial I create <-> Hom I X ~ CoqSetoid_term.
-Proof.*)
-  
-    
+Proof.
+Abort.
+*)

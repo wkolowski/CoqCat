@@ -32,6 +32,7 @@ Definition biequalizer
 
 (* TODO : write JMequiv_dep *)
 
+#[refine]
 Instance SetoidFunExt_setoid (A B : Type) (A' : Setoid A) (B' : Setoid B)
     : Setoid (A -> B) :=
 {
@@ -71,11 +72,11 @@ Abort.
 Class has_equalizers (C : Cat) : Type :=
 {
     eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-    eq_ob_Proper :>
+    eq_ob_Proper :
       forall (X Y : Ob C) (f f' g g' : Hom X Y),
         f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
     eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-    eq_mor_Proper :>
+    eq_mor_Proper :
       forall (X Y : Ob C) (f f' g g' : Hom X Y),
         f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
           JMequiv (eq_mor f g) (eq_mor f' g');
@@ -93,10 +94,10 @@ Class has_equalizers (C : Cat) : Type :=
 Class has_coequalizers (C : Cat) : Type :=
 {
     coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-    coeq_ob_Proper :> forall (X Y : Ob C) (f f' g g' : Hom X Y),
+    coeq_ob_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
     coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
-    coeq_mor_Proper :> forall (X Y : Ob C) (f f' g g' : Hom X Y),
+    coeq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
     cofactorize : forall {X Y : Ob C} (f g : Hom X Y)
       (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom (coeq_ob f g) Q';
@@ -410,9 +411,11 @@ Proof.
     exact H0.
 Qed.
 
+(*
 Print factorize.
 Print is_equalizer.
 Print has_equalizers.
+*)
 
 Theorem factorize_eq_mor :
   forall
@@ -452,6 +455,7 @@ Proof.
   edestruct is_coequalizer0, s. cat.
 Defined.
 
+#[refine]
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=
 {
@@ -468,6 +472,7 @@ Proof.
     destruct (eq_mor_Proper Y X f f' g g' H H0). auto.
 Defined.
 
+#[refine]
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     : has_equalizers (Dual C) :=
 {
@@ -484,6 +489,7 @@ Proof.
     destruct (coeq_mor_Proper Y X f f' g g' H H0). auto.
 Defined.
 
+#[refine]
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {

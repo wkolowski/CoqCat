@@ -1,9 +1,7 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Arith.
 Require Import Permutation.
-Require Import Perm.
-Require Import InsertionSort.
+Require Import RandomCoqCode.Sorting.Perm.
+Require Import RandomCoqCode.Sorting.InsertionSort.
 
 Require Export Cat.
 Require Import Cat.Limits.InitTerm.
@@ -415,7 +413,7 @@ Qed.
 Goal forall (X : ComMon) (a a' b b' c c' : X),
   a == b -> b' == c' -> 2 = 2 \/ op c c == op c (op a c').
 Proof.
-  Require Import Quote.
+(*  Require Import Quote.*)
   intros X a _ b b' c c'.
   match goal with
       | X : ComMon |- ?P =>
@@ -427,6 +425,7 @@ Proof.
 Abort.
 (*
 
+#[refine]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>
@@ -445,6 +444,7 @@ Proof.
   exists (SgrId X). mon.
 Defined.
 
+#[refine]
 Instance MonCat : Cat :=
 {
     Ob := Mon;
@@ -455,6 +455,7 @@ Instance MonCat : Cat :=
 }.
 Proof. all: mon. Defined.
 
+#[refine]
 Instance Mon_init : Mon :=
 {
     sgr := Sgr_term;
@@ -477,6 +478,7 @@ Proof.
   exists (Mon_Sgr_create X). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_init : has_init MonCat :=
 {
     init := Mon_init;
@@ -484,6 +486,7 @@ Instance Mon_has_init : has_init MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_term : Mon :=
 {
     sgr := Sgr_term;
@@ -506,6 +509,7 @@ Proof.
   exists (Mon_Sgr_delete X). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_term : has_term MonCat :=
 {
     term := Mon_term;
@@ -513,6 +517,7 @@ Instance Mon_has_term : has_term MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_has_zero : has_zero MonCat :=
 {
     zero_is_initial := Mon_has_init;
@@ -520,6 +525,7 @@ Instance Mon_has_zero : has_zero MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
     sgr := Sgr_prodOb X Y;
@@ -543,6 +549,7 @@ Proof.
   exists (Sgr_fpair f g). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_products : has_products MonCat :=
 {
     prodOb := Mon_prodOb;
@@ -555,6 +562,7 @@ Proof.
   repeat split; cat. (* TODO : mon doesn't work *)
 Defined.
 
+#[refine]
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
     fob := fun X : Mon => @setoid (sgr X);
@@ -573,12 +581,14 @@ Definition free_monoid
 
 Require Import Arith.
 
+#[refine]
 Instance MonListUnit_Setoid' : Setoid' :=
 {
     carrier := nat;
     setoid := {| equiv := eq |}
 }.
 
+#[refine]
 Instance MonListUnit : Mon :=
 {
     sgr :=

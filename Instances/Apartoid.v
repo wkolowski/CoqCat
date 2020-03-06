@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -114,6 +112,7 @@ Proof.
   intros. intro. apply H0. apply H. apply H1.
 Qed.
 
+#[refine]
 Instance ApartoidCat : Cat :=
 {
     Ob := Apartoid;
@@ -137,6 +136,7 @@ Proof.
   (* Category laws *) all: apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_init : Apartoid :=
 {
     carrier := Empty_set;
@@ -149,6 +149,7 @@ Proof.
   red. exists (fun (e : Empty_set) => match e with end). apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_has_init : has_init ApartoidCat :=
 {
     init := Apartoid_init;
@@ -157,6 +158,7 @@ Instance Apartoid_has_init : has_init ApartoidCat :=
 Proof. apartoid. Defined.
 
 (* Things can be done this way too. *)
+#[refine]
 Instance Apartoid_has_init' : has_init ApartoidCat := {}.
 Proof.
   refine {| carrier := Empty_set;
@@ -170,6 +172,7 @@ Restart.
   all: apartoid'. exists (fun e : Empty_set => match e with end). apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_term : Apartoid :=
 {
     carrier := unit;
@@ -182,6 +185,7 @@ Proof.
   red; simpl. exists (fun _ => tt). auto.
 Defined.
 
+#[refine]
 Instance Apartoid_has_term : has_term ApartoidCat :=
 {
     term := Apartoid_term;
@@ -189,6 +193,7 @@ Instance Apartoid_has_term : has_term ApartoidCat :=
 }.
 Proof. apartoid. Defined.
 
+#[refine]
 Instance Apartoid_prodOb (X Y : Apartoid) : Apartoid :=
 {
     carrier := prod X Y;
@@ -221,6 +226,7 @@ Proof.
   red. exists (fun x : X => (f x, g x)). apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_has_products : has_products ApartoidCat :=
 {
     prodOb := Apartoid_prodOb;
@@ -233,6 +239,7 @@ Proof.
   (* Product law *) apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=
 {
     carrier := X + Y;
@@ -275,6 +282,7 @@ Proof.
   destruct x, x'; apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
 {
     coprodOb := Apartoid_coprodOb;
@@ -287,6 +295,7 @@ Proof.
   (* Product law *) red; apartoid'. destruct x; apartoid.
 Defined.
 
+#[refine]
 Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
     carrier := forall j : J, A j;
@@ -317,6 +326,7 @@ Proof.
   eapply Hfj; eauto.
 Defined.
 
+#[refine]
 Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
 {
     bigProdOb := @Apartoid_bigProdOb;
@@ -332,6 +342,7 @@ Proof.
   eapply H; eauto.
 Defined.
 
+#[refine]
 Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
@@ -406,6 +417,7 @@ Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
         Apartoid_coeq_equiv f g y1 y3.
 
 (* TODO: finish *)
+#[refine]
 Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
@@ -428,6 +440,7 @@ Proof.
 
 (* TODO: make this more dependent (change JMeq to some lifted heterogenous
    apartness... *)
+#[refine]
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
     carrier := {j : J & A j};

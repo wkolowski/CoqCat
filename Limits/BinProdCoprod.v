@@ -52,10 +52,10 @@ Class has_coproducts (C : Cat) : Type :=
       coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@copair A B)
 }.
 
-Arguments coprodOb [C] [has_coproducts] _ _.
-Arguments coproj1 [C] [has_coproducts] [A] [B].
-Arguments coproj2 [C] [has_coproducts] [A] [B].
-Arguments copair [C] [has_coproducts] [A] [B] [X] _ _.
+Arguments coprodOb {C has_coproducts} _ _.
+Arguments coproj1  {C has_coproducts A B}.
+Arguments coproj2  {C has_coproducts A B}.
+Arguments copair   {C has_coproducts A B X} _ _.
 
 Class has_biproducts (C : Cat) : Type :=
 {
@@ -174,6 +174,7 @@ Ltac fpair' := autorewrite with fpair'_base.
 
 Require Export TacticFunctor.
 
+#[refine]
 Instance Simplify_fpair_proj1
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj1)) | 1 :=
@@ -184,6 +185,7 @@ Proof.
   cbn. rewrite fpair_proj1. reflexivity.
 Defined.
 
+#[refine]
 Instance Simplify_fpair_proj2
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj2)) | 1 :=
@@ -194,6 +196,7 @@ Proof.
   cbn. rewrite fpair_proj2. reflexivity.
 Defined.
 
+#[refine]
 Instance Simplify_fpair_id
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Var (fpair proj1 proj2)) | 1 :=
@@ -228,12 +231,12 @@ Inductive exp {C : Cat} {hp : has_products C} : Ob C -> Ob C -> Type :=
     | Fpair : forall A B X : Ob C,
         exp X A -> exp X B -> exp X (prodOb A B).
 
-Arguments Id [C hp] _.
-Arguments Var [C hp X Y] _.
-Arguments Comp [C hp X Y Z] _ _.
-Arguments Proj1 [C hp X Y].
-Arguments Proj2 [C hp X Y].
-Arguments Fpair [C hp A B X] _ _.
+Arguments Id    {C hp} _.
+Arguments Var   {C hp X Y} _.
+Arguments Comp  {C hp X Y Z} _ _.
+Arguments Proj1 {C hp X Y}.
+Arguments Proj2 {C hp X Y}.
+Arguments Fpair {C hp A B X} _ _.
 
 Fixpoint expDenote {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
     : Hom X Y :=
@@ -614,6 +617,7 @@ Defined.
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
+#[refine]
 Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)
     : Setoid (ProdCatHom X Y) :=
 {
@@ -628,6 +632,7 @@ Proof.
   try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
 Defined.
 
+#[refine]
 Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
@@ -696,6 +701,7 @@ Proof.
   intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
 Defined.
 
+#[refine]
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prodOb C C) C :=
 {
@@ -758,6 +764,7 @@ Proof.
   intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
 Defined.
 
+#[refine]
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prodOb C C) C :=
 {
@@ -798,6 +805,7 @@ Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
     is_product := @is_coproduct C hp
 }.
 
+#[refine]
 Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     : has_biproducts (Dual C) :=
 {

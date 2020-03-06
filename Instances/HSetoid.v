@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 
 Class HSetoid : Type :=
@@ -27,6 +25,7 @@ Definition HSetoidHom_Fun (X Y : HSetoid) (f : HSetoidHom X Y)
     : X -> Y := proj1_sig f.
 Coercion HSetoidHom_Fun : HSetoidHom >-> Funclass.
 
+#[refine]
 Instance HSetoidHomSetoid (X Y : HSetoid) : Setoid (HSetoidHom X Y) :=
 {
     equiv := fun f g : HSetoidHom X Y =>
@@ -46,6 +45,7 @@ Proof.
   red. exists (fun x : X => x). intros. assumption.
 Defined.
 
+#[refine]
 Instance HSetoidCat : Cat :=
 {
     Ob := HSetoid;

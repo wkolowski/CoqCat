@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Cat.
 
 Set Implicit Arguments.
@@ -18,6 +16,7 @@ Class Contravariant (C : Cat) (D : Cat) : Type :=
 Arguments coob [C D] _ _.
 Arguments comap [C D] _ [X Y] _.
 
+#[refine]
 Instance Const {D : Cat} (X : Ob D) (C : Cat)
     : Contravariant C D :=
 {

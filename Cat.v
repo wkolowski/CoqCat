@@ -1,8 +1,4 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.Base.
-
-(*Require Import Unicode.Utf8.*)
 
 Class Cat : Type :=
 {
@@ -185,6 +181,7 @@ match goal with
     | _ => cbn in *
 end; eauto).
 
+#[refine]
 Instance Dual (C : Cat) : Cat :=
 {|
     Ob := Ob C;

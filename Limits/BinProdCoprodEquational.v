@@ -134,6 +134,7 @@ Module Equiv.
 
 Require BinProdCoprod.
 
+#[refine]
 Instance hp_hpeq
   (C : Cat) (hp : BinProdCoprod.has_products C) : has_products C :=
 {
@@ -144,6 +145,7 @@ Instance hp_hpeq
 }.
 Proof. all: BinProdCoprod.fpair. Defined.
 
+#[refine]
 Instance hpeq_hp
   (C : Cat) (hp_eq : has_products C) : BinProdCoprod.has_products C :=
 {
@@ -159,6 +161,7 @@ Proof.
     rewrite H, H0. rewrite fpair_pre, fpair_id, id_right. reflexivity.
 Defined.
 
+#[refine]
 Instance hp_hpeq'
   (C : Cat) (hp : BinProdCoprod.has_coproducts C) : has_coproducts C :=
 {
@@ -169,6 +172,7 @@ Instance hp_hpeq'
 }.
 Proof. all: BinProdCoprod.copair. Defined.
 
+#[refine]
 Instance hpeq_hp'
   (C : Cat) (hp_eq : has_coproducts C) : BinProdCoprod.has_coproducts C :=
 {
@@ -184,6 +188,7 @@ Proof.
     rewrite H, H0. rewrite copair_post, copair_id, id_left. reflexivity.
 Defined.
 
+#[refine]
 Instance hb_hbeq
   (C : Cat) (hb : BinProdCoprod.has_biproducts C) : has_biproducts C :=
 {
@@ -194,6 +199,7 @@ Proof.
   intros. destruct hb. cbn. apply product_is_coproduct0.
 Defined.
 
+#[refine]
 Instance hbeq_hb
   (C : Cat) (hb : has_biproducts C) : BinProdCoprod.has_biproducts C :=
 {
@@ -208,6 +214,7 @@ End Equiv.
 
 (* Lemmas ported from BinProdCoprod.v *)
 
+#[refine]
 Instance Dual_prod_coprod
   (C : Cat) (hp : has_products C) : has_coproducts (Dual C) :=
 {
@@ -218,6 +225,7 @@ Instance Dual_prod_coprod
 }.
 Proof. all: cat; prod. Defined.
 
+#[refine]
 Instance Dual_coprod_prod
   {C : Cat} (hp : has_coproducts C) : has_products (Dual C) :=
 {
@@ -228,6 +236,7 @@ Instance Dual_coprod_prod
 }.
 Proof. all: cat; coprod. Defined.
 
+#[refine]
 Instance Dual_biprod
   (C : Cat) (hb : has_biproducts C) : has_biproducts (Dual C) :=
 {
@@ -352,6 +361,7 @@ Defined.
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
   prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
+#[refine]
 Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)
     : Setoid (ProdCatHom X Y) :=
 {
@@ -366,6 +376,7 @@ Proof.
   try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
 Defined.
 
+#[refine]
 Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
@@ -434,6 +445,7 @@ Proof.
   intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
 Defined.
 
+#[refine]
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prodOb C C) C :=
 {
@@ -496,6 +508,7 @@ Proof.
   intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
 Defined.
 
+#[refine]
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prodOb C C) C :=
 {

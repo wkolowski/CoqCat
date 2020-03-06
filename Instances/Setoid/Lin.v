@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Instances.Setoid.Pos.
 
 Class Lin : Type :=
@@ -35,6 +33,7 @@ Ltac linobs' := linobs_template linob'.
 Ltac lin' := repeat (lin_simpl; try proshoms; try linobs'; pos).
 Ltac lin := try (lin'; fail).
 
+#[refine]
 Instance LinCat : Cat :=
 {
     Ob := Lin;
@@ -48,12 +47,14 @@ Proof.
   (* Category laws *) all: lin.
 Defined.
 
+#[refine]
 Instance Lin_init : Lin :=
 {
     pos := Pos_init
 }.
 Proof. lin. Defined.
 
+#[refine]
 Instance Lin_has_init : has_init LinCat :=
 {
     init := Lin_init;
@@ -61,12 +62,14 @@ Instance Lin_has_init : has_init LinCat :=
 }.
 Proof. lin. Defined.
 
+#[refine]
 Instance Lin_term : Lin :=
 {
     pos := Pos_term
 }.
 Proof. lin. Defined.
 
+#[refine]
 Instance Lin_has_term : has_term LinCat :=
 {
     term := Lin_term;
@@ -74,6 +77,7 @@ Instance Lin_has_term : has_term LinCat :=
 }.
 Proof. lin. Defined.
 
+#[refine]
 Instance Lin_prod_Pros (X Y : Lin) : Pros :=
 {
     carrier := CoqSetoid_prodOb X Y;
@@ -92,6 +96,7 @@ Proof.
     right. split; try rewrite H, H0; eauto. reflexivity.
 Defined.
 
+#[refine]
 Instance Lin_prod_Pos (X Y : Lin) : Pos :=
 {
     pros := Lin_prod_Pros X Y
@@ -104,6 +109,7 @@ Proof.
   end; intuition.
 Defined.
 
+#[refine]
 Instance Lin_prod (X Y : Lin) : Lin :=
 {
     pos := Lin_prod_Pos X Y
@@ -150,6 +156,7 @@ match goal with
         rewrite ?H, ?H'; auto
 end.
 
+#[refine]
 Instance Lin_Pros_coprod (X Y : Lin) : Pros :=
 {
     carrier := CoqSetoid_coprodOb X Y;
@@ -169,6 +176,7 @@ Proof.
   end; lin.
 Defined.
 
+#[refine]
 Instance Lin_coprodOb (X Y : Lin) : Lin :=
 {
     pos :=

@@ -13,8 +13,8 @@ Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
     | Fmap : forall (C D : Cat) (X Y : Ob C) (F : Functor C D),
         exp C X Y -> exp D (fob F X) (fob F Y).
 
-Arguments Id {C} _.
-Arguments Var {C X Y} _.
+Arguments Id   {C} _.
+Arguments Var  {C X Y} _.
 Arguments Comp {C X Y Z} _ _.
 Arguments Fmap {C D X Y} _ _.
 
@@ -62,7 +62,7 @@ Lemma denoteHL_Happ :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     denoteHL (l1 +++ l2) == denoteHL l1 .> denoteHL l2.
 Proof.
-  intros. funelim (Happ l1 l2); simp denoteHL.
+  intros. funelim (Happ l1 l2); simp Happ denoteHL.
     rewrite id_left. reflexivity.
     rewrite H, comp_assoc. reflexivity.
 Qed.
@@ -71,7 +71,7 @@ Lemma denoteHL_Hfmap :
   forall (C D : Cat) (F : Functor C D) (X Y : Ob C) (l : HomList X Y),
     denoteHL (Hfmap F l) == fmap F (denoteHL l).
 Proof.
-  intros. funelim (Hfmap F l); simp denoteHL.
+  intros. funelim (Hfmap F l); simp Hfmap denoteHL.
     rewrite pres_id. reflexivity.
     rewrite pres_comp, H. reflexivity.
 Qed.
@@ -80,7 +80,7 @@ Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp C X Y),
     denoteHL (flatten e) == denote e.
 Proof.
-  intros. funelim (flatten e); simp denoteHL; simp denote.
+  intros. funelim (flatten e); simp flatten denoteHL denote.
     reflexivity.
     rewrite id_right. reflexivity.
     rewrite denoteHL_Happ, H, H0. reflexivity.
@@ -120,6 +120,8 @@ match goal with
           repeat (simp flatten || simp Happ || simp denoteHL);
           rewrite ?id_right
 end.
+
+Section Test.
 
 Variables
   (C D : Cat)
@@ -183,3 +185,5 @@ Goal
 Proof.
   intros. reflect_cat.
 Abort.
+
+End Test.

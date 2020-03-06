@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import Cat.Functor.
 
@@ -11,9 +9,9 @@ Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
     | Comp : forall X Y Z : Ob C,
         exp X Y -> exp Y Z -> exp X Z.
 
-Arguments Id [C] _.
-Arguments Var [C X Y] _.
-Arguments Comp [C X Y Z] _ _.
+Arguments Id   {C} _.
+Arguments Var  {C X Y} _.
+Arguments Comp {C X Y Z} _ _.
 
 Hint Constructors exp.
 

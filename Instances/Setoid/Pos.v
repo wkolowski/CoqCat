@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import NPeano.
 
 Require Export Cat.
@@ -43,6 +41,7 @@ Notation "'PosHom' X Y" := (ProsHom X Y) (at level 40). (*, only parsing).*)
 Ltac pos' := repeat (pos_simpl || proshoms || posobs || pros').
 Ltac pos := try (pos'; fail).
 
+#[refine]
 Instance PosCat : Cat :=
 {
     Ob := Pos;
@@ -56,12 +55,14 @@ Proof.
   (* Category laws *) all: pos.
 Defined.
 
+#[refine]
 Instance Pos_init : Pos :=
 {
     pros := Pros_init
 }.
 Proof. pos. Defined.
 
+#[refine]
 Instance Pos_has_init : has_init PosCat :=
 {
     init := Pos_init;
@@ -69,12 +70,14 @@ Instance Pos_has_init : has_init PosCat :=
 }.
 Proof. pos. Defined.
 
+#[refine]
 Instance Pos_term : Pos :=
 {
     pros := Pros_term
 }.
 Proof. pos. Defined.
 
+#[refine]
 Instance Pos_has_term : has_term PosCat :=
 {
     term := Pos_term;
@@ -82,12 +85,14 @@ Instance Pos_has_term : has_term PosCat :=
 }.
 Proof. pos. Defined.
 
+#[refine]
 Instance Pos_prodOb (X Y : Pos) : Pos :=
 {
     pros := Pros_prodOb X Y
 }.
 Proof. pos. Defined.
 
+#[refine]
 Instance Pos_has_products : has_products PosCat :=
 {
     prodOb := Pos_prodOb;
@@ -100,6 +105,7 @@ Proof.
   all: pos.
 Defined.
 
+#[refine]
 Instance Pos_coprodOb (X Y : Pos) : Pos :=
 {
     pros := Pros_coprodOb X Y;
@@ -126,6 +132,7 @@ Proof.
   red. exists (Pros_copair f g). destruct a, a'; pos.
 Defined.
 
+#[refine]
 Instance Pos_has_coproducts : has_coproducts PosCat :=
 {
     coprodOb := Pos_coprodOb;

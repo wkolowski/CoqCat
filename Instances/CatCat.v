@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 Require Import Cat.Functor.
 
@@ -14,6 +12,7 @@ Require Import Eqdep.
 
 Set Implicit Arguments.
 
+#[refine]
 Instance CAT : Cat :=
 {
     Ob := Cat;
@@ -42,6 +41,7 @@ Defined.
 
 Instance CAT_init : Cat := Discrete Empty_set.
 
+#[refine]
 Instance CAT_create (X : Cat) : Functor CAT_init X :=
 {
     fob := fun e => match e with end;
@@ -49,6 +49,7 @@ Instance CAT_create (X : Cat) : Functor CAT_init X :=
 }.
 Proof. all: cat. Defined.
 
+#[refine]
 Instance CAT_has_init : has_init CAT :=
 {
     init := CAT_init;
@@ -62,12 +63,14 @@ Defined.
 
 Instance CAT_term : Cat := Discrete unit.
 
+#[refine]
 Instance CAT_delete (X : Cat) : Functor X CAT_term :=
 {
     fob := fun _ => tt;
 }.
 Proof. all: cat. Defined.
 
+#[refine]
 Instance CAT_has_term : has_term CAT :=
 {
     term := CAT_term;
@@ -79,6 +82,7 @@ Proof.
     destruct (fmap f x1). cat.
 Defined.
 
+#[refine]
 Instance CAT_proj1 (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
 {
     fob := fst;
@@ -86,6 +90,7 @@ Instance CAT_proj1 (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
 }.
 Proof. all: cat. Defined.
 
+#[refine]
 Instance CAT_proj2 (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
 {
     fob := snd;
@@ -93,6 +98,7 @@ Instance CAT_proj2 (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
 }.
 Proof. all: cat. Defined.
 
+#[refine]
 Instance CAT_fpair (X Y A : Cat) (F : Functor A X) (G : Functor A Y)
   : Functor A (CAT_prodOb X Y) :=
 {
@@ -101,6 +107,7 @@ Instance CAT_fpair (X Y A : Cat) (F : Functor A X) (G : Functor A Y)
 }.
 Proof. all: cat; functor. Defined.
 
+#[refine]
 Instance CAT_has_products : has_products CAT :=
 {
     prodOb := CAT_prodOb;
@@ -120,15 +127,3 @@ Proof.
   unfold product_skolem. repeat split; solve_depExtEq.
   all: cbn in *; my_simpl.
 Abort.
-
-Require Import Setoids.
-
-(*Inductive depExtHequiv :
-  forall {A : Setoid'} {B : Type}, A -> B -> Prop :=
-  | deh_step : forall (A : Setoid') (B : Type) (x y : A),
-      x == y -> depExtHequiv x y
-  | deh_sym : forall (A B : Setoid') (x : A) (y : B),
-      depExtHequiv x y -> depExtHequiv y x
-  | deh_trans : forall (A B : Setoid') (C : Type) (x : A) (y : B) (z : C),
-      depExtHequiv x y -> depExtHequiv y z -> depExtHequiv x z
-  | *)

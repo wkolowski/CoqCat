@@ -1,9 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
+#[refine]
 Instance Discrete (X : Set) : Cat :=
 {
     Ob := X;
@@ -32,6 +31,7 @@ Defined.
 
 Require Import Bool.
 
+#[refine]
 Instance Two : Cat :=
 {
     Ob := bool;

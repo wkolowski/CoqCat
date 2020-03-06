@@ -1,9 +1,8 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
 
+#[refine]
 Instance SetP : Cat :=
 {
   Ob := Set;
@@ -23,6 +22,7 @@ Proof.
   (* Category laws *) all: cat; try destruct (f x); cat.
 Defined.
 
+#[refine]
 Instance SetP_has_init : has_init SetP :=
 {
     init := Empty_set;
@@ -30,6 +30,7 @@ Instance SetP_has_init : has_init SetP :=
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance SetP_has_term : has_term SetP :=
 {
     term := Empty_set;
@@ -37,6 +38,7 @@ Instance SetP_has_term : has_term SetP :=
 }.
 Proof. cat; destruct (f x); cat. Defined.
 
+#[refine]
 Instance SetP_has_zero : has_zero SetP := {}.
 Proof. cat. Defined.
 
@@ -63,6 +65,7 @@ match f x, g x with
     | Some a, Some b => Some (pair' a b)
 end.
 
+#[refine]
 Instance SetP_has_products : has_products SetP :=
 {
     prodOb := sumprod;
@@ -85,6 +88,7 @@ match p with
     | inr b => g b
 end.
 
+#[refine]
 Instance SetP_has_coproducts : has_coproducts SetP :=
 {
     coprodOb := sum;

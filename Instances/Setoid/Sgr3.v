@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -33,9 +31,9 @@ Inductive exp (X : Sgr) : Type :=
     | Op : exp X -> exp X -> exp X
     | Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X.
 
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _.
+Arguments Var {X} _.
+Arguments Op  {X} _ _.
+Arguments Mor {X A} _ _.
 
 Fixpoint expDenote {X : Sgr} (e : exp X) : X :=
 match e with
@@ -50,9 +48,10 @@ Class Simplify (X : Sgr) (e : exp X) : Type :=
     simplify_spec : expDenote simplify == expDenote e
 }.
 
-Arguments Simplify [X] _.
-Arguments simplify [X] _ [Simplify].
+Arguments Simplify {X} _.
+Arguments simplify {X} _ {Simplify}.
 
+#[refine]
 Instance SimplifyOp {X : Sgr} {e1 e2 : exp X}
   (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
 {
@@ -62,6 +61,7 @@ Proof.
   cbn. rewrite !simplify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
   (S : Simplify e) : Simplify (Mor f e) | 10 :=
 {
@@ -82,6 +82,7 @@ Proof.
     cbn. destruct S. cbn in *. rewrite simplify_spec0.*)
 Defined.
 
+#[refine]
 Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
 {
     simplify := e
@@ -146,15 +147,17 @@ Class Reify (X : Sgr) (x : X) : Type :=
     reify_spec : expDenote reify == x
 }.
 
-Arguments Reify [X] _.
-Arguments reify [X] _ [Reify].
+Arguments Reify {X} _.
+Arguments reify {X} _ {Reify}.
 
+#[refine]
 Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 {
     reify := Var x
 }.
 Proof. reflexivity. Defined.
 
+#[refine]
 Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
@@ -164,6 +167,7 @@ Proof.
   cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
@@ -232,6 +236,7 @@ Proof.
   reflect_sgr. reflexivity.
 Qed.
 
+#[refine]
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
@@ -249,6 +254,7 @@ Proof.
   exists (SetoidId A). sgr.
 Defined.
 
+#[refine]
 Instance SgrCat : Cat :=
 {
     Ob := Sgr;
@@ -259,6 +265,7 @@ Instance SgrCat : Cat :=
 }.
 Proof. Time all: sgr. Defined.
 
+#[refine]
 Instance Sgr_init : Sgr :=
 {
     setoid := CoqSetoid_init;
@@ -271,6 +278,7 @@ Proof.
   sgr_simpl. exists (CoqSetoid_create X). sgr.
 Defined.
 
+#[refine]
 Instance Sgr_has_init : has_init SgrCat :=
 {
     init := Sgr_init;
@@ -278,6 +286,7 @@ Instance Sgr_has_init : has_init SgrCat :=
 }.
 Proof. sgr. Defined.
 
+#[refine]
 Instance Sgr_term : Sgr :=
 {
     setoid := CoqSetoid_term;
@@ -290,6 +299,7 @@ Proof.
   exists (CoqSetoid_delete X). sgr.
 Defined.
 
+#[refine]
 Instance Sgr_has_term : has_term SgrCat :=
 {
     term := Sgr_term;
@@ -297,6 +307,7 @@ Instance Sgr_has_term : has_term SgrCat :=
 }.
 Proof. sgr. Defined.
 
+#[refine]
 Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
 {
     setoid := CoqSetoid_prodOb X Y;
@@ -323,6 +334,7 @@ Proof.
   exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
 
+#[refine]
 Instance Sgr_has_products : has_products SgrCat :=
 {
     prodOb := Sgr_prodOb;
@@ -332,6 +344,7 @@ Instance Sgr_has_products : has_products SgrCat :=
 }.
 Proof. all: sgr. Defined.
 
+#[refine]
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
     setoid := CoqSetoid_coprodOb X Y
@@ -379,6 +392,7 @@ Qed.
 
 Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans.
 
+#[refine]
 Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
 {
     carrier := nel X;
@@ -593,6 +607,7 @@ Class SgrWut : Type :=
 
 Coercion sgr : SgrWut >-> Sgr.
 
+#[refine]
 Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut))
     | 11 :=
 {
@@ -658,6 +673,7 @@ Qed.
 
 Axiom troll : forall (X : Sgr) (x : X), op x x == x.
 
+#[refine]
 Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x))
     | 1 :=
 {

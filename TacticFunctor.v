@@ -11,10 +11,10 @@ Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
     | Fmap : forall (C D : Cat) (X Y : Ob C) (F : Functor C D),
         exp C X Y -> exp D (fob F X) (fob F Y).
 
-Arguments Id [C] _.
-Arguments Var [C X Y] _.
-Arguments Comp [C X Y Z] _ _.
-Arguments Fmap [C D X Y] _ _.
+Arguments Id   {C} _.
+Arguments Var  {C X Y} _.
+Arguments Comp {C X Y Z} _ _.
+Arguments Fmap {C D X Y} _ _.
 
 Hint Constructors exp.
 
@@ -33,8 +33,9 @@ Class Reify {C : Cat} {X Y : Ob C} (f : Hom X Y) : Type :=
     reify_spec : expDenote reify == f
 }.
 
-Arguments reify [C X Y] _ [Reify].
+Arguments reify {C X Y} _ {Reify}.
 
+#[refine]
 Instance ReifyId (C : Cat) (X : Ob C) : Reify (id X) | 0 :=
 {
     reify := Id X
@@ -43,6 +44,7 @@ Proof.
   cbn. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyComp (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z)
     (R1 : Reify f) (R2 : Reify g) : Reify (f .> g) | 0 :=
 {
@@ -52,6 +54,7 @@ Proof.
   cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyFmap (C D : Cat) (X Y : Ob C) (F : Functor C D) (f : Hom X Y)
     (R : Reify f) : @Reify D (fob F X) (fob F Y) (fmap F f) | 0 :=
 {
@@ -61,6 +64,7 @@ Proof.
   cbn. rewrite reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyVar (C : Cat) (X Y : Ob C) (f : Hom X Y)
     : Reify f | 1 :=
 {
@@ -76,8 +80,9 @@ Class Simplify {C : Cat} {X Y : Ob C} (e : exp C X Y) : Type :=
     simplify_spec : expDenote simplify == expDenote e
 }.
 
-Arguments simplify [C X Y] _ [Simplify].
+Arguments simplify {C X Y} _ {Simplify}.
 
+#[refine]
 Instance NoSimplify (C : Cat) (X Y : Ob C) (e : exp C X Y)
     : Simplify e | 100 :=
 {
@@ -85,6 +90,7 @@ Instance NoSimplify (C : Cat) (X Y : Ob C) (e : exp C X Y)
 }.
 Proof. reflexivity. Defined.
 
+#[refine]
 Instance SimplifyCompIdL (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp (Id X) e) | 1 :=
 {
@@ -94,6 +100,7 @@ Proof.
   cbn. rewrite simplify_spec. rewrite id_left. reflexivity.
 Defined.
 
+#[refine]
 Instance SimplifyCompIdR (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp e (Id Y)) | 1 :=
 {
@@ -103,6 +110,7 @@ Proof.
   cbn. rewrite simplify_spec. rewrite id_right. reflexivity.
 Defined.
 
+#[refine]
 Instance SimplifyCompRec (C : Cat) (X Y Z : Ob C)
   (e1 : exp C X Y) (e2 : exp C Y Z) (S1 : Simplify e1) (S2 : Simplify e2)
   : Simplify (Comp e1 e2) | 50 :=
@@ -113,6 +121,7 @@ Proof.
   cbn. rewrite !simplify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D)
   : Simplify (Fmap F (Id X)) :=
 {
@@ -127,8 +136,8 @@ Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
     | HomCons : forall X Y Z : Ob C,
         Hom X Y -> HomList Y Z -> HomList X Z.
 
-Arguments HomNil [C] _.
-Arguments HomCons [C X Y Z] _ _.
+Arguments HomNil  {C} _.
+Arguments HomCons {C X Y Z} _ _.
 
 Fixpoint expDenoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y)
     : Hom X Y :=
@@ -236,6 +245,8 @@ match goal with
         apply cat_reflect; cbn; rewrite !id_right
 end.
 
+Section Test.
+
 Variables
   (C D : Cat)
   (X Y Z V W T : Ob C)
@@ -309,3 +320,5 @@ Goal
 Proof.
   reflect_cat. reflexivity.
 Qed.
+
+End Test.

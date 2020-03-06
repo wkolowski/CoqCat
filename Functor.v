@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Cat.
 
 Set Implicit Arguments.
@@ -92,6 +90,7 @@ Proof.
     (* TODO : cat should work here *)
 Defined.
 
+#[refine]
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E)
     : Functor C E :=
 {
@@ -103,6 +102,7 @@ Proof.
   (* Functor laws *) all: functor.
 Defined.
 
+#[refine]
 Instance FunctorId (C : Cat) : Functor C C :=
 {
     fob := fun A : Ob C => A;
@@ -113,6 +113,7 @@ Proof.
   (* Functors laws *) all: functor.
 Defined.
 
+#[refine]
 Instance CAT : Cat :=
 {
     Ob := Cat;
@@ -129,6 +130,7 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
+#[refine]
 Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat)
     : Functor C D :=
 {

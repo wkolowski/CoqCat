@@ -34,10 +34,10 @@ Inductive exp (X : Mon) : Type :=
     | Op : exp X -> exp X -> exp X
     | Mor : forall A : Mon, MonHom A X -> exp A -> exp X.
 
-Arguments Id [X].
-Arguments Var [X] _.
-Arguments Op [X] _ _.
-Arguments Mor [X A] _ _ .
+Arguments Id {X}.
+Arguments Var {X} _.
+Arguments Op {X} _ _.
+Arguments Mor {X A} _ _ .
 
 Fixpoint expDenote {X : Mon} (e : exp X) : X :=
 match e with
@@ -141,15 +141,17 @@ Class Reify (X : Mon) (x : X) : Type :=
     reify_spec : expDenote reify == x
 }.
 
-Arguments Reify [X] _.
-Arguments reify [X] _ [Reify].
+Arguments Reify {X} _.
+Arguments reify {X} _ {Reify}.
 
+#[refine]
 Instance ReifyVar (X : Mon) (x : X) : Reify x | 1 :=
 {
     reify := Var x
 }.
 Proof. reflexivity. Defined.
 
+#[refine]
 Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
@@ -159,6 +161,7 @@ Proof.
   cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
@@ -168,6 +171,7 @@ Proof.
   cbn. rewrite reify_spec. reflexivity.
 Defined.
 
+#[refine]
 Instance ReifyId (X : Mon) : Reify neutr | 0 :=
 {
     reify := Id
@@ -312,6 +316,7 @@ Proof.
     do 2 eexists. eauto.
 Abort.
 
+#[refine]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>
@@ -330,6 +335,7 @@ Proof.
   exists (SgrId X). mon.
 Defined.
 
+#[refine]
 Instance MonCat : Cat :=
 {
     Ob := Mon;
@@ -340,6 +346,7 @@ Instance MonCat : Cat :=
 }.
 Proof. all: mon. Defined.
 
+#[refine]
 Instance Mon_init : Mon :=
 {
     sgr := Sgr_term;
@@ -362,6 +369,7 @@ Proof.
   exists (Mon_Sgr_create X). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_init : has_init MonCat :=
 {
     init := Mon_init;
@@ -369,6 +377,7 @@ Instance Mon_has_init : has_init MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_term : Mon :=
 {
     sgr := Sgr_term;
@@ -391,6 +400,7 @@ Proof.
   exists (Mon_Sgr_delete X). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_term : has_term MonCat :=
 {
     term := Mon_term;
@@ -398,6 +408,7 @@ Instance Mon_has_term : has_term MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_has_zero : has_zero MonCat :=
 {
     zero_is_initial := Mon_has_init;
@@ -405,6 +416,7 @@ Instance Mon_has_zero : has_zero MonCat :=
 }.
 Proof. mon. Defined.
 
+#[refine]
 Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
     sgr := Sgr_prodOb X Y;
@@ -428,6 +440,7 @@ Proof.
   exists (Sgr_fpair f g). mon.
 Defined.
 
+#[refine]
 Instance Mon_has_products : has_products MonCat :=
 {
     prodOb := Mon_prodOb;
@@ -440,6 +453,7 @@ Proof.
   repeat split; cat. (* TODO : mon doesn't work *)
 Defined.
 
+#[refine]
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
     fob := fun X : Mon => @setoid (sgr X);
@@ -464,6 +478,7 @@ Instance MonListUnit_Setoid' : Setoid' :=
     setoid := {| equiv := eq |}
 }.
 
+#[refine]
 Instance MonListUnit : Mon :=
 {
     sgr :=

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import InitTerm.
 Require Import BinProdCoprod.
@@ -46,6 +44,7 @@ Ltac falghoms := falghoms_template falghom.
 Ltac falg := repeat (falg_simpl || falgobs || falghoms || cat);
     unfold FAlgHom; simpl.
 
+#[refine]
 Instance FAlgHomSetoid {C : Cat} {F : Functor C C} (X Y : FAlg F)
     : Setoid (FAlgHom X Y) :=
 {
@@ -68,6 +67,7 @@ Proof.
   falg. exists (@id C X). functor.
 Defined.
 
+#[refine]
 Instance CatFAlg {C : Cat} (F : Functor C C) : Cat :=
 {
     Ob := @FAlg C F;

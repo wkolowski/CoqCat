@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Base.
 
 Require Export Cat.
@@ -16,6 +14,7 @@ Require Import Cat.Functor.
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
 
+#[refine]
 Instance CoqSet : Cat :=
 {|
     Ob := Set;
@@ -71,6 +70,7 @@ Restart.
       rewrite CoqSet_ret_sur. assumption.
 Defined.
 
+#[refine]
 Instance CoqSet_has_init : has_init CoqSet :=
 {
     init := Empty_set;
@@ -78,6 +78,7 @@ Instance CoqSet_has_init : has_init CoqSet :=
 }.
 Proof. cat. Defined.
 
+#[refine]
 Instance CoqSet_has_term : has_term CoqSet :=
 {
     term := unit;
@@ -108,6 +109,7 @@ Qed.
 Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)
     : Hom A (prod X Y) := fun x : A => (f x, g x).
 
+#[refine]
 Instance CoqSet_has_products : has_products CoqSet :=
 {
     prodOb := prod;
@@ -122,6 +124,7 @@ Proof.
 Defined.
 
 (* Beware! Requires functional extensionality. *)
+#[refine]
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -147,6 +150,7 @@ match p with
     | inr y => g y
 end.
 
+#[refine]
 Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
 {
     coprodOb := sum;
@@ -159,6 +163,7 @@ Proof.
   match goal with | x : _ + _ |- _ => destruct x end; cat.
 Defined.
 
+#[refine]
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {
     bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -205,6 +210,7 @@ Proof.
  intro x. exists (e' x). apply H.
 Defined.
 
+#[refine]
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -222,6 +228,7 @@ Defined.
 
 (*Require Import Limits.NewestEqualizer.
 
+#[refine]
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -266,6 +273,7 @@ Proof.
   unfold coequalizer; simpl; intros. cat. f_equal.
 *)
 
+#[refine]
 Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
 {
     expOb := fun X Y : Set => X -> Y;
@@ -303,6 +311,7 @@ Proof.
   simpl.
 Abort.
 
+#[refine]
 Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
 {
     pullbackOb := @CoqSet_pullbackOb;

@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Export InitTerm.
 Require Export BinProdCoprod.
@@ -14,7 +12,7 @@ Set Implicit Arguments.
 
 Class Setoid' : Type :=
 {
-    carrier :> Type;
+    carrier : Type;
     setoid :> Setoid carrier
 }.
 
@@ -47,7 +45,7 @@ end.
 
 Class SetoidHom (X Y : Setoid') : Type :=
 {
-    func :> X -> Y;
+    func : X -> Y;
     func_Proper :> Proper (@equiv _ X ==> @equiv _ Y) func
 }.
 
@@ -82,6 +80,7 @@ end.
 
 Ltac setoid := try (setoid'; fail).
 
+#[refine]
 Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
     (g : SetoidHom Y Z) : SetoidHom X Z :=
 {
@@ -89,12 +88,14 @@ Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y)
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance SetoidId (X : Setoid') : SetoidHom X X :=
 {
     func := fun x : X => x
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid : Cat :=
 {|
     Ob := Setoid';
@@ -109,6 +110,7 @@ Instance CoqSetoid : Cat :=
 |}.
 Proof. all: setoid. Defined.
 
+#[refine]
 Instance const (X Y : Setoid') (y : Y) : SetoidHom X Y :=
 {
     func := fun _ => y
@@ -158,6 +160,7 @@ Proof.
     do 2 destruct H. exists {| func := x; func_Proper := H |}. cat.
 Qed.
 
+#[refine]
 Instance CoqSetoid_init : Setoid' :=
 {
     carrier := Empty_set;
@@ -165,12 +168,14 @@ Instance CoqSetoid_init : Setoid' :=
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_create (X : Setoid') : SetoidHom CoqSetoid_init X :=
 {
     func := fun e : Empty_set => match e with end
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_has_init : has_init CoqSetoid :=
 {
     init := CoqSetoid_init;
@@ -178,6 +183,7 @@ Instance CoqSetoid_has_init : has_init CoqSetoid :=
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_term : Setoid' :=
 {
     carrier := unit;
@@ -185,12 +191,14 @@ Instance CoqSetoid_term : Setoid' :=
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_delete (X : Setoid') : SetoidHom X CoqSetoid_term :=
 {
     func := fun _ => tt
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_has_term : has_term CoqSetoid :=
 {
     term := CoqSetoid_term;
@@ -198,6 +206,7 @@ Instance CoqSetoid_has_term : has_term CoqSetoid :=
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_prodOb (X Y : Setoid') : Setoid' :=
 {
     carrier := X * Y;
@@ -207,6 +216,7 @@ Instance CoqSetoid_prodOb (X Y : Setoid') : Setoid' :=
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_proj1 (X Y : Setoid')
     : SetoidHom (CoqSetoid_prodOb X Y) X :=
 {
@@ -214,6 +224,7 @@ Instance CoqSetoid_proj1 (X Y : Setoid')
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_proj2 (X Y : Setoid')
     : SetoidHom (CoqSetoid_prodOb X Y) Y :=
 {
@@ -221,6 +232,7 @@ Instance CoqSetoid_proj2 (X Y : Setoid')
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_fpair (A B X : Setoid')
     (f : SetoidHom X A) (g : SetoidHom X B)
     : SetoidHom X (CoqSetoid_prodOb A B) :=
@@ -229,6 +241,7 @@ Instance CoqSetoid_fpair (A B X : Setoid')
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_has_products : has_products CoqSetoid :=
 {
     prodOb := CoqSetoid_prodOb;
@@ -238,6 +251,7 @@ Instance CoqSetoid_has_products : has_products CoqSetoid :=
 }.
 Proof. all: setoid'. Time Defined.
 
+#[refine]
 Instance CoqSetoid_coprodOb (X Y : Setoid') : Setoid' :=
 {
     carrier := sum X Y;
@@ -276,6 +290,7 @@ Proof.
   proper. destruct x, y; setoid.
 Defined.
 
+#[refine]
 Instance CoqSetoid_has_coproducts : has_coproducts CoqSetoid :=
 {
     coprodOb := CoqSetoid_coprodOb;
@@ -290,6 +305,7 @@ Proof.
   end.
 Time Defined.
 
+#[refine]
 Instance CoqSetoid_eq_ob {X Y : Setoid'} (f g : SetoidHom X Y)
     : Setoid' :=
 {
@@ -299,6 +315,7 @@ Instance CoqSetoid_eq_ob {X Y : Setoid'} (f g : SetoidHom X Y)
 }.
 Proof. setoid. Defined.
 
+#[refine]
 Instance CoqSetoid_eq_mor {X Y : Setoid'} (f g : SetoidHom X Y)
     : SetoidHom (CoqSetoid_eq_ob f g) X :=
 {
@@ -314,6 +331,7 @@ Program Instance factorize {X Y E' : Setoid'} (f g : SetoidHom X Y)
 }.
 Next Obligation. proper. Defined.
 
+#[refine]
 Instance CoqSetoid_has_equalizers : has_equalizers CoqSetoid :=
 {
     eq_ob := @CoqSetoid_eq_ob;
@@ -339,6 +357,7 @@ Inductive CoqSetoid_coeq_equiv {X Y : Setoid'} (f g : SetoidHom X Y)
         CoqSetoid_coeq_equiv f g y2 y3 ->
         CoqSetoid_coeq_equiv f g y1 y3.
 
+#[refine]
 Instance CoqSetoid_coeq_ob {X Y : Setoid'} (f g : SetoidHom X Y) :
     Setoid' :=
 {
@@ -353,6 +372,7 @@ Proof.
     eapply coeq_trans; eauto.
 Defined.
 
+#[refine]
 Instance CoqSetoid_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
     : SetoidHom Y (CoqSetoid_coeq_ob f g) :=
 {
@@ -360,6 +380,7 @@ Instance CoqSetoid_coeq_mor (X Y : Setoid') (f g : SetoidHom X Y)
 }.
 Proof. do 2 red. intros. constructor. assumption. Defined.
 
+#[refine]
 Instance cofactorize (X Y Q' : Setoid') (f g : SetoidHom X Y)
     (q' : SetoidHom Y Q') (H : forall x : X, q' (f x) == q' (g x))
     : SetoidHom (CoqSetoid_coeq_ob f g) Q' :=
@@ -368,6 +389,7 @@ Instance cofactorize (X Y Q' : Setoid') (f g : SetoidHom X Y)
 }.
 Proof. proper. induction H0; subst; setoid'. Defined.
 
+#[refine]
 Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
 {
     coeq_ob := @CoqSetoid_coeq_ob;
@@ -379,6 +401,7 @@ Proof.
     exists (cofactorize _ _ _ H). setoid'.
 Defined.
 
+#[refine]
 Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
     carrier := forall j : J, A j;
@@ -402,6 +425,7 @@ Proof.
   split with (fun x : X => (fun j : J => f j x)). proper.
 Defined.
 
+#[refine]
 Instance CoqSetoid_has_all_products : has_all_products CoqSetoid :=
 {
     bigProdOb := @CoqSetoid_bigProdOb;
@@ -432,6 +456,7 @@ Qed.
 
 Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
 
+#[refine]
 Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
     carrier := {j : J & A j};
@@ -454,6 +479,7 @@ Proof.
       subst. eapply (equiv_hetero_trans (eq_refl) (JMeq_refl) H1 H2).
 Defined.
 
+#[refine]
 Instance CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
     : SetoidHom (A j) (CoqSetoid_bigCoprodOb A) :=
 {
@@ -461,6 +487,7 @@ Instance CoqSetoid_bigCoproj {J : Set} (A : J -> Setoid') (j : J)
 }.
 Proof. proper. Defined.
 
+#[refine]
 Instance CoqSetoid_cotuple {J : Set} {A : J -> Setoid'} {X : Setoid'}
     (f : forall j : J, SetoidHom (A j) X)
     : SetoidHom (CoqSetoid_bigCoprodOb A) X :=
@@ -473,6 +500,7 @@ Proof.
   apply inj_pair2 in H. subst. rewrite H1. reflexivity.
 Defined.
 
+#[refine]
 Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
 {
     bigCoprodOb := @CoqSetoid_bigCoprodOb;
@@ -483,6 +511,7 @@ Proof.
   simpl; intros; eauto. setoid.
 Defined.
 
+#[refine]
 Instance CoqSetoid_expOb_setoid (X Y : Setoid')
     : Setoid (SetoidHom X Y) :=
 {
@@ -494,7 +523,6 @@ Instance CoqSetoid_expOb (X Y : Setoid') : Setoid' :=
 {
     carrier := SetoidHom X Y;
     setoid := CoqSetoid_expOb_setoid X Y
-(*        {| equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x |}*)
 }.
 
 Instance CoqSetoid_eval (X Y : Setoid')
@@ -522,6 +550,7 @@ Proof.
   apply f_pres_equiv. cbn. split; [assumption | reflexivity].
 Defined.
 
+#[refine]
 Instance CoqSetoid_has_exponentials : has_exponentials CoqSetoid :=
 {
     expOb := CoqSetoid_expOb;
@@ -554,6 +583,7 @@ Proof.
   proper.
 Defined.
 
+#[refine]
 Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
 {
     fob := HomFunctor_fob C X;

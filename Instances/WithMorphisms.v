@@ -1,7 +1,6 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.
 
+#[refine]
 Instance WithMon (C : Cat) : Cat :=
 {
     Ob := Ob C;
@@ -21,6 +20,7 @@ Proof.
   all: destruct f; cat.
 Defined.
 
+#[refine]
 Instance WithIso (C : Cat) : Cat :=
 {
     Ob := Ob C;

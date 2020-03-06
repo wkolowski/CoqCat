@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Export Cat.
 Require Import Limits.InitTerm.
 Require Import Limits.BinProdCoprod.

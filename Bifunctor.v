@@ -1,5 +1,3 @@
-Add Rec LoadPath "/home/zeimer/Code/Coq".
-
 Require Import Cat.Cat.
 
 Require Import Cat.Limits.BinProdCoprod.
@@ -31,6 +29,7 @@ Definition second
   {C D E : Cat} {F : Bifunctor C D E} {A : Ob C} {X Y : Ob D} (f : Hom X Y)
   : Hom (biob A X) (biob A Y) := bimap (id A) f.
 
+#[refine]
 Instance ProductBifunctor {C : Cat} {hp : has_products C} :
     Bifunctor C C C :=
 {
@@ -43,6 +42,7 @@ Proof.
   unfold Proper, respectful. all: fpair.
 Defined.
 
+#[refine]
 Instance CoproductBifunctor {C : Cat} {hp : has_coproducts C} :
     Bifunctor C C C :=
 {
@@ -54,6 +54,7 @@ Proof.
   unfold Proper, respectful. all: copair.
 Defined.
 
+#[refine]
 Instance BiComp {C C' D D' E : Cat}
     (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
     : Bifunctor C D E :=
@@ -68,6 +69,7 @@ Proof.
   intros. rewrite 2 pres_id, bimap_pres_id. reflexivity.
 Defined.
 
+#[refine]
 Instance Const {E : Cat} (X : Ob E) (C D : Cat)
     : Bifunctor C D E :=
 {
