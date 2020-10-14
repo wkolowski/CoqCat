@@ -74,7 +74,7 @@ Lemma expDenoteNel_app :
   forall (X : Sgr) (l1 l2 : nel X),
     expDenoteNel (l1 +++ l2) == op (expDenoteNel l1) (expDenoteNel l2).
 Proof.
-  induction l1 as [| h1 t1]; simpl; intros.
+  induction l1 as [| h1 t1]; cbn; intros.
     reflexivity.
     pose op_Proper. rewrite IHt1, assoc. reflexivity.
 Qed.
@@ -83,7 +83,7 @@ Lemma expDenoteNel_hom :
   forall (X Y : Sgr) (f : SgrHom X Y) (l : nel X),
     expDenoteNel (nel_map f l) == f (expDenoteNel l).
 Proof.
-  induction l as [| h t]; simpl.
+  induction l as [| h t]; cbn.
     reflexivity.
     rewrite pres_op, IHt. reflexivity.
 Qed.
@@ -150,7 +150,7 @@ Proof.
   cbn. rewrite !reify_spec. reflexivity.
 Defined.
 
-Ltac reflect_sgr := simpl; intros;
+Ltac reflect_sgr := cbn; intros;
 match goal with
     | |- ?e1 == ?e2 =>
         change (expDenote (reify e1) == expDenote (reify e2));
@@ -161,7 +161,7 @@ Ltac reflect_sgr' := intros;
   do 2 (rewrite <- reify_spec; symmetry);
   apply sgr_reflect; cbn.
 
-Ltac sgr_simpl := repeat red; simpl in *; intros.
+Ltac sgr_simpl := repeat red; cbn in *; intros.
 
 Ltac sgrob S := try intros until S;
 match type of S with
@@ -169,7 +169,7 @@ match type of S with
     let a := fresh S "_op" in
     let a' := fresh S "_op_Proper" in 
     let b := fresh S "_assoc" in destruct S as [S a a' b]; setoidob S
-  | Ob _ => progress simpl in S; sgrob S
+  | Ob _ => progress cbn in S; sgrob S
 end; sgr_simpl.
 
 Ltac sgrobs := repeat
@@ -182,8 +182,8 @@ Ltac sgrhom f := try intros until f;
 match type of f with
   | SgrHom _ _ =>
       let a := fresh f "_pres_op" in destruct f as [f a];
-      simpl in *; setoidhom f
-  | Hom _ _ => progress simpl in f; sgrhom f
+      cbn in *; setoidhom f
+  | Hom _ _ => progress cbn in f; sgrhom f
 end; sgr_simpl.
 
 Ltac sgrhoms := intros; repeat
@@ -349,13 +349,13 @@ end.
 Theorem equiv_nel_refl : forall (X : Setoid') (l : nel X),
     equiv_nel l l.
 Proof.
-  induction l as [| h t]; simpl; try rewrite IHt; solve_equiv.
+  induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
 Qed.
 
 Theorem equiv_nel_sym : forall (X : Setoid') (l1 l2 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l1.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; simpl;
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
   intros; solve_equiv.
 Qed.
 
@@ -434,7 +434,7 @@ end.
 
 Ltac fp_equiv := intros; repeat
 match goal with
-    | x : _ + _ |- _ => destruct x; simpl in *
+    | x : _ + _ |- _ => destruct x; cbn in *
     | H : _ /\ _ |- _ => destruct H
     | |- _ /\ _ => split
     | |- ?x == ?x => reflexivity
@@ -470,11 +470,11 @@ Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
 
 Ltac fpeq4 := unfold fpeq4; repeat
 match goal with
-    | x : _ + _ |- _ => destruct x; simpl in *
+    | x : _ + _ |- _ => destruct x; cbn in *
     | H : match normalize ?l with | _ => _ end |- _ =>
-        destruct (normalize l); simpl in *
+        destruct (normalize l); cbn in *
     | |- match normalize ?l with | _ => _ end =>
-        destruct (normalize l); simpl in *
+        destruct (normalize l); cbn in *
     | _ => solve_equiv
 end.
 
@@ -502,8 +502,8 @@ Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1].
-    simpl; intros. fpeq4. destruct l2.
-      fpeq4. Focus 2.
+    cbn; intros. fpeq4. destruct l2.
+      fpeq4.
 Abort.
 
 (*Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
@@ -513,7 +513,7 @@ Abort.
 }.
 Proof.
   proper. induction x as [| h t].
-    destruct y, x0, y0, a, s, s0, s1; simpl in *; repeat
+    destruct y, x0, y0, a, s, s0, s1; cbn in *; repeat
     match goal with | |- op _ _ == op _ _ => apply WUUUT end; solve_equiv.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
@@ -522,14 +522,14 @@ Definition Sgr_coproj1 (X Y : Sgr)
     : SgrHom X (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_coproj1 X Y).
-  simpl. unfold fpeq4; simpl. reflexivity.
+  simpl. unfold fpeq4; cbn. reflexivity.
 Defined.
 
 Definition Sgr_coproj2 (X Y : Sgr)
     : SgrHom Y (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_coproj2 X Y).
-  simpl; unfold fpeq4; simpl. reflexivity.
+  cbn; unfold fpeq4; cbn. reflexivity.
 Defined.
 
 Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A)
@@ -551,8 +551,8 @@ end.
 Theorem fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
     equiv_nel l1 l2 -> fold l1 == fold l2.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; simpl; cat.
-  destruct t1, t2; simpl in *.
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.
+  destruct t1, t2; cbn in *.
     rewrite H, H0.
     
 
@@ -560,12 +560,12 @@ Definition Sgr_setoid_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SetoidHom (Sgr_freeprod X Y) A.
 Proof.
   red. exists (fun l => fold (freemap f g l)). proper. fpeq4.
-  do 2 red; simpl. unfold fpeq4.
-  induction x as [| h t]; simpl; intro.
+  do 2 red; cbn. unfold fpeq4.
+  induction x as [| h t]; cbn; intro.
     destruct a, (normalize y).
     destruct y as [| h' t'].
       fpeq4; sgr.
-      intros. simpl in H.
+      intros. cbn in H.
 
 Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SgrHom (Sgr_freeprod X Y) A.

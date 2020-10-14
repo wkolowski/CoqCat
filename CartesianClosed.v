@@ -88,8 +88,7 @@ Proof.
   symmetry.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
-  split.
-    Focus 2. 
+  split. 
 Abort.
 
 Lemma wuuut :
@@ -110,8 +109,8 @@ Proof.
   red. exists (delete _).
   red. exists (curry proj1).
   split.
-    Focus 2. term.
-    (*pose (mor_from_term_is_sec C _ _ (@curry C ccc ccc Y (term C) (term C) proj1)).
+    (*Focus 2. term.
+    pose (mor_from_term_is_sec C _ _ (@curry C ccc ccc Y (term C) (term C) proj1)).
     assert (terminal (term C)).
       red. intros. exists (delete _). cat. term.
     specialize (s H). destruct s as [g is_sec].

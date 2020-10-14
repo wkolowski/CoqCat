@@ -43,7 +43,7 @@ match type of f with
   | ProdMakerHom _ _ =>
       let a := fresh f "_eq1" in
       let b := fresh f "_eq2" in destruct f as [f a b]
-  | Hom _ _ => progress simpl in f; pmhom f
+  | Hom _ _ => progress cbn in f; pmhom f
 end; cbn in f.
 
 Ltac pmhoms := intros; repeat

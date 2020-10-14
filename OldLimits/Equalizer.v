@@ -76,7 +76,7 @@ Theorem coequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q'),
     coequalizer C f g Q q -> coequalizer C f g Q' q' -> Q ~ Q'.
 Proof.
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  intro C. rewrite <- (dual_involution_axiom C); cbn; intros.
   rewrite <- dual_equalizer_coequalizer in *.
   rewrite dual_isomorphic_self. eapply equalizer_iso.
   exact H0. exact H.
@@ -109,7 +109,7 @@ Defined.
 Theorem coequalizer_is_epi : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q : Ob C) (q : Hom Y Q), coequalizer C f g Q q -> Epi q.
 Proof.
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  intro C. rewrite <- (dual_involution_axiom C); cbn; intros.
   rewrite <- dual_mon_epi.
   rewrite <- dual_equalizer_coequalizer in *.
   eapply equalizer_is_mono. eauto.

@@ -35,7 +35,7 @@ Instance NatTransComp {C D : Cat}
     component := fun X : Ob C => component α X .> component β X
 }.
 Proof.
-  intros. destruct α, β; simpl in *.
+  intros. destruct α, β; cbn in *.
   rewrite !comp_assoc, coherence1, <- comp_assoc, coherence0. cat.
 Defined.
 
@@ -56,7 +56,7 @@ Instance FunCat (C D : Cat) : Cat :=
     id := NatTransId
 }.
 Proof.
-  (* Proper *) do 3 red; simpl; intros. rewrite H, H0. reflexivity.
+  (* Proper *) do 3 red; cbn; intros. rewrite H, H0. reflexivity.
   (* Category laws *) all: cat.
 Defined.
 
@@ -69,9 +69,9 @@ Theorem natural_isomorphism_char :
     forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
     natural_isomorphism α <-> forall X : Ob C, Iso (component α X).
 Proof.
-  unfold natural_isomorphism; split; simpl; intros.
+  unfold natural_isomorphism; split; cbn; intros.
     destruct H as [β [Η1 Η2]]. red. exists (component β X). auto.
-    red in H. destruct α as [component_α coherence_α]; simpl in *.
+    red in H. destruct α as [component_α coherence_α]; cbn in *.
     assert (component_β : {f : forall X : Ob C, Hom (fob G X) (fob F X) |
     (forall X : Ob C, component_α X .> f X == id (fob F X) /\
       f X .> component_α X == id (fob G X)) /\
@@ -79,7 +79,7 @@ Proof.
       pose (H' := fun X : Ob C => constructive_indefinite_description _ (H X)).
       exists (fun X : Ob C => proj1_sig (H' X)). split.
         intros. split; destruct (H' X); cat.
-        intros. destruct (H' X), (H' Y). simpl in *. cat. clear H'.
+        intros. destruct (H' X), (H' Y). cbn in *. cat. clear H'.
         assert (
         x .> component_α X .> x .> fmap F g .> component_α Y .> x0 ==
         x .> component_α X .> fmap G g .> x0 .> component_α Y .> x0). cat.
@@ -137,8 +137,8 @@ Instance FunCat_fpair
     component := fun X : Ob C => fpair (component α X) (component β X)
 }.
 Proof.
-  intros. simpl. unfold ProductFunctor_fmap.
-  destruct α, β; simpl in *. fpair.
+  intros. cbn. unfold ProductFunctor_fmap.
+  destruct α, β; cbn in *. fpair.
 Defined.
 
 #[refine]
@@ -154,7 +154,7 @@ Instance FunCat_has_products {C D : Cat} {hp : has_products D}
 }.
 Proof.
   proper. fpair.
-  repeat split; simpl; intros; fpair.
+  repeat split; cbn; intros; fpair.
   destruct H. rewrite H, H0. fpair.
 Defined.
 
@@ -179,7 +179,7 @@ Instance FunCat_coproj1 {C D : Cat} {hp : has_coproducts D}
     component := fun _ : Ob C => coproj1
 }.
 Proof.
-  intros. simpl. unfold CoproductFunctor_fmap. copair.
+  intros. cbn. unfold CoproductFunctor_fmap. copair.
 Defined.
 
 #[refine]
@@ -189,7 +189,7 @@ Instance FunCat_coproj2 {C D : Cat} {hp : has_coproducts D}
     component := fun _ : Ob C => coproj2
 }.
 Proof.
-  intros. simpl. unfold CoproductFunctor_fmap. copair.
+  intros. cbn. unfold CoproductFunctor_fmap. copair.
 Defined.
 
 #[refine]
@@ -200,8 +200,8 @@ Instance FunCat_copair
     component := fun X : Ob C => copair (component α X) (component β X)
 }.
 Proof.
-  intros. simpl. unfold CoproductFunctor_fmap.
-  destruct α, β; simpl in *. copair.
+  intros. cbn. unfold CoproductFunctor_fmap.
+  destruct α, β; cbn in *. copair.
 Defined.
 
 #[refine]
@@ -217,7 +217,7 @@ Instance FunCat_has_coproducts {C D : Cat} {hp : has_coproducts D}
 }.
 Proof.
   proper. copair.
-  repeat split; simpl; intros; copair.
+  repeat split; cbn; intros; copair.
   destruct H. rewrite H, H0. copair.
 Defined.
 
@@ -231,7 +231,7 @@ Instance FunCat_expOb
 }.
 Proof.
   intros.
-  Focus 2. unfold Proper, respectful. intros. proper.
+  2: unfold Proper, respectful; intros; proper.
 Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)

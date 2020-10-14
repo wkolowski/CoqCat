@@ -39,6 +39,6 @@ Definition HApartoidComp (X Y Z : HApartoid)
     : HApartoidHom X Z.
 Proof.
   red. exists (fun x : X => g (f x)). intros. intro.
-  destruct f, g; simpl in *. apply (n0 (x0 x) (x0 x')).
+  destruct f, g; cbn in *. apply (n0 (x0 x) (x0 x')).
     intro. apply (n x x').
 Abort.

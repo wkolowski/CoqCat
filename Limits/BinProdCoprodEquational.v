@@ -130,9 +130,9 @@ Coercion coproducts : has_biproducts >-> has_coproducts.
 
 (* Equivalence to the old definition *)
 
-Module Equiv.
-
 Require BinProdCoprod.
+
+Module Equiv.
 
 #[refine]
 Instance hp_hpeq

@@ -84,7 +84,7 @@ Lemma expDenoteL_app :
   forall (X : ComMon) (env : nat -> X) (l1 l2 : list nat),
     expDenoteL env (l1 ++ l2) == op (expDenoteL env l1) (expDenoteL env l2).
 Proof.
-  induction l1 as [| h1 t1]; simpl; intros.
+  induction l1 as [| h1 t1]; cbn; intros.
     rewrite neutr_l. reflexivity.
     rewrite <- assoc, IHt1. reflexivity.
 Qed.
@@ -101,7 +101,7 @@ Theorem flatten_correct :
   forall (X : ComMon) (env : nat -> X) (e : exp X),
     expDenoteL env (flatten e) == expDenote env e.
 Proof.
-  induction e; simpl.
+  induction e; cbn.
     reflexivity.
     rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app. rewrite IHe1, IHe2. reflexivity.
@@ -250,7 +250,7 @@ end.
 
 Ltac reflect_cmon := reflect_cmon'; try reflexivity.
 
-Ltac reflect_goal := simpl; intros;
+Ltac reflect_goal := cbn; intros;
 match goal with
     | X : ComMon |- ?e1 == ?e2 =>
         reify X; apply flat_reflect_goal
@@ -599,7 +599,7 @@ Instance MonListUnit : Mon :=
     neutr := 0
 }.
 Proof.
-  all: simpl; intros; ring.
+  all: cbn; intros; ring.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
@@ -648,7 +648,7 @@ Proof.
   Defined.
   exists (f3 N q). repeat split.
     simpl. destruct x. mon.
-    destruct y, sgrHom0; simpl in *; intros ? n. induction n as [| n'].
+    destruct y, sgrHom0; cbn in *; intros ? n. induction n as [| n'].
       mon.
       pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
         rewrite H'. rewrite -> pres_op in H'. rewrite <- H', IHn'. f_equiv; mon.

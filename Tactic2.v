@@ -43,8 +43,8 @@ Theorem simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simplify e1); destruct (simplify e2); simpl in *;
+  induction e; cbn; try reflexivity.
+    destruct (simplify e1); destruct (simplify e2); cbn in *;
     try rewrite <- IHe1; try rewrite <- IHe2; cat.
 Qed.
 
@@ -84,7 +84,7 @@ Lemma expDenoteHL_comp_app :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
 Proof.
-  induction l1; simpl; intros.
+  induction l1; cbn; intros.
     rewrite id_left. reflexivity.
     assocr. rewrite IHl1. reflexivity.
 Qed.
@@ -214,7 +214,7 @@ Theorem simplify'_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify' e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simplify' e1); destruct (simplify' e2); simpl in *;
+  induction e; cbn; try reflexivity.
+    destruct (simplify' e1); destruct (simplify' e2); cbn in *;
     try rewrite <- IHe1; try rewrite <- IHe2; cat.
 Qed.

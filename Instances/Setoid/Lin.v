@@ -16,7 +16,7 @@ Ltac linob P := try intros until P;
 match type of P with
   | Lin =>
     let a := fresh P "_leq_total" in destruct P as [P a]
-  | Ob _ => progress simpl in P; prosob P
+  | Ob _ => progress cbn in P; prosob P
 end.
 
 Ltac linob' P := linob P; posob' P.
@@ -115,7 +115,7 @@ Instance Lin_prod (X Y : Lin) : Lin :=
     pos := Lin_prod_Pos X Y
 }.
 Proof.
-  destruct x, y; simpl.
+  destruct x, y; cbn.
   destruct (leq_total c c1), (leq_total c1 c),
     (leq_total c0 c2), (leq_total c2 c0); eauto.
     assert (c0 == c2) by eauto. rewrite H3.
@@ -130,7 +130,7 @@ Defined.
 
 Definition Lin_proj2 (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
 Proof.
-  red. exists snd. lin'. destruct a, a', H, H; simpl in *.
+  red. exists snd. lin'. destruct a, a', H, H; cbn in *.
 Abort. *)
 
 (* TODO Instance Lin_has_products : has_products LinCat :=
@@ -216,6 +216,4 @@ Proof.
   exists (CoqSetoid_copair f g). cbn. destruct f, g.
   destruct a, a'; intros; cbn.
     try apply l; try apply l0; auto.
-    Focus 2. inversion H.
-    Focus 2. apply l0. assumption.
 Abort.

@@ -26,8 +26,8 @@ match type of X with
     let b := fresh X "_E" in
     let c := fresh X "_src" in
     let d := fresh X "_tgt" in destruct X as [a b c d]
-  | Ob _ => progress simpl in X; graphob X
-end; simpl in *.
+  | Ob _ => progress cbn in X; graphob X
+end; cbn in *.
 
 Ltac graphobs := repeat
 match goal with
@@ -53,8 +53,8 @@ match type of f with
       let b := fresh f "_fed" in
       let c := fresh f "_pres_src" in
       let d := fresh f "_pres_tgt" in destruct f as [a b c d]
-  | Hom _ _ => progress simpl in f; graphhom f
-end; simpl in *.
+  | Hom _ _ => progress cbn in f; graphhom f
+end; cbn in *.
 
 Ltac graphhoms := intros; repeat
 match goal with

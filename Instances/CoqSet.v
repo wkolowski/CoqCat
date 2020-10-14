@@ -33,7 +33,7 @@ Defined.
 Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> injective f.
 Proof.
-  unfold Mon, injective; simpl; split; intros.
+  unfold Mon, injective; cbn; split; intros.
     change (x = y) with ((fun _ => x) x = (fun _ => y) x).
       apply H. auto.
     apply H. apply H0.
@@ -42,7 +42,7 @@ Defined.
 Theorem CoqSet_ret_sur : forall (X Y : Set) (f : Hom X Y),
     Ret f <-> surjective f.
 Proof.
-  unfold Ret, surjective; simpl; split; intros.
+  unfold Ret, surjective; cbn; split; intros.
     destruct H as [g eq]. exists (g b). apply eq.
     exists (
     fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
@@ -55,7 +55,7 @@ Defined.
 Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
     Iso f <-> bijective f.
 Proof.
-  unfold bijective, injective, surjective, Iso; simpl; split; intros.
+  unfold bijective, injective, surjective, Iso; cbn; split; intros.
     split; intros.
       destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
         rewrite H0. auto.
@@ -183,7 +183,7 @@ Theorem CoqSet_counterexample1 :
     injective (f .> g) /\ ~ (injective g).
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold injective, not; simpl; split; intros.
+  unfold injective, not; cbn; split; intros.
     destruct x, y; auto.
     specialize (H true false eq_refl). discriminate H.
 Qed.
@@ -192,7 +192,7 @@ Theorem CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
     (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
-  unfold surjective, not; simpl; split; intros.
+  unfold surjective, not; cbn; split; intros.
     exists tt. destruct b. auto.
     destruct (H false). inversion H0.
 Qed.
@@ -219,10 +219,10 @@ Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
         fun (x : {x : X | f x = g x}) => proj1_sig x;
 }.
 Proof.
-  unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. intros.
+  unfold equalizer; cbn; split; intros.
+    destruct x; cbn. auto. intros.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
-    cat. specialize (H0 x). destruct (y x). simpl in *. subst.
+    cat. specialize (H0 x). destruct (y x). cbn in *. subst.
     f_equal. apply proof_irrelevance.
 Defined.
 
@@ -238,10 +238,10 @@ Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
     factorize := @CoqSet_factorize;
 }.
 Proof.
-  intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+  intros. cbn in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     f_equal. extensionality x. rewrite H, H0. trivial.
     rewrite H1 in *. constructor. reflexivity.
-  intros. simpl in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+  intros. cbn in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     f_equal. extensionality x. rewrite H, H0. trivial.
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
@@ -252,10 +252,10 @@ Proof.
 
 
 
-  unfold equalizer; simpl; split; intros.
-    destruct x; simpl. auto. intros.
+  unfold equalizer; cbn; split; intros.
+    destruct x; cbn. auto. intros.
     exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
-    cat. specialize (H0 x). destruct (y x). simpl in *. subst.
+    cat. specialize (H0 x). destruct (y x). cbn in *. subst.
     f_equal. apply proof_irrelevance.
 Defined.*)
 
@@ -269,8 +269,8 @@ Defined.*)
         
 }.
 Proof.
-  simpl; intros X Y f g y. exists {A : {y : Y | 
-  unfold coequalizer; simpl; intros. cat. f_equal.
+  cbn; intros X Y f g y. exists {A : {y : Y | 
+  unfold coequalizer; cbn; intros. cat. f_equal.
 *)
 
 #[refine]
@@ -283,8 +283,8 @@ Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
 }.
 Proof.
   proper. extensionality a. rewrite H. reflexivity.
-  do 2 red; simpl; split; intros.
-    destruct x; simpl. reflexivity.
+  do 2 red; cbn; split; intros.
+    destruct x; cbn. reflexivity.
     extensionality x'. rewrite <- H. simpl. reflexivity.
 Defined.
 
@@ -319,10 +319,12 @@ Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
     pull2 := @CoqSet_pull2;
 }.
 Proof.
+(*
   Focus 2. intros. unfold CoqSet_pull1.
   assert (CoqSet_pullbackOb f g = CoqSet_pullbackOb f' g').
-    unfold CoqSet_pullbackOb. simpl in *.
+    unfold CoqSet_pullbackOb. cbn in *.
     f_equal. extensionality p. rewrite H, H0. trivial.
+*)
   (*replace (fun p : CoqSet_pullbackOb f' g' => fst (proj1_sig p))
     with (fun p : CoqSet_pullbackOb f g => fst (proj1_sig p)).
   intros. simpl. unfold CoqSet_pullbackOb.*)

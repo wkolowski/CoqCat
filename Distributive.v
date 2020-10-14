@@ -26,9 +26,6 @@ Proof.
   red. exists proj1.
   red. exists (fpair (id _) (create _)).
   split.
-    Focus 2. fpair.
-      
-    
 
 
 
@@ -60,13 +57,13 @@ Restart.
   split.
     init.
     rewrite <- fpair_id.
-      (*destruct d, distr_has_products. simpl in *.*)
+      (*destruct d, distr_has_products. cbn in *.*)
  (*     do 2 red in is_product.*)
       destruct (is_product _ _ _ (create (init C)) (create X)) as [[H1 H2] H3].
         rewrite <- H3.
           rewrite fpair_pre. apply fpair_Proper.
             assert (create (init C) == id (init C)). init.
               rewrite H. cat.
-            destruct d, distr_has_products. simpl in *.
+            destruct d, distr_has_products. cbn in *.
             do 2 red in is_product.
 Abort.

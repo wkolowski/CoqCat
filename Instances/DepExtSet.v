@@ -24,7 +24,7 @@ Theorem DepExtSet_mon_inj : forall (A B : Ob DepExtSet) (f : A -> B),
     Mon f <-> @injectiveS A B
       {| equiv := @depExtEq A A |} {| equiv := @depExtEq B B |} f.
 Proof.
-  unfold Mon, injectiveS; simpl; split; intros.
+  unfold Mon, injectiveS; cbn; split; intros.
     change (depExtEq a a') with (depExtEq ((fun _ => a) a) ((fun _ => a') a)).
       eapply (depExtEq_unext (fun _ : A => a) (fun _ : A => a')).
         apply H. eapply depExtEq_ext. intro. assumption.
@@ -40,7 +40,7 @@ Instance DepExtSet_has_init : has_init DepExtSet :=
     init := Empty_set;
     create := fun (X : Set) (e : Empty_set) => match e with end
 }.
-Proof. simpl; intros. apply depExtEq_ext. destruct x. Defined.
+Proof. cbn; intros. apply depExtEq_ext. destruct x. Defined.
 
 #[refine]
 Instance DepExtSet_has_term : has_term DepExtSet :=
@@ -49,7 +49,7 @@ Instance DepExtSet_has_term : has_term DepExtSet :=
     delete := fun (X : Set) (x : X) => tt
 }.
 Proof.
-  simpl; intros. apply depExtEq_ext. intro. destruct (f x). auto.
+  cbn; intros. apply depExtEq_ext. intro. destruct (f x). auto.
 Defined.
 
 #[refine]
@@ -63,7 +63,7 @@ Instance DepExtSet_has_products : has_products DepExtSet :=
 }.
 Proof.
   proper. solve_depExtEq.
-  repeat (red || split); simpl; auto; destruct 1; solve_depExtEq.
+  repeat (red || split); cbn; auto; destruct 1; solve_depExtEq.
     1: change (fst (y x)) with ((fun a => fst (y a)) x).
     2: change (snd (y x)) with ((fun a => snd (y a)) x).
     all: solve_depExtEq.
@@ -81,14 +81,14 @@ Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) repeat red; simpl; intros. apply depExtEq_ext. intro.
+  (* Proper *) repeat red; cbn; intros. apply depExtEq_ext. intro.
 
 (*    change (fun j : J => f j a) with (fun j : J => (f j) a).
     change (fun j : J => f j a) with (fun j : J => (f j) a).
 *)
     change (fun j : J => f j x) with (fun j : J => (fun a : X => f j a) x).
     change (fun j : J => g j x) with (fun j : J => (fun a : X => g j a) x). admit.
-  (* Universal property *) unfold big_product_skolem; simpl; intros.
+  (* Universal property *) unfold big_product_skolem; cbn; intros.
     repeat (red || split).
       intro. apply depExtEq_ext. intro. auto.
       intros. apply depExtEq_ext. intro. admit.
@@ -108,7 +108,7 @@ Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 }.
 Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
-  (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
+  (* Coproduct law *) red; my_simpl; cbn; intros; solve_depExtEq.
     destruct H, x.
       match goal with
           | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
@@ -130,11 +130,11 @@ Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
           f (projT1 p) (projT2 p)
 }.
 Proof.
-  (* cotuple is proper *) simpl; intros; solve_depExtEq.
-    destruct x; simpl; solve_depExtEq.
+  (* cotuple is proper *) cbn; intros; solve_depExtEq.
+    destruct x; cbn; solve_depExtEq.
     apply (depExtEq_unext _ _ (H x) a a). auto.
-  (* Coproduct law *) red; my_simpl; simpl; intros; solve_depExtEq.
-    destruct x; simpl.
+  (* Coproduct law *) red; my_simpl; cbn; intros; solve_depExtEq.
+    destruct x; cbn.
     apply (depExtEq_unext _ _ (H x)). auto.
 Defined.
 
@@ -150,8 +150,8 @@ Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
         fun (x : {x : X | depExtEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
-  unfold equalizer; simpl; split; intros.
-    apply depExtEq_ext. destruct x as [x eq]; simpl. assumption.
+  unfold equalizer; cbn; split; intros.
+    apply depExtEq_ext. destruct x as [x eq]; cbn. assumption.
     Lemma trick : forall (X Y E' : Set) (f g : X -> Y) (e' : E' -> X)
       (H : depExtEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a))),
       E' -> {x : X | depExtEq (f x) (g x)}.

@@ -61,8 +61,8 @@ Theorem simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simplify e1); destruct (simplify e2); simpl in *;
+  induction e; cbn; try reflexivity.
+    destruct (simplify e1); destruct (simplify e2); cbn in *;
     rewrite <- ?IHe1, <- ?IHe2, ?id_left, ?id_right; reflexivity.
 Qed.
 
@@ -102,7 +102,7 @@ Lemma expDenoteHL_comp_app :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
 Proof.
-  induction l1; simpl; intros.
+  induction l1; cbn; intros.
     rewrite id_left. reflexivity.
     rewrite comp_assoc, IHl1. reflexivity.
 Qed.
@@ -251,7 +251,7 @@ Qed.
 
 Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
 Proof.
-  destruct C. unfold Dual. apply cat_split; simpl; trivial.
+  destruct C. unfold Dual. apply cat_split; cbn; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
     intros. rewrite H. reflexivity.
     apply H. extensionality A. extensionality B. apply JMeq_eq.
@@ -364,7 +364,7 @@ end).
 Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
     @isomorphic C A B <-> @isomorphic (Dual C) B A.
 Proof.
-  unfold isomorphic; simpl; split; intros;
+  unfold isomorphic; cbn; split; intros;
   destruct H as [f [g [eq1 eq2]]]; exists f; red; cat.
 Restart.
   iso.
@@ -374,7 +374,7 @@ Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
     @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
 Proof.
   (* It works, but it's slow — I don't know why. *)
-  unfold uniquely_isomorphic, Dual. simpl; split; intros.
+  unfold uniquely_isomorphic, Dual. cbn; split; intros.
     destruct H as [f [f_iso H]].
       rewrite iso_inv_unique in f_iso. unfold Iso.
         destruct f_iso as [g [[eq1 eq2] unique]].

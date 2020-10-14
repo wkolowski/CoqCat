@@ -57,6 +57,6 @@ Instance HSetoidCat : Cat :=
 Proof.
   (* Composition is proper *) proper.
     apply hequiv_trans with (y0 (x x1)). apply H0.
-    destruct y0; simpl in *. apply h. apply H.
+    destruct y0; cbn in *. apply h. apply H.
   (* Category laws *) all: cat.
 Defined.

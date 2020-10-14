@@ -33,7 +33,7 @@ match type of S with
     let c := fresh S "_equiv_sym" in
     let d := fresh S "_equiv_trans" in destruct S as [S [a [b c d]]];
       red in a; red in b; red in c; red in d
-  | Ob _ => progress simpl in S; setoidob S
+  | Ob _ => progress cbn in S; setoidob S
 end.
 
 Ltac setoidobs := intros; repeat
@@ -59,7 +59,7 @@ match type of f with
   | SetoidHom _ _ =>
     let a := fresh f "_pres_equiv" in destruct f as [f a];
       repeat red in a
-  | Hom _ _ => progress simpl in f; setoidhom f
+  | Hom _ _ => progress cbn in f; setoidhom f
 end.
 
 Ltac setoidhoms := intros; repeat
@@ -68,7 +68,7 @@ match goal with
   | f : Hom _ _ |- _ => setoidhom f
 end.
 
-Ltac setoid_simpl := repeat (red || split || simpl in * || intros).
+Ltac setoid_simpl := repeat (red || split || cbn in * || intros).
 Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
 
 Ltac setoid' := repeat
@@ -155,7 +155,7 @@ Definition surjectiveS_skolem
 Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
     Ret f <-> surjectiveS_skolem f.
 Proof.
-  unfold Ret, surjectiveS; split; simpl; intros.
+  unfold Ret, surjectiveS; split; cbn; intros.
     destruct H as [g H]. red. exists g. setoid'.
     do 2 destruct H. exists {| func := x; func_Proper := H |}. cat.
 Qed.
@@ -433,8 +433,8 @@ Instance CoqSetoid_has_all_products : has_all_products CoqSetoid :=
     tuple := @CoqSetoid_tuple
 }.
 Proof.
-  simpl; intros; eauto.
-  unfold big_product_skolem; red; simpl; split; intros;
+  cbn; intros; eauto.
+  unfold big_product_skolem; red; cbn; split; intros;
   try reflexivity; eauto.
 Defined.
 
@@ -444,14 +444,17 @@ Inductive equiv_hetero {A : Type} (S : Setoid A)
 
 Hint Constructors equiv_hetero.
 
+Require Import Program.
+
 Theorem equiv_hetero_trans :
   forall (A B C : Type) (SA : Setoid A) (SB : Setoid B)
   (x : A) (y : B) (z : C), A = B -> JMeq SA SB ->
     equiv_hetero SA x y -> equiv_hetero SB y z -> equiv_hetero SA x z.
 Proof.
-  intros. Require Import Program. subst.
-  apply JMeq_eq in H0. subst. dependent destruction H1.
-  dependent destruction H2. constructor. rewrite H. assumption.
+  intros. subst.
+  dependent destruction H1.
+  dependent destruction H2.
+  constructor. rewrite H. assumption.
 Qed.
 
 Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
@@ -469,10 +472,10 @@ Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 }.
 Proof.
   split; red; destruct x; try destruct y; try destruct z;
-  simpl; intros.
+  cbn; intros.
     split; auto. constructor. reflexivity.
     destruct H; subst. split; auto. inversion H0; subst.
-      constructor. Require Import Program. apply inj_pair2 in H.
+      constructor. apply inj_pair2 in H.
       rewrite H1, <- H. reflexivity.
     destruct H, H0; split.
       rewrite H, H0. auto.
@@ -508,7 +511,7 @@ Instance CoqSetoid_has_all_coproducts : has_all_coproducts CoqSetoid :=
     cotuple := @CoqSetoid_cotuple
 }.
 Proof.
-  simpl; intros; eauto. setoid.
+  cbn; intros; eauto. setoid.
 Defined.
 
 #[refine]
@@ -536,7 +539,7 @@ Definition CoqSetoid_curry_fun
     (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_prodOb Z X) Y)
     : Z -> (CoqSetoid_expOb X Y).
 Proof.
-  intro z. destruct f as [f Hf]; do 2 red in Hf; simpl in *.
+  intro z. destruct f as [f Hf]; do 2 red in Hf; cbn in *.
   split with (fun x : X => f (z, x)). do 2 red. intros.
   apply Hf. cbn; split; [reflexivity | assumption].
 Defined.
@@ -546,7 +549,7 @@ Instance CoqSetoid_curry
     : SetoidHom Z (CoqSetoid_expOb X Y).
 Proof.
   split with (CoqSetoid_curry_fun f). do 2 red. intros.
-  setoidhom f; unfold CoqSetoid_curry_fun; simpl in *. intro x'.
+  setoidhom f; unfold CoqSetoid_curry_fun; cbn in *. intro x'.
   apply f_pres_equiv. cbn. split; [assumption | reflexivity].
 Defined.
 

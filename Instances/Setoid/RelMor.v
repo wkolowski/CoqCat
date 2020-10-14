@@ -17,7 +17,7 @@ Ltac setoidrelhom R := try intros until R;
 match type of R with
   | SetoidRel _ _ =>
       let a := fresh R "_Proper" in destruct R as [?R a]
-  | Hom _ _ => progress simpl in R; setoidrelhom R
+  | Hom _ _ => progress cbn in R; setoidrelhom R
 end.
 
 Ltac setoidrelhoms := intros; repeat

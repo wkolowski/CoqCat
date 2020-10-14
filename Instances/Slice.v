@@ -47,9 +47,9 @@ Instance Slice (C : Cat) (Y : Ob C) : Cat :=
 }.
 Proof.
   unfold Proper, respectful; intros.
-    destruct x, y, x0, y0; simpl in *. rewrite H, H0. reflexivity.
+    destruct x, y, x0, y0; cbn in *. rewrite H, H0. reflexivity.
   all: (cat; repeat
   match goal with
-      | f : SliceHom _ _ |- _ => destruct f; simpl in *
+      | f : SliceHom _ _ |- _ => destruct f; cbn in *
   end; cat).
 Defined.

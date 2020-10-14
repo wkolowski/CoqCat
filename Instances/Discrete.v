@@ -24,7 +24,7 @@ Instance Unit : Cat := Discrete unit.
 Theorem Discrete_char_iso : forall (X : Set) (x x' : X)
     (f : @Hom (Discrete X) x x'), Iso f.
 Proof.
-  unfold Iso; simpl; intros. assert (g : x' = x).
+  unfold Iso; cbn; intros. assert (g : x' = x).
     rewrite f. trivial.
     exists g. auto.
 Defined.
@@ -41,9 +41,9 @@ Instance Two : Cat :=
 }.
 Proof.
   (* Equivalence *) solve_equiv.
-  (* Composition *) destruct A, B, C; simpl; tauto.
+  (* Composition *) destruct A, B, C; cbn; tauto.
   (* Proper *) proper.
   (* Assoc *) cat.
-  (* Id *) destruct A; simpl; tauto.
+  (* Id *) destruct A; cbn; tauto.
   (* Id laws *) all: cat.
 Defined.

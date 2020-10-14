@@ -1,5 +1,5 @@
 Require Import NPeano.
-Require Import Omega.
+Require Import Lia.
 
 Require Export Cat.
 Require Export InitTerm.
@@ -24,7 +24,7 @@ Hint Resolve leq_refl leq_trans.
 
 Coercion carrier : Pros >-> Setoid'.
 
-Ltac pros_simpl := repeat (simpl in * || red || split).
+Ltac pros_simpl := repeat (cbn in * || red || split).
 
 Ltac prosob P := try intros until P;
 match type of P with
@@ -32,8 +32,8 @@ match type of P with
     let a := fresh P "_leq" in
     let b := fresh P "_leq_refl" in
     let c := fresh P "_leq_trans" in destruct P as [P a b c]
-  | Ob _ => progress simpl in P; prosob P
-end; simpl in *.
+  | Ob _ => progress cbn in P; prosob P
+end; cbn in *.
 
 Ltac prosob' P := prosob P; setoidob P.
 
@@ -57,8 +57,8 @@ Ltac proshom f := try intros until f;
 match type of f with
   | ProsHom _ _ =>
     let a := fresh f "_pres_leq" in destruct f as [f a]
-  | Hom _ _ => progress simpl in f; proshom f
-end; simpl in *.
+  | Hom _ _ => progress cbn in f; proshom f
+end; cbn in *.
 
 Ltac proshom' f := proshom f; setoidhom f.
 
@@ -71,7 +71,7 @@ end.
 Ltac proshoms := proshoms_template proshom.
 Ltac proshoms' := proshoms_template proshom'.
 
-Ltac pros' := repeat (pros_simpl || proshoms || prosobs || setoid' || omega).
+Ltac pros' := repeat (pros_simpl || proshoms || prosobs || setoid' || lia).
 Ltac pros := try (pros'; fail).
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
@@ -107,7 +107,7 @@ Defined.
     Mon f <-> injectiveS f.
 Proof.
   unfold Mon, injective; split; red; intros.
-    simpl in H. 
+    cbn in H. 
     specialize (H NatLe (const _ _ x) (const _ _ y)).
       proshoms. apply H; auto. exact 0.
     simpl. intro. apply H. proshoms. auto.
@@ -119,7 +119,6 @@ Proof.
   unfold Epi, surjective; split; intros.
     specialize (H Y (@id ProsCat Y) (const _ _ b)).
     proshoms.
-  Focus 2.
     proshoms. intro. destruct (H x). rewrite <- H1. auto.
 Abort.
 
@@ -262,6 +261,6 @@ Instance Pros_has_coproducts : has_coproducts ProsCat :=
 }.
 Proof.
   proper. destruct x1; proper.
-  repeat split; simpl; try reflexivity.
+  repeat split; cbn; try reflexivity.
     destruct x; pros.
 Defined.

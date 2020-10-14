@@ -134,7 +134,7 @@ Theorem terminal_uiso :
     terminal A delete -> terminal B delete' ->
       A ~~ B.
 Proof.
-  intro C. rewrite <- (dual_involution_axiom C); simpl; intros.
+  intro C. rewrite <- (dual_involution_axiom C); cbn; intros.
   rewrite <- dual_initial_terminal in *.
   rewrite dual_unique_iso_self.
   eapply initial_uiso; cat.

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 coq_makefile -R "." Cat -o makefile $(find . -name "*v")
 

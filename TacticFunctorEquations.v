@@ -3,6 +3,7 @@ Require Import Cat.Functor.
 
 Set Implicit Arguments.
 
+(*
 From Equations Require Import Equations.
 
 Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
@@ -187,3 +188,4 @@ Proof.
 Abort.
 
 End Test.
+*)

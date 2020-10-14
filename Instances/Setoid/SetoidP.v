@@ -74,7 +74,7 @@ Instance SetP_has_products : has_products SetP :=
     fpair := SetP_fpair
 }.
 Proof.
-  all: unfold SetP_fpair; repeat (red || split); simpl; intros; cat.
+  all: unfold SetP_fpair; repeat (red || split); cbn; intros; cat.
     rewrite H, H0. auto.
     destruct (f x), (g x); auto.
     destruct (f x), (g x); auto.

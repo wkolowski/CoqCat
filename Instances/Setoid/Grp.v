@@ -161,7 +161,7 @@ Lemma expDenoteL_app :
   forall (X : Grp) (l1 l2 : list X),
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
-  induction l1 as [| h1 t1]; simpl; intros.
+  induction l1 as [| h1 t1]; cbn; intros.
     rewrite neutr_l. reflexivity.
     rewrite <- assoc. rewrite IHt1. reflexivity.
 Qed.
@@ -170,7 +170,7 @@ Lemma expDenoteL_hom :
   forall (X Y : Grp) (f : MonHom X Y) (l : list X),
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
-  induction l as [| h t]; simpl.
+  induction l as [| h t]; cbn.
     rewrite pres_neutr. reflexivity.
     rewrite pres_op, IHt; reflexivity.
 Qed.
@@ -278,11 +278,11 @@ Proof.
   cbn. rewrite reify_spec. reflexivity.
 Defined.
 
-Ltac reflect_grp := simpl; intros;
+Ltac reflect_grp := cbn; intros;
 match goal with
     | |- ?e1 == ?e2 =>
         change (expDenote (reify e1) == expDenote (reify e2));
-        apply grp_reflect2; simpl
+        apply grp_reflect2; cbn
 end.
 
 Ltac grp_simpl := mon_simpl. 
@@ -293,7 +293,7 @@ match type of G with
     let a := fresh G "_inv" in 
     let b := fresh G "_inv_l" in
     let c := fresh G "_inv_r" in destruct G as [G a b c]
-  | Ob _ => progress simpl in G; grpob G
+  | Ob _ => progress cbn in G; grpob G
 end.
 
 Ltac grpob' G := grpob G; monob' G.
@@ -311,8 +311,8 @@ Ltac grphom f :=
 match type of f with
   | GrpHom _ _ =>
     let a := fresh f "_pres_inv" in destruct f as [f a]
-  | Hom _ _ => progress simpl in f; grphom f
-end; simpl in *.
+  | Hom _ _ => progress cbn in f; grphom f
+end; cbn in *.
 
 Ltac grphom' f := grphom f; monhom' f.
 
@@ -537,7 +537,7 @@ Proof. grp. Defined.
 Definition AutComp (C : Cat) (A : Ob C) (X Y Z : AutOb C A)
     (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
 Proof.
-  red. exists (f .> g). destruct f, g; simpl. apply iso_comp; auto.
+  red. exists (f .> g). destruct f, g; cbn. apply iso_comp; auto.
 Defined.
 
 Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A)
@@ -575,7 +575,7 @@ Abort.*)
     neutr := fun x : G => x
 }.
 Proof. 
-  all: intro; simpl; extensionality x; trivial.
+  all: intro; cbn; extensionality x; trivial.
 Defined.
 
 #[refine]

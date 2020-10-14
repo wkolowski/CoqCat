@@ -46,7 +46,7 @@ Theorem curry_uncurry :
     (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
       curry (uncurry f) == f.
 Proof.
-  unfold uncurry; destruct he; simpl; intros.
+  unfold uncurry; destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 Y Z X (f ×' id Y .> (eval0 _ _))) as [H1 H2].
   apply H2. reflexivity.
@@ -57,7 +57,7 @@ Theorem uncurry_curry :
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
 Proof.
-  destruct he; simpl; intros. do 2 red in is_exponential0.
+  destruct he; cbn; intros. do 2 red in is_exponential0.
   unfold uncurry. destruct (is_exponential0 Y Z X f).
   exact H.
 Qed.
@@ -66,7 +66,7 @@ Theorem curry_eval :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), curry eval == id (expOb X Y).
 Proof.
-  destruct he; simpl; intros.
+  destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
   apply (H2 (id _)). rewrite ProductFunctor_fmap_pres_id.
@@ -78,7 +78,7 @@ Theorem curry_comp :
     (X Y Z A : Ob C) (f : Hom Y Z) (g : Hom Z A),
       @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
-  intros. destruct he; simpl in *.
+  intros. destruct he; cbn in *.
   destruct (is_exponential0 _ _ _ ((eval0 X Y .> f) .> g)).
   destruct (is_exponential0 _ _ _ (eval0 X Y .> f)).
   destruct (is_exponential0 _ _ _ (eval0 X Z .> g)).
@@ -91,7 +91,7 @@ Theorem uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
 Proof.
-  destruct he; simpl; intros.
+  destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
   unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
@@ -166,7 +166,7 @@ Theorem has_exponentials_unique :
   (he : has_exponentials C) (he' : has_exponentials C) (X Y : Ob C),
       @expOb C hp he X Y ~ @expOb C hp he' X Y.
 Proof.
-  intros. destruct he, he'. simpl in *.
+  intros. destruct he, he'. cbn in *.
   destruct (exponential_skolem_uiso
     (is_exponential0 X Y) (is_exponential1 X Y)).
   cat.

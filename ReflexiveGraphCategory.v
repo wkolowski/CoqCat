@@ -79,7 +79,6 @@ Class ReflexiveGraphCategory : Type :=
     I_fill :
       forall {X Y : Ob} (f : Mor X Y),
         fill f f I I
-
 }.
 
 Arguments Ob    : clear implicits.

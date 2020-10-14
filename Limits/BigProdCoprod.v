@@ -187,7 +187,7 @@ Theorem tuple_bigProj :
   (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
     tuple f .> bigProj j == f j.
 Proof.
-  intros. destruct hp; simpl.
+  intros. destruct hp; cbn.
   edestruct is_big_product0.
   rewrite <- H. reflexivity.
 Qed.
@@ -200,7 +200,7 @@ Proof.
   intros. edestruct is_big_product.
   rewrite <- H0.
     reflexivity.
-    intros; simpl in *. cat. rewrite tuple_bigProj. reflexivity.
+    intros; cbn in *. cat. rewrite tuple_bigProj. reflexivity.
 Qed.
 
 Theorem tuple_id :
@@ -259,7 +259,7 @@ Proof.
   intros. edestruct is_big_coproduct.
   rewrite <- H0.
     reflexivity.
-    intros; simpl in *. assocl. rewrite cotuple_bigCoproj. reflexivity.
+    intros; cbn in *. assocl. rewrite cotuple_bigCoproj. reflexivity.
 Qed.
 
 Theorem cotuple_id :

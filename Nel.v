@@ -20,7 +20,7 @@ Notation "l1 +++ l2" := (nel_app l1 l2) (at level 40).
 Theorem app_nel_assoc : forall (A : Type) (x y z : nel A),
     x +++ (y +++ z) = (x +++ y) +++ z.
 Proof.
-  induction x as [h | h t]; simpl; intros.
+  induction x as [h | h t]; cbn; intros.
     trivial.
     rewrite IHt. trivial.
 Qed.

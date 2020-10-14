@@ -26,7 +26,7 @@ match type of A with
     let b := fresh A "_neq_irrefl" in
     let c := fresh A "_neq_sym" in
     let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
-  | Ob _ => progress simpl in A; apartoidob A
+  | Ob _ => progress cbn in A; apartoidob A
 end.
 
 Ltac apartoidobs := intros; repeat
@@ -56,7 +56,7 @@ Ltac apartoidhom f := try intros until f;
 match type of f with
   | ApartoidHom _ _ =>
     let a := fresh f "_pres_equiv" in destruct f as [f a]
-  | Hom _ _ => progress simpl in f; apartoidhom f
+  | Hom _ _ => progress cbn in f; apartoidhom f
 end.
 
 Ltac apartoidhoms := intros; repeat
@@ -77,7 +77,7 @@ Proof.
   red. exists (fun x : X => x). auto.
 Defined.
 
-Ltac apartoid_simpl := repeat (red || split || simpl in * || intros).
+Ltac apartoid_simpl := repeat (red || split || cbn in * || intros).
 Ltac apartoid_simpl' := repeat (apartoid_simpl || apartoidhoms || apartoidobs).
 
 Ltac apartoid_neq := repeat
@@ -182,7 +182,7 @@ Proof. all: auto. Defined.
 
 Definition Apartoid_delete (X : Apartoid) : ApartoidHom X Apartoid_term.
 Proof.
-  red; simpl. exists (fun _ => tt). auto.
+  red; cbn. exists (fun _ => tt). auto.
 Defined.
 
 #[refine]
@@ -321,8 +321,8 @@ Definition Apartoid_tuple {J : Set} {A : J -> Apartoid} {X : Apartoid}
     (f : forall j : J, ApartoidHom X (A j))
     : ApartoidHom X (Apartoid_bigProdOb A).
 Proof.
-  red. exists (fun (x : X) (j : J) => f j x). simpl; intros.
-  intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; simpl in *.
+  red. exists (fun (x : X) (j : J) => f j x). cbn; intros.
+  intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; cbn in *.
   eapply Hfj; eauto.
 Defined.
 
@@ -334,11 +334,11 @@ Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
     tuple := @Apartoid_tuple;
 }.
 Proof.
-  (* tuple is proper *) simpl; intros. destruct 1 as [j H'].
+  (* tuple is proper *) cbn; intros. destruct 1 as [j H'].
     eapply H. eassumption.
   (* Product law *) unfold big_product_skolem; red; split;
-  simpl in *; intros; eauto. destruct 1 as [j H'].
-  red in y. destruct y as [y Hy]; simpl in *.
+  cbn in *; intros; eauto. destruct 1 as [j H'].
+  red in y. destruct y as [y Hy]; cbn in *.
   eapply H; eauto.
 Defined.
 
@@ -355,14 +355,14 @@ Proof. all: apartoid. Defined.
 Definition Apartoid_eq_mor {X Y : Apartoid} (f g : ApartoidHom X Y)
     : ApartoidHom (Apartoid_eq_ob f g) X.
 Proof.
-  red; simpl. exists (@proj1_sig _ _). apartoid.
+  red; cbn. exists (@proj1_sig _ _). apartoid.
 Defined.
 
 Lemma trick (X Y E' : Apartoid) (f g : Hom X Y)
     (e' : Hom E' X) (H : e' .> f == e' .> g)
     : E' -> Apartoid_eq_ob f g.
 Proof.
-  intro arg. red; simpl in *. exists (e' arg). apartoid.
+  intro arg. red; cbn in *. exists (e' arg). apartoid.
 Defined.
 
 Lemma trick2 (X Y E' : Apartoid) (f g : Hom X Y)
@@ -470,7 +470,7 @@ Defined.*)
 Definition Apartoid_bigCoproj {J : Apartoid} (A : J -> Apartoid) (j : J)
     : ApartoidHom (A j) (Apartoid_bigCoprodOb A).
 Proof.
-  red; simpl in *. exists (fun a : A j => existT _ j a); simpl.
+  red; cbn in *. exists (fun a : A j => existT _ j a); cbn.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
@@ -478,9 +478,9 @@ Definition Apartoid_bigCopair {J : Apartoid} {A : J -> Apartoid}
     {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
     : ApartoidHom (Apartoid_bigCoprodOb A) X.
 Proof.
-  red; simpl. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
-  destruct x as [j a], x' as [j' a']; simpl; do 2 intro.
-  destruct (f j) as [fj Hfj]; simpl in *.
-  destruct (f j') as [fj' Hfj']; simpl in *.
+  red; cbn. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
+  destruct x as [j a], x' as [j' a']; cbn; do 2 intro.
+  destruct (f j) as [fj Hfj]; cbn in *.
+  destruct (f j') as [fj' Hfj']; cbn in *.
   apply (Hfj a a).
 Abort.

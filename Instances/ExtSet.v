@@ -25,7 +25,7 @@ Defined.
 Theorem ExtSet_mon_inj : forall (A B : Ob ExtSet) (f : A -> B),
     Mon f <-> @injectiveS A B {| equiv := @extEq A |} {| equiv := @extEq B |} f.
 Proof.
-  unfold Mon, injectiveS; simpl; split; intros.
+  unfold Mon, injectiveS; cbn; split; intros.
     change (extEq a a') with (extEq ((fun _ => a) a) ((fun _ => a') a)).
       apply extEq_unext. apply H. apply extEq_ext. intro. assumption. auto.
     apply extEq_ext. intro. apply H.
@@ -38,7 +38,7 @@ Theorem ExtSet_ret_surjective : forall (A B : Type)
     @surjectiveS A B {| equiv := @extEq B |} f.
 Proof.
   intros until f; intro H. red.
-    destruct H as [g H]. intro. exists (g b). simpl in *.
+    destruct H as [g H]. intro. exists (g b). cbn in *.
     change (f (g b)) with ((fun a : B => (f (g a))) b).
     change b with ((fun a : B => a) b) at 2.
     rewrite H. reflexivity.
@@ -61,7 +61,7 @@ Instance ExtSet_has_init : has_init ExtSet :=
     init := Empty_set;
     create := fun (X : Type) (e : Empty_set) => match e with end
 }.
-Proof. simpl; intros. apply extEq_ext. destruct a. Defined.
+Proof. cbn; intros. apply extEq_ext. destruct a. Defined.
 
 #[refine]
 Instance ExtSet_has_term : has_term ExtSet :=
@@ -70,7 +70,7 @@ Instance ExtSet_has_term : has_term ExtSet :=
     delete := fun (X : Type) (x : X) => tt
 }.
 Proof.
-  simpl; intros. apply extEq_ext. intro. destruct (f a). auto.
+  cbn; intros. apply extEq_ext. intro. destruct (f a). auto.
 Defined.
 
 #[refine]
@@ -83,8 +83,8 @@ Instance ExtSet_has_products : has_products ExtSet :=
       fun x : X => (f x, g x)
 }.
 Proof.
-  repeat red; simpl; intros. apply extEq_ext. intro. cat.
-  repeat (red || split); simpl.
+  repeat red; cbn; intros. apply extEq_ext. intro. cat.
+  repeat (red || split); cbn.
     apply extEq_ext. auto.
     apply extEq_ext. auto.
     destruct 1. apply extEq_ext. intros.
@@ -92,7 +92,7 @@ Proof.
         apply (extEq_unext X A f (fun a : X => fst (y a)) H a a). auto.
       assert (extEq (g a) (snd (y a))).
         apply (extEq_unext X B g (fun a : X => snd (y a)) H0 a a). auto.
-      destruct (y a); simpl in *. auto.
+      destruct (y a); cbn in *. auto.
 Defined.
 
 (* TODO *)
@@ -107,12 +107,12 @@ Instance ExtSet_has_all_products : has_all_products ExtSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) repeat red; simpl; intros. apply extEq_ext. intro.
-  Focus 2.
-  (* Universal property *) unfold big_product_skolem; simpl; intros.
+  (* Proper *) repeat red; cbn; intros. apply extEq_ext. intro.
+  (* extEq *) admit.
+  (* Universal property *) unfold big_product_skolem; cbn; intros.
     repeat (red || split).
       intro. apply extEq_ext. intro. auto.
-      intros. apply extEq_ext. intro. simpl in *.
+      intros. apply extEq_ext. intro. cbn in *.
       change (y a) with (fun j => y a j).
 Abort.
 
@@ -163,8 +163,8 @@ Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
         fun (x : {x : X | extEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
-  unfold equalizer; simpl; split; intros.
-    apply extEq_ext. intros; destruct a as [x H]; simpl.
+  unfold equalizer; cbn; split; intros.
+    apply extEq_ext. intros; destruct a as [x H]; cbn.
       assumption.
     Definition trick {X Y E' : Type} (f g : X -> Y) (e' : E' -> X)
       (H : extEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a)))
@@ -174,15 +174,15 @@ Proof.
       apply (extEq_unext E' Y _ _ H x x (@extEq_refl _ x)).
     Defined.
     exists (trick f g e' H).
-    red; split; simpl; intros.
+    red; split; cbn; intros.
       apply extEq_refl.
       apply extEq_ext. intro x.
         pose (wut := extEq_unext _ _ _ _ H0 x x (@extEq_refl _ x)).
         assert (extEq ((fun a : E' => proj1_sig (y a)) x) (e' x)).
           apply wut.
-        simpl in H1.
-        simpl in *. case_eq (y x). intros x' Heq1 Heq2.
-        rewrite Heq2 in H1. simpl in H1.
+        cbn in H1.
+        cbn in *. case_eq (y x). intros x' Heq1 Heq2.
+        rewrite Heq2 in H1. cbn in H1.
         unfold trick. cut (
           (exist (fun x0 : X => extEq (f x0) (g x0)) (e' x)
      (extEq_unext E' Y (fun a : E' => f (e' a)) (fun a : E' => g (e' a)) H x
@@ -201,6 +201,6 @@ Abort.
         
 }.
 Proof.
-  simpl; intros X Y f g y. exists {A : {y : Y | 
-  unfold coequalizer; simpl; intros. cat. f_equal.
+  cbn; intros X Y f g y. exists {A : {y : Y | 
+  unfold coequalizer; cbn; intros. cat. f_equal.
 *)

@@ -22,7 +22,7 @@ Ltac posob P := try intros until P;
 match type of P with
   | Pos =>
     let a := fresh P "_leq_antisym" in destruct P as [P a]
-  | Ob _ => progress simpl in P; prosob P
+  | Ob _ => progress cbn in P; prosob P
 end.
 
 Ltac posob' P := posob P; prosob' P.
@@ -142,6 +142,6 @@ Instance Pos_has_coproducts : has_coproducts PosCat :=
 }.
 Proof.
   proper. destruct x1; proper.
-  repeat split; simpl; try reflexivity.
+  repeat split; cbn; try reflexivity.
     destruct x; pos.
 Defined.

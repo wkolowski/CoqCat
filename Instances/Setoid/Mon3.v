@@ -93,7 +93,7 @@ Lemma expDenoteL_app :
   forall (X : Mon) (l1 l2 : list X),
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
-  induction l1 as [| h1 t1]; simpl; intros.
+  induction l1 as [| h1 t1]; cbn; intros.
     rewrite neutr_l. reflexivity.
     rewrite <- assoc, IHt1. reflexivity.
 Qed.
@@ -102,7 +102,7 @@ Lemma expDenoteL_hom :
   forall (X Y : Mon) (f : MonHom X Y) (l : list X),
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
-  induction l as [| h t]; simpl.
+  induction l as [| h t]; cbn.
     rewrite pres_neutr. reflexivity.
     rewrite pres_op, IHt. reflexivity.
 Qed.
@@ -119,7 +119,7 @@ Theorem flatten_correct :
   forall (X : Mon) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; simpl.
+  induction e; cbn.
     reflexivity.
     rewrite neutr_r. reflexivity.
     rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
@@ -180,11 +180,11 @@ Proof.
   cbn. reflexivity.
 Defined.
 
-Ltac reflect_mon := simpl; intros;
+Ltac reflect_mon := cbn; intros;
 match goal with
     | |- ?e1 == ?e2 =>
         change (expDenote (reify e1) == expDenote (reify e2));
-        apply mon_reflect; simpl
+        apply mon_reflect; cbn
 end.
 
 Ltac mon_simpl := sgr_simpl.
@@ -196,8 +196,8 @@ match type of M with
     let b := fresh M "_neutr_l" in
     let c := fresh M "_neutr_r" in
       destruct M as [?M a b c]
-  | Ob _ => progress simpl in M; monob M
-end; simpl.
+  | Ob _ => progress cbn in M; monob M
+end; cbn.
 
 Ltac monob' M := monob M; sgrob M.
 
@@ -214,7 +214,7 @@ Ltac monhom f := try intros until f;
 match type of f with
     | MonHom _ _ =>
       let a := fresh f "_pres_neutr" in destruct f as [f a]
-    | Hom _ _ => progress simpl in f; monhom f
+    | Hom _ _ => progress cbn in f; monhom f
 end.
 
 Ltac monhom' f := monhom f; sgrhom f.
@@ -435,7 +435,7 @@ Instance MonListUnit : Mon :=
     neutr := 0
 }.
 Proof.
-  all: simpl; intros; ring.
+  all: cbn; intros; ring.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
@@ -470,7 +470,7 @@ Proof.
   Defined.
   exists (f3 N q). repeat split.
     simpl. destruct x. mon.
-    destruct y, sgrHom0; simpl in *; intros ? n. induction n as [| n'].
+    destruct y, sgrHom0; cbn in *; intros ? n. induction n as [| n'].
       mon.
       pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
         rewrite H'. rewrite pres_op in H'. rewrite <- H'. f_equiv; mon.

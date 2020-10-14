@@ -5,13 +5,13 @@ Require Import BinProdCoprod.
 Definition FAlg {C : Cat} (F : Functor C C) : Type :=
     {X : Ob C & @Hom C (fob F X) X}.
 
-Ltac falg_simpl := repeat red; simpl in *; intros.
+Ltac falg_simpl := repeat red; cbn in *; intros.
 
 Ltac falgob X := try intros until X;
 match type of X with
     | FAlg _ =>
       let α := fresh "α_" X in destruct X as [X α]
-    | Ob _ => progress simpl in X; falgob X
+    | Ob _ => progress cbn in X; falgob X
 end.
 
 Ltac falgobs_template tac := repeat
@@ -20,7 +20,7 @@ match goal with
   | X : Ob _ |- _ => tac X
 end.
 
-Ltac falgobs := falgobs_template falgob; simpl in *.
+Ltac falgobs := falgobs_template falgob; cbn in *.
 
 Definition FAlgHom {C : Cat} {F : Functor C C}
     (X Y : FAlg F) : Type :=
@@ -30,7 +30,7 @@ Ltac falghom f := try intros until f;
 match type of f with
     | FAlgHom _ _ =>
       let a := fresh f "_cond" in destruct f as [f a]
-    | Hom _ _ => progress simpl in f; falghom f
+    | Hom _ _ => progress cbn in f; falghom f
 end; falg_simpl.
 
 Ltac falghoms_template tac := intros; repeat
@@ -42,7 +42,7 @@ end.
 Ltac falghoms := falghoms_template falghom.
 
 Ltac falg := repeat (falg_simpl || falgobs || falghoms || cat);
-    unfold FAlgHom; simpl.
+    unfold FAlgHom; cbn.
 
 #[refine]
 Instance FAlgHomSetoid {C : Cat} {F : Functor C C} (X Y : FAlg F)

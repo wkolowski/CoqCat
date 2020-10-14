@@ -42,8 +42,8 @@ Theorem simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simplify e1); destruct (simplify e2); simpl in *;
+  induction e; cbn; try reflexivity.
+    destruct (simplify e1); destruct (simplify e2); cbn in *;
     try rewrite <- IHe1; try rewrite <- IHe2; cat.
 Qed.
 
@@ -80,7 +80,7 @@ Hint Constructors wf.
 Theorem flatten_wf :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y), wf (flatten e).
 Proof.
-  induction e; simpl; auto.
+  induction e; cbn; auto.
 Qed.
 
 Inductive wf' {C : Cat} : list (PackedHom C) -> Prop :=
@@ -112,7 +112,6 @@ Theorem flatten_wf' :
 Proof.
   induction e; cbn; auto.
     induction (flatten e1); cbn; auto. destruct l.
-      Focus 2. cbn. inversion IHe1; subst; auto.
       destruct (flatten e2); cbn in *; auto. constructor; auto.
 Abort.
 
@@ -120,7 +119,7 @@ Theorem flatten_cons :
   forall (C : Cat) (h : PackedHom C) (t : list (PackedHom C)),
     wf (h :: t) -> wf t.
 Proof.
-  induction t; simpl; auto.
+  induction t; cbn; auto.
     inversion 1. subst.
 Abort.
 
@@ -128,19 +127,18 @@ Theorem flatten_wf_inv :
   forall (C : Cat) (l l1 l2 : list (PackedHom C)),
     wf l -> l = l1 ++ l2 -> wf l1 /\ wf l2.
 Proof.
-  induction l as [| h t]; simpl; intros.
-    destruct l1; simpl in *; inversion H0; auto.
-    destruct l1; simpl in *; subst; auto.
+  induction l as [| h t]; cbn; intros.
+    destruct l1; cbn in *; inversion H0; auto.
+    destruct l1; cbn in *; subst; auto.
       rewrite app_comm_cons in H0. inversion H0; subst.
-      rewrite app_comm_cons in H. inversion H; subst. Focus 2.
-      inversion H.
+      rewrite app_comm_cons in H. inversion H; subst.
 Abort.
 
 (*Lemma expDenoteHL_comp_app :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 ++ l2).
 Proof.
-  induction l1; simpl; intros.
+  induction l1; cbn; intros.
     rewrite id_left. reflexivity.
     assocr. rewrite IHl1. reflexivity.
 Qed.
@@ -181,7 +179,7 @@ match goal with
         let e1 := reify f in
         let e2 := reify g in
           change (expDenote e1 == expDenote e2);
-          apply cat_reflect; simpl
+          apply cat_reflect; cbn
 end.
 
 Ltac mor := mor'; reflexivity.
@@ -262,7 +260,7 @@ Theorem simplify'_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify' e) == expDenote e.
 Proof.
-  induction e; simpl; try reflexivity.
-    destruct (simplify' e1); destruct (simplify' e2); simpl in *;
+  induction e; cbn; try reflexivity.
+    destruct (simplify' e1); destruct (simplify' e2); cbn in *;
     try rewrite <- IHe1; try rewrite <- IHe2; cat.
 Qed.*)

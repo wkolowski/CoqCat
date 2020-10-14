@@ -108,7 +108,7 @@ Instance CoconeComp {J C : Cat} {F : Functor J C}
 }.
 Proof.
   intros. rewrite <- comp_assoc. rewrite cond'.
-  destruct C2. destruct g. simpl in *. apply cond'0.
+  destruct C2. destruct g. cbn in *. apply cond'0.
 Defined.
 
 #[refine]

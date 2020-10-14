@@ -80,7 +80,7 @@ Hint Constructors depExtEq.
 
 Instance depExtEq_Equivalence (A : Type) : Equivalence (@depExtEq A A).
 Proof.
-  split; red; simpl; intros; eauto.
+  split; red; cbn; intros; eauto.
 Defined.
 
 Ltac solve_depExtEq := repeat
@@ -159,13 +159,13 @@ Hint Unfold
 
 Ltac proper :=
 match goal with
-    | |- context [Proper] => unfold Proper, respectful; simpl; intros; proper
+    | |- context [Proper] => unfold Proper, respectful; cbn; intros; proper
     | H : ?a == ?b |- _ => rewrite H; clear H; proper
     | |- ?a == ?a => reflexivity
     | _ => auto
 end.
 
-Ltac my_simpl := simpl in *; repeat
+Ltac my_simpl := cbn in *; repeat
 match goal with
     | H : False |- _ => inversion H
     | e : Empty_set |- _ => inversion e

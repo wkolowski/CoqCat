@@ -90,7 +90,7 @@ Qed.
 Theorem fpair_proj1 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj1 == f.
 Proof.
-  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct hp; cbn; intros. do 2 red in is_product0.
   destruct (is_product0 X Y A f g) as [[H1 H2] H3].
   rewrite <- H1. reflexivity.
 Qed.
@@ -98,7 +98,7 @@ Qed.
 Theorem fpair_proj2 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj2 == g.
 Proof.
-  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct hp; cbn; intros. do 2 red in is_product0.
   destruct (is_product0 X Y A f g) as [[H1 H2] H3].
   rewrite <- H2. reflexivity.
 Qed.
@@ -107,7 +107,7 @@ Theorem fpair_pre : forall (C : Cat) (hp : has_products C) (A B X Y : Ob C)
     (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
         f .> fpair g1 g2 == fpair (f .> g1) (f .> g2).
 Proof.
-  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct hp; cbn; intros. do 2 red in is_product0.
   destruct (is_product0 X Y A (f .> g1) (f .> g2)) as [_ H3].
   destruct (is_product0 X Y B g1 g2) as [[H1' H2'] _].
   rewrite <- H3.
@@ -120,7 +120,7 @@ Qed.
 Theorem fpair_id : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     fpair proj1 proj2 == id (prodOb X Y).
 Proof.
-  destruct hp; simpl; intros. do 2 red in is_product0.
+  destruct hp; cbn; intros. do 2 red in is_product0.
   destruct (is_product0 X Y (prodOb0 X Y) (proj3 X Y) (proj4 X Y))
     as [_ H3].
   rewrite H3.
@@ -415,7 +415,7 @@ Theorem copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
     (f : Hom X A) (g : Hom Y A), coproj1 .> copair f g == f.
 Proof.
-  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  intros. destruct hp; cbn. do 2 red in is_coproduct0.
   destruct (is_coproduct0 X Y A f g) as [[H1 H2] H3].
   rewrite <- H1. reflexivity.
 Qed.
@@ -424,7 +424,7 @@ Theorem copair_coproj2 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
     (f : Hom X A) (g : Hom Y A), coproj2 .> copair f g == g.
 Proof.
-  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  intros. destruct hp; cbn. do 2 red in is_coproduct0.
   destruct (is_coproduct0 X Y A f g) as [[H1 H2] H3].
   rewrite <- H2. reflexivity.
 Qed.
@@ -434,7 +434,7 @@ Theorem copair_post :
     (f1 : Hom X A) (f2 : Hom Y A) (g : Hom A B),
       copair f1 f2 .> g == copair (f1 .> g) (f2 .> g).
 Proof.
-  intros. destruct hp; simpl. do 2 red in is_coproduct0.
+  intros. destruct hp; cbn. do 2 red in is_coproduct0.
   destruct (is_coproduct0 X Y B (f1 .> g) (f2 .> g)) as [_ H3].
   destruct (is_coproduct0 X Y A f1 f2) as [[H1 H2] _].
   rewrite H3.
@@ -448,7 +448,7 @@ Theorem copair_id :
   forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
     copair coproj1 coproj2 == id (coprodOb X Y).
 Proof.
-  destruct hp; simpl; intros. do 2 red in is_coproduct0.
+  destruct hp; cbn; intros. do 2 red in is_coproduct0.
   destruct (is_coproduct0 X Y (coprodOb0 X Y) (coproj3 X Y) (coproj4 X Y))
     as [_ H3].
   apply H3. cat.

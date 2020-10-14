@@ -139,7 +139,7 @@ Proof.
   intro. rewrite <- (dual_involution_axiom C). intros.
   rewrite <- dual_pullback_pushout in H.
   rewrite <- dual_pullback_pushout in H0.
-  destruct (pullback_uiso H H0). simpl in *.
+  destruct (pullback_uiso H H0). cbn in *.
   exists x. cat.
     rewrite dual_iso_self. assumption.
     symmetry. assumption.
@@ -229,7 +229,7 @@ Proof.
   intros. pose (eq := equalizer_skolem_equiv H H0).
   repeat split.
     rewrite eq. edestruct H0. assocr'. rewrite e.
-      f_equiv. destruct hp. simpl in *. do 2 red in is_product.
+      f_equiv. destruct hp. cbn in *. do 2 red in is_product.
 Abort.*)
 
 (* 

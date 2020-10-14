@@ -3,6 +3,7 @@ Require Import Cat.Functor.
 
 Set Implicit Arguments.
 
+(*
 From Equations Require Import Equations.
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
@@ -140,3 +141,4 @@ Goal
 Proof.
   intros. reflect_cat. reflexivity.
 Qed.
+*)
