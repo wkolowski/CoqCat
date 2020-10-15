@@ -16,7 +16,7 @@ Coercion carrier : HSetoid >-> Sortclass.
 
 Notation "x === y" := (hequiv x y) (at level 40).
 
-Hint Resolve hequiv_refl hequiv_sym hequiv_trans.
+Hint Resolve hequiv_refl hequiv_sym hequiv_trans : core.
 
 Definition HSetoidHom (X Y : HSetoid) : Type :=
     {f : X -> Y | forall x x' : X, x === x' -> f x === f x'}.

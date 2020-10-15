@@ -249,7 +249,7 @@ Instance CoqSetoid_has_products : has_products CoqSetoid :=
     proj2 := CoqSetoid_proj2;
     fpair := CoqSetoid_fpair
 }.
-Proof. all: setoid'. Time Defined.
+Proof. all: setoid'. Defined.
 
 #[refine]
 Instance CoqSetoid_coprodOb (X Y : Setoid') : Setoid' :=
@@ -303,7 +303,7 @@ Proof.
     | p : _ + _ |- _ => destruct p
     | _ => setoid'
   end.
-Time Defined.
+Defined.
 
 #[refine]
 Instance CoqSetoid_eq_ob {X Y : Setoid'} (f g : SetoidHom X Y)
@@ -442,7 +442,7 @@ Inductive equiv_hetero {A : Type} (S : Setoid A)
     : forall (B : Type), A -> B -> Prop :=
     | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S x y.
 
-Hint Constructors equiv_hetero.
+Hint Constructors equiv_hetero : core.
 
 Require Import Program.
 

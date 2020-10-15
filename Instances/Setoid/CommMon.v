@@ -27,8 +27,6 @@ Inductive exp (X : ComMon) : Type :=
     | Op : exp X -> exp X -> exp X
     | Mor : forall A : ComMon, MonHom A X -> exp A -> exp X.
 
-Check exp_ind.
-
 Arguments Id {X}.
 Arguments Var {X} _.
 Arguments Op {X} _ _.
@@ -570,7 +568,7 @@ Instance forgetful : Functor MonCat CoqSetoid :=
 Proof.
   cbn. intros. exact X.
   formulaer. all: mon.
-Time Defined.
+Defined.
 
 Notation "'U'" := forgetful.
 

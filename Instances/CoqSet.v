@@ -55,12 +55,14 @@ Defined.
 Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
     Iso f <-> bijective f.
 Proof.
+(*
   unfold bijective, injective, surjective, Iso; cbn; split; intros.
     split; intros.
       destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
         rewrite H0. auto.
       destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
 Restart.
+*)
   split; intros.
     red. rewrite iso_iff_mon_ret in H. destruct H. split.
       rewrite <- CoqSet_mon_inj. assumption.

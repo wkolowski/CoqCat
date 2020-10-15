@@ -263,7 +263,7 @@ Instance SgrCat : Cat :=
     comp := SgrComp;
     id := SgrId
 }.
-Proof. Time all: sgr. Defined.
+Proof. all: sgr. Defined.
 
 #[refine]
 Instance Sgr_init : Sgr :=
@@ -361,7 +361,7 @@ Proof.
       | |- match ?x with _ => _ end => destruct x
       | H : False |- _ => inversion H
   end; auto.
-  Time destruct x, y, z; sgr.
+  destruct x, y, z; sgr.
 Defined.
 
 Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
@@ -390,7 +390,7 @@ Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
 Qed.
 
-Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans.
+Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
 
 #[refine]
 Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
@@ -488,7 +488,7 @@ Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
 Qed.
 
-Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans.
+Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
 
 Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
     fp_equiv (normalize l1) (normalize l2).
@@ -521,7 +521,7 @@ Proof.
   unfold fpeq4. induction l1 as [| h1 t1]; fpeq4.
 Qed.
 
-Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans.
+Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
 Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').

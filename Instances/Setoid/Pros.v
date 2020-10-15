@@ -20,7 +20,7 @@ Class Pros : Type :=
 
 Notation "x ≤ y" := (leq x y) (at level 40).
 
-Hint Resolve leq_refl leq_trans.
+Hint Resolve leq_refl leq_trans : core.
 
 Coercion carrier : Pros >-> Setoid'.
 

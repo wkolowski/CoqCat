@@ -12,7 +12,7 @@ Class Pos : Type :=
     leq_antisym : forall x y : carrier, x ≤ y -> y ≤ x -> x == y
 }.
 
-Hint Resolve leq_antisym.
+Hint Resolve leq_antisym : core.
 
 Coercion pros : Pos >-> Pros.
 

@@ -50,13 +50,13 @@ Proof.
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
 
-Hint Resolve initial_is_terminal unique_iso_is_iso.
+Hint Resolve initial_is_terminal unique_iso_is_iso : core.
 
 (* Equivalence of definitions *)
 
-Module Equiv.
-
 Require InitTerm.
+
+Module Equiv.
 
 #[refine]
 Instance hi_hieq (C : Cat) (hi : InitTerm.has_init C) : has_init C :=

@@ -398,7 +398,7 @@ Proof.
   intros.
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
   red. exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
-  Time fpair.
+  fpair.
 Defined.
 
 Theorem prodOb_assoc' :
@@ -408,7 +408,7 @@ Proof.
   intros.
   exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
   red. exists (fpair (fpair proj1 (proj2 .> proj1)) (proj2 .> proj2)).
-  Time fpair.
+  fpair.
 Defined.
 
 Theorem copair_coproj1 :
@@ -591,7 +591,7 @@ Proof.
   intros.
   red. exists (copair coproj2 coproj1).
   red. exists (copair coproj2 coproj1).
-  Time copair.
+  copair.
 Qed.
 
 Theorem coprodOb_assoc :
@@ -601,7 +601,7 @@ Proof.
   intros.
   red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
   red. exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
-  Time copair.
+  copair.
 Qed.
 
 Theorem coprodOb_assoc' :
@@ -611,7 +611,7 @@ Proof.
   intros.
   exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
   red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
-  Time copair.
+  copair.
 Defined.
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=

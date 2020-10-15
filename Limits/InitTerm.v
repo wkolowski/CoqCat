@@ -53,7 +53,7 @@ Proof.
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
 
-Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso.
+Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso : core.
 
 Ltac init := intros; repeat
 match goal with

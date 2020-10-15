@@ -19,7 +19,7 @@ Class Grp : Type :=
     inv_r : forall x : mon, op x (inv x) == neutr
 }.
 
-Hint Resolve inv_l inv_r.
+Hint Resolve inv_l inv_r : core.
 
 Coercion mon : Grp >-> Mon.
 
@@ -76,7 +76,7 @@ Proof.
   rewrite <- H0, H. reflexivity.
 Defined.
 
-Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr.
+Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
 
 Class GrpHom (X Y : Grp) : Type :=
 {
@@ -417,7 +417,7 @@ Instance GrpCat : Cat :=
     id := GrpId;
 }.
 Proof.
-  (* Proper *) Time proper; repeat red; intros; destruct x, y, x0, y0; cat;
+  (* Proper *) proper; repeat red; intros; destruct x, y, x0, y0; cat;
     eapply (@comp_Proper MonCat); auto.
   (* Category laws *) all: grp.
 Defined.
@@ -499,7 +499,7 @@ Defined.
 Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B)
     : Hom X (Grp_prodOb A B).
 Proof.
-  grp_simpl. exists (Mon_fpair f g). Time split; grp.
+  grp_simpl. exists (Mon_fpair f g). split; grp.
 Defined.
 
 #[refine]

@@ -246,7 +246,7 @@ Proof.
     intros. cat. apply H4. cat.
       rewrite dual_iso_self. assumption.
       rewrite H3. reflexivity.
-Time Qed.
+Qed.
 
 Theorem coequalizer_iso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
@@ -411,12 +411,6 @@ Proof.
     exact H0.
 Qed.
 
-(*
-Print factorize.
-Print is_equalizer.
-Print has_equalizers.
-*)
-
 Theorem factorize_eq_mor :
   forall
     (C : Cat) (he : has_equalizers C)
@@ -427,8 +421,6 @@ Proof.
   intros. destruct he; cbn in *.
   edestruct is_equalizer0, s. cat.
 Defined.
-
-Check @factorize.
 
 (*
 TODO Theorem factorize_comp :

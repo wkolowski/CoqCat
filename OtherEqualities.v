@@ -8,7 +8,7 @@ Inductive ext : forall A : Set, A -> A -> Prop :=
 
 Arguments ext [A] _ _.
 
-Hint Constructors ext.
+Hint Constructors ext : core.
 
 Instance ext_Equivalence (A : Set) : Equivalence (@ext A).
 Proof.

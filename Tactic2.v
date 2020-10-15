@@ -13,7 +13,7 @@ Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
 Arguments Comp {C X Y Z} _ _.
 
-Hint Constructors exp.
+Hint Constructors exp : core.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
     : Hom X Y :=

@@ -293,8 +293,6 @@ Class SpanHom (C : Cat) (hp : has_pullbacks C) (A B : Ob C) : Type :=
     right : Hom center B;
 }.
 
-Print Setoid.
-
 Definition transport
   {A : Type} {P : A -> Type} {x y : A} (p : x = y) : P x -> P y.
 Proof.

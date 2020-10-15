@@ -18,7 +18,7 @@ Arguments sgr _ : clear implicits.
 
 Coercion sgr : Mon >-> Sgr.
 
-Hint Resolve neutr_l neutr_r.
+Hint Resolve neutr_l neutr_r : core.
 
 Class MonHom (X Y : Mon) : Type :=
 {
@@ -407,7 +407,7 @@ Instance forgetful : Functor MonCat CoqSetoid :=
 Proof.
   cbn. intros. exact X.
   proper. all: mon.
-Time Defined.
+Defined.
 
 Notation "'U'" := forgetful.
 

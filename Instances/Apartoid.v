@@ -17,7 +17,7 @@ Coercion carrier : Apartoid >-> Sortclass.
 
 Notation "x # y" := (neq x y) (at level 40).
 
-Hint Resolve neq_irrefl neq_sym neq_cotrans.
+Hint Resolve neq_irrefl neq_sym neq_cotrans : core.
 
 Ltac apartoidob A := try intros until A;
 match type of A with
@@ -161,14 +161,11 @@ Proof. apartoid. Defined.
 #[refine]
 Instance Apartoid_has_init' : has_init ApartoidCat := {}.
 Proof.
-  refine {| carrier := Empty_set;
-      neq := fun (e : Empty_set) _ => match e with end |}; apartoid.
-  apartoid_simpl.
-    exists (fun e : Empty_set => match e with end). apartoid.
-  apartoid.
-Restart.
-  refine {| carrier := Empty_set;
-    neq := fun (e : Empty_set) _ => match e with end |}.
+  refine
+  {|
+      carrier := Empty_set;
+      neq := fun (e : Empty_set) _ => match e with end
+  |}.
   all: apartoid'. exists (fun e : Empty_set => match e with end). apartoid.
 Defined.
 
@@ -383,7 +380,7 @@ Proof.
     (* Equalizer law *) apartoid.
     (* Uniqueness *) exists (trick2 X Y E' f g e' H). apartoid'.
       apply (H0 x). apply X_neq_sym. assumption.
-Time Defined.*)
+Defined.*)
 
 (* TODO: likely this can't be done at all.
 Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)

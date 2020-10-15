@@ -110,10 +110,10 @@ Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; cbn; intros; solve_depExtEq.
     destruct H, x.
-      match goal with
+      (*match goal with
           | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
               idtac f; idtac x
-      end.
+      end.*)
       apply (depExtEq_unext _ _ H a a). auto.
       apply (depExtEq_unext _ _ H0 b b). auto.
 Defined.
