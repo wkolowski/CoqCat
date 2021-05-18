@@ -26,7 +26,9 @@ Class ReflexiveGraphCategory : Type :=
     mcomp : forall {X Y Z : Ob}, Mor X Y -> Mor Y Z -> Mor X Z;
 
     mcomp_id_l : forall {X Y : Ob} (f : Mor X Y), mcomp mid f = f;
+
     mcomp_id_r : forall {X Y : Ob} (f : Mor X Y), mcomp f mid = f;
+
     mcomp_assoc :
       forall {A B C D : Ob} (f : Mor A B) (g : Mor B C) (h : Mor C D),
         mcomp (mcomp f g) h = mcomp f (mcomp g h);
@@ -39,6 +41,7 @@ Class ReflexiveGraphCategory : Type :=
 
     rid :
       forall {X Y : Ob} (R : Rel X Y), fill mid mid R R;
+
     rcomp :
       forall {X X' Y Y' Z Z' : Ob}
         {f1 : Mor X Y} {f2 : Mor Y Z} {g1 : Mor X' Y'} {g2 : Mor Y' Z'}
@@ -55,6 +58,7 @@ Class ReflexiveGraphCategory : Type :=
           transport (fun p => fill p _ S T) (mcomp_id_l f2)
             (transport (fun p => fill _ p S T) (mcomp_id_l g2)
               (rcomp iota beta)) = beta;
+
     rcomp_rid_r :
       forall
         {X X' Y Y' : Ob}
@@ -62,6 +66,7 @@ Class ReflexiveGraphCategory : Type :=
         {R : Rel X X'} {S : Rel Y Y'}
         (alpha : fill f1 g1 R S) (iota : fill mid mid S S),
           JMeq (rcomp alpha iota) iota;
+
     rcomp_assoc :
       forall
         {A A' B B' C C' D D' : Ob}
