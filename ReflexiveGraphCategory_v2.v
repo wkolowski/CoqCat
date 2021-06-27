@@ -102,6 +102,7 @@ Proof.
   setoid.
 Defined.
 
+(* TODO *)
 #[refine]
 Instance SetoidFunRel : ReflexiveGraphCategory :=
 {
@@ -118,11 +119,11 @@ Instance SetoidFunRel : ReflexiveGraphCategory :=
       Box (forall (x : X) (x' : X'), srel x x' -> srel (f x) (g x'));
 }.
 Proof.
-  intros. destruct f, X, Y. cbn in *. unfold SetoidId, SetoidComp. cbn. f_equal. cbn.
-    Print Setoid. Print Equivalence.
-  reflexivity.
-  reflexivity.
+  intros. destruct f, X, Y. cbn in *. unfold SetoidId, SetoidComp. cbn. f_equal.
+    admit.
+  admit.
+  admit.
   constructor. trivial.
-  constructor. congruence.
-  intros * [] []. constructor. auto.
-Defined.
+  constructor. intros. destruct X, Y, f. cbn in *. apply func_Proper. assumption.
+  intros * [] []. constructor. cbn. auto.
+Admitted.

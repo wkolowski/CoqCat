@@ -442,7 +442,7 @@ Inductive equiv_hetero {A : Type} (S : Setoid A)
     : forall (B : Type), A -> B -> Prop :=
     | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S x y.
 
-Hint Constructors equiv_hetero : core.
+Global Hint Constructors equiv_hetero : core.
 
 Require Import Program.
 

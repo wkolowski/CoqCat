@@ -16,7 +16,7 @@ Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
 Arguments Comp {C X Y Z} _ _.
 
-Hint Constructors exp : core.
+Global Hint Constructors exp : core.
 
 Equations expDenote {C : Cat} {X Y : Ob C} (e : exp X Y) : Hom X Y :=
 expDenote (Id X)  := id X;
