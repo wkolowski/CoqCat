@@ -128,6 +128,8 @@ Qed.
 *)
 Admitted.
 
+(* TODO: uncomment code on commutative monoid simplification *)
+(*
 Definition simplify {X : ComMon} (e : exp X) : list nat :=
   insertionSort le (flatten (simplifyExp e)).
 
@@ -424,8 +426,9 @@ Proof.
           let f' := constr:(@formulaDenote X env) in pose f' as f
   end; cbn in *.
 Abort.
-(*
+*)
 
+(*
 #[refine]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {

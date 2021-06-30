@@ -130,8 +130,10 @@ Global Hint Constructors sumprod : core.
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
     : Prop := P x /\ (forall y : A, P y -> x == y).
 
+Set Warnings "-deprecated-ident-entry".
 Notation "'exists' !! x : A , P" :=
     (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
+Set Warnings "+deprecated-ident-entry".
 
 (* Kinds of ordinary functions. The suffix "S" at the end of some
    of these stands for "Setoid". *)
