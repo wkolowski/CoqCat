@@ -27,6 +27,7 @@ Arguments mor [J C F C1 C2] _.
 Arguments cond [J C F C1 C2] _ _.
 
 #[refine]
+#[export]
 Instance ConeHomSetoid {J C : Cat} {F : Functor J C}
     (C1 C2 : Cone F) : Setoid (ConeHom C1 C2) :=
 {
@@ -35,6 +36,7 @@ Instance ConeHomSetoid {J C : Cat} {F : Functor J C}
 Proof. solve_equiv. Defined.
 
 #[refine]
+#[export]
 Instance ConeComp {J C : Cat} {F : Functor J C}
    (C1 C2 C3 : Cone F) (f : ConeHom C1 C2) (g : ConeHom C2 C3)
     : ConeHom C1 C3 :=
@@ -46,6 +48,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ConeId {J C : Cat} {F : Functor J C}
    (C1 : Cone F) : ConeHom C1 C1 :=
 {
@@ -54,6 +57,7 @@ Instance ConeId {J C : Cat} {F : Functor J C}
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
 {
     Ob := Cone F;
@@ -92,6 +96,7 @@ Arguments mor' [J C F C1 C2] _.
 Arguments cond' [J C F C1 C2] _ _.
 
 #[refine]
+#[export]
 Instance CoconeHomSetoid {J C : Cat} {F : Functor J C}
     (C1 C2 : Cocone F) : Setoid (CoconeHom C1 C2) :=
 {
@@ -100,6 +105,7 @@ Instance CoconeHomSetoid {J C : Cat} {F : Functor J C}
 Proof. solve_equiv. Defined.
 
 #[refine]
+#[export]
 Instance CoconeComp {J C : Cat} {F : Functor J C}
    (C1 C2 C3 : Cocone F) (f : CoconeHom C1 C2) (g : CoconeHom C2 C3)
     : CoconeHom C1 C3 :=
@@ -112,6 +118,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoconeId {J C : Cat} {F : Functor J C}
    (C1 : Cocone F) : CoconeHom C1 C1 :=
 {
@@ -120,6 +127,7 @@ Instance CoconeId {J C : Cat} {F : Functor J C}
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
 {
     Ob := Cocone F;
@@ -140,6 +148,7 @@ Definition colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
 (* TODO : coherence conditions for (co)limits *)
 
 #[refine]
+#[export]
 Instance ConeImage {J C D : Cat} {Diagram : Functor J C}
     (F : Functor C D) (K : Cone Diagram) : Cone (FunctorComp Diagram F) :=
 {
@@ -157,6 +166,7 @@ Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
 
 Require Import Setoids.
 
+#[export]
 Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
 {
     carrier := Hom X Y;

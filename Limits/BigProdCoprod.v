@@ -323,6 +323,7 @@ Proof.
       intros. cat. rewrite <- HP1'. rewrite <- HQ1. reflexivity.
 Qed.
 
+#[export]
 Instance Dual_has_all_products (C : Cat) (hp : has_all_coproducts C)
     : has_all_products (Dual C) :=
 {
@@ -333,6 +334,7 @@ Instance Dual_has_all_products (C : Cat) (hp : has_all_coproducts C)
     is_big_product := @is_big_coproduct C hp
 }.
 
+#[export]
 Instance Dual_has_all_coproducts (C : Cat) (hp : has_all_products C)
     : has_all_coproducts (Dual C) :=
 {
@@ -344,6 +346,7 @@ Instance Dual_has_all_coproducts (C : Cat) (hp : has_all_products C)
 }.
 
 #[refine]
+#[export]
 Instance Dual_has_all_biproducts (C : Cat) (hp : has_all_biproducts C)
     : has_all_biproducts (Dual C) :=
 {

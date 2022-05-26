@@ -67,6 +67,7 @@ Ltac graph' := repeat (graphobs || graphhoms || cat).
 Ltac graph := try (graph'; fail).
 
 #[refine]
+#[export]
 Instance GraphHomSetoid (X Y : Graph) : Setoid (GraphHom X Y) :=
 {
     equiv := fun f g : GraphHom X Y =>
@@ -78,6 +79,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance GraphComp (X Y Z : Graph)
     (f : GraphHom X Y) (g : GraphHom Y Z) : GraphHom X Z :=
 {
@@ -94,6 +96,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance GraphId (X : Graph) : GraphHom X X :=
 {
     fver := SetoidId (vertices X);
@@ -102,6 +105,7 @@ Instance GraphId (X : Graph) : GraphHom X X :=
 Proof. all: graph. Defined.
 
 #[refine]
+#[export]
 Instance GraphCat : Cat :=
 {
     Ob := Graph;

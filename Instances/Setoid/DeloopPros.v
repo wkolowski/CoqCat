@@ -5,6 +5,7 @@ Require Export BinProdCoprod.
 Require Export Instances.Setoid.Pros.
 
 #[refine]
+#[export]
 Instance DeloopPros (P : Pros) : Cat :=
 {
     Ob := carrier;

@@ -40,6 +40,7 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance SymReloidCat : Cat :=
 {
     Ob := SymReloid;
@@ -51,6 +52,7 @@ Instance SymReloidCat : Cat :=
 Proof. all: sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_init : SymReloid :=
 {
     reloid := Reloid_init;
@@ -58,6 +60,7 @@ Instance SymReloid_init : SymReloid :=
 Proof. split. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_create (X : SymReloid)
   : ReloidHom SymReloid_init X :=
 {
@@ -66,6 +69,7 @@ Instance SymReloid_create (X : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_has_init : has_init SymReloidCat :=
 {
     init := SymReloid_init;
@@ -74,6 +78,7 @@ Instance SymReloid_has_init : has_init SymReloidCat :=
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_term : SymReloid :=
 {
     reloid := Reloid_term;
@@ -81,6 +86,7 @@ Instance SymReloid_term : SymReloid :=
 Proof. split. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_delete (X : SymReloid)
   : ReloidHom X SymReloid_term :=
 {
@@ -89,6 +95,7 @@ Instance SymReloid_delete (X : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_has_term : has_term SymReloidCat :=
 {
     term := SymReloid_term;
@@ -97,6 +104,7 @@ Instance SymReloid_has_term : has_term SymReloidCat :=
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_prodOb (X Y : SymReloid) : SymReloid :=
 {
     reloid := Reloid_prodOb X Y;
@@ -106,6 +114,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_proj1 (X Y : SymReloid)
   : ReloidHom (SymReloid_prodOb X Y) X :=
 {
@@ -114,6 +123,7 @@ Instance SymReloid_proj1 (X Y : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_proj2 (X Y : SymReloid)
   : ReloidHom (SymReloid_prodOb X Y) Y :=
 {
@@ -122,6 +132,7 @@ Instance SymReloid_proj2 (X Y : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_fpair (X Y A : SymReloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (SymReloid_prodOb X Y) :=
@@ -131,6 +142,7 @@ Instance SymReloid_fpair (X Y A : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_has_products : has_products SymReloidCat :=
 {
     prodOb := SymReloid_prodOb;
@@ -143,6 +155,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_coprodOb (X Y : SymReloid) : SymReloid :=
 {
     reloid := Reloid_coprodOb X Y;
@@ -152,6 +165,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_coproj1 (X Y : SymReloid)
   : ReloidHom X (SymReloid_coprodOb X Y) :=
 {
@@ -160,6 +174,7 @@ Instance SymReloid_coproj1 (X Y : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_coproj2 (X Y : SymReloid)
   : ReloidHom Y (SymReloid_coprodOb X Y) :=
 {
@@ -168,6 +183,7 @@ Instance SymReloid_coproj2 (X Y : SymReloid)
 Proof. sreloid. Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_copair (X Y A : SymReloid)
   (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (SymReloid_coprodOb X Y) A :=
@@ -179,6 +195,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SymReloid_has_coproducts : has_coproducts SymReloidCat :=
 {
     coprodOb := SymReloid_coprodOb;

@@ -3,6 +3,7 @@ Require Import InitTerm.
 Require Import BinProdCoprod.
 
 #[refine]
+#[export]
 Instance Discrete (X : Set) : Cat :=
 {
     Ob := X;
@@ -18,7 +19,9 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
+#[export]
 Instance Empty : Cat := Discrete Empty_set.
+#[export]
 Instance Unit : Cat := Discrete unit.
 
 Theorem Discrete_char_iso : forall (X : Set) (x x' : X)
@@ -32,6 +35,7 @@ Defined.
 Require Import Bool.
 
 #[refine]
+#[export]
 Instance Two : Cat :=
 {
     Ob := bool;

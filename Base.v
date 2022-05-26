@@ -23,9 +23,11 @@ Arguments extEq [A] _ _.
 
 Global Hint Constructors extEq : core.
 
+#[export]
 Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
 Proof. split; eauto. Defined.
 
+#[export]
 Instance extEq_Proper : forall (A B : Type) (f : A -> B),
     Proper (@extEq A ==> @extEq B) f.
 Proof.
@@ -37,6 +39,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
+#[export]
 Instance extEq_Proper' : forall (A B : Type) (f : A -> B),
     Proper (@extEq A --> @extEq B) f.
 Proof.
@@ -48,6 +51,7 @@ Proof.
     apply extEq_unext; auto.
 Defined.
 
+#[export]
 Instance extEq_Proper'' : forall (A : Type),
     Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
 Proof.
@@ -78,6 +82,7 @@ Arguments depExtEq_unext [A1 A2 B1 B2] _ _ _ _ _ _.
 
 Global Hint Constructors depExtEq : core.
 
+#[export]
 Instance depExtEq_Equivalence (A : Type) : Equivalence (@depExtEq A A).
 Proof.
   split; red; cbn; intros; eauto.
@@ -101,6 +106,7 @@ repeat (auto; match goal with
     | |- depExtEq (_, _) ?x => rewrite (surjective_pairing x)
 end); auto.
 
+#[export]
 Instance depExtEq_Proper : forall (A B : Type) (f : A -> B),
     Proper (@depExtEq A A ==> @depExtEq B B) f.
 Proof.
@@ -108,6 +114,7 @@ Proof.
   apply (depExtEq_unext f f); auto.*)
 Qed.
 
+#[export]
 Instance depExtEq_Proper' : forall (A : Type),
     Proper (@depExtEq A A ==> @depExtEq A A ==>
       (Basics.flip Basics.impl)) (@depExtEq A A).
@@ -225,11 +232,13 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
     {| equiv := fun a a' : A => f a = f a' |}.
 Proof. solve_equiv. Defined.
 
 #[refine]
+#[export]
 Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B)
     : Setoid A := {| equiv := fun a a' : A => f a == f a' |}.
 Proof. all: solve_equiv. Defined.

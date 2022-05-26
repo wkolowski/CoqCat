@@ -60,6 +60,7 @@ Inductive Box (A : Type) : SProp :=
 Arguments box {A} _.
 
 #[refine]
+#[export]
 Instance CoqSetFunRel : ReflexiveGraphCategory :=
 {
     Ob := Type;
@@ -94,6 +95,7 @@ Class SetoidRel (X Y : Setoid') : Type :=
 }.
 
 #[refine]
+#[export]
 Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
 {|
     srel := equiv;
@@ -104,6 +106,7 @@ Defined.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance SetoidFunRel : ReflexiveGraphCategory :=
 {
     Ob := Setoid';

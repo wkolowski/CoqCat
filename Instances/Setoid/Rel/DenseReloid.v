@@ -40,6 +40,7 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance DenseReloidCat : Cat :=
 {
     Ob := DenseReloid;
@@ -51,6 +52,7 @@ Instance DenseReloidCat : Cat :=
 Proof. all: dreloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_init : DenseReloid :=
 {
     reloid := Reloid_init
@@ -60,6 +62,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_create (X : DenseReloid) : ReloidHom DenseReloid_init X :=
 {
     func := Reloid_create X
@@ -67,6 +70,7 @@ Instance DenseReloid_create (X : DenseReloid) : ReloidHom DenseReloid_init X :=
 Proof. proper. destruct x. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_has_init : has_init DenseReloidCat :=
 {
     init := DenseReloid_init;
@@ -75,6 +79,7 @@ Instance DenseReloid_has_init : has_init DenseReloidCat :=
 Proof. dreloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_term : DenseReloid :=
 {
     reloid := Reloid_term
@@ -84,6 +89,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_delete (X : DenseReloid)
   : ReloidHom X DenseReloid_term :=
 {
@@ -92,6 +98,7 @@ Instance DenseReloid_delete (X : DenseReloid)
 Proof. proper. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_has_term : has_term DenseReloidCat :=
 {
     term := DenseReloid_term;
@@ -100,6 +107,7 @@ Instance DenseReloid_has_term : has_term DenseReloidCat :=
 Proof. dreloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_prodOb (X Y : DenseReloid) : DenseReloid :=
 {
     reloid := Reloid_prodOb X Y
@@ -113,6 +121,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_proj1 (X Y : DenseReloid)
   : ReloidHom (DenseReloid_prodOb X Y) X :=
 {
@@ -121,6 +130,7 @@ Instance DenseReloid_proj1 (X Y : DenseReloid)
 Proof. reloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_proj2 (X Y : DenseReloid)
   : ReloidHom (DenseReloid_prodOb X Y) Y :=
 {
@@ -129,6 +139,7 @@ Instance DenseReloid_proj2 (X Y : DenseReloid)
 Proof. reloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_fpair (X Y A : DenseReloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (DenseReloid_prodOb X Y) :=
@@ -138,6 +149,7 @@ Instance DenseReloid_fpair (X Y A : DenseReloid)
 Proof. reloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_has_products : has_products DenseReloidCat :=
 {
     prodOb := DenseReloid_prodOb;
@@ -150,6 +162,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_coprodOb (X Y : DenseReloid) : DenseReloid :=
 {
     reloid := Reloid_coprodOb X Y
@@ -162,6 +175,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_coproj1 (X Y : DenseReloid)
   : ReloidHom X (DenseReloid_coprodOb X Y) :=
 {
@@ -170,6 +184,7 @@ Instance DenseReloid_coproj1 (X Y : DenseReloid)
 Proof. dreloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_coproj2 (X Y : DenseReloid)
   : ReloidHom Y (DenseReloid_coprodOb X Y) :=
 {
@@ -178,6 +193,7 @@ Instance DenseReloid_coproj2 (X Y : DenseReloid)
 Proof. dreloid. Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_copair (X Y A : DenseReloid)
   (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (DenseReloid_coprodOb X Y) A :=
@@ -189,6 +205,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DenseReloid_has_coproducts : has_coproducts DenseReloidCat :=
 {
     coprodOb := DenseReloid_coprodOb;

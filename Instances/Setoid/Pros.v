@@ -86,6 +86,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ProsCat : Cat :=
 {
     Ob := Pros;
@@ -133,6 +134,7 @@ Proof.
 Abort.*)
 
 #[refine]
+#[export]
 Instance Pros_init : Pros :=
 {
     carrier := CoqSetoid_init;
@@ -146,6 +148,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Pros_has_init : has_init ProsCat :=
 {
     init := Pros_init;
@@ -154,6 +157,7 @@ Instance Pros_has_init : has_init ProsCat :=
 Proof. pros. Defined.
 
 #[refine]
+#[export]
 Instance Pros_term : Pros :=
 {
     carrier := CoqSetoid_term;
@@ -167,6 +171,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Pros_has_term : has_term ProsCat :=
 {
     term := Pros_term;
@@ -175,6 +180,7 @@ Instance Pros_has_term : has_term ProsCat :=
 Proof. pros. Defined.
 
 #[refine]
+#[export]
 Instance Pros_prodOb (X Y : Pros) : Pros :=
 {
     carrier := CoqSetoid_prodOb X Y;
@@ -200,6 +206,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Pros_has_products : has_products ProsCat :=
 {
     prodOb := Pros_prodOb;
@@ -216,6 +223,7 @@ Definition thin (C : Cat) : Prop :=
     forall (X Y : Ob C) (f g : Hom X Y), f == g.
 
 #[refine]
+#[export]
 Instance Pros_coprodOb (X Y : Pros) : Pros :=
 {
     carrier := CoqSetoid_coprodOb X Y;
@@ -252,6 +260,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Pros_has_coproducts : has_coproducts ProsCat :=
 {
     coprodOb := Pros_coprodOb;

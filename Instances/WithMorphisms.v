@@ -1,6 +1,7 @@
 Require Import Cat.
 
 #[refine]
+#[export]
 Instance WithMon (C : Cat) : Cat :=
 {
     Ob := Ob C;
@@ -21,6 +22,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance WithIso (C : Cat) : Cat :=
 {
     Ob := Ob C;

@@ -3,6 +3,7 @@ Require Import InitTerm.
 Require Import BinProdCoprod.
 
 #[refine]
+#[export]
 Instance SetP : Cat :=
 {
   Ob := Set;
@@ -23,6 +24,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SetP_has_init : has_init SetP :=
 {
     init := Empty_set;
@@ -31,6 +33,7 @@ Instance SetP_has_init : has_init SetP :=
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance SetP_has_term : has_term SetP :=
 {
     term := Empty_set;
@@ -39,6 +42,7 @@ Instance SetP_has_term : has_term SetP :=
 Proof. cat; destruct (f x); cat. Defined.
 
 #[refine]
+#[export]
 Instance SetP_has_zero : has_zero SetP := {}.
 Proof. cat. Defined.
 
@@ -66,6 +70,7 @@ match f x, g x with
 end.
 
 #[refine]
+#[export]
 Instance SetP_has_products : has_products SetP :=
 {
     prodOb := sumprod;
@@ -89,6 +94,7 @@ match p with
 end.
 
 #[refine]
+#[export]
 Instance SetP_has_coproducts : has_coproducts SetP :=
 {
     coprodOb := sum;

@@ -3,6 +3,7 @@ Require Export Cat.
 Require Import Limits.InitTerm.
 
 #[refine]
+#[export]
 Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
 {
     Ob := {X : Ob C | P X};
@@ -13,6 +14,7 @@ Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
 }.
 Proof. all: cat. Defined.
 
-(*Instance SubcatOb_has_init (C : Cat) (P : Ob C -> Prop) (hi : has_init C)
+(*#[export]
+Instance SubcatOb_has_init (C : Cat) (P : Ob C -> Prop) (hi : has_init C)
   : has_init (SubcatOb C P).*)
 

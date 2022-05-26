@@ -204,6 +204,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 {
     term := init C;
@@ -212,6 +213,7 @@ Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 {
     init := term C;
@@ -220,6 +222,7 @@ Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
     zero_is_initial := Dual_has_init hz;

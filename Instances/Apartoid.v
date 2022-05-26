@@ -35,7 +35,8 @@ match goal with
   | X : Ob _ |- _ => apartoidob X
 end.
 
-(*Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
+(*#[export]
+Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
 {
     equiv := fun x y : A => ~ neq x y
 }.
@@ -113,6 +114,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance ApartoidCat : Cat :=
 {
     Ob := Apartoid;
@@ -137,6 +139,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_init : Apartoid :=
 {
     carrier := Empty_set;
@@ -150,6 +153,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_has_init : has_init ApartoidCat :=
 {
     init := Apartoid_init;
@@ -159,6 +163,7 @@ Proof. apartoid. Defined.
 
 (* Things can be done this way too. *)
 #[refine]
+#[export]
 Instance Apartoid_has_init' : has_init ApartoidCat := {}.
 Proof.
   refine
@@ -170,6 +175,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_term : Apartoid :=
 {
     carrier := unit;
@@ -183,6 +189,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_has_term : has_term ApartoidCat :=
 {
     term := Apartoid_term;
@@ -191,6 +198,7 @@ Instance Apartoid_has_term : has_term ApartoidCat :=
 Proof. apartoid. Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_prodOb (X Y : Apartoid) : Apartoid :=
 {
     carrier := prod X Y;
@@ -224,6 +232,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_has_products : has_products ApartoidCat :=
 {
     prodOb := Apartoid_prodOb;
@@ -237,6 +246,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=
 {
     carrier := X + Y;
@@ -280,6 +290,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
 {
     coprodOb := Apartoid_coprodOb;
@@ -293,6 +304,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
     carrier := forall j : J, A j;
@@ -324,6 +336,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
 {
     bigProdOb := @Apartoid_bigProdOb;
@@ -340,6 +353,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
@@ -370,7 +384,8 @@ Proof.
 Defined.
 
 (* This run for about ~10 secs. *)
-(* TODO : make faster Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
+(* TODO : make faster #[export]
+Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 {
     eq_ob := @Apartoid_eq_ob;
     eq_mor := @Apartoid_eq_mor;
@@ -415,6 +430,7 @@ Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
 
 (* TODO: finish *)
 #[refine]
+#[export]
 Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
@@ -438,6 +454,7 @@ Proof.
 (* TODO: make this more dependent (change JMeq to some lifted heterogenous
    apartness... *)
 #[refine]
+#[export]
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
     carrier := {j : J & A j};

@@ -135,6 +135,7 @@ Require BinProdCoprod.
 Module Equiv.
 
 #[refine]
+#[export]
 Instance hp_hpeq
   (C : Cat) (hp : BinProdCoprod.has_products C) : has_products C :=
 {
@@ -146,6 +147,7 @@ Instance hp_hpeq
 Proof. all: BinProdCoprod.fpair. Defined.
 
 #[refine]
+#[export]
 Instance hpeq_hp
   (C : Cat) (hp_eq : has_products C) : BinProdCoprod.has_products C :=
 {
@@ -162,6 +164,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance hp_hpeq'
   (C : Cat) (hp : BinProdCoprod.has_coproducts C) : has_coproducts C :=
 {
@@ -173,6 +176,7 @@ Instance hp_hpeq'
 Proof. all: BinProdCoprod.copair. Defined.
 
 #[refine]
+#[export]
 Instance hpeq_hp'
   (C : Cat) (hp_eq : has_coproducts C) : BinProdCoprod.has_coproducts C :=
 {
@@ -189,6 +193,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance hb_hbeq
   (C : Cat) (hb : BinProdCoprod.has_biproducts C) : has_biproducts C :=
 {
@@ -200,6 +205,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance hbeq_hb
   (C : Cat) (hb : has_biproducts C) : BinProdCoprod.has_biproducts C :=
 {
@@ -215,6 +221,7 @@ End Equiv.
 (* Lemmas ported from BinProdCoprod.v *)
 
 #[refine]
+#[export]
 Instance Dual_prod_coprod
   (C : Cat) (hp : has_products C) : has_coproducts (Dual C) :=
 {
@@ -226,6 +233,7 @@ Instance Dual_prod_coprod
 Proof. all: cat; prod. Defined.
 
 #[refine]
+#[export]
 Instance Dual_coprod_prod
   {C : Cat} (hp : has_coproducts C) : has_products (Dual C) :=
 {
@@ -237,6 +245,7 @@ Instance Dual_coprod_prod
 Proof. all: cat; coprod. Defined.
 
 #[refine]
+#[export]
 Instance Dual_biprod
   (C : Cat) (hb : has_biproducts C) : has_biproducts (Dual C) :=
 {
@@ -362,6 +371,7 @@ Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) :=
   prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
 #[refine]
+#[export]
 Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)
     : Setoid (ProdCatHom X Y) :=
 {
@@ -377,6 +387,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
@@ -400,6 +411,7 @@ Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     : Hom (prodOb X X') (prodOb Y Y') :=
       fpair (proj1 .> f) (proj2 .> g).
 
+#[export]
 Instance ProductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_products C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
@@ -446,6 +458,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prodOb C C) C :=
 {
@@ -464,6 +477,7 @@ Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
       : Hom (coprodOb X X') (coprodOb Y Y') :=
       (copair (f .> coproj1) (g .> coproj2)).
 
+#[export]
 Instance CoproductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_coproducts C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
@@ -509,6 +523,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prodOb C C) C :=
 {

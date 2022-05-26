@@ -17,6 +17,7 @@ Arguments coob [C D] _ _.
 Arguments comap [C D] _ [X Y] _.
 
 #[refine]
+#[export]
 Instance Const {D : Cat} (X : Ob D) (C : Cat)
     : Contravariant C D :=
 {

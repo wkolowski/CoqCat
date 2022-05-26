@@ -45,6 +45,7 @@ Ltac falg := repeat (falg_simpl || falgobs || falghoms || cat);
     unfold FAlgHom; cbn.
 
 #[refine]
+#[export]
 Instance FAlgHomSetoid {C : Cat} {F : Functor C C} (X Y : FAlg F)
     : Setoid (FAlgHom X Y) :=
 {
@@ -68,6 +69,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CatFAlg {C : Cat} (F : Functor C C) : Cat :=
 {
     Ob := @FAlg C F;

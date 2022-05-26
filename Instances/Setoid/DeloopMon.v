@@ -5,6 +5,7 @@ Require Import Cat.Limits.BinProdCoprod.
 Require Import Cat.Instances.Setoid.Mon.
 
 #[refine]
+#[export]
 Instance DeloopMon (M : Mon) : Cat :=
 {
     Ob := unit;

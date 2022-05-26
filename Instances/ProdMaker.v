@@ -53,7 +53,7 @@ match goal with
   | _ => idtac
 end.
 
-Hint Rewrite @id_left @id_right @pmhom_coherence @pmhom_coherence'
+#[global] Hint Rewrite @id_left @id_right @pmhom_coherence @pmhom_coherence'
   : prodmaker_base.
 
 Ltac pm := intros;
@@ -67,6 +67,7 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance ProdMakerHomSetoid {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
     : Setoid (ProdMakerHom P1 P2) :=
 {
@@ -76,6 +77,7 @@ Instance ProdMakerHomSetoid {C : Cat} {A B : Ob C} (P1 P2 : ProdMakerOb C A B)
 Proof. pm. Defined.
 
 #[refine]
+#[export]
 Instance ProdMakerComp {C : Cat} {A B : Ob C} (P1 P2 P3 : ProdMakerOb C A B)
   (h : ProdMakerHom P1 P2) (h' : ProdMakerHom P2 P3) : ProdMakerHom P1 P3 :=
 {
@@ -86,6 +88,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ProdMakerId {C : Cat} {A B : Ob C} (P : ProdMakerOb C A B)
     : ProdMakerHom P P :=
 {
@@ -94,6 +97,7 @@ Instance ProdMakerId {C : Cat} {A B : Ob C} (P : ProdMakerOb C A B)
 Proof. all: pm; reflexivity. Defined.
 
 #[refine]
+#[export]
 Instance ProdMaker (C : Cat) (A B : Ob C) : Cat :=
 {
     Ob := ProdMakerOb C A B;

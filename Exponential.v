@@ -31,6 +31,7 @@ Definition uncurry
     {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
     := f ×' (id X) .> eval.
 
+#[export]
 Instance uncurry_Proper :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C), Proper (equiv ==> equiv) (@uncurry C hp he X Y Z).
@@ -173,6 +174,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance ExponentialFunctor
   (C : Cat) (hp : has_products C) (he : has_exponentials C)
   (X : Ob C) : Functor C C :=

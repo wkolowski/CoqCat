@@ -13,6 +13,7 @@ Require Import Eqdep.
 Set Implicit Arguments.
 
 #[refine]
+#[export]
 Instance CAT : Cat :=
 {
     Ob := Cat;
@@ -39,9 +40,11 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
+#[export]
 Instance CAT_init : Cat := Discrete Empty_set.
 
 #[refine]
+#[export]
 Instance CAT_create (X : Cat) : Functor CAT_init X :=
 {
     fob := fun e => match e with end;
@@ -50,6 +53,7 @@ Instance CAT_create (X : Cat) : Functor CAT_init X :=
 Proof. all: cat. Defined.
 
 #[refine]
+#[export]
 Instance CAT_has_init : has_init CAT :=
 {
     init := CAT_init;
@@ -61,9 +65,11 @@ Proof.
     apply depExtEq_ext. destruct x.
 Defined.
 
+#[export]
 Instance CAT_term : Cat := Discrete unit.
 
 #[refine]
+#[export]
 Instance CAT_delete (X : Cat) : Functor X CAT_term :=
 {
     fob := fun _ => tt;
@@ -71,6 +77,7 @@ Instance CAT_delete (X : Cat) : Functor X CAT_term :=
 Proof. all: cat. Defined.
 
 #[refine]
+#[export]
 Instance CAT_has_term : has_term CAT :=
 {
     term := CAT_term;
@@ -83,6 +90,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CAT_proj1 (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
 {
     fob := fst;
@@ -91,6 +99,7 @@ Instance CAT_proj1 (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
 Proof. all: cat. Defined.
 
 #[refine]
+#[export]
 Instance CAT_proj2 (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
 {
     fob := snd;
@@ -99,6 +108,7 @@ Instance CAT_proj2 (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
 Proof. all: cat. Defined.
 
 #[refine]
+#[export]
 Instance CAT_fpair (X Y A : Cat) (F : Functor A X) (G : Functor A Y)
   : Functor A (CAT_prodOb X Y) :=
 {
@@ -108,6 +118,7 @@ Instance CAT_fpair (X Y A : Cat) (F : Functor A X) (G : Functor A Y)
 Proof. all: cat; functor. Defined.
 
 #[refine]
+#[export]
 Instance CAT_has_products : has_products CAT :=
 {
     prodOb := CAT_prodOb;

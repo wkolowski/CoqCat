@@ -52,6 +52,7 @@ Arguments Simplify {X} _.
 Arguments simplify {X} _ {Simplify}.
 
 #[refine]
+#[export]
 Instance SimplifyOp {X : Sgr} {e1 e2 : exp X}
   (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
 {
@@ -62,6 +63,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
   (S : Simplify e) : Simplify (Mor f e) | 10 :=
 {
@@ -83,6 +85,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
 {
     simplify := e
@@ -151,6 +154,7 @@ Arguments Reify {X} _.
 Arguments reify {X} _ {Reify}.
 
 #[refine]
+#[export]
 Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 {
     reify := Var x
@@ -158,6 +162,7 @@ Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 Proof. reflexivity. Defined.
 
 #[refine]
+#[export]
 Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
@@ -168,6 +173,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
@@ -237,6 +243,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
     equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
@@ -255,6 +262,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SgrCat : Cat :=
 {
     Ob := Sgr;
@@ -266,6 +274,7 @@ Instance SgrCat : Cat :=
 Proof. all: sgr. Defined.
 
 #[refine]
+#[export]
 Instance Sgr_init : Sgr :=
 {
     setoid := CoqSetoid_init;
@@ -279,6 +288,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Sgr_has_init : has_init SgrCat :=
 {
     init := Sgr_init;
@@ -287,6 +297,7 @@ Instance Sgr_has_init : has_init SgrCat :=
 Proof. sgr. Defined.
 
 #[refine]
+#[export]
 Instance Sgr_term : Sgr :=
 {
     setoid := CoqSetoid_term;
@@ -300,6 +311,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Sgr_has_term : has_term SgrCat :=
 {
     term := Sgr_term;
@@ -308,6 +320,7 @@ Instance Sgr_has_term : has_term SgrCat :=
 Proof. sgr. Defined.
 
 #[refine]
+#[export]
 Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
 {
     setoid := CoqSetoid_prodOb X Y;
@@ -335,6 +348,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Sgr_has_products : has_products SgrCat :=
 {
     prodOb := Sgr_prodOb;
@@ -345,6 +359,7 @@ Instance Sgr_has_products : has_products SgrCat :=
 Proof. all: sgr. Defined.
 
 #[refine]
+#[export]
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
     setoid := CoqSetoid_coprodOb X Y
@@ -393,6 +408,7 @@ Qed.
 Global Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
 
 #[refine]
+#[export]
 Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
 {
     carrier := nel X;
@@ -421,6 +437,7 @@ match l with
         end
 end.
 
+#[export]
 Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 {
     carrier := nel (X + Y);
@@ -531,7 +548,8 @@ Proof.
       fpeq4.
 Abort.
 
-(*Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
+(*#[export]
+Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
     setoid := Sgr_freeprod_setoid X Y;
     op := app_nel
@@ -608,6 +626,7 @@ Class SgrWut : Type :=
 Coercion sgr : SgrWut >-> Sgr.
 
 #[refine]
+#[export]
 Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut))
     | 11 :=
 {
@@ -617,7 +636,8 @@ Proof.
   cbn. rewrite wut_eq. reflexivity.
 Defined.
 
-(*Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
+(*#[export]
+Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
 {
     reify := Var wut
 }.
@@ -674,6 +694,7 @@ Qed.
 Axiom troll : forall (X : Sgr) (x : X), op x x == x.
 
 #[refine]
+#[export]
 Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x))
     | 1 :=
 {

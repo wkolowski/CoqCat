@@ -97,6 +97,7 @@ Axiom JMeq_pi :
   forall {P Q : Prop} (p : P) (q : Q), JMeq p q.
 
 #[refine]
+#[export]
 Instance CoqSetFunRel : ReflexiveGraphCategory :=
 {
     Ob := Type;
@@ -163,6 +164,7 @@ Class ReflexiveGraphCategory' : Type :=
 }.
 
 #[refine]
+#[export]
 Instance RGC_RGC'
   (C : ReflexiveGraphCategory) : ReflexiveGraphCategory' :=
 {

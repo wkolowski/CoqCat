@@ -15,6 +15,7 @@ Definition SliceHom {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Type :=
     {f : Hom A B | mor A == f .> mor B}.
 
 #[refine]
+#[export]
 Instance SliceHomSetoid (C : Cat) (Y : Ob C) (A B : SliceOb C Y)
     : Setoid (SliceHom A B) :=
 {
@@ -37,6 +38,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Slice (C : Cat) (Y : Ob C) : Cat :=
 {
     Ob := SliceOb C Y;

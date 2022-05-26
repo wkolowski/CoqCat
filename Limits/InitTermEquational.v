@@ -59,6 +59,7 @@ Require InitTerm.
 Module Equiv.
 
 #[refine]
+#[export]
 Instance hi_hieq (C : Cat) (hi : InitTerm.has_init C) : has_init C :=
 {
     init := @InitTerm.init C hi;
@@ -67,6 +68,7 @@ Instance hi_hieq (C : Cat) (hi : InitTerm.has_init C) : has_init C :=
 Proof. InitTerm.init. Defined.
 
 #[refine]
+#[export]
 Instance hieq_hi (C : Cat) (hieq : has_init C) : InitTerm.has_init C :=
 {
     InitTerm.init := @init C hieq;
@@ -75,6 +77,7 @@ Instance hieq_hi (C : Cat) (hieq : has_init C) : InitTerm.has_init C :=
 Proof. init. Defined.
 
 #[refine]
+#[export]
 Instance ht_hteq (C : Cat) (ht : InitTerm.has_term C) : has_term C :=
 {
     term := @InitTerm.term C ht;
@@ -83,6 +86,7 @@ Instance ht_hteq (C : Cat) (ht : InitTerm.has_term C) : has_term C :=
 Proof. InitTerm.term. Defined.
 
 #[refine]
+#[export]
 Instance hteq_ht (C : Cat) (hteq : has_term C) : InitTerm.has_term C :=
 {
     InitTerm.term := @term C hteq;
@@ -95,6 +99,7 @@ End Equiv.
 (* Duals *)
 
 #[refine]
+#[export]
 Instance Dual_init_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 {
     term := init C;
@@ -103,6 +108,7 @@ Instance Dual_init_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 Proof. init. init. cat. apply create_unique. Defined.
 
 #[refine]
+#[export]
 Instance Dual_term_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 {
     init := term C;
@@ -111,6 +117,7 @@ Instance Dual_term_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 Proof. cat. apply delete_unique. Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
     zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);

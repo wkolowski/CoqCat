@@ -15,6 +15,7 @@ Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
 
 #[refine]
+#[export]
 Instance CoqSet : Cat :=
 {|
     Ob := Set;
@@ -73,6 +74,7 @@ Restart.
 Defined.
 
 #[refine]
+#[export]
 Instance CoqSet_has_init : has_init CoqSet :=
 {
     init := Empty_set;
@@ -81,6 +83,7 @@ Instance CoqSet_has_init : has_init CoqSet :=
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance CoqSet_has_term : has_term CoqSet :=
 {
     term := unit;
@@ -112,6 +115,7 @@ Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)
     : Hom A (prod X Y) := fun x : A => (f x, g x).
 
 #[refine]
+#[export]
 Instance CoqSet_has_products : has_products CoqSet :=
 {
     prodOb := prod;
@@ -127,6 +131,7 @@ Defined.
 
 (* Beware! Requires functional extensionality. *)
 #[refine]
+#[export]
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -153,6 +158,7 @@ match p with
 end.
 
 #[refine]
+#[export]
 Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
 {
     coprodOb := sum;
@@ -166,6 +172,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {
     bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) =>
@@ -213,6 +220,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -231,6 +239,7 @@ Defined.
 (*Require Import Limits.NewestEqualizer.
 
 #[refine]
+#[export]
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
 {
     eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -263,7 +272,8 @@ Defined.*)
 
 
 (* Not sure if it's even true *)
-(* TODO : Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
+(* TODO : #[export]
+Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
 {
     coeq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
         {T : Set & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
@@ -276,6 +286,7 @@ Proof.
 *)
 
 #[refine]
+#[export]
 Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
 {
     expOb := fun X Y : Set => X -> Y;
@@ -290,6 +301,7 @@ Proof.
     extensionality x'. rewrite <- H. simpl. reflexivity.
 Defined.
 
+#[export]
 Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
 {
     ccc_term := CoqSet_has_term;
@@ -314,6 +326,7 @@ Proof.
 Abort.
 
 #[refine]
+#[export]
 Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
 {
     pullbackOb := @CoqSet_pullbackOb;

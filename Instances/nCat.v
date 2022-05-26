@@ -1,9 +1,9 @@
 Require Import Arith.
-Require Import Omega.
 
 Require Import Cat.
 
 #[refine]
+#[export]
 Instance N (n : nat) : Cat :=
 {
     Ob := {k : nat | k <= n};

@@ -7,6 +7,7 @@ Require Import Equalizer.
 Require Import Logic.IndefiniteDescription.
 
 #[refine]
+#[export]
 Instance ExtSet : Cat :=
 {|
     Ob := Type;
@@ -56,6 +57,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance ExtSet_has_init : has_init ExtSet :=
 {
     init := Empty_set;
@@ -64,6 +66,7 @@ Instance ExtSet_has_init : has_init ExtSet :=
 Proof. cbn; intros. apply extEq_ext. destruct a. Defined.
 
 #[refine]
+#[export]
 Instance ExtSet_has_term : has_term ExtSet :=
 {
     term := unit;
@@ -74,6 +77,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ExtSet_has_products : has_products ExtSet :=
 {
     prodOb := prod;
@@ -97,6 +101,7 @@ Defined.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance ExtSet_has_all_products : has_all_products ExtSet :=
 {
     bigProdOb := fun (J : Type) (A : J -> Ob ExtSet) =>
@@ -117,6 +122,7 @@ Proof.
 Abort.
 
 #[refine]
+#[export]
 Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
 {
     coprodOb := sum;
@@ -136,6 +142,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
 {
     bigCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) =>
@@ -155,6 +162,7 @@ Set Nested Proofs Allowed.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
     eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
@@ -193,7 +201,8 @@ Proof.
 Abort.
 
 (* Not sure if it's even true *)
-(* TODO : Instance ExtSet_has_coequalizers : has_coequalizers ExtSet :=
+(* TODO : #[export]
+Instance ExtSet_has_coequalizers : has_coequalizers ExtSet :=
 {
     coeq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
         {T : Type & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}

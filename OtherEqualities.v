@@ -10,11 +10,13 @@ Arguments ext [A] _ _.
 
 Global Hint Constructors ext : core.
 
+#[export]
 Instance ext_Equivalence (A : Set) : Equivalence (@ext A).
 Proof.
   split; red; eauto. induction 1; auto. eapply ext_trans; eauto.
 Defined.
 
+#[export]
 Instance ext_Proper : forall (A B : Set) (f : A -> B),
     Proper (@ext A ==> @ext B) f.
 Proof.

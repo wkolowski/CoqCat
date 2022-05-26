@@ -33,6 +33,7 @@ Class Monoidal : Type :=
 Coercion cat : Monoidal >-> Cat.
 
 #[refine]
+#[export]
 Instance Monoidal_has_terminal_and_products
   (C : Cat) (ht : has_term C) (hp : has_products C) : Monoidal :=
 {
@@ -53,6 +54,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Monoidal_has_initial_and_coproducts
   (C : Cat) (hi : has_init C) (hp : has_coproducts C) : Monoidal :=
 {

@@ -29,6 +29,7 @@ Class Enriched (V : Monoidal) : Type :=
 
 Require Import Instances.Setoids.
 
+#[export]
 Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
 {
     carrier := @Hom C X Y;
@@ -36,6 +37,7 @@ Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
 }.
 
 #[refine]
+#[export]
 Instance Enriched_CoqSetoid : Enriched
   (Monoidal_has_terminal_and_products
     CoqSetoid_has_term

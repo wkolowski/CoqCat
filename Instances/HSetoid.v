@@ -26,6 +26,7 @@ Definition HSetoidHom_Fun (X Y : HSetoid) (f : HSetoidHom X Y)
 Coercion HSetoidHom_Fun : HSetoidHom >-> Funclass.
 
 #[refine]
+#[export]
 Instance HSetoidHomSetoid (X Y : HSetoid) : Setoid (HSetoidHom X Y) :=
 {
     equiv := fun f g : HSetoidHom X Y =>
@@ -46,6 +47,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance HSetoidCat : Cat :=
 {
     Ob := HSetoid;

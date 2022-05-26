@@ -33,6 +33,7 @@ Definition biequalizer
 (* TODO : write JMequiv_dep *)
 
 #[refine]
+#[export]
 Instance SetoidFunExt_setoid (A B : Type) (A' : Setoid A) (B' : Setoid B)
     : Setoid (A -> B) :=
 {
@@ -40,7 +41,8 @@ Instance SetoidFunExt_setoid (A B : Type) (A' : Setoid A) (B' : Setoid B)
 }.
 Proof. solve_equiv. Defined.
 
-(* TODO : Instance SetoidFunExt (A B : Setoid') : Setoid' :=
+(* TODO : #[export]
+Instance SetoidFunExt (A B : Setoid') : Setoid' :=
 {
     carrier := A -> B;
     setoid := @SetoidFunExt_setoid A B _ _
@@ -448,6 +450,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=
 {
@@ -465,6 +468,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     : has_equalizers (Dual C) :=
 {
@@ -482,6 +486,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {

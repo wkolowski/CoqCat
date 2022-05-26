@@ -36,6 +36,7 @@ Class Reify {C : Cat} {X Y : Ob C} (f : Hom X Y) : Type :=
 Arguments reify {C X Y} _ {Reify}.
 
 #[refine]
+#[export]
 Instance ReifyId (C : Cat) (X : Ob C) : Reify (id X) | 0 :=
 {
     reify := Id X
@@ -45,6 +46,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyComp (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z)
     (R1 : Reify f) (R2 : Reify g) : Reify (f .> g) | 0 :=
 {
@@ -55,6 +57,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyFmap (C D : Cat) (X Y : Ob C) (F : Functor C D) (f : Hom X Y)
     (R : Reify f) : @Reify D (fob F X) (fob F Y) (fmap F f) | 0 :=
 {
@@ -65,6 +68,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyVar (C : Cat) (X Y : Ob C) (f : Hom X Y)
     : Reify f | 1 :=
 {
@@ -83,6 +87,7 @@ Class Simplify {C : Cat} {X Y : Ob C} (e : exp C X Y) : Type :=
 Arguments simplify {C X Y} _ {Simplify}.
 
 #[refine]
+#[export]
 Instance NoSimplify (C : Cat) (X Y : Ob C) (e : exp C X Y)
     : Simplify e | 100 :=
 {
@@ -91,6 +96,7 @@ Instance NoSimplify (C : Cat) (X Y : Ob C) (e : exp C X Y)
 Proof. reflexivity. Defined.
 
 #[refine]
+#[export]
 Instance SimplifyCompIdL (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp (Id X) e) | 1 :=
 {
@@ -101,6 +107,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SimplifyCompIdR (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp e (Id Y)) | 1 :=
 {
@@ -111,6 +118,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SimplifyCompRec (C : Cat) (X Y Z : Ob C)
   (e1 : exp C X Y) (e2 : exp C Y Z) (S1 : Simplify e1) (S2 : Simplify e2)
   : Simplify (Comp e1 e2) | 50 :=
@@ -122,6 +130,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D)
   : Simplify (Fmap F (Id X)) :=
 {

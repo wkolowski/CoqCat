@@ -115,6 +115,7 @@ Proof.
   eapply equalizer_is_mono. eauto.
 Defined.
 
+#[export]
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=
 {
@@ -123,6 +124,7 @@ Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
 }.
 
+#[export]
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     : has_equalizers (Dual C) :=
 {
@@ -132,6 +134,7 @@ Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
 }.
 
 #[refine]
+#[export]
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {

@@ -165,7 +165,7 @@ repeat match goal with
     | _ => rewrite <- ?comp_assoc; auto
 end.
 
-Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
+Global Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
   : fpair'_base.
 
 Ltac fpair' := autorewrite with fpair'_base.
@@ -175,6 +175,7 @@ Ltac fpair' := autorewrite with fpair'_base.
 Require Export TacticFunctor.
 
 #[refine]
+#[export]
 Instance Simplify_fpair_proj1
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj1)) | 1 :=
@@ -186,6 +187,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Simplify_fpair_proj2
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj2)) | 1 :=
@@ -197,6 +199,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Simplify_fpair_id
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Var (fpair proj1 proj2)) | 1 :=
@@ -618,6 +621,7 @@ Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
     prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
 
 #[refine]
+#[export]
 Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D)
     : Setoid (ProdCatHom X Y) :=
 {
@@ -633,6 +637,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
     Ob := Ob C * Ob D;
@@ -656,6 +661,7 @@ Definition ProductFunctor_fmap {C : Cat} {hp : has_products C}
     : Hom (prodOb X X') (prodOb Y Y') :=
       fpair (proj1 .> f) (proj2 .> g).
 
+#[export]
 Instance ProductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_products C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
@@ -702,6 +708,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prodOb C C) C :=
 {
@@ -720,6 +727,7 @@ Definition CoproductFunctor_fmap {C : Cat} {hp : has_coproducts C}
       : Hom (coprodOb X X') (coprodOb Y Y') :=
       (copair (f .> coproj1) (g .> coproj2)).
 
+#[export]
 Instance CoproductFunctor_fmap_Proper : forall (C : Cat)
     (hp : has_coproducts C) (X X' Y Y' : Ob C),
     Proper ((@equiv _ (HomSetoid X Y))  ==>
@@ -765,6 +773,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prodOb C C) C :=
 {
@@ -783,6 +792,7 @@ Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
 Notation "A + B" := (fob CoproductFunctor (A, B)).
 Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
 
+#[export]
 Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
     : has_coproducts (Dual C) :=
 {
@@ -794,6 +804,7 @@ Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
     is_coproduct := @is_product C hp
 }.
 
+#[export]
 Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
     : has_products (Dual C) :=
 {
@@ -806,6 +817,7 @@ Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
 }.
 
 #[refine]
+#[export]
 Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     : has_biproducts (Dual C) :=
 {

@@ -44,6 +44,7 @@ Ltac setoidrel := try (setoidrel'; fail).
 Ltac rel := repeat rel'; setoidrel'; rel'.
 
 #[refine]
+#[export]
 Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
 {
     equiv := fun (P Q : SetoidRel X Y) =>
@@ -54,6 +55,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance SetoidRelComp (X Y Z : Setoid')
     (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z :=
 {
@@ -61,12 +63,14 @@ Instance SetoidRelComp (X Y Z : Setoid')
 }.
 Proof. rel. Defined.
 
+#[export]
 Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
 {
     rel := equiv
 }.
 
 #[refine]
+#[export]
 Instance SetoidRelCat : Cat :=
 {|
     Ob := Setoid';
@@ -77,6 +81,7 @@ Instance SetoidRelCat : Cat :=
 |}.
 Proof. all: rel. Defined.
 
+#[export]
 Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 {
     init := CoqSetoid_init;
@@ -86,6 +91,7 @@ Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
 
+#[export]
 Program Instance SetoidRel_has_term : has_term SetoidRelCat :=
 {
     term := CoqSetoid_init;
@@ -96,6 +102,7 @@ Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_has_zero : has_zero SetoidRelCat :=
 {
     zero_is_initial := SetoidRel_has_init;
@@ -104,6 +111,7 @@ Instance SetoidRel_has_zero : has_zero SetoidRelCat :=
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
 {
     carrier := X + Y;
@@ -119,6 +127,7 @@ Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_proj1 (X Y : Setoid')
     : SetoidRel (SetoidRel_prodOb X Y) X :=
 {
@@ -131,6 +140,7 @@ Instance SetoidRel_proj1 (X Y : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_proj2 (X Y : Setoid')
     : SetoidRel (SetoidRel_prodOb X Y) Y :=
 {
@@ -143,6 +153,7 @@ Instance SetoidRel_proj2 (X Y : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_fpair (A B X : Setoid')
     (R : SetoidRel X A) (S : SetoidRel X B)
     : SetoidRel X (SetoidRel_prodOb A B) :=
@@ -156,6 +167,7 @@ Instance SetoidRel_fpair (A B X : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_has_products : has_products SetoidRelCat :=
 {
     prodOb := SetoidRel_prodOb;
@@ -187,6 +199,7 @@ Defined.
 Definition SetoidRel_coprodOb := SetoidRel_prodOb.
 
 #[refine]
+#[export]
 Instance SetoidRel_coproj1 (X Y : Setoid')
     : SetoidRel X (SetoidRel_coprodOb X Y) :=
 {
@@ -199,6 +212,7 @@ Instance SetoidRel_coproj1 (X Y : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_coproj2 (X Y : Setoid')
     : SetoidRel Y (SetoidRel_coprodOb X Y) :=
 {
@@ -211,6 +225,7 @@ Instance SetoidRel_coproj2 (X Y : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_copair (A B X : Setoid')
     (R : SetoidRel A X) (S : SetoidRel B X)
     : SetoidRel (SetoidRel_coprodOb A B) X :=
@@ -224,6 +239,7 @@ Instance SetoidRel_copair (A B X : Setoid')
 Proof. rel. Defined.
 
 #[refine]
+#[export]
 Instance SetoidRel_has_coproducts : has_coproducts SetoidRelCat :=
 {
     coprodOb := SetoidRel_coprodOb;

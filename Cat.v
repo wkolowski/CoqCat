@@ -182,6 +182,7 @@ match goal with
 end; eauto).
 
 #[refine]
+#[export]
 Instance Dual (C : Cat) : Cat :=
 {|
     Ob := Ob C;
@@ -599,6 +600,7 @@ Proof. unfold Aut, Iso; intros; exists (id X); cat. Defined.
 
 Global Hint Resolve mon_prop epi_prop sec_prop ret_prop id_is_aut : core.
 
+#[export]
 Instance isomorphic_equiv (C : Cat) : Equivalence isomorphic.
 Proof.
   split; do 2 red; intros.

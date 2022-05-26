@@ -30,6 +30,7 @@ Definition second
   : Hom (biob A X) (biob A Y) := bimap (id A) f.
 
 #[refine]
+#[export]
 Instance ProductBifunctor {C : Cat} {hp : has_products C} :
     Bifunctor C C C :=
 {
@@ -43,6 +44,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CoproductBifunctor {C : Cat} {hp : has_coproducts C} :
     Bifunctor C C C :=
 {
@@ -55,6 +57,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance BiComp {C C' D D' E : Cat}
     (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
     : Bifunctor C D E :=
@@ -70,6 +73,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Const {E : Cat} (X : Ob E) (C D : Cat)
     : Bifunctor C D E :=
 {

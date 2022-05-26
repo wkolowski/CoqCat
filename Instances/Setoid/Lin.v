@@ -34,6 +34,7 @@ Ltac lin' := repeat (lin_simpl; try proshoms; try linobs'; pos).
 Ltac lin := try (lin'; fail).
 
 #[refine]
+#[export]
 Instance LinCat : Cat :=
 {
     Ob := Lin;
@@ -48,6 +49,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Lin_init : Lin :=
 {
     pos := Pos_init
@@ -55,6 +57,7 @@ Instance Lin_init : Lin :=
 Proof. lin. Defined.
 
 #[refine]
+#[export]
 Instance Lin_has_init : has_init LinCat :=
 {
     init := Lin_init;
@@ -63,6 +66,7 @@ Instance Lin_has_init : has_init LinCat :=
 Proof. lin. Defined.
 
 #[refine]
+#[export]
 Instance Lin_term : Lin :=
 {
     pos := Pos_term
@@ -70,6 +74,7 @@ Instance Lin_term : Lin :=
 Proof. lin. Defined.
 
 #[refine]
+#[export]
 Instance Lin_has_term : has_term LinCat :=
 {
     term := Lin_term;
@@ -78,6 +83,7 @@ Instance Lin_has_term : has_term LinCat :=
 Proof. lin. Defined.
 
 #[refine]
+#[export]
 Instance Lin_prod_Pros (X Y : Lin) : Pros :=
 {
     carrier := CoqSetoid_prodOb X Y;
@@ -97,6 +103,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Lin_prod_Pos (X Y : Lin) : Pos :=
 {
     pros := Lin_prod_Pros X Y
@@ -110,6 +117,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Lin_prod (X Y : Lin) : Lin :=
 {
     pos := Lin_prod_Pos X Y
@@ -133,7 +141,8 @@ Proof.
   red. exists snd. lin'. destruct a, a', H, H; cbn in *.
 Abort. *)
 
-(* TODO Instance Lin_has_products : has_products LinCat :=
+(* TODO #[export]
+Instance Lin_has_products : has_products LinCat :=
 {
     prodOb := Lin_prod;
     proj1 := Pros_proj1;
@@ -157,6 +166,7 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance Lin_Pros_coprod (X Y : Lin) : Pros :=
 {
     carrier := CoqSetoid_coprodOb X Y;
@@ -177,6 +187,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Lin_coprodOb (X Y : Lin) : Lin :=
 {
     pos :=

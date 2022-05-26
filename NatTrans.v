@@ -17,6 +17,7 @@ Arguments component [C D T S] _ _.
 Arguments coherence [C D T S] _ [X Y] _.
 
 #[refine]
+#[export]
 Instance NatTransSetoid {C D : Cat} (F G : Functor C D)
     : Setoid (NatTrans F G) :=
 {
@@ -28,6 +29,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance NatTransComp {C D : Cat}
     {F : Functor C D} {G : Functor C D} {H : Functor C D}
     (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H :=
@@ -40,6 +42,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 {
     component := fun X : Ob C => id (fob F X)
@@ -47,6 +50,7 @@ Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 Proof. cat. Defined.
 
 #[refine]
+#[export]
 Instance FunCat (C D : Cat) : Cat :=
 {
     Ob := Functor C D;
@@ -96,6 +100,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
     (F G : Functor C D) : Functor C D :=
 {
@@ -110,6 +115,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
 {
@@ -120,6 +126,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
 {
@@ -130,6 +137,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_fpair
     {C D : Cat} {hp : has_products D} {F G H : Functor C D}
     (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
@@ -142,6 +150,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 {
@@ -159,6 +168,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_coprodOb {C D : Cat} {hp : has_coproducts D}
     (F G : Functor C D) : Functor C D :=
 {
@@ -173,6 +183,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_coproj1 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans F (FunCat_coprodOb F G) :=
 {
@@ -183,6 +194,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_coproj2 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans G (FunCat_coprodOb F G) :=
 {
@@ -193,6 +205,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_copair
     {C D : Cat} {hp : has_coproducts D} {F G H : Functor C D}
     (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_coprodOb F G) H :=
@@ -205,6 +218,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunCat_has_coproducts {C D : Cat} {hp : has_coproducts D}
   : has_coproducts (FunCat C D) :=
 {
@@ -223,6 +237,7 @@ Defined.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance FunCat_expOb
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   (F G : Functor C D) : Functor C D :=
@@ -236,6 +251,7 @@ Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)
 #[refine]
+#[export]
 Instance FunCat_has_exponentials
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   : has_exponentials (FunCat C D) :=

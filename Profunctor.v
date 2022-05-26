@@ -33,6 +33,7 @@ match goal with
 end.
 
 #[refine]
+#[export]
 Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
 {
     diob := fun X Y : Ob C =>
@@ -45,6 +46,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Const {E : Cat} (X : Ob E) (C D : Cat)
     : Profunctor C D E :=
 {
@@ -54,6 +56,7 @@ Instance Const {E : Cat} (X : Ob E) (C D : Cat)
 Proof. all: profunctor. Defined.
 
 #[refine]
+#[export]
 Instance ProComp {C C' D D' E : Cat}
     (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
     : Profunctor C D E :=
@@ -68,6 +71,7 @@ Defined.
 Require Import Contravariant.
 
 #[refine]
+#[export]
 Instance HomFunctor (C : Cat) (X : Ob C)
     : Functor C CoqSetoid :=
 {
@@ -79,6 +83,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance HomContravariant (C : Cat) (X : Ob C)
     : Contravariant C CoqSetoid :=
 {

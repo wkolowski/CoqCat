@@ -234,6 +234,7 @@ Arguments Reify {X} _.
 Arguments reify {X} _ {Reify}.
 
 #[refine]
+#[export]
 Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
 {
     reify := Var x
@@ -241,6 +242,7 @@ Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
 Proof. reflexivity. Defined.
 
 #[refine]
+#[export]
 Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
@@ -251,6 +253,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
@@ -261,6 +264,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyId (X : Grp) : Reify neutr | 0 :=
 {
     reify := Id
@@ -270,6 +274,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
 {
     reify := Inv (reify x)
@@ -389,6 +394,7 @@ Qed.
 End test.
 
 #[refine]
+#[export]
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
   equiv := fun f g : GrpHom X Y =>
@@ -408,6 +414,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance GrpCat : Cat :=
 {
     Ob := Grp;
@@ -430,6 +437,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Grp_zero : Grp :=
 {
     mon := Mon_init;
@@ -443,6 +451,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Grp_has_init : has_init GrpCat :=
 {
     init := Grp_zero;
@@ -456,6 +465,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Grp_has_term : has_term GrpCat :=
 {
     term := Grp_zero;
@@ -464,6 +474,7 @@ Instance Grp_has_term : has_term GrpCat :=
 Proof. grp. Defined.
 
 #[refine]
+#[export]
 Instance Grp_has_zero : has_zero GrpCat :=
 {
     zero_is_initial := Grp_has_init;
@@ -479,6 +490,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Grp_prodOb (X Y : Grp) : Grp :=
 {
     mon := Mon_prodOb X Y;
@@ -503,6 +515,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Grp_has_products : has_products GrpCat :=
 {
     prodOb := Grp_prodOb;
@@ -526,6 +539,7 @@ Definition AutHom_Fun {C : Cat} {X : Ob C} (A B : AutOb C X)
 Coercion AutHom_Fun : AutHom >-> Hom.
 
 #[refine]
+#[export]
 Instance AutHomSetoid (C : Cat) (X : Ob C)
     : forall A B : AutOb C X, Setoid (AutHom A B) :=
 {
@@ -547,6 +561,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance AutCat (C : Cat) (X : Ob C) : Cat :=
 {
     Ob := AutOb C X;
@@ -557,7 +572,8 @@ Instance AutCat (C : Cat) (X : Ob C) : Cat :=
 }.
 Proof. all: grp. Defined.
 
-(* TODO : finish Instance Cayley_Sgr (G : Grp) : Sgr :=
+(* TODO : finish #[export]
+Instance Cayley_Sgr (G : Grp) : Sgr :=
 {
     carrier := {f : G -> G & {g : G | f = op g}};
     op := fun f g => fun x : G => g (f x)
@@ -569,7 +585,8 @@ Proof.
   cat. grp'. rewrite !assoc.
 Abort.*)
 
-(*Instance Cayley_Mon (G : Grp) : Mon :=
+(*#[export]
+Instance Cayley_Mon (G : Grp) : Mon :=
 {
     sgr := Cayley_Sgr G;
     neutr := fun x : G => x
@@ -579,6 +596,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Cayley_Grp (G : Grp) : Grp :=
 {
     mon := Cayley_Mon G;

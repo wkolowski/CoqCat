@@ -5,6 +5,7 @@ Require Import BigProdCoprod.
 Require Import Equalizer.
 
 #[refine]
+#[export]
 Instance DepExtSet : Cat :=
 {|
     Ob := Set;
@@ -35,6 +36,7 @@ Proof.
 Qed.
 
 #[refine]
+#[export]
 Instance DepExtSet_has_init : has_init DepExtSet :=
 {
     init := Empty_set;
@@ -43,6 +45,7 @@ Instance DepExtSet_has_init : has_init DepExtSet :=
 Proof. cbn; intros. apply depExtEq_ext. destruct x. Defined.
 
 #[refine]
+#[export]
 Instance DepExtSet_has_term : has_term DepExtSet :=
 {
     term := unit;
@@ -53,6 +56,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DepExtSet_has_products : has_products DepExtSet :=
 {
     prodOb := prod;
@@ -71,6 +75,7 @@ Defined.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
     bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
@@ -95,6 +100,7 @@ Proof.
 Abort.
 
 #[refine]
+#[export]
 Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 {
     coprodOb := sum;
@@ -119,6 +125,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
 {
     bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
@@ -142,6 +149,7 @@ Set Nested Proofs Allowed.
 
 (* TODO *)
 #[refine]
+#[export]
 Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
     eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>

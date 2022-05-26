@@ -88,6 +88,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E)
     : Functor C E :=
 {
@@ -100,6 +101,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance FunctorId (C : Cat) : Functor C C :=
 {
     fob := fun A : Ob C => A;
@@ -111,6 +113,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance CAT : Cat :=
 {
     Ob := Cat;
@@ -128,6 +131,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat)
     : Functor C D :=
 {

@@ -430,6 +430,7 @@ Abort.
 
 (*
 #[refine]
+#[export]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
     equiv := fun f g : MonHom X Y =>
@@ -449,6 +450,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance MonCat : Cat :=
 {
     Ob := Mon;
@@ -460,6 +462,7 @@ Instance MonCat : Cat :=
 Proof. all: mon. Defined.
 
 #[refine]
+#[export]
 Instance Mon_init : Mon :=
 {
     sgr := Sgr_term;
@@ -483,6 +486,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Mon_has_init : has_init MonCat :=
 {
     init := Mon_init;
@@ -491,6 +495,7 @@ Instance Mon_has_init : has_init MonCat :=
 Proof. mon. Defined.
 
 #[refine]
+#[export]
 Instance Mon_term : Mon :=
 {
     sgr := Sgr_term;
@@ -514,6 +519,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Mon_has_term : has_term MonCat :=
 {
     term := Mon_term;
@@ -522,6 +528,7 @@ Instance Mon_has_term : has_term MonCat :=
 Proof. mon. Defined.
 
 #[refine]
+#[export]
 Instance Mon_has_zero : has_zero MonCat :=
 {
     zero_is_initial := Mon_has_init;
@@ -530,6 +537,7 @@ Instance Mon_has_zero : has_zero MonCat :=
 Proof. mon. Defined.
 
 #[refine]
+#[export]
 Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
     sgr := Sgr_prodOb X Y;
@@ -554,6 +562,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance Mon_has_products : has_products MonCat :=
 {
     prodOb := Mon_prodOb;
@@ -567,6 +576,7 @@ Proof.
 Defined.
 
 #[refine]
+#[export]
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
     fob := fun X : Mon => @setoid (sgr X);
@@ -586,6 +596,7 @@ Definition free_monoid
 Require Import Arith.
 
 #[refine]
+#[export]
 Instance MonListUnit_Setoid' : Setoid' :=
 {
     carrier := nat;
@@ -593,6 +604,7 @@ Instance MonListUnit_Setoid' : Setoid' :=
 }.
 
 #[refine]
+#[export]
 Instance MonListUnit : Mon :=
 {
     sgr :=

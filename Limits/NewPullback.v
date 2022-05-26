@@ -299,6 +299,7 @@ Proof.
   destruct p. exact (fun a : P x => a).
 Defined.
 
+#[export]
 Instance SpanHomSetoid (C : Cat) (hp : has_pullbacks C) (A B : Ob C)
   : Setoid (SpanHom hp A B).
 Proof.
@@ -318,6 +319,7 @@ Proof.
       split; rewrite ?Hl1, ?Hr1; assumption.
 Defined.
 
+#[export]
 Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
 {
     center := A;
@@ -326,6 +328,7 @@ Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
 }.
 
 #[refine]
+#[export]
 Instance Span (C' : Cat) (hp : has_pullbacks C') : Cat :=
 {
     Ob := Ob C';
