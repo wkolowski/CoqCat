@@ -1,5 +1,5 @@
-Require Export Cat.
-Require Export Cat.Functor.
+From Cat Require Export Cat.
+From Cat Require Export Functor.
 
 Set Implicit Arguments.
 
@@ -54,7 +54,7 @@ Global Hint Resolve initial_is_terminal unique_iso_is_iso : core.
 
 (* Equivalence of definitions *)
 
-Require InitTerm.
+From Cat Require InitTerm.
 
 Module Equiv.
 

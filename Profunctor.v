@@ -1,11 +1,10 @@
-Require Import Cat.Cat.
+From Cat Require Import Cat.
+From Cat Require Import Instances.CoqSet.
+From Cat Require Import Instances.Setoids.
+From Cat Require Import Contravariant.
+From Cat Require Import NatTrans.
 
 Set Implicit Arguments.
-
-Require Import Cat.Instances.CoqSet.
-Require Import Cat.Instances.Setoids.
-
-Require Import Cat.Contravariant.
 
 Class Profunctor (C D E: Cat) : Type :=
 {
@@ -68,8 +67,6 @@ Proof.
   all: profunctor.
 Defined.
 
-Require Import Contravariant.
-
 #[refine]
 #[export]
 Instance HomFunctor (C : Cat) (X : Ob C)
@@ -93,8 +90,6 @@ Proof.
   intros Y Z f. exists (fun g => f .> g). proper.
   proper. all: cat.
 Defined.
-
-Require Import NatTrans.
 
 Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
   exists (X : Ob C) (α : NatTrans F (HomFunctor C X)),

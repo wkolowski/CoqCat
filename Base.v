@@ -1,10 +1,8 @@
 Require Export Coq.Classes.SetoidClass.
-
 (*Require Export Coq.Logic.ProofIrrelevance.*)
 (*Require Export Coq.Logic.FunctionalExtensionality.*)
 Require Export Coq.Logic.IndefiniteDescription.
-
-Require Export JMeq.
+Require Export Coq.Logic.JMeq.
 
 Global Set Universe Polymorphism.
 

@@ -1,4 +1,4 @@
-Require Export Instances.Setoid.Pos.
+From Cat Require Export Instances.Setoid.Pos.
 
 Class Lin : Type :=
 {

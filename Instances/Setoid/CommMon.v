@@ -1,13 +1,19 @@
 Require Import Arith.
 Require Import Permutation.
-Require Import CoqAlgs.Sorting.Perm.
-Require Import CoqAlgs.Sorting.InsertionSort.
+(*  Require Import Quote.*)
 
-Require Export Cat.
-Require Import Cat.Limits.InitTerm.
-Require Import Cat.Limits.BinProdCoprod.
+Require Import List.
+Import ListNotations.
 
-Require Export Cat.Instances.Setoid.Mon.
+(* From mathcomp Require Import ssreflect. *)
+
+From CoqAlgs Require Import Sorting.Perm.
+From CoqAlgs Require Import Sorting.InsertionSort.
+
+From Cat Require Export Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Export Instances.Setoid.Mon.
 
 Set Implicit Arguments.
 
@@ -39,9 +45,6 @@ match e with
     | Op e1 e2 => op (expDenote env e1) (expDenote env e2)
     | Mor _ _ => neutr
 end.
-
-Require Import List.
-Import ListNotations.
 
 Fixpoint simplifyExp {X : ComMon} (e : exp X) : exp X :=
 match e with
@@ -416,7 +419,6 @@ Qed.
 Goal forall (X : ComMon) (a a' b b' c c' : X),
   a == b -> b' == c' -> 2 = 2 \/ op c c == op c (op a c').
 Proof.
-(*  Require Import Quote.*)
   intros X a _ b b' c c'.
   match goal with
       | X : ComMon |- ?P =>
@@ -593,8 +595,6 @@ Definition free_monoid
     forall (N : Mon) (q : SetoidHom X (fob U N)),
       exists!! h : MonHom M N, q == p .> fmap U h.
 
-Require Import Arith.
-
 #[refine]
 #[export]
 Instance MonListUnit_Setoid' : Setoid' :=
@@ -622,8 +622,6 @@ Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
 Proof.
   cbn. exists (fun _ => 1). formulaer.
 Defined.
-
-From mathcomp Require Import ssreflect.
 
 Theorem free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.

@@ -1,6 +1,5 @@
-Require Export Cat.
-
-Require Import Limits.InitTerm.
+From Cat Require Export Cat.
+From Cat Require Import Limits.InitTerm.
 
 #[refine]
 #[export]

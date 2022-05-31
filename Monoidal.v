@@ -1,10 +1,8 @@
-Require Import Cat.Cat.
-Require Import Cat.Bifunctor.
-
-Require Import Limits.InitTerm.
-Require Import Limits.BinProdCoprod.
-
-Require Import CartesianClosed.
+From Cat Require Import Cat.
+From Cat Require Import Bifunctor.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import CartesianClosed.
 
 Set Implicit Arguments.
 

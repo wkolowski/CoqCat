@@ -1,8 +1,7 @@
-Require Import Cat.
-
-Require Import InitTerm.
-Require Import BinProdCoprod.
-Require Import Cat.Limits.NewestEqualizer.
+From Cat Require Import Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Import Limits.NewestEqualizer.
 
 Set Implicit Arguments.
 

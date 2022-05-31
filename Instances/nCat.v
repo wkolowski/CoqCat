@@ -1,6 +1,6 @@
 Require Import Arith.
 
-Require Import Cat.
+From Cat Require Import Cat.
 
 #[refine]
 #[export]

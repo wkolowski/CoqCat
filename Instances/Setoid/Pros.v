@@ -1,11 +1,10 @@
 Require Import NPeano.
 Require Import Lia.
 
-Require Export Cat.
-Require Export InitTerm.
-Require Export BinProdCoprod.
-
-Require Export Cat.Instances.Setoids.
+From Cat Require Export Cat.
+From Cat Require Export InitTerm.
+From Cat Require Export BinProdCoprod.
+From Cat Require Export Instances.Setoids.
 
 Set Implicit Arguments.
 

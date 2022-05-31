@@ -1,4 +1,4 @@
-Require Import Cat.
+From Cat Require Import Cat.
 
 Definition equalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) : Prop := e .> f == e .> g /\

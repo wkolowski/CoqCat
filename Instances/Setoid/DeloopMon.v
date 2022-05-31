@@ -1,8 +1,7 @@
-Require Import Cat.
-Require Import Cat.Limits.InitTerm.
-Require Import Cat.Limits.BinProdCoprod.
-
-Require Import Cat.Instances.Setoid.Mon.
+From Cat Require Import Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Instances.Setoid.Mon.
 
 #[refine]
 #[export]

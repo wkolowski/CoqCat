@@ -1,4 +1,7 @@
-Require Export Cat.Base.
+Require Import Logic.ProofIrrelevance.
+Require Import FunctionalExtensionality.
+
+From Cat Require Export Base.
 
 Class Cat : Type :=
 {
@@ -197,8 +200,6 @@ Proof. all: cat. Defined.
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
 
 (* Warning: the following also uses the JMeq_eq axiom *)
-Require Import Logic.ProofIrrelevance.
-Require Import FunctionalExtensionality.
 
 Theorem cat_split : forall
   (Ob Ob' : Type)

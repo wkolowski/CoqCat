@@ -1,6 +1,5 @@
-Require Import Cat.Cat.
-
-Require Import Cat.Limits.BinProdCoprod.
+From Cat Require Import Cat.
+From Cat Require Import Limits.BinProdCoprod.
 
 Set Implicit Arguments.
 

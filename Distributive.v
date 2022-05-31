@@ -1,5 +1,5 @@
-Require Import BinProdCoprod.
-Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Import InitTerm.
 
 Definition distr
   {C : Cat} {hi : has_init C} {ht : has_term C}

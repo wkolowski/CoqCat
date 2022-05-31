@@ -1,10 +1,9 @@
-Require Import NPeano.
+Require Import Arith.
 
-Require Export Cat.
-Require Export InitTerm.
-Require Export BinProdCoprod.
-
-Require Export Instances.Setoid.Pros.
+From Cat Require Export Cat.
+From Cat Require Export InitTerm.
+From Cat Require Export BinProdCoprod.
+From Cat Require Export Instances.Setoid.Pros.
 
 Class Pos : Type :=
 {

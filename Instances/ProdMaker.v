@@ -1,4 +1,4 @@
-Require Import Cat.
+From Cat Require Import Cat.
 
 Class ProdMakerOb (C : Cat) (A B : Ob C) : Type :=
 {

@@ -1,4 +1,4 @@
-Require Import Cat.
+From Cat Require Import Cat.
 
 Inductive nel (A : Type) : Type :=
     | singl : A -> nel A

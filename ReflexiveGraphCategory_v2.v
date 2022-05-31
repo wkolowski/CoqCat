@@ -3,6 +3,8 @@
 
     Mostly copy-pasted from the other file. *)
 
+From Cat Require Import Sgr.
+
 Class ReflexiveGraphCategory : Type :=
 {
     Ob  : Type;
@@ -48,12 +50,6 @@ Arguments Mor   : clear implicits.
 Arguments mid   : clear implicits.
 Arguments mcomp {_ X Y Z} _ _.
 
-(* Require Import ProofIrrelevance.
-
-Axiom JMeq_pi :
-  forall {P Q : Prop} (p : P) (q : Q), JMeq p q.
- *)
-
 Inductive Box (A : Type) : SProp :=
     | box : A -> Box A.
 
@@ -83,8 +79,6 @@ Proof.
   constructor. congruence.
   intros * [] []. constructor. auto.
 Defined.
-
-Require Import Sgr.
 
 Class SetoidRel (X Y : Setoid') : Type :=
 {

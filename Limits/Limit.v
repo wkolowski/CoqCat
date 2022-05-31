@@ -1,7 +1,8 @@
-Require Import Cat.
-Require Import Cat.Functor.
-Require Import Cat.NatTrans.
-Require Import Cat.Limits.InitTerm.
+From Cat Require Import Cat.
+From Cat Require Import Functor.
+From Cat Require Import NatTrans.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Setoids.
 
 Set Implicit Arguments.
 
@@ -163,8 +164,6 @@ Defined.
 Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
     limit' K -> limit' (ConeImage F K).
-
-Require Import Setoids.
 
 #[export]
 Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=

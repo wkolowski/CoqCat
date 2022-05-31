@@ -7,7 +7,7 @@
     https://www.cs.bham.ac.uk/~udr/papers/logical-relations-and-parametricity.pdf
 *)
 
-Require Import JMeq.
+Require Import JMeq ProofIrrelevance.
 
 Lemma transport :
   forall {A : Type} (P : A -> Type) {x y : A} (p : x = y),
@@ -90,8 +90,6 @@ Arguments Ob    : clear implicits.
 Arguments Mor   : clear implicits.
 Arguments mid   : clear implicits.
 Arguments mcomp {_ X Y Z} _ _.
-
-Require Import ProofIrrelevance.
 
 Axiom JMeq_pi :
   forall {P Q : Prop} (p : P) (q : Q), JMeq p q.

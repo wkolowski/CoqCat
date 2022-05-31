@@ -1,12 +1,10 @@
-Require Import Cat.Cat.
-Require Import Cat.Bifunctor.
-
-Require Import Limits.InitTerm.
-Require Import Limits.BinProdCoprod.
-
-Require Import CartesianClosed.
-
-Require Import Cat.Monoidal.
+From Cat Require Import Cat.
+From Cat Require Import Bifunctor.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import CartesianClosed.
+From Cat Require Import Monoidal.
+From Cat Require Import Instances.Setoids.
 
 Class Enriched (V : Monoidal) : Type :=
 {
@@ -26,8 +24,6 @@ Class Enriched (V : Monoidal) : Type :=
       bimap (id (EHom A B)) (EId B) .> EComp A B B ==
       right_unitor (EHom A B);
 }.
-
-Require Import Instances.Setoids.
 
 #[export]
 Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=

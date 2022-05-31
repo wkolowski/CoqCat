@@ -1,8 +1,7 @@
-Require Export Cat.
-Require Import Limits.InitTerm.
-Require Import Limits.BinProdCoprod.
-
-Require Export Setoids.
+From Cat Require Export Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Export Setoids.
 
 Set Implicit Arguments.
 

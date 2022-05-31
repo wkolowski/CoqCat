@@ -1,6 +1,6 @@
-Require Export Cat.
-Require Import InitTerm.
-Require Import BinProdCoprod.
+From Cat Require Export Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
 
 #[refine]
 #[export]

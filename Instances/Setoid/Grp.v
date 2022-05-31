@@ -1,13 +1,13 @@
 Require Import Logic.FunctionalExtensionality.
 
-Require Export Cat.
-Require Import Cat.Limits.InitTerm.
-Require Import Cat.Limits.BinProdCoprod.
-
-Require Export Cat.Instances.Setoid.Mon.
-
 Require Import List.
 Import ListNotations.
+
+From Cat Require Export Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Instances.Setoids.
+From Cat Require Export Instances.Setoid.Mon.
 
 Set Implicit Arguments.
 
@@ -428,8 +428,6 @@ Proof.
     eapply (@comp_Proper MonCat); auto.
   (* Category laws *) all: grp.
 Defined.
-
-Require Import Cat.Instances.Setoids.
 
 Definition Grp_zero_inv : SetoidHom Mon_init Mon_init.
 Proof.

@@ -1,8 +1,8 @@
-Require Export Cat.
-Require Export InitTerm.
-Require Import BinProdCoprod.
-Require Import BigProdCoprod.
-Require Import Equalizer.
+From Cat Require Export Cat.
+From Cat Require Export InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Import BigProdCoprod.
+From Cat Require Import Equalizer.
 
 #[refine]
 #[export]

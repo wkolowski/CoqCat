@@ -1,6 +1,6 @@
-Require Import Cat.
-Require Import Limits.InitTerm.
-Require Import BinProdCoprod.
+From Cat Require Import Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import BinProdCoprod.
 
 Definition big_product (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
     (p : forall j : J, Hom P (A j)) : Prop := forall (X : Ob C)

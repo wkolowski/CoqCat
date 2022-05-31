@@ -1,18 +1,17 @@
-Require Import Cat.Base.
-
-Require Export Cat.
-Require Export Limits.InitTerm.
-Require Import Limits.BinProdCoprod.
-Require Import Limits.BigProdCoprod.
-Require Import OldLimits.Equalizer.
-Require Import Limits.NewPullback.
-Require Import Exponential.
-Require Import CartesianClosed.
-
-Require Import Cat.Functor.
-
 Require Import ProofIrrelevance.
 Require Import FunctionalExtensionality.
+
+From Cat Require Import Base.
+From Cat Require Export Cat.
+From Cat Require Export Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.BigProdCoprod.
+From Cat Require Import OldLimits.Equalizer.
+From Cat Require Import Limits.NewPullback.
+From Cat Require Import Exponential.
+From Cat Require Import CartesianClosed.
+From Cat Require Import Functor.
+(* Require Import Limits.NewestEqualizer. *)
 
 #[refine]
 #[export]
@@ -236,8 +235,7 @@ Proof.
     f_equal. apply proof_irrelevance.
 Defined.
 
-(*Require Import Limits.NewestEqualizer.
-
+(*
 #[refine]
 #[export]
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=

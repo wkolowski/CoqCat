@@ -1,6 +1,6 @@
-Require Export Cat.
-Require Export InitTerm.
-Require Export BinProdCoprodEquational.
+From Cat Require Export Cat.
+From Cat Require Export InitTerm.
+From Cat Require Export BinProdCoprodEquational.
 
 (* TODO *)
 Class has_exponentials (C : Cat) {hp : has_products C} : Type :=

@@ -1,12 +1,13 @@
-Require Export Cat.
-Require Export InitTerm.
-Require Export BinProdCoprod.
-Require Export Equalizer.
-Require Export BigProdCoprod.
-Require Import Exponential.
-Require Import CartesianClosed.
+Require Import Program.
 
-Require Import Cat.Functor.
+From Cat Require Export Cat.
+From Cat Require Export InitTerm.
+From Cat Require Export BinProdCoprod.
+From Cat Require Export Equalizer.
+From Cat Require Export BigProdCoprod.
+From Cat Require Import Exponential.
+From Cat Require Import CartesianClosed.
+From Cat Require Import Functor.
 
 Set Implicit Arguments.
 
@@ -475,8 +476,6 @@ Inductive equiv_hetero {A : Type} (S : Setoid A)
     | equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S x y.
 
 Global Hint Constructors equiv_hetero : core.
-
-Require Import Program.
 
 Theorem equiv_hetero_trans :
   forall (A B C : Type) (SA : Setoid A) (SB : Setoid B)

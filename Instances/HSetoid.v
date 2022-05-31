@@ -1,4 +1,4 @@
-Require Export Cat.
+From Cat Require Export Cat.
 
 Class HSetoid : Type :=
 {

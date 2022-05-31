@@ -1,8 +1,13 @@
-Require Export Cat.
-Require Import Cat.Limits.InitTerm.
-Require Import Cat.Limits.BinProdCoprod.
+Require Import List.
+Import ListNotations.
+Require Import Arith.
 
-Require Export Cat.Instances.Setoid.Sgr.
+(*From mathcomp Require Import ssreflect.*)
+
+From Cat Require Export Cat.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Export Instances.Setoid.Sgr.
 
 Set Implicit Arguments.
 
@@ -46,9 +51,6 @@ match e with
     | Op e1 e2 => op (expDenote e1) (expDenote e2)
     | Mor f e' => f (expDenote e')
 end.
-
-Require Import List.
-Import ListNotations.
 
 Fixpoint simplify {X : Mon} (e : exp X) : exp X :=
 match e with
@@ -483,8 +485,6 @@ Definition free_monoid
     forall (N : Mon) (q : SetoidHom X (fob U N)),
       exists!! h : MonHom M N, q == p .> fmap U h.
 
-Require Import Arith.
-
 #[export]
 Instance MonListUnit_Setoid' : Setoid' :=
 {
@@ -511,8 +511,6 @@ Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
 Proof.
   cbn. exists (fun _ => 1). proper.
 Defined.
-
-(*From mathcomp Require Import ssreflect.*)
 
 Set Nested Proofs Allowed.
 

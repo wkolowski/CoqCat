@@ -1,6 +1,8 @@
-Require Export Cat.
-Require Import InitTerm.
-Require Import BinProdCoprod.
+Require Import Bool.
+
+From Cat Require Export Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
 
 #[refine]
 #[export]
@@ -31,8 +33,6 @@ Proof.
     rewrite f. trivial.
     exists g. auto.
 Defined.
-
-Require Import Bool.
 
 #[refine]
 #[export]

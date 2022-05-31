@@ -1,5 +1,5 @@
-Require Export Cat.
-Require Export Cat.Functor.
+From Cat Require Export Cat.
+From Cat Require Export Functor.
 
 Set Implicit Arguments.
 
@@ -130,7 +130,7 @@ Coercion coproducts : has_biproducts >-> has_coproducts.
 
 (* Equivalence to the old definition *)
 
-Require BinProdCoprod.
+From Cat Require BinProdCoprod.
 
 Module Equiv.
 

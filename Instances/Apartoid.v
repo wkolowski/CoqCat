@@ -1,8 +1,8 @@
-Require Import Cat.
-Require Import InitTerm.
-Require Import BinProdCoprod.
-Require Import BigProdCoprod.
-Require Import Equalizer.
+From Cat Require Import Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Import BigProdCoprod.
+From Cat Require Import Equalizer.
 
 Class Apartoid : Type :=
 {

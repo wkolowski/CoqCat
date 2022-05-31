@@ -1,5 +1,5 @@
-Require Import Cat.
-Require Import Cat.Functor.
+From Cat Require Import Cat.
+From Cat Require Import Functor.
 
 Set Implicit Arguments.
 

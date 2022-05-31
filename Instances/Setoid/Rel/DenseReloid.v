@@ -1,9 +1,8 @@
-Require Export Cat.
-Require Import InitTerm.
-Require Import BinProdCoprod.
-Require Import BigProdCoprod.
-
-Require Export Cat.Instances.Setoid.Rel.Reloid.
+From Cat Require Export Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Import BigProdCoprod.
+From Cat Require Export Instances.Setoid.Rel.Reloid.
 
 Set Implicit Arguments.
 

@@ -1,4 +1,4 @@
-Require Import Cat.
+From Cat Require Import Cat.
 
 Class SliceOb (C : Cat) (Y : Ob C) : Type :=
 {

@@ -1,4 +1,6 @@
-Require Import Cat.
+Require Import List.
+Import ListNotations.
+From Cat Require Import Cat.
 
 Set Implicit Arguments.
 
@@ -57,9 +59,6 @@ Class PackedHom (C : Cat) : Type := mk
 Arguments mk [C] _ _.
 Arguments dom [C] _.
 Arguments cod [C] _.
-
-Require Import List.
-Import ListNotations.
 
 Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y)
     : list (PackedHom C) :=

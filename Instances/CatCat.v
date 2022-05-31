@@ -1,14 +1,11 @@
-Require Import Cat.
-Require Import Cat.Functor.
-
-Require Import Limits.InitTerm.
-Require Import Limits.BinProdCoprod.
-
-Require Import Instances.Discrete.
-
 Require Import FunctionalExtensionality.
-
 Require Import Eqdep.
+
+From Cat Require Import Cat.
+From Cat Require Import Functor.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Instances.Discrete.
 
 Set Implicit Arguments.
 

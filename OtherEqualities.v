@@ -1,4 +1,4 @@
-Require Import Cat.Base.
+From Cat Require Import Base.
 
 Inductive ext : forall A : Set, A -> A -> Prop :=
     | ext_eq : forall (A : Set) (x y : A), x = y -> ext A x y

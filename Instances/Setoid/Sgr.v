@@ -1,10 +1,8 @@
-Require Export Cat.
-Require Import InitTerm.
-Require Import BinProdCoprod.
-
-Require Export Cat.Instances.Setoids.
-
-Require Import Cat.Nel.
+From Cat Require Export Cat.
+From Cat Require Import InitTerm.
+From Cat Require Import BinProdCoprod.
+From Cat Require Export Instances.Setoids.
+From Cat Require Import Nel.
 
 Set Implicit Arguments.
 
