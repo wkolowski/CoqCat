@@ -14,7 +14,7 @@ Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
 Arguments Comp {C X Y Z} _ _.
 
-Global Hint Constructors exp : core.
+#[global] Hint Constructors exp : core.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
     : Hom X Y :=
@@ -74,7 +74,7 @@ Inductive wf {C : Cat} : list (PackedHom C) -> Prop :=
     | wf_app : forall l1 l2 : list (PackedHom C),
         wf l1 -> wf l2 -> wf (l1 ++ l2).
 
-Global Hint Constructors wf : core.
+#[global] Hint Constructors wf : core.
 
 Theorem flatten_wf :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y), wf (flatten e).
@@ -89,7 +89,7 @@ Inductive wf' {C : Cat} : list (PackedHom C) -> Prop :=
         (l : list (PackedHom C)),
           cod f = dom g -> wf' (g :: l) -> wf' (f :: g :: l).
 
-Global Hint Constructors wf' : core.
+#[global] Hint Constructors wf' : core.
 
 (* TODO *) Lemma wf'_cod :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y) (h : PackedHom C)

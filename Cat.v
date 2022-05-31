@@ -22,7 +22,7 @@ Arguments Ob _ : clear implicits.
 
 Notation "f .> g" := (comp f g) (at level 50).
 
-Global Hint Resolve comp_assoc id_left id_right : core.
+#[global] Hint Resolve comp_assoc id_left id_right : core.
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
     | Id : forall X : Ob C, exp X X
@@ -34,7 +34,7 @@ Arguments Id [C] _.
 Arguments Var [C X Y] _.
 Arguments Comp [C X Y Z] _ _.
 
-Global Hint Constructors exp : core.
+#[global] Hint Constructors exp : core.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
     : Hom X Y :=
@@ -276,7 +276,7 @@ Definition Iso {C : Cat} {A B : Ob C} (f : Hom A B ) : Prop :=
     exists g : Hom B A, f .> g == id A /\ g .> f == id B.
 Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
 
-Global Hint Unfold End Mon Epi Bim Sec Ret Iso Aut : core.
+#[global] Hint Unfold End Mon Epi Bim Sec Ret Iso Aut : core.
 
 Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.
@@ -329,7 +329,7 @@ Proof.
     cat.
 Qed.
 
-Global Hint Resolve dual_mon_epi dual_sec_ret dual_iso_self iso_inv_unique : core.
+#[global] Hint Resolve dual_mon_epi dual_sec_ret dual_iso_self iso_inv_unique : core.
 
 Definition isomorphic {C : Cat} (A B : Ob C) :=
     exists f : Hom A B, Iso f.
@@ -340,7 +340,7 @@ Definition uniquely_isomorphic {C : Cat} (A B : Ob C) :=
 Notation "A ~ B" := (isomorphic A B) (at level 50).
 Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 
-Global Hint Unfold isomorphic uniquely_isomorphic setoid_unique : core.
+#[global] Hint Unfold isomorphic uniquely_isomorphic setoid_unique : core.
 
 Ltac uniso' f :=
 match goal with
@@ -408,7 +408,7 @@ Restart.
   unfold uniquely_isomorphic, isomorphic; cat.
 Qed.
 
-Global Hint Resolve dual_isomorphic_self dual_unique_iso_self unique_iso_is_iso : core.
+#[global] Hint Resolve dual_isomorphic_self dual_unique_iso_self unique_iso_is_iso : core.
 
 (* The identity is unique. *)
 Theorem id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
@@ -423,7 +423,7 @@ Proof.
   intros. specialize (H B (id B)). cat.
 Qed.
 
-Global Hint Resolve id_unique_left id_unique_right : core.
+#[global] Hint Resolve id_unique_left id_unique_right : core.
 
 (* Relations between different types of morphisms. *)
 Theorem sec_is_mon : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -464,7 +464,7 @@ Restart.
   unfold Iso, Ret; cat.
 Qed.
 
-Global Hint Resolve sec_is_mon ret_is_epi iso_is_sec iso_is_ret : core.
+#[global] Hint Resolve sec_is_mon ret_is_epi iso_is_sec iso_is_ret : core.
 
 Theorem iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Sec f /\ Ret f.
@@ -497,7 +497,7 @@ Proof.
     apply H. rewrite comp_assoc. rewrite eq. cat.
 Defined.
 
-Global Hint Resolve iso_iff_sec_ret iso_iff_mon_ret iso_iff_sec_epi : core.
+#[global] Hint Resolve iso_iff_sec_ret iso_iff_mon_ret iso_iff_sec_epi : core.
 
 (* Characterizations. *)
 Theorem mon_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
@@ -516,7 +516,7 @@ Theorem epi_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Epi f <-> forall X : Ob C, injectiveS (fun g : Hom B X => f .> g).
 Proof. cat. Qed.
 
-Global Hint Resolve mon_char epi_char : core.
+#[global] Hint Resolve mon_char epi_char : core.
 
 (* Composition theorems. *)
 Theorem mon_comp : forall (C : Cat) (X Y Z : Ob C)
@@ -531,7 +531,7 @@ Proof.
   unfold Epi. cat.
 Defined.
 
-Global Hint Resolve mon_comp epi_comp : core.
+#[global] Hint Resolve mon_comp epi_comp : core.
 
 Theorem bim_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Bim f -> Bim g -> Bim (f .> g).
@@ -553,7 +553,7 @@ Proof.
   rewrite comp_assoc, <- (comp_assoc h1 f). rewrite eq1. cat.
 Defined.
 
-Global Hint Resolve bim_comp sec_comp ret_comp : core.
+#[global] Hint Resolve bim_comp sec_comp ret_comp : core.
 
 Theorem iso_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Iso f -> Iso g -> Iso (f .> g).
@@ -561,13 +561,13 @@ Proof.
   intros. apply iso_iff_sec_ret; cat.
 Defined.
 
-Global Hint Resolve iso_comp : core.
+#[global] Hint Resolve iso_comp : core.
 
 Theorem aut_comp : forall (C : Cat) (X : Ob C)
     (f : Hom X X) (g : Hom X X), Aut f -> Aut g -> Aut (f .> g).
 Proof. cat. Defined.
 
-Global Hint Resolve aut_comp : core.
+#[global] Hint Resolve aut_comp : core.
 
 (* Composition properties. *)
 Theorem mon_prop : forall (C : Cat) (X Y Z : Ob C)
@@ -599,7 +599,7 @@ Defined.
 Theorem id_is_aut : forall (C : Cat) (X : Ob C), Aut (id X).
 Proof. unfold Aut, Iso; intros; exists (id X); cat. Defined.
 
-Global Hint Resolve mon_prop epi_prop sec_prop ret_prop id_is_aut : core.
+#[global] Hint Resolve mon_prop epi_prop sec_prop ret_prop id_is_aut : core.
 
 #[export]
 Instance isomorphic_equiv (C : Cat) : Equivalence isomorphic.

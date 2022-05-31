@@ -8,7 +8,7 @@ Inductive ext : forall A : Set, A -> A -> Prop :=
 
 Arguments ext [A] _ _.
 
-Global Hint Constructors ext : core.
+#[global] Hint Constructors ext : core.
 
 #[export]
 Instance ext_Equivalence (A : Set) : Equivalence (@ext A).

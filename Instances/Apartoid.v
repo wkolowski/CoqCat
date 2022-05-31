@@ -17,7 +17,7 @@ Coercion carrier : Apartoid >-> Sortclass.
 
 Notation "x # y" := (neq x y) (at level 40).
 
-Global Hint Resolve neq_irrefl neq_sym neq_cotrans : core.
+#[global] Hint Resolve neq_irrefl neq_sym neq_cotrans : core.
 
 Ltac apartoidob A := try intros until A;
 match type of A with

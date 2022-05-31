@@ -35,7 +35,7 @@ Definition iso_dense {C D : Cat} (T : Functor C D) : Prop :=
 Definition embedding {C D : Cat} (T : Functor C D) : Prop :=
     faithful T /\ injective (fob T).
 
-Global Hint Unfold full faithful iso_dense embedding : core.
+#[global] Hint Unfold full faithful iso_dense embedding : core.
 
 Theorem functor_pres_sec : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y), Sec f -> Sec (fmap T f).
@@ -51,7 +51,7 @@ Proof.
   functor.
 Defined.
 
-Global Hint Resolve functor_pres_sec functor_pres_ret : core.
+#[global] Hint Resolve functor_pres_sec functor_pres_ret : core.
 
 Theorem functor_pres_iso : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y), Iso f -> Iso (fmap T f).
@@ -75,7 +75,7 @@ Proof.
   exists g. apply T_faithful. rewrite pres_comp, pres_id, eq. auto.
 Defined.
 
-Global Hint Resolve full_faithful_refl_sec full_faithful_refl_ret : core.
+#[global] Hint Resolve full_faithful_refl_sec full_faithful_refl_ret : core.
 
 Theorem full_faithful_refl_iso : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y),

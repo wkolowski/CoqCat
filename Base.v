@@ -19,7 +19,7 @@ Inductive extEq : forall A : Type, A -> A -> Prop :=
 
 Arguments extEq [A] _ _.
 
-Global Hint Constructors extEq : core.
+#[global] Hint Constructors extEq : core.
 
 #[export]
 Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
@@ -78,7 +78,7 @@ Arguments depExtEq_eq [A x y] _.
 Arguments depExtEq_ext [A B C] _ _ _.
 Arguments depExtEq_unext [A1 A2 B1 B2] _ _ _ _ _ _.
 
-Global Hint Constructors depExtEq : core.
+#[global] Hint Constructors depExtEq : core.
 
 #[export]
 Instance depExtEq_Equivalence (A : Type) : Equivalence (@depExtEq A A).
@@ -129,7 +129,7 @@ Arguments inl' [X] [Y] _.
 Arguments inr' [X] [Y] _.
 Arguments pair' [X] [Y] _ _.
 
-Global Hint Constructors sumprod : core.
+#[global] Hint Constructors sumprod : core.
 
 (* Moved here so that tactics work *)
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A)
@@ -160,7 +160,7 @@ Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
 Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
     (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
 
-Global Hint Unfold
+#[global] Hint Unfold
     injective surjective bijective
     injectiveS surjectiveS bijectiveS
   : core.
@@ -245,7 +245,7 @@ Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
     : forall {B : Type}, B -> Prop :=
     | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
 
-Global Hint Constructors JMequiv : core.
+#[global] Hint Constructors JMequiv : core.
 
 Theorem eta : forall (A B : Type) (f : A -> B),
     f = fun x : A => f x.

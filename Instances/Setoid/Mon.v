@@ -23,7 +23,7 @@ Arguments sgr _ : clear implicits.
 
 Coercion sgr : Mon >-> Sgr.
 
-Global Hint Resolve neutr_l neutr_r : core.
+#[global] Hint Resolve neutr_l neutr_r : core.
 
 Class MonHom (X Y : Mon) : Type :=
 {

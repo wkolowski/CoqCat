@@ -6,7 +6,7 @@ Class Lin : Type :=
     leq_total : forall x y : pos, leq x y \/ leq y x
 }.
 
-Global Hint Resolve leq_total : core.
+#[global] Hint Resolve leq_total : core.
 
 Coercion pos : Lin >-> Pos.
 

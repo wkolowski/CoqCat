@@ -50,7 +50,7 @@ Proof.
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
 
-Global Hint Resolve initial_is_terminal unique_iso_is_iso : core.
+#[global] Hint Resolve initial_is_terminal unique_iso_is_iso : core.
 
 (* Equivalence of definitions *)
 

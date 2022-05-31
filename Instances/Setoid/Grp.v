@@ -19,7 +19,7 @@ Class Grp : Type :=
     inv_r : forall x : mon, op x (inv x) == neutr
 }.
 
-Global Hint Resolve inv_l inv_r : core.
+#[global] Hint Resolve inv_l inv_r : core.
 
 Coercion mon : Grp >-> Mon.
 
@@ -76,7 +76,7 @@ Proof.
   rewrite <- H0, H. reflexivity.
 Defined.
 
-Global Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
+#[global] Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
 
 Class GrpHom (X Y : Grp) : Type :=
 {

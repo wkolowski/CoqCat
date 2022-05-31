@@ -165,7 +165,7 @@ repeat match goal with
     | _ => rewrite <- ?comp_assoc; auto
 end.
 
-Global Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
+#[global] Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
   : fpair'_base.
 
 Ltac fpair' := autorewrite with fpair'_base.
