@@ -2,6 +2,6 @@
 
 coq_makefile -R "." Cat -o makefile $(find . -name "*v")
 
-make
+make -j `nproc`
 
 rm makefile makefile.conf
