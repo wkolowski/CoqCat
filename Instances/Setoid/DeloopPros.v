@@ -7,11 +7,10 @@ From Cat Require Export Instances.Setoid.Pros.
 #[export]
 Instance DeloopPros (P : Pros) : Cat :=
 {
-    Ob := carrier;
-    Hom := leq;
-    HomSetoid := fun (X Y : carrier) =>
-      {| equiv := fun f g : X ≤ Y => True |}; (* Proof irrelevance *)
-    comp := leq_trans;
-(*    id := fun x => leq_refl x x (equiv_refl)*)
+  Ob := carrier;
+  Hom := leq;
+  HomSetoid := fun (X Y : carrier) =>
+    {| equiv := fun f g : X ≤ Y => True |}; (* Proof irrelevance *)
+  comp := leq_trans;
 }.
 Proof. all: pros. Defined.

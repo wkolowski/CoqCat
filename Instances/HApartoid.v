@@ -6,13 +6,13 @@ From Cat Require Import Equalizer.
 
 Class HApartoid : Type :=
 {
-    carrier : Type;
-    hneq : forall (A B : Type), A -> B -> Prop;
-    hneq_irrefl : forall (A : Type) (x : A), ~ hneq A A x x;
-    hneq_sym : forall (A B : Type) (x : A) (y : B),
-      hneq A B x y -> hneq B A y x;
-    hneq_cotrans : forall (A B C : Type) (x : A) (y : B) (z : C),
-      hneq A B x y -> hneq C A z x \/ hneq C B z y
+  carrier : Type;
+  hneq : forall (A B : Type), A -> B -> Prop;
+  hneq_irrefl : forall (A : Type) (x : A), ~ hneq A A x x;
+  hneq_sym : forall (A B : Type) (x : A) (y : B),
+    hneq A B x y -> hneq B A y x;
+  hneq_cotrans : forall (A B C : Type) (x : A) (y : B) (z : C),
+    hneq A B x y -> hneq C A z x \/ hneq C B z y
 }.
 
 Arguments hneq [HApartoid] [A] [B] _ _.
@@ -25,7 +25,6 @@ Proof.
   split; intros.
     eapply hneq_cotrans in H. destruct H.
       apply hneq_sym in H.*)
-    
 
 Definition HApartoidHom (X Y : HApartoid) : Type :=
     {f : X -> Y | forall x x' : carrier, ~ hneq x x' -> ~ hneq (f x) (f x')}.

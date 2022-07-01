@@ -2,14 +2,11 @@ From Cat Require Export Cat.
 
 Class HSetoid : Type :=
 {
-    carrier : Type;
-    hequiv : forall {A : Type}, carrier -> A -> Prop;
-    hequiv_refl : forall x : carrier,
-      hequiv x x;
-    hequiv_sym : forall x y : carrier,
-      hequiv x y -> hequiv y x;
-    hequiv_trans : forall x y z : carrier,
-      hequiv x y -> hequiv y z -> hequiv x z
+  carrier : Type;
+  hequiv : forall {A : Type}, carrier -> A -> Prop;
+  hequiv_refl : forall x : carrier, hequiv x x;
+  hequiv_sym : forall x y : carrier, hequiv x y -> hequiv y x;
+  hequiv_trans : forall x y z : carrier, hequiv x y -> hequiv y z -> hequiv x z
 }.
 
 Coercion carrier : HSetoid >-> Sortclass.
@@ -29,8 +26,7 @@ Coercion HSetoidHom_Fun : HSetoidHom >-> Funclass.
 #[export]
 Instance HSetoidHomSetoid (X Y : HSetoid) : Setoid (HSetoidHom X Y) :=
 {
-    equiv := fun f g : HSetoidHom X Y =>
-      forall x : X, f x === g x
+  equiv := fun f g : HSetoidHom X Y => forall x : X, f x === g x
 }.
 Proof. split; red; intros; eauto. Defined.
 
@@ -50,11 +46,11 @@ Defined.
 #[export]
 Instance HSetoidCat : Cat :=
 {
-    Ob := HSetoid;
-    Hom := HSetoidHom;
-    HomSetoid := HSetoidHomSetoid;
-    comp := HSetoidComp;
-    id := HSetoidId;
+  Ob := HSetoid;
+  Hom := HSetoidHom;
+  HomSetoid := HSetoidHomSetoid;
+  comp := HSetoidComp;
+  id := HSetoidId;
 }.
 Proof.
   (* Composition is proper *) proper.

@@ -17,12 +17,12 @@ From Cat Require Import Functor.
 #[export]
 Instance CoqSet : Cat :=
 {|
-    Ob := Set;
-    Hom := fun A B : Set => A -> B;
-    HomSetoid := fun A B : Set =>
-        {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
-    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-    id := fun (A : Set) (a : A) => a
+  Ob := Set;
+  Hom := fun A B : Set => A -> B;
+  HomSetoid := fun A B : Set =>
+      {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
+  comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
+  id := fun (A : Set) (a : A) => a
 |}.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -76,8 +76,8 @@ Defined.
 #[export]
 Instance CoqSet_has_init : has_init CoqSet :=
 {
-    init := Empty_set;
-    create := fun (X : Set) (e : Empty_set) => match e with end
+  init := Empty_set;
+  create := fun (X : Set) (e : Empty_set) => match e with end
 }.
 Proof. cat. Defined.
 
@@ -85,8 +85,8 @@ Proof. cat. Defined.
 #[export]
 Instance CoqSet_has_term : has_term CoqSet :=
 {
-    term := unit;
-    delete := fun (X : Set) (x : X) => tt
+  term := unit;
+  delete := fun (X : Set) (x : X) => tt
 }.
 Proof. cat. Defined.
 
@@ -117,10 +117,10 @@ Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)
 #[export]
 Instance CoqSet_has_products : has_products CoqSet :=
 {
-    prodOb := prod;
-    proj1 := @fst;
-    proj2 := @snd;
-    fpair := CoqSet_fpair
+  prodOb := prod;
+  proj1 := @fst;
+  proj2 := @snd;
+  fpair := CoqSet_fpair
 }.
 Proof.
   all: unfold CoqSet_fpair.
@@ -133,12 +133,12 @@ Defined.
 #[export]
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
-    bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
-        forall j : J, A j;
-    bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-        fun (f : forall j : J, A j) => f j;
-    tuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
-        (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
+  bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
+      forall j : J, A j;
+  bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
+      fun (f : forall j : J, A j) => f j;
+  tuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+      (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
   (* Proper *) cat. extensionality j. auto.
@@ -152,18 +152,18 @@ Definition CoqSet_coproj2 := @inr.
 Definition CoqSet_copair (X Y A : Set) (f : X -> A) (g : Y -> A)
     : sum X Y -> A := fun p : X + Y =>
 match p with
-    | inl x => f x
-    | inr y => g y
+| inl x => f x
+| inr y => g y
 end.
 
 #[refine]
 #[export]
 Instance CoqSet_has_coproducts : has_coproducts CoqSet :=
 {
-    coprodOb := sum;
-    coproj1 := @inl;
-    coproj2 := @inr;
-    copair := CoqSet_copair
+  coprodOb := sum;
+  coproj1 := @inl;
+  coproj2 := @inr;
+  copair := CoqSet_copair
 }.
 Proof.
   all: repeat red; cat;
@@ -174,13 +174,12 @@ Defined.
 #[export]
 Instance CoqSet_has_all_coproducts : has_all_coproducts CoqSet :=
 {
-    bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) =>
-        {j : J & A j};
-    bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-        fun (x : A j) => existT A j x;
-    cotuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
-        (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
-          f (projT1 p) (projT2 p)
+  bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
+  bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  cotuple :=
+    fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+      (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
+        f (projT1 p) (projT2 p)
 }.
 Proof.
   all: try red; cat.
@@ -222,10 +221,9 @@ Defined.
 #[export]
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
-    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        {x : X | f x = g x};
+    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
     eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        fun (x : {x : X | f x = g x}) => proj1_sig x;
+      fun (x : {x : X | f x = g x}) => proj1_sig x;
 }.
 Proof.
   unfold equalizer; cbn; split; intros.
@@ -254,12 +252,6 @@ Proof.
     f_equal. extensionality x. rewrite H, H0. trivial.
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
-      
-  
-
-
-
-
 
   unfold equalizer; cbn; split; intros.
     destruct x; cbn. auto. intros.
@@ -287,10 +279,9 @@ Proof.
 #[export]
 Instance CoqSet_has_exponentials : has_exponentials CoqSet :=
 {
-    expOb := fun X Y : Set => X -> Y;
-    eval := fun (X Y : Set) (fx : prodOb (X -> Y) X) => (fst fx) (snd fx);
-    curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) =>
-      fun x : X => f (z, x)
+  expOb := fun X Y : Set => X -> Y;
+  eval := fun (X Y : Set) (fx : prodOb (X -> Y) X) => (fst fx) (snd fx);
+  curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
 }.
 Proof.
   proper. extensionality a. rewrite H. reflexivity.
@@ -302,9 +293,9 @@ Defined.
 #[export]
 Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
 {
-    ccc_term := CoqSet_has_term;
-    ccc_prod := CoqSet_has_products;
-    ccc_exp := CoqSet_has_exponentials;
+  ccc_term := CoqSet_has_term;
+  ccc_prod := CoqSet_has_products;
+  ccc_exp := CoqSet_has_exponentials;
 }.
 
 Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A)
@@ -327,9 +318,9 @@ Abort.
 #[export]
 Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
 {
-    pullbackOb := @CoqSet_pullbackOb;
-    pull1 := @CoqSet_pull1;
-    pull2 := @CoqSet_pull2;
+  pullbackOb := @CoqSet_pullbackOb;
+  pull1 := @CoqSet_pull1;
+  pull2 := @CoqSet_pull2;
 }.
 Proof.
 (*

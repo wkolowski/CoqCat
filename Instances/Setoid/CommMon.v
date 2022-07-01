@@ -19,8 +19,8 @@ Set Implicit Arguments.
 
 Class ComMon : Type :=
 {
-    mon :> Mon;
-    com : forall x y : mon, op x y == op y x
+  mon :> Mon;
+  com : forall x y : mon, op x y == op y x
 }.
 
 Arguments mon _ : clear implicits.
@@ -28,10 +28,10 @@ Arguments mon _ : clear implicits.
 Coercion mon : ComMon >-> Mon.
 
 Inductive exp (X : ComMon) : Type :=
-    | Id : exp X
-    | Var : nat -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : ComMon, MonHom A X -> exp A -> exp X.
+| Id : exp X
+| Var : nat -> exp X
+| Op : exp X -> exp X -> exp X
+| Mor : forall A : ComMon, MonHom A X -> exp A -> exp X.
 
 Arguments Id {X}.
 Arguments Var {X} _.
@@ -40,27 +40,28 @@ Arguments Mor {X A} _ _.
 
 Fixpoint expDenote {X : ComMon} (env : nat -> X) (e : exp X) : X :=
 match e with
-    | Id => neutr
-    | Var n => env n
-    | Op e1 e2 => op (expDenote env e1) (expDenote env e2)
-    | Mor _ _ => neutr
+| Id => neutr
+| Var n => env n
+| Op e1 e2 => op (expDenote env e1) (expDenote env e2)
+| Mor _ _ => neutr
 end.
 
 Fixpoint simplifyExp {X : ComMon} (e : exp X) : exp X :=
 match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 =>
-        match simplifyExp e1, simplifyExp e2 with
-            | Id, e2' => e2'
-            | e1', Id => e1'
-            | e1', e2' => Op e1' e2'
-        end
-    | Mor f e' => match simplifyExp e' with
-        | Id => Id
-        | Op e1 e2 => Op (Mor f e1) (Mor f e2)
-        | e'' => Mor f e''
-    end
+| Id => Id
+| Var v => Var v
+| Op e1 e2 =>
+  match simplifyExp e1, simplifyExp e2 with
+  | Id, e2' => e2'
+  | e1', Id => e1'
+  | e1', e2' => Op e1' e2'
+  end
+| Mor f e' =>
+  match simplifyExp e' with
+  | Id => Id
+  | Op e1 e2 => Op (Mor f e1) (Mor f e2)
+  | e'' => Mor f e''
+  end
 end.
 
 Theorem simplifyExp_correct :
@@ -77,8 +78,8 @@ Qed.
 
 Fixpoint expDenoteL {X : ComMon} (env : nat -> X) (l : list nat) : X :=
 match l with
-    | [] => neutr
-    | h :: t => op (env h) (expDenoteL env t)
+| [] => neutr
+| h :: t => op (env h) (expDenoteL env t)
 end.
 
 Lemma expDenoteL_app :
@@ -92,10 +93,10 @@ Qed.
 
 Fixpoint flatten {X : ComMon} (e : exp X) : list nat :=
 match e with
-    | Id => []
-    | Var v => [v]
-    | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor f e' => []
+| Id => []
+| Var v => [v]
+| Op e1 e2 => flatten e1 ++ flatten e2
+| Mor f e' => []
 end.
 
 Theorem flatten_correct :
@@ -153,47 +154,47 @@ Qed.
 
 Ltac inList x l :=
 match l with
-    | [] => false
-    | x :: _ => true
-    | _ :: ?l' => inList x l'
+| [] => false
+| x :: _ => true
+| _ :: ?l' => inList x l'
 end.
 
 Ltac addToList x l :=
   let b := inList x l in
 match b with
-    | true => l
-    | false => constr:(x :: l)
+| true => l
+| false => constr:(x :: l)
 end.
 
 Ltac lookup x l :=
 match l with
-    | x :: _ => constr:(0)
-    | _ :: ?l' => let n := lookup x l' in constr:(S n)
+| x :: _ => constr:(0)
+| _ :: ?l' => let n := lookup x l' in constr:(S n)
 end.
 
 Ltac allVars xs e :=
 match e with
-    | op ?e1 ?e2 =>
+| op ?e1 ?e2 =>
         let xs' := allVars xs e2 in allVars xs' e1
-    | ?f ?e' => allVars xs e'
-    | _ => addToList e xs
+| ?f ?e' => allVars xs e'
+| _ => addToList e xs
 end.
 
 Ltac reifyTerm env x :=
 match x with
-    | neutr => constr:(Id)
-    | op ?a ?b =>
+| neutr => constr:(Id)
+| op ?a ?b =>
         let e1 := reifyTerm env a in
         let e2 := reifyTerm env b in constr:(Op e1 e2)
-    | _ =>
+| _ =>
         let n := lookup x env in constr:(Var n)
 end.
 
 Ltac functionalize l X :=
 let rec loop n l' :=
     match l' with
-        | [] => constr:(fun _ : nat => @neutr X)
-        | ?h :: ?t =>
+    | [] => constr:(fun _ : nat => @neutr X)
+    | ?h :: ?t =>
             let f := loop (S n) t in
             constr:(fun m : nat => if m =? n then h else f m)
     end
@@ -201,7 +202,7 @@ in loop 0 l.
 
 Ltac reify X :=
 match goal with
-    | |- ?e1 == ?e2 =>
+| |- ?e1 == ?e2 =>
         let xs := allVars constr:(@nil X) e1 in
         let xs' := allVars xs e2 in
         let r1 := reifyTerm xs' e1 in
@@ -244,13 +245,13 @@ Qed.
 
 Ltac cmon_subst := repeat
 multimatch goal with
-    | H : ?x == ?y |- _ => rewrite <- ?H in *
-    | H : ?x == ?x |- _ => clear H
+| H : ?x == ?y |- _ => rewrite <- ?H in *
+| H : ?x == ?x |- _ => clear H
 end.
 
 Ltac reflect_cmon' := cbn; intros; cmon_subst;
 match goal with
-    | X : ComMon |- ?e1 == ?e2 =>
+| X : ComMon |- ?e1 == ?e2 =>
         reify X; apply simplify_correct; cbn; rewrite ?neutr_l, ?neutr_r
 end.
 
@@ -258,7 +259,7 @@ Ltac reflect_cmon := reflect_cmon'; try reflexivity.
 
 Ltac reflect_goal := cbn; intros;
 match goal with
-    | X : ComMon |- ?e1 == ?e2 =>
+| X : ComMon |- ?e1 == ?e2 =>
         reify X; apply flat_reflect_goal
 end.
 
@@ -301,64 +302,64 @@ Proof.
 Qed.
 
 Inductive formula (X : ComMon) : Type :=
-    | fVar : Prop -> formula X
-    | fEquiv : exp X -> exp X -> formula X
-    | fNot : formula X -> formula X
-    | fAnd : formula X -> formula X -> formula X
-    | fOr : formula X -> formula X -> formula X
-    | fImpl : formula X -> formula X -> formula X.
+| fVar : Prop -> formula X
+| fEquiv : exp X -> exp X -> formula X
+| fNot : formula X -> formula X
+| fAnd : formula X -> formula X -> formula X
+| fOr : formula X -> formula X -> formula X
+| fImpl : formula X -> formula X -> formula X.
 
 Arguments fVar {X} _.
 
 Fixpoint formulaDenote {X : ComMon} (env : nat -> X) (p : formula X)
   : Prop :=
 match p with
-    | fVar P => P
-    | fEquiv e1 e2 => expDenote env e1 == expDenote env e2
-    | fNot p' => ~ formulaDenote env p'
-    | fAnd p1 p2 => formulaDenote env p1 /\ formulaDenote env p2
-    | fOr p1 p2 => formulaDenote env p1 \/ formulaDenote env p2
-    | fImpl p1 p2 => formulaDenote env p1 -> formulaDenote env p2
+| fVar P => P
+| fEquiv e1 e2 => expDenote env e1 == expDenote env e2
+| fNot p' => ~ formulaDenote env p'
+| fAnd p1 p2 => formulaDenote env p1 /\ formulaDenote env p2
+| fOr p1 p2 => formulaDenote env p1 \/ formulaDenote env p2
+| fImpl p1 p2 => formulaDenote env p1 -> formulaDenote env p2
 end.
 
 Ltac allVarsFormula xs P :=
 match P with
-    | ?a == ?b => allVars xs P
-    | ~ ?P' => allVarsFormula xs P'
-    | ?P1 /\ ?P2 =>
+| ?a == ?b => allVars xs P
+| ~ ?P' => allVarsFormula xs P'
+| ?P1 /\ ?P2 =>
         let xs' := allVarsFormula xs P1 in
           allVarsFormula xs' P2
-    | ?P1 \/ ?P2 =>
+| ?P1 \/ ?P2 =>
         let xs' := allVarsFormula xs P1 in
           allVarsFormula xs' P2
-    | ?P1 -> ?P2 =>
+| ?P1 -> ?P2 =>
         let xs' := allVarsFormula xs P1 in
           allVarsFormula xs' P2
-    | _ => xs
+| _ => xs
 end.
 
 Ltac reifyFormula X xs P :=
 match P with
-    | ~ ?P' =>
+| ~ ?P' =>
         let e := reifyFormula X xs P' in constr:(fNot e)
-    | ?a == ?b =>
+| ?a == ?b =>
         let e1 := reifyTerm xs a in
         let e2 := reifyTerm xs b in constr:(fEquiv e1 e2)
-    | ?P1 /\ ?P2 =>
+| ?P1 /\ ?P2 =>
         let e1 := reifyFormula X xs P1 in
         let e2 := reifyFormula X xs P2 in constr:(fAnd e1 e2)
-    | ?P1 \/ ?P2 =>
+| ?P1 \/ ?P2 =>
         let e1 := reifyFormula X xs P1 in
         let e2 := reifyFormula X xs P2 in constr:(fOr e1 e2)
-    | ?P1 -> ?P2 =>
+| ?P1 -> ?P2 =>
         let e1 := reifyFormula X xs P1 in
         let e2 := reifyFormula X xs P2 in constr:(fImpl e1 e2)
-    | _ => constr:(fVar X P)
+| _ => constr:(fVar X P)
 end.
 
 Ltac reifyGoal :=
 match goal with
-    | X : ComMon |- ?P =>
+| X : ComMon |- ?P =>
         let xs := allVarsFormula constr:(@nil X) P in
         let env := functionalize xs X in
         let e := reifyFormula X xs P in change (formulaDenote env e)
@@ -421,7 +422,7 @@ Goal forall (X : ComMon) (a a' b b' c c' : X),
 Proof.
   intros X a _ b b' c c'.
   match goal with
-      | X : ComMon |- ?P =>
+  | X : ComMon |- ?P =>
           let xs := allVarsFormula constr:(@nil X) P in
           let env := functionalize xs X in
           let f := fresh "f" in
@@ -611,7 +612,7 @@ Instance MonListUnit : Mon :=
     {|
         setoid := MonListUnit_Setoid';
         op := plus
-    |};
+|};
     neutr := 0
 }.
 Proof.
@@ -631,8 +632,8 @@ Proof.
   {|
       func := fix f n : N :=
       match n with
-          | 0 => @neutr N
-          | S n' => op (q tt) (f n')
+      | 0 => @neutr N
+      | S n' => op (q tt) (f n')
       end;
       func_Proper := ltac: (formulaer; subst; reflexivity)
   |}.
@@ -645,8 +646,8 @@ Proof.
     : SetoidHom MonListUnit N.
     exists (fix f (n : nat) : N :=
       match n with
-          | 0 => @neutr N
-          | S n' => op (q tt) (f n')
+      | 0 => @neutr N
+      | S n' => op (q tt) (f n')
       end).
     formulaer. subst. reflexivity.
   Defined.

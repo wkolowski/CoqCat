@@ -8,26 +8,26 @@ Set Implicit Arguments.
 
 Class Sgr : Type :=
 {
-    setoid :> Setoid';
-    op : carrier -> carrier -> carrier;
-    op_Proper :> Proper (equiv ==> equiv ==> equiv) op;
-    assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
+  setoid :> Setoid';
+  op : carrier -> carrier -> carrier;
+  op_Proper :> Proper (equiv ==> equiv ==> equiv) op;
+  assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
 Coercion setoid : Sgr >-> Setoid'.
 
 Class SgrHom (A B : Sgr) : Type :=
 {
-    func :> SetoidHom A B;
-    pres_op : forall x y : A, func (op x y) == op (func x) (func y)
+  func :> SetoidHom A B;
+  pres_op : forall x y : A, func (op x y) == op (func x) (func y)
 }.
 
 Coercion func : SgrHom >-> SetoidHom.
 
 Inductive exp (X : Sgr) : Type :=
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X.
+| Var : X -> exp X
+| Op : exp X -> exp X -> exp X
+| Mor : forall A : Sgr, SgrHom A X -> exp A -> exp X.
 
 Arguments Var {X} _.
 Arguments Op  {X} _ _.
@@ -35,15 +35,15 @@ Arguments Mor {X A} _ _.
 
 Fixpoint expDenote {X : Sgr} (e : exp X) : X :=
 match e with
-    | Var v => v
-    | Op e1 e2 => op (expDenote e1) (expDenote e2)
-    | Mor f e' => f (expDenote e')
+| Var v => v
+| Op e1 e2 => op (expDenote e1) (expDenote e2)
+| Mor f e' => f (expDenote e')
 end.
 
 Class Simplify (X : Sgr) (e : exp X) : Type :=
 {
-    simplify : exp X;
-    simplify_spec : expDenote simplify == expDenote e
+  simplify : exp X;
+  simplify_spec : expDenote simplify == expDenote e
 }.
 
 Arguments Simplify {X} _.
@@ -54,7 +54,7 @@ Arguments simplify {X} _ {Simplify}.
 Instance SimplifyOp {X : Sgr} {e1 e2 : exp X}
   (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
 {
-    simplify := Op (simplify e1) (simplify e2)
+  simplify := Op (simplify e1) (simplify e2)
 }.
 Proof.
   cbn. rewrite !simplify_spec. reflexivity.
@@ -65,11 +65,11 @@ Defined.
 Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
   (S : Simplify e) : Simplify (Mor f e) | 10 :=
 {
-    simplify :=
-      match simplify e with
-          | Op e1' e2' => Op (Mor f e1') (Mor f e2')
-          | e' => Mor f e'
-      end
+  simplify :=
+    match simplify e with
+    | Op e1' e2' => Op (Mor f e1') (Mor f e2')
+    | e' => Mor f e'
+    end
 }.
 Proof.
   destruct S, f, func0; cbn in *. destruct simplify0; cbn in *;
@@ -86,7 +86,7 @@ Defined.
 #[export]
 Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
 {
-    simplify := e
+  simplify := e
 }.
 Proof.
   reflexivity.
@@ -94,8 +94,8 @@ Defined.
 
 Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
 match l with
-    | singl x => x
-    | h ::: t => op h (expDenoteNel t)
+| singl x => x
+| h ::: t => op h (expDenoteNel t)
 end.
 
 Lemma expDenoteNel_app :
@@ -118,9 +118,9 @@ Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
 match e with
-    | Var v => singl v
-    | Op e1 e2 => flatten e1 +++ flatten e2
-    | Mor f e' => nel_map f (flatten e')
+| Var v => singl v
+| Op e1 e2 => flatten e1 +++ flatten e2
+| Mor f e' => nel_map f (flatten e')
 end.
 
 Theorem flatten_correct :
@@ -144,8 +144,8 @@ Qed.
 
 Class Reify (X : Sgr) (x : X) : Type :=
 {
-    reify : exp X;
-    reify_spec : expDenote reify == x
+  reify : exp X;
+  reify_spec : expDenote reify == x
 }.
 
 Arguments Reify {X} _.
@@ -155,7 +155,7 @@ Arguments reify {X} _ {Reify}.
 #[export]
 Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 {
-    reify := Var x
+  reify := Var x
 }.
 Proof. reflexivity. Defined.
 
@@ -164,7 +164,7 @@ Proof. reflexivity. Defined.
 Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
-    reify := Op (reify a) (reify b)
+  reify := Op (reify a) (reify b)
 }.
 Proof.
   cbn. rewrite !reify_spec. reflexivity.
@@ -175,7 +175,7 @@ Defined.
 Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
-    reify := Mor f (reify x)
+  reify := Mor f (reify x)
 }.
 Proof.
   cbn. rewrite !reify_spec. reflexivity.
@@ -183,49 +183,49 @@ Defined.
 
 Ltac reflect_sgr := cbn; intros;
 match goal with
-    | |- ?e1 == ?e2 =>
-        change (expDenote (reify e1) == expDenote (reify e2));
-        apply sgr_reflect; cbn
+| |- ?e1 == ?e2 =>
+  change (expDenote (reify e1) == expDenote (reify e2));
+  apply sgr_reflect; cbn
 end.
 
 Ltac sgr_simpl := repeat red; cbn in *; intros.
 
 Ltac sgrob S := try intros until S;
 match type of S with
-  | Sgr =>
-    let a := fresh S "_op" in
-    let a' := fresh S "_op_Proper" in 
-    let b := fresh S "_assoc" in destruct S as [S a a' b]; setoidob S
-  | Ob _ => progress cbn in S; sgrob S
+| Sgr =>
+  let a := fresh S "_op" in
+  let a' := fresh S "_op_Proper" in 
+  let b := fresh S "_assoc" in destruct S as [S a a' b]; setoidob S
+| Ob _ => progress cbn in S; sgrob S
 end; sgr_simpl.
 
 Ltac sgrobs := repeat
 match goal with
-  | S : Sgr |- _ => sgrob S
-  | S : Ob _ |- _ => sgrob S
+| S : Sgr |- _ => sgrob S
+| S : Ob _ |- _ => sgrob S
 end; sgr_simpl.
 
 Ltac sgrhom f := try intros until f;
 match type of f with
-  | SgrHom _ _ =>
-      let a := fresh f "_pres_op" in destruct f as [f a];
-      cbn in *; setoidhom f
-  | Hom _ _ => progress cbn in f; sgrhom f
+| SgrHom _ _ =>
+  let a := fresh f "_pres_op" in destruct f as [f a];
+  cbn in *; setoidhom f
+| Hom _ _ => progress cbn in f; sgrhom f
 end; sgr_simpl.
 
 Ltac sgrhoms := intros; repeat
 match goal with
-  | f : SgrHom _ _ |- _ => sgrhom f
-  | f : Hom _ _ |- _ => sgrhom f
-  | _ => idtac
+| f : SgrHom _ _ |- _ => sgrhom f
+| f : Hom _ _ |- _ => sgrhom f
+| _ => idtac
 end; sgr_simpl.
 
 Ltac sgr := intros; try (reflect_sgr; try reflexivity; fail); repeat
 match goal with
-    | |- _ == _ => reflect_sgr; reflexivity
-    | |- Equivalence _ => solve_equiv
-    | |- Proper _ _ => proper
-    | _ => sgr_simpl || sgrobs || sgrhoms || cat
+| |- _ == _ => reflect_sgr; reflexivity
+| |- Equivalence _ => solve_equiv
+| |- Proper _ _ => proper
+| _ => sgr_simpl || sgrobs || sgrhoms || cat
 end.
 
 Goal forall (X : Sgr) (a b c : X),
@@ -244,7 +244,7 @@ Qed.
 #[export]
 Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
-    equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
+  equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
 }.
 Proof. sgr. Defined.
 
@@ -263,11 +263,11 @@ Defined.
 #[export]
 Instance SgrCat : Cat :=
 {
-    Ob := Sgr;
-    Hom := SgrHom;
-    HomSetoid := SgrHomSetoid;
-    comp := SgrComp;
-    id := SgrId
+  Ob := Sgr;
+  Hom := SgrHom;
+  HomSetoid := SgrHomSetoid;
+  comp := SgrComp;
+  id := SgrId
 }.
 Proof. all: sgr. Defined.
 
@@ -275,8 +275,8 @@ Proof. all: sgr. Defined.
 #[export]
 Instance Sgr_init : Sgr :=
 {
-    setoid := CoqSetoid_init;
-    op := fun (e : Empty_set) _ => match e with end
+  setoid := CoqSetoid_init;
+  op := fun (e : Empty_set) _ => match e with end
 }.
 Proof. all: sgr. Defined.
 
@@ -289,8 +289,8 @@ Defined.
 #[export]
 Instance Sgr_has_init : has_init SgrCat :=
 {
-    init := Sgr_init;
-    create := Sgr_create
+  init := Sgr_init;
+  create := Sgr_create
 }.
 Proof. sgr. Defined.
 
@@ -298,8 +298,8 @@ Proof. sgr. Defined.
 #[export]
 Instance Sgr_term : Sgr :=
 {
-    setoid := CoqSetoid_term;
-    op := fun _ _ => tt
+  setoid := CoqSetoid_term;
+  op := fun _ _ => tt
 }.
 Proof. all: sgr. Defined.
 
@@ -312,8 +312,8 @@ Defined.
 #[export]
 Instance Sgr_has_term : has_term SgrCat :=
 {
-    term := Sgr_term;
-    delete := Sgr_delete
+  term := Sgr_term;
+  delete := Sgr_delete
 }.
 Proof. sgr. Defined.
 
@@ -321,8 +321,8 @@ Proof. sgr. Defined.
 #[export]
 Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
 {
-    setoid := CoqSetoid_prodOb X Y;
-    op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
+  setoid := CoqSetoid_prodOb X Y;
+  op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
   proper. destruct H, H0. rewrite H, H0, H1, H2. split; reflexivity.
@@ -349,10 +349,10 @@ Defined.
 #[export]
 Instance Sgr_has_products : has_products SgrCat :=
 {
-    prodOb := Sgr_prodOb;
-    proj1 := Sgr_proj1;
-    proj2 := Sgr_proj2;
-    fpair := Sgr_fpair
+  prodOb := Sgr_prodOb;
+  proj1 := Sgr_proj1;
+  proj2 := Sgr_proj2;
+  fpair := Sgr_fpair
 }.
 Proof. all: sgr. Defined.
 
@@ -360,7 +360,7 @@ Proof. all: sgr. Defined.
 #[export]
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
-    setoid := CoqSetoid_coprodOb X Y
+  setoid := CoqSetoid_coprodOb X Y
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
@@ -370,18 +370,18 @@ Proof.
     right. exact (op y y').*)
   proper. repeat
   match goal with
-      | H : match ?x with _ => _ end |- _ => destruct x
-      | |- match ?x with _ => _ end => destruct x
-      | H : False |- _ => inversion H
+  | H : match ?x with _ => _ end |- _ => destruct x
+  | |- match ?x with _ => _ end => destruct x
+  | H : False |- _ => inversion H
   end; auto.
   destruct x, y, z; sgr.
 Defined.
 
 Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
 match l1, l2 with
-    | singl h, singl h' => h == h'
-    | h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
-    | _, _ => False
+| singl h, singl h' => h == h'
+| h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
+| _, _ => False
 end.
 
 Theorem equiv_nel_refl : forall (X : Setoid') (l : nel X),
@@ -409,38 +409,38 @@ Qed.
 #[export]
 Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
 {
-    carrier := nel X;
-    setoid := {| equiv := @equiv_nel X |}
+  carrier := nel X;
+  setoid := {| equiv := @equiv_nel X |}
 }.
 Proof. sgr. Defined.
 
 Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
 match l with
-    | singl s => singl s
-    | inl x ::: singl (inl x') => singl (inl (op x x'))
-    | inr y ::: singl (inr y') => singl (inr (op y y'))
-    | inl _ ::: singl (inr _) => l
-    | inr _ ::: singl (inl _) => l
-    | inl x ::: t =>
-        match normalize t with
-            | singl (inl x') => singl (inl (op x x'))
-            | inl x' ::: t' => inl (op x x') ::: t'
-            | t' => inl x ::: t'
-        end
-    | inr y ::: t =>
-        match normalize t with
-            | singl (inr y') => singl (inr (op y y'))
-            | inr y' ::: t' => inr (op y y') ::: t'
-            | t' => inr y ::: t'
-        end
+| singl s => singl s
+| inl x ::: singl (inl x') => singl (inl (op x x'))
+| inr y ::: singl (inr y') => singl (inr (op y y'))
+| inl _ ::: singl (inr _) => l
+| inr _ ::: singl (inl _) => l
+| inl x ::: t =>
+  match normalize t with
+  | singl (inl x') => singl (inl (op x x'))
+  | inl x' ::: t' => inl (op x x') ::: t'
+  | t' => inl x ::: t'
+  end
+| inr y ::: t =>
+  match normalize t with
+  | singl (inr y') => singl (inr (op y y'))
+  | inr y' ::: t' => inr (op y y') ::: t'
+  | t' => inr y ::: t'
+  end
 end.
 
 #[export]
 Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 {
-    carrier := nel (X + Y);
-    setoid := Setoid_kernel_equiv
-      (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
+  carrier := nel (X + Y);
+  setoid := Setoid_kernel_equiv
+    (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
 }.
 
 Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
@@ -458,31 +458,31 @@ Defined.
 (*Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y))
     : Prop :=
 match l1, l2 with
-    | singl h, singl h' => h == h'
-    | h1 ::: t1, h2 ::: t2 => h1 == h2 /\ fp_equiv t1 t2
-    | _, _ => False
+| singl h, singl h' => h == h'
+| h1 ::: t1, h2 ::: t2 => h1 == h2 /\ fp_equiv t1 t2
+| _, _ => False
 end.*)
 
 Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (X + Y)) : Prop :=
 match l1, l2 with
-    | singl (inl x), singl (inl x') => x == x'
-    | singl (inr y), singl (inr y') => y == y'
-    | cons_nel (inl h1) t1, cons_nel (inl h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-    | cons_nel (inr h1) t1, cons_nel (inr h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-    | _, _ => False
+| singl (inl x), singl (inl x') => x == x'
+| singl (inr y), singl (inr y') => y == y'
+| cons_nel (inl h1) t1, cons_nel (inl h2) t2 => h1 == h2 /\ fp_equiv t1 t2
+| cons_nel (inr h1) t1, cons_nel (inr h2) t2 => h1 == h2 /\ fp_equiv t1 t2
+| _, _ => False
 end.
 
 Ltac fp_equiv := intros; repeat
 match goal with
-    | x : _ + _ |- _ => destruct x; cbn in *
-    | H : _ /\ _ |- _ => destruct H
-    | |- _ /\ _ => split
-    | |- ?x == ?x => reflexivity
-    | H : ?P |- ?P => assumption
-    | H : ?x == ?y |- ?y == ?x => symmetry; assumption
-    | |- _ == _ => solve_equiv
-    | H : False |- _ => inversion H
-    | _ => eauto
+| x : _ + _ |- _ => destruct x; cbn in *
+| H : _ /\ _ |- _ => destruct H
+| |- _ /\ _ => split
+| |- ?x == ?x => reflexivity
+| H : ?P |- ?P => assumption
+| H : ?x == ?y |- ?y == ?x => symmetry; assumption
+| |- _ == _ => solve_equiv
+| H : False |- _ => inversion H
+| _ => eauto
 end.
 
 Theorem fp_equiv_refl : forall (X Y : Setoid') (l : nel (X + Y)),
@@ -510,12 +510,10 @@ Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
 
 Ltac fpeq4 := unfold fpeq4; repeat
 match goal with
-    | x : _ + _ |- _ => destruct x; cbn in *
-    | H : match normalize ?l with | _ => _ end |- _ =>
-        destruct (normalize l); cbn in *
-    | |- match normalize ?l with | _ => _ end =>
-        destruct (normalize l); cbn in *
-    | _ => solve_equiv
+| x : _ + _ |- _ => destruct x; cbn in *
+| H : match normalize ?l with | _ => _ end |- _ => destruct (normalize l); cbn in *
+| |- match normalize ?l with | _ => _ end => destruct (normalize l); cbn in *
+| _ => solve_equiv
 end.
 
 Theorem fpeq4_refl : forall (X Y : Sgr) (l : nel (X + Y)),
@@ -549,8 +547,8 @@ Abort.
 (*#[export]
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
-    setoid := Sgr_freeprod_setoid X Y;
-    op := app_nel
+  setoid := Sgr_freeprod_setoid X Y;
+  op := app_nel
 }.
 Proof.
   proper. induction x as [| h t].
@@ -576,17 +574,17 @@ Defined.
 Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A)
     (l : nel (X + Y)) : nel A :=
 match l with
-    | singl (inl x) => singl (f x)
-    | singl (inr y) => singl (g y)
-    | inl x ::: t => f x ::: freemap f g t
-    | inr y ::: t => g y ::: freemap f g t
+| singl (inl x) => singl (f x)
+| singl (inr y) => singl (g y)
+| inl x ::: t => f x ::: freemap f g t
+| inr y ::: t => g y ::: freemap f g t
 end.
 
 Fixpoint fold {A : Sgr} (l : nel A) : A :=
 match l with
-    | singl a => a
-    | a ::: singl a' => op a a'
-    | a ::: t => op a (fold t)
+| singl a => a
+| a ::: singl a' => op a a'
+| a ::: t => op a (fold t)
 end.
 
 Theorem fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
@@ -595,7 +593,7 @@ Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.
   destruct t1, t2; cbn in *.
     rewrite H, H0.
-    
+Abort.
 
 Definition Sgr_setoid_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SetoidHom (Sgr_freeprod X Y) A.
@@ -616,19 +614,18 @@ Abort.*)
 
 Class SgrWut : Type :=
 {
-    sgr :> Sgr;
-    wut : sgr;
-    wut_eq : op wut wut == wut
+  sgr :> Sgr;
+  wut : sgr;
+  wut_eq : op wut wut == wut
 }.
 
 Coercion sgr : SgrWut >-> Sgr.
 
 #[refine]
 #[export]
-Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut))
-    | 11 :=
+Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut)) | 11 :=
 {
-    simplify := Var wut
+  simplify := Var wut
 }.
 Proof.
   cbn. rewrite wut_eq. reflexivity.
@@ -637,7 +634,7 @@ Defined.
 (*#[export]
 Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
 {
-    reify := Var wut
+  reify := Var wut
 }.
 Proof.
   cbn. rewrite wut_eq. reflexivity.
@@ -693,10 +690,9 @@ Axiom troll : forall (X : Sgr) (x : X), op x x == x.
 
 #[refine]
 #[export]
-Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x))
-    | 1 :=
+Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x)) | 1 :=
 {
-    simplify := Var x
+  simplify := Var x
 }.
 Proof.
   cbn. rewrite troll. reflexivity.

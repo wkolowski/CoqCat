@@ -11,15 +11,15 @@ Definition exponential_skolem {C : Cat} {hp : has_products C}
 
 Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 {
-    expOb : Ob C -> Ob C -> Ob C;
-    eval : forall X Y : Ob C,
-      Hom (prodOb (expOb X Y) X) Y;
-    curry : forall {X Y Z : Ob C},
-      Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
-    curry_Proper :> forall X Y Z : Ob C,
-      Proper (equiv ==> equiv) (@curry X Y Z);
-    is_exponential : forall (X Y : Ob C),
-      exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
+  expOb : Ob C -> Ob C -> Ob C;
+  eval : forall X Y : Ob C,
+    Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C},
+    Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  curry_Proper :> forall X Y Z : Ob C,
+    Proper (equiv ==> equiv) (@curry X Y Z);
+  is_exponential : forall (X Y : Ob C),
+    exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
 Arguments expOb {C hp has_exponentials} _ _.
@@ -27,9 +27,9 @@ Arguments eval  {C hp has_exponentials X Y}.
 Arguments curry {C hp has_exponentials X Y Z} _.
 
 Definition uncurry
-    {C : Cat} {hp : has_products C} {he : has_exponentials C}
-    {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
-    := f ×' (id X) .> eval.
+  {C : Cat} {hp : has_products C} {he : has_exponentials C}
+  {X Y Z : Ob C} (f : Hom Z (expOb X Y)) : Hom (prodOb Z X) Y
+  := f ×' (id X) .> eval.
 
 #[export]
 Instance uncurry_Proper :
@@ -100,15 +100,15 @@ Qed.
 
 Ltac curry := intros; repeat
 match goal with
-    | |- context [Proper] => proper; intros
-    | |- context [curry (eval .> (_ .> _))] =>
+| |- context [Proper] => proper; intros
+| |- context [curry (eval .> (_ .> _))] =>
         rewrite <- (comp_assoc eval); rewrite curry_comp
-    | |- curry _ == id _ => rewrite <- curry_eval
-    | |- curry _ == curry _ => apply curry_Proper
-    | |- _ .> _ == _ .> _ => try (f_equiv; auto; fail)
-    | |- context [id _ .> _] => rewrite id_left
-    | |- context [_ .> id _] => rewrite id_right
-    | |- ?x == ?x => reflexivity
+| |- curry _ == id _ => rewrite <- curry_eval
+| |- curry _ == curry _ => apply curry_Proper
+| |- _ .> _ == _ .> _ => try (f_equiv; auto; fail)
+| |- context [id _ .> _] => rewrite id_left
+| |- context [_ .> id _] => rewrite id_right
+| |- ?x == ?x => reflexivity
 end.
 
 Theorem exponential_skolem_uiso :
@@ -179,7 +179,7 @@ Instance ExponentialFunctor
   (C : Cat) (hp : has_products C) (he : has_exponentials C)
   (X : Ob C) : Functor C C :=
 {
-    fob := fun Y : Ob C => expOb X Y;
-    fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
+  fob := fun Y : Ob C => expOb X Y;
+  fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
 Proof. all: curry. Defined.

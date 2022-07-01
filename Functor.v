@@ -4,13 +4,13 @@ Set Implicit Arguments.
 
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
-    fob : Ob C -> Ob D;
-    fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
-    fmap_Proper :> forall A B : Ob C,
-        Proper (equiv ==> equiv) (@fmap A B);
-    pres_comp : forall {A B C : Ob C} (f : Hom A B) (g : Hom B C),
-        fmap (f .> g) == fmap f .> fmap g;
-    pres_id : forall A : Ob C, fmap (id A) == id (fob A)
+  fob : Ob C -> Ob D;
+  fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
+  fmap_Proper :> forall A B : Ob C,
+      Proper (equiv ==> equiv) (@fmap A B);
+  pres_comp : forall {A B C : Ob C} (f : Hom A B) (g : Hom B C),
+      fmap (f .> g) == fmap f .> fmap g;
+  pres_id : forall A : Ob C, fmap (id A) == id (fob A)
 }.
 
 Arguments fob [C] [D] _ _.
@@ -92,8 +92,8 @@ Defined.
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E)
     : Functor C E :=
 {
-    fob := fun A : Ob C => fob S (fob T A);
-    fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap S (fmap T f)
+  fob := fun A : Ob C => fob S (fob T A);
+  fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap S (fmap T f)
 }.
 Proof.
   (* Proper *) proper.
@@ -104,8 +104,8 @@ Defined.
 #[export]
 Instance FunctorId (C : Cat) : Functor C C :=
 {
-    fob := fun A : Ob C => A;
-    fmap := fun (X Y : Ob C) (f : Hom X Y) => f
+  fob := fun A : Ob C => A;
+  fmap := fun (X Y : Ob C) (f : Hom X Y) => f
 }.
 Proof.
   (* Proper *) proper.
@@ -116,13 +116,13 @@ Defined.
 #[export]
 Instance CAT : Cat :=
 {
-    Ob := Cat;
-    Hom := Functor;
-    HomSetoid := fun C D : Cat =>
-      {| equiv := fun T S : Functor C D =>
-        depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S) |};
-    comp := @FunctorComp;
-    id := FunctorId
+  Ob := Cat;
+  Hom := Functor;
+  HomSetoid := fun C D : Cat =>
+    {| equiv := fun T S : Functor C D =>
+      depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S) |};
+  comp := @FunctorComp;
+  id := FunctorId
 }.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -135,7 +135,7 @@ Defined.
 Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat)
     : Functor C D :=
 {
-    fob := fun _ => X;
-    fmap := fun _ _ _ => id X
+  fob := fun _ => X;
+  fmap := fun _ _ _ => id X
 }.
 Proof. proper. all: functor. Defined.

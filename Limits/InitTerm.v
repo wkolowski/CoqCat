@@ -17,9 +17,9 @@ Definition zero {C : Cat} (Z : Ob C)
 
 Class has_init (C : Cat) : Type :=
 {
-    init : Ob C;
-    create : forall X : Ob C, Hom init X;
-    is_initial : forall (X : Ob C) (f : Hom init X), f == create X
+  init : Ob C;
+  create : forall X : Ob C, Hom init X;
+  is_initial : forall (X : Ob C) (f : Hom init X), f == create X
 }.
 
 Arguments init _ {has_init}.
@@ -27,9 +27,9 @@ Arguments create {C has_init}_.
 
 Class has_term (C : Cat) : Type :=
 {
-    term : Ob C;
-    delete : forall X : Ob C, Hom X term;
-    is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
+  term : Ob C;
+  delete : forall X : Ob C, Hom X term;
+  is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
 }.
 
 Arguments term _ {has_term}.
@@ -37,17 +37,16 @@ Arguments delete {C has_term} _.
 
 Class has_zero (C : Cat) : Type :=
 {
-    zero_is_initial :> has_init C;
-    zero_is_terminal :> has_term C;
-    initial_is_terminal : init C = term C
+  zero_is_initial :> has_init C;
+  zero_is_terminal :> has_term C;
+  initial_is_terminal : init C = term C
 }.
 
 Coercion zero_is_initial : has_zero >-> has_init.
 Coercion zero_is_terminal : has_zero >-> has_term.
 
 Definition zero_ob (C : Cat) {hz : has_zero C} : Ob C := init C.
-Definition zero_mor (C : Cat) {hz : has_zero C}
-    (X Y : Ob C) : Hom X Y.
+Definition zero_mor (C : Cat) {hz : has_zero C} (X Y : Ob C) : Hom X Y.
 Proof.
   pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
@@ -57,20 +56,20 @@ Defined.
 
 Ltac init := intros; repeat
 match goal with
-    | |- context [?f] =>
-        match type of f with
-            | Hom (init _) _ => rewrite (is_initial _ f)
-        end
-    | |- ?x == ?x => reflexivity
+| |- context [?f] =>
+    match type of f with
+    | Hom (init _) _ => rewrite (is_initial _ f)
+    end
+| |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
 Ltac term := intros; repeat
 match goal with
-    | |- context [?f] =>
-        match type of f with
-            | Hom _ (term _) => rewrite (is_terminal _ f)
-        end
-    | |- ?x == ?x => reflexivity
+| |- context [?f] =>
+    match type of f with
+    | Hom _ (term _) => rewrite (is_terminal _ f)
+    end
+| |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
 Theorem dual_initial_terminal :
@@ -207,8 +206,8 @@ Qed.
 #[export]
 Instance Dual_has_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 {
-    term := init C;
-    delete := @create C hi
+  term := init C;
+  delete := @create C hi
 }.
 Proof. cat. Defined.
 
@@ -216,8 +215,8 @@ Proof. cat. Defined.
 #[export]
 Instance Dual_has_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 {
-    init := term C;
-    create := @delete C ht
+  init := term C;
+  create := @delete C ht
 }.
 Proof. cat. Defined.
 
@@ -225,8 +224,8 @@ Proof. cat. Defined.
 #[export]
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
-    zero_is_initial := Dual_has_init hz;
-    zero_is_terminal := Dual_has_term hz
+  zero_is_initial := Dual_has_init hz;
+  zero_is_terminal := Dual_has_term hz
 }.
 Proof. cat. Defined.
 

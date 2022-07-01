@@ -8,12 +8,12 @@ From Cat Require Import Equalizer.
 #[export]
 Instance DepExtSet : Cat :=
 {|
-    Ob := Set;
-    Hom := fun A B : Set => A -> B;
-    HomSetoid := fun A B : Set =>
-        {| equiv := fun f g : A -> B => depExtEq f g |};
-    comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-    id := fun (A : Set) (a : A) => a
+  Ob := Set;
+  Hom := fun A B : Set => A -> B;
+  HomSetoid := fun A B : Set =>
+      {| equiv := fun f g : A -> B => depExtEq f g |};
+  comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
+  id := fun (A : Set) (a : A) => a
 |}.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -39,8 +39,8 @@ Qed.
 #[export]
 Instance DepExtSet_has_init : has_init DepExtSet :=
 {
-    init := Empty_set;
-    create := fun (X : Set) (e : Empty_set) => match e with end
+  init := Empty_set;
+  create := fun (X : Set) (e : Empty_set) => match e with end
 }.
 Proof. cbn; intros. apply depExtEq_ext. destruct x. Defined.
 
@@ -48,8 +48,8 @@ Proof. cbn; intros. apply depExtEq_ext. destruct x. Defined.
 #[export]
 Instance DepExtSet_has_term : has_term DepExtSet :=
 {
-    term := unit;
-    delete := fun (X : Set) (x : X) => tt
+  term := unit;
+  delete := fun (X : Set) (x : X) => tt
 }.
 Proof.
   cbn; intros. apply depExtEq_ext. intro. destruct (f x). auto.
@@ -59,11 +59,11 @@ Defined.
 #[export]
 Instance DepExtSet_has_products : has_products DepExtSet :=
 {
-    prodOb := prod;
-    proj1 := @fst;
-    proj2 := @snd;
-    fpair := fun (A B X : Ob DepExtSet) (f : Hom X A) (g : Hom X B) =>
-      fun x : X => (f x, g x)
+  prodOb := prod;
+  proj1 := @fst;
+  proj2 := @snd;
+  fpair := fun (A B X : Ob DepExtSet) (f : Hom X A) (g : Hom X B) =>
+    fun x : X => (f x, g x)
 }.
 Proof.
   proper. solve_depExtEq.
@@ -78,12 +78,12 @@ Defined.
 #[export]
 Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
-    bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
-        forall j : J, A j;
-    bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
-        fun (f : forall j : J, A j) => f j;
-    tuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
-        (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
+  bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
+      forall j : J, A j;
+  bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
+      fun (f : forall j : J, A j) => f j;
+  tuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
+      (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
   (* Proper *) repeat red; cbn; intros. apply depExtEq_ext. intro.
@@ -103,21 +103,22 @@ Abort.
 #[export]
 Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
 {
-    coprodOb := sum;
-    coproj1 := @inl;
-    coproj2 := @inr;
-    copair := fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
-      fun p : A + B => match p with
-        | inl a => f a
-        | inr b => g b
-      end
+  coprodOb := sum;
+  coproj1 := @inl;
+  coproj2 := @inr;
+  copair := fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
+    fun p : A + B =>
+    match p with
+    | inl a => f a
+    | inr b => g b
+    end
 }.
 Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; cbn; intros; solve_depExtEq.
     destruct H, x.
       (*match goal with
-          | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
+      | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
               idtac f; idtac x
       end.*)
       apply (depExtEq_unext _ _ H a a). auto.
@@ -128,11 +129,10 @@ Defined.
 #[export]
 Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
 {
-    bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
-        {j : J & A j};
-    bigCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
-        fun (x : A j) => existT A j x;
-    cotuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
+  bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) => {j : J & A j};
+  bigCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (x : A j) => existT A j x;
+  cotuple :=
+    fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
           f (projT1 p) (projT2 p)
 }.
@@ -152,10 +152,10 @@ Set Nested Proofs Allowed.
 #[export]
 Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
 {
-    eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
-        {x : X | depExtEq (f x) (g x)};
-    eq_mor := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
-        fun (x : {x : X | depExtEq (f x) (g x)}) => proj1_sig x
+  eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
+    {x : X | depExtEq (f x) (g x)};
+  eq_mor := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
+    fun (x : {x : X | depExtEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
   unfold equalizer; cbn; split; intros.

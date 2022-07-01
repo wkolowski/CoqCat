@@ -4,10 +4,10 @@ From Cat Require Import Cat.
 #[export]
 Instance WithMon (C : Cat) : Cat :=
 {
-    Ob := Ob C;
-    Hom := fun X Y : Ob C => {f : Hom X Y | Mon f};
-    HomSetoid := fun X Y : Ob C =>
-      Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) Mon)
+  Ob := Ob C;
+  Hom := fun X Y : Ob C => {f : Hom X Y | Mon f};
+  HomSetoid := fun X Y : Ob C =>
+    Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) Mon)
 }.
 Proof.
   destruct 1 as [f f_mon], 1 as [g g_mon].
@@ -25,10 +25,9 @@ Defined.
 #[export]
 Instance WithIso (C : Cat) : Cat :=
 {
-    Ob := Ob C;
-    Hom := fun A B : Ob C => {f : Hom A B | Iso f};
-    HomSetoid := fun A B : Ob C =>
-        Setoid_kernel_equiv (HomSetoid A B) (@proj1_sig (Hom A B) Iso)
+  Ob := Ob C;
+  Hom := fun A B : Ob C => {f : Hom A B | Iso f};
+  HomSetoid := fun A B : Ob C => Setoid_kernel_equiv (HomSetoid A B) (@proj1_sig (Hom A B) Iso)
 }.
 Proof.
   intros. destruct X as [f f_iso], X0 as [g g_iso].

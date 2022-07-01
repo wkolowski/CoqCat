@@ -6,11 +6,11 @@ From Cat Require Import Equalizer.
 
 Class Apartoid : Type :=
 {
-    carrier : Type;
-    neq : carrier -> carrier -> Prop;
-    neq_irrefl : forall x : carrier, ~ neq x x;
-    neq_sym : forall x y : carrier, neq x y -> neq y x;
-    neq_cotrans : forall x y z : carrier, neq x y -> neq z x \/ neq z y
+  carrier : Type;
+  neq : carrier -> carrier -> Prop;
+  neq_irrefl : forall x : carrier, ~ neq x x;
+  neq_sym : forall x y : carrier, neq x y -> neq y x;
+  neq_cotrans : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
 
 Coercion carrier : Apartoid >-> Sortclass.
@@ -21,18 +21,18 @@ Notation "x # y" := (neq x y) (at level 40).
 
 Ltac apartoidob A := try intros until A;
 match type of A with
-  | Apartoid =>
-    let a := fresh A "_neq" in
-    let b := fresh A "_neq_irrefl" in
-    let c := fresh A "_neq_sym" in
-    let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
-  | Ob _ => progress cbn in A; apartoidob A
+| Apartoid =>
+  let a := fresh A "_neq" in
+  let b := fresh A "_neq_irrefl" in
+  let c := fresh A "_neq_sym" in
+  let d := fresh A "_neq_cotrans" in destruct A as [A a b c d]
+| Ob _ => progress cbn in A; apartoidob A
 end.
 
 Ltac apartoidobs := intros; repeat
 match goal with
-  | A : Apartoid |- _ => apartoidob A
-  | X : Ob _ |- _ => apartoidob X
+| A : Apartoid |- _ => apartoidob A
+| X : Ob _ |- _ => apartoidob X
 end.
 
 (*#[export]
@@ -55,15 +55,15 @@ Coercion ApartoidHom_Fun : ApartoidHom >-> Funclass.
 
 Ltac apartoidhom f := try intros until f;
 match type of f with
-  | ApartoidHom _ _ =>
-    let a := fresh f "_pres_equiv" in destruct f as [f a]
-  | Hom _ _ => progress cbn in f; apartoidhom f
+| ApartoidHom _ _ =>
+  let a := fresh f "_pres_equiv" in destruct f as [f a]
+| Hom _ _ => progress cbn in f; apartoidhom f
 end.
 
 Ltac apartoidhoms := intros; repeat
 match goal with
-  | f : ApartoidHom _ _ |- _ => apartoidhom f
-  | f : Hom _ _ |- _ => apartoidhom f
+| f : ApartoidHom _ _ |- _ => apartoidhom f
+| f : Hom _ _ |- _ => apartoidhom f
 end.
 
 Definition ApartoidComp (X Y Z : Apartoid) (f : ApartoidHom X Y)
@@ -83,28 +83,28 @@ Ltac apartoid_simpl' := repeat (apartoid_simpl || apartoidhoms || apartoidobs).
 
 Ltac apartoid_neq := repeat
 match goal with
-    | H : _ \/ _ |- _ => destruct H
-    | H : ?neq ?x ?x, irrefl : forall x : _, ~ ?neq x x |- False =>
-        eapply irrefl; eauto
-    | pres_equiv : forall x x' : _, ~ ?A_neq x x' -> ~ ?B_neq (?f x) (?f x'),
-      H : ~ ?A_neq ?x ?x', H' : ?B_neq (?f ?x) (?f ?x') |- False =>
-      eapply pres_equiv; eauto
-    | H : ?P, H' : ~ ?P |- False =>
-        eapply H'; eauto
-    | H : ?P ?x, H' : forall x : _, ~ ?P x |- False =>
-        eapply H'; eauto
-    | H : ?P (?f _) (?g _), H' : forall x : _, ~ ?P (?f _) (?g _) |- False =>
-      try (eapply H'; eauto; fail)
-    | _ => cat
+| H : _ \/ _ |- _ => destruct H
+| H : ?neq ?x ?x, irrefl : forall x : _, ~ ?neq x x |- False =>
+  eapply irrefl; eauto
+| pres_equiv : forall x x' : _, ~ ?A_neq x x' -> ~ ?B_neq (?f x) (?f x'),
+  H : ~ ?A_neq ?x ?x', H' : ?B_neq (?f ?x) (?f ?x') |- False =>
+  eapply pres_equiv; eauto
+| H : ?P, H' : ~ ?P |- False =>
+  eapply H'; eauto
+| H : ?P ?x, H' : forall x : _, ~ ?P x |- False =>
+  eapply H'; eauto
+| H : ?P (?f _) (?g _), H' : forall x : _, ~ ?P (?f _) (?g _) |- False =>
+  try (eapply H'; eauto; fail)
+| _ => cat
 end.
 
 Ltac apartoid' :=
 repeat (apartoid_simpl || apartoid_neq || apartoidobs || apartoidhoms || apartoid_neq;
 match goal with
-    | |- context [Equivalence] => solve_equiv
-    | |- context [Proper] => proper
-    | |- False => apartoid_neq
-    | _ => eauto
+| |- context [Equivalence] => solve_equiv
+| |- context [Proper] => proper
+| |- False => apartoid_neq
+| _ => eauto
 end; eauto).
 Ltac apartoid := try (apartoid'; eauto; fail).
 
@@ -117,13 +117,13 @@ Qed.
 #[export]
 Instance ApartoidCat : Cat :=
 {
-    Ob := Apartoid;
-    Hom := ApartoidHom;
-    HomSetoid := fun X Y : Apartoid =>
-      {| equiv := fun f g : ApartoidHom X Y =>
-        forall x : X, ~ f x # g x |};
-    comp := ApartoidComp;
-    id := ApartoidId
+  Ob := Apartoid;
+  Hom := ApartoidHom;
+  HomSetoid := fun X Y : Apartoid =>
+    {| equiv := fun f g : ApartoidHom X Y =>
+      forall x : X, ~ f x # g x |};
+  comp := ApartoidComp;
+  id := ApartoidId
 }.
 Proof.
   (* Equivalence *) solve_equiv; apartoid'.
@@ -142,8 +142,8 @@ Defined.
 #[export]
 Instance Apartoid_init : Apartoid :=
 {
-    carrier := Empty_set;
-    neq := fun (e : Empty_set) _ => match e with end
+  carrier := Empty_set;
+  neq := fun (e : Empty_set) _ => match e with end
 }.
 Proof. all: apartoid. Defined.
 
@@ -156,8 +156,8 @@ Defined.
 #[export]
 Instance Apartoid_has_init : has_init ApartoidCat :=
 {
-    init := Apartoid_init;
-    create := Apartoid_create
+  init := Apartoid_init;
+  create := Apartoid_create
 }.
 Proof. apartoid. Defined.
 
@@ -168,8 +168,8 @@ Instance Apartoid_has_init' : has_init ApartoidCat := {}.
 Proof.
   refine
   {|
-      carrier := Empty_set;
-      neq := fun (e : Empty_set) _ => match e with end
+    carrier := Empty_set;
+    neq := fun (e : Empty_set) _ => match e with end
   |}.
   all: apartoid'. exists (fun e : Empty_set => match e with end). apartoid.
 Defined.
@@ -178,8 +178,8 @@ Defined.
 #[export]
 Instance Apartoid_term : Apartoid :=
 {
-    carrier := unit;
-    neq := fun _ _ => False
+  carrier := unit;
+  neq := fun _ _ => False
 }.
 Proof. all: auto. Defined.
 
@@ -192,8 +192,8 @@ Defined.
 #[export]
 Instance Apartoid_has_term : has_term ApartoidCat :=
 {
-    term := Apartoid_term;
-    delete := Apartoid_delete
+  term := Apartoid_term;
+  delete := Apartoid_delete
 }.
 Proof. apartoid. Defined.
 
@@ -201,9 +201,9 @@ Proof. apartoid. Defined.
 #[export]
 Instance Apartoid_prodOb (X Y : Apartoid) : Apartoid :=
 {
-    carrier := prod X Y;
-    neq := fun (p1 : prod X Y) (p2 : prod X Y) =>
-      neq (fst p1) (fst p2) \/ neq (snd p1) (snd p2)
+  carrier := prod X Y;
+  neq := fun (p1 : prod X Y) (p2 : prod X Y) =>
+    neq (fst p1) (fst p2) \/ neq (snd p1) (snd p2)
 }.
 Proof.
   all: destruct x; try destruct y; try destruct z; apartoid.
@@ -235,10 +235,10 @@ Defined.
 #[export]
 Instance Apartoid_has_products : has_products ApartoidCat :=
 {
-    prodOb := Apartoid_prodOb;
-    proj1 := Apartoid_proj1;
-    proj2 := Apartoid_proj2;
-    fpair := Apartoid_fpair
+  prodOb := Apartoid_prodOb;
+  proj1 := Apartoid_proj1;
+  proj2 := Apartoid_proj2;
+  fpair := Apartoid_fpair
 }.
 Proof.
   (* Proper *) apartoid.
@@ -252,16 +252,16 @@ Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=
     carrier := X + Y;
     neq := fun p1 p2 : X + Y =>
       match p1, p2 with
-        | inl x, inl x' => neq x x'
-        | inr y, inr y' => neq y y'
-        | _, _ => True
+      | inl x, inl x' => neq x x'
+      | inr y, inr y' => neq y y'
+      | _, _ => True
       end
 }.
 Proof.
   all: intros; repeat
   match goal with
-    | x : _ + _ |- _ => destruct x
-    | _ => apartoid
+  | x : _ + _ |- _ => destruct x
+  | _ => apartoid
   end.
 Defined.
 
@@ -283,8 +283,8 @@ Definition Apartoid_copair (A B X : Apartoid)
 Proof.
   red. exists (fun p : A + B =>
     match p with
-      | inl a => f a
-      | inr b => g b
+    | inl a => f a
+    | inr b => g b
     end).
   destruct x, x'; apartoid.
 Defined.
@@ -293,10 +293,10 @@ Defined.
 #[export]
 Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
 {
-    coprodOb := Apartoid_coprodOb;
-    coproj1 := Apartoid_coproj1;
-    coproj2 := Apartoid_coproj2;
-    copair := Apartoid_copair
+  coprodOb := Apartoid_coprodOb;
+  coproj1 := Apartoid_coproj1;
+  coproj2 := Apartoid_coproj2;
+  copair := Apartoid_copair
 }.
 Proof.
   (* Proper *) proper. destruct x1; apartoid.
@@ -307,9 +307,9 @@ Defined.
 #[export]
 Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
-    carrier := forall j : J, A j;
-    neq := fun (f g : forall j : J, A j) =>
-      exists j : J, f j # g j
+  carrier := forall j : J, A j;
+  neq := fun (f g : forall j : J, A j) =>
+    exists j : J, f j # g j
 }.
 Proof.
   intros; intro. destruct H as [j H]. apply (neq_irrefl (x j)). assumption.
@@ -339,9 +339,9 @@ Defined.
 #[export]
 Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
 {
-    bigProdOb := @Apartoid_bigProdOb;
-    bigProj := @Apartoid_bigProj;
-    tuple := @Apartoid_tuple;
+  bigProdOb := @Apartoid_bigProdOb;
+  bigProj := @Apartoid_bigProj;
+  tuple := @Apartoid_tuple;
 }.
 Proof.
   (* tuple is proper *) cbn; intros. destruct 1 as [j H'].
@@ -357,9 +357,9 @@ Defined.
 Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
-    carrier := {x : X | ~ (f x) # (g x)};
-    neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
-      proj1_sig p1 # proj1_sig p2
+  carrier := {x : X | ~ (f x) # (g x)};
+  neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
+    proj1_sig p1 # proj1_sig p2
 }.
 Proof. all: apartoid. Defined.
 
@@ -387,8 +387,8 @@ Defined.
 (* TODO : make faster #[export]
 Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 {
-    eq_ob := @Apartoid_eq_ob;
-    eq_mor := @Apartoid_eq_mor;
+  eq_ob := @Apartoid_eq_ob;
+  eq_mor := @Apartoid_eq_mor;
 }.
 Proof.
   red; split; intros.
@@ -400,33 +400,27 @@ Defined.*)
 (* TODO: likely this can't be done at all.
 Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Y -> Y -> Prop :=
-    | coeq_step : forall y y' : Y,
-        y # y' -> CoqSetoid_coeq_neq f g y y'
-    | coeq_quot : forall x x' : X,
-        x # x' -> CoqSetoid_coeq_neq f g (f x) (g x')
-    | coeq_sym : forall y y' : Y,
-        Apartoid_coeq_neq f g y y' ->
-        Apartoid_coeq_neq f g y' y
-    | coeq_cotrans_l : forall y1 y2 y3 : Y,
-        Apartoid_coeq_neq f g y1 y2 ->
-        Apartoid_coeq_neq f g y2 y3 ->
-        Apartoid_coeq_neq f g y1 y3.
+| coeq_step : forall y y' : Y, y # y' -> CoqSetoid_coeq_neq f g y y'
+| coeq_quot : forall x x' : X, x # x' -> CoqSetoid_coeq_neq f g (f x) (g x')
+| coeq_sym : forall y y' : Y, Apartoid_coeq_neq f g y y' -> Apartoid_coeq_neq f g y' y
+| coeq_cotrans_l :
+  forall y1 y2 y3 : Y,
+    Apartoid_coeq_neq f g y1 y2 ->
+    Apartoid_coeq_neq f g y2 y3 ->
+    Apartoid_coeq_neq f g y1 y3.
 *)
 
 (* TODO: this shit doesn't work. *)
 Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Y -> Y -> Prop :=
-    | coeq_step : forall y y' : Y,
-        ~ y # y' -> Apartoid_coeq_equiv f g y y'
-    | coeq_quot : forall x : X,
-        Apartoid_coeq_equiv f g (f x) (g x)
-    | coeq_sym : forall y y' : Y,
-        Apartoid_coeq_equiv f g y y' ->
-        Apartoid_coeq_equiv f g y' y
-    | coeq_trans : forall y1 y2 y3 : Y,
-        Apartoid_coeq_equiv f g y1 y2 ->
-        Apartoid_coeq_equiv f g y2 y3 ->
-        Apartoid_coeq_equiv f g y1 y3.
+| coeq_step : forall y y' : Y, ~ y # y' -> Apartoid_coeq_equiv f g y y'
+| coeq_quot : forall x : X, Apartoid_coeq_equiv f g (f x) (g x)
+| coeq_sym : forall y y' : Y, Apartoid_coeq_equiv f g y y' -> Apartoid_coeq_equiv f g y' y
+| coeq_trans :
+  forall y1 y2 y3 : Y,
+    Apartoid_coeq_equiv f g y1 y2 ->
+    Apartoid_coeq_equiv f g y2 y3 ->
+    Apartoid_coeq_equiv f g y1 y3.
 
 (* TODO: finish *)
 #[refine]
@@ -434,8 +428,8 @@ Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
 Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
     : Apartoid :=
 {
-    carrier := Y;
-    neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
+  carrier := Y;
+  neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
 }.
 Proof.
   intros. intro. apply H. intro. apply H0. constructor. apply neq_irrefl.
@@ -457,10 +451,10 @@ Proof.
 #[export]
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
-    carrier := {j : J & A j};
-    neq := fun p1 p2 : {j : J & A j} =>
-      projT1 p1 # projT1 p2 (*\/ (projT1 p1 = projT1 p2 /\
-        ~ JMeq (projT2 p1) (projT2 p2))*) (* TODO : bigCoproduct for Apartoids *)
+  carrier := {j : J & A j};
+  neq := fun p1 p2 : {j : J & A j} =>
+    projT1 p1 # projT1 p2 (*\/ (projT1 p1 = projT1 p2 /\
+      ~ JMeq (projT2 p1) (projT2 p2))*) (* TODO : bigCoproduct for Apartoids *)
 }.
 Proof.
   all: destruct x; try destruct y; try destruct z; eauto.

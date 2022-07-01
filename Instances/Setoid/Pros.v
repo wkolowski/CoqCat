@@ -10,11 +10,11 @@ Set Implicit Arguments.
 
 Class Pros : Type :=
 {
-    carrier :> Setoid';
-    leq : carrier -> carrier -> Prop;
-    leq_Proper :> Proper (equiv ==> equiv ==> equiv) leq;
-    leq_refl : forall a b : carrier, a == b -> leq a b;
-    leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
+  carrier :> Setoid';
+  leq : carrier -> carrier -> Prop;
+  leq_Proper :> Proper (equiv ==> equiv ==> equiv) leq;
+  leq_refl : forall a b : carrier, a == b -> leq a b;
+  leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
 }.
 
 Notation "x ≤ y" := (leq x y) (at level 40).
@@ -27,19 +27,19 @@ Ltac pros_simpl := repeat (cbn in * || red || split).
 
 Ltac prosob P := try intros until P;
 match type of P with
-  | Pros =>
-    let a := fresh P "_leq" in
-    let b := fresh P "_leq_refl" in
-    let c := fresh P "_leq_trans" in destruct P as [P a b c]
-  | Ob _ => progress cbn in P; prosob P
+| Pros =>
+  let a := fresh P "_leq" in
+  let b := fresh P "_leq_refl" in
+  let c := fresh P "_leq_trans" in destruct P as [P a b c]
+| Ob _ => progress cbn in P; prosob P
 end; cbn in *.
 
 Ltac prosob' P := prosob P; setoidob P.
 
 Ltac prosobs_template tac := intros; repeat
 match goal with
-  | P : Pros |- _ => tac P
-  | X : Ob _ |- _ => tac X
+| P : Pros |- _ => tac P
+| X : Ob _ |- _ => tac X
 end.
 
 Ltac prosobs := prosobs_template prosob.
@@ -54,17 +54,17 @@ Coercion ProsHom_Fun : ProsHom >-> SetoidHom.
 
 Ltac proshom f := try intros until f;
 match type of f with
-  | ProsHom _ _ =>
-    let a := fresh f "_pres_leq" in destruct f as [f a]
-  | Hom _ _ => progress cbn in f; proshom f
+| ProsHom _ _ =>
+  let a := fresh f "_pres_leq" in destruct f as [f a]
+| Hom _ _ => progress cbn in f; proshom f
 end; cbn in *.
 
 Ltac proshom' f := proshom f; setoidhom f.
 
 Ltac proshoms_template tac := intros; repeat
 match goal with
-  | f : ProsHom _ _ |- _ => tac f
-  | f : Hom _ _ |- _ => tac f
+| f : ProsHom _ _ |- _ => tac f
+| f : Hom _ _ |- _ => tac f
 end.
 
 Ltac proshoms := proshoms_template proshom.
@@ -88,14 +88,14 @@ Defined.
 #[export]
 Instance ProsCat : Cat :=
 {
-    Ob := Pros;
-    Hom := ProsHom;
-    HomSetoid := fun A B : Pros =>
-      {| equiv := fun f g : ProsHom A B =>
-          forall x : A, @equiv _ B (f x) (g x)
-      |};
-    comp := ProsComp;
-    id := ProsId
+  Ob := Pros;
+  Hom := ProsHom;
+  HomSetoid := fun A B : Pros =>
+    {| equiv := fun f g : ProsHom A B =>
+        forall x : A, @equiv _ B (f x) (g x)
+|};
+  comp := ProsComp;
+  id := ProsId
 }.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -136,8 +136,8 @@ Abort.*)
 #[export]
 Instance Pros_init : Pros :=
 {
-    carrier := CoqSetoid_init;
-    leq := fun (x y : Empty_set) => match x with end
+  carrier := CoqSetoid_init;
+  leq := fun (x y : Empty_set) => match x with end
 }.
 Proof. all: destruct a. Defined.
 
@@ -150,8 +150,8 @@ Defined.
 #[export]
 Instance Pros_has_init : has_init ProsCat :=
 {
-    init := Pros_init;
-    create := Pros_create
+  init := Pros_init;
+  create := Pros_create
 }.
 Proof. pros. Defined.
 
@@ -159,8 +159,8 @@ Proof. pros. Defined.
 #[export]
 Instance Pros_term : Pros :=
 {
-    carrier := CoqSetoid_term;
-    leq := fun _ _ => True
+  carrier := CoqSetoid_term;
+  leq := fun _ _ => True
 }.
 Proof. all: pros. Defined.
 
@@ -173,8 +173,8 @@ Defined.
 #[export]
 Instance Pros_has_term : has_term ProsCat :=
 {
-    term := Pros_term;
-    delete := Pros_delete
+  term := Pros_term;
+  delete := Pros_delete
 }.
 Proof. pros. Defined.
 
@@ -182,8 +182,8 @@ Proof. pros. Defined.
 #[export]
 Instance Pros_prodOb (X Y : Pros) : Pros :=
 {
-    carrier := CoqSetoid_prodOb X Y;
-    leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
+  carrier := CoqSetoid_prodOb X Y;
+  leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
   proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
@@ -208,10 +208,10 @@ Defined.
 #[export]
 Instance Pros_has_products : has_products ProsCat :=
 {
-    prodOb := Pros_prodOb;
-    proj1 := Pros_proj1;
-    proj2 := Pros_proj2;
-    fpair := @Pros_fpair
+  prodOb := Pros_prodOb;
+  proj1 := Pros_proj1;
+  proj2 := Pros_proj2;
+  fpair := @Pros_fpair
 }.
 Proof.
   proper.
@@ -225,13 +225,13 @@ Definition thin (C : Cat) : Prop :=
 #[export]
 Instance Pros_coprodOb (X Y : Pros) : Pros :=
 {
-    carrier := CoqSetoid_coprodOb X Y;
-    leq := fun a b : X + Y =>
-        match a, b with
-            | inl x, inl x' => x ≤ x'
-            | inr y, inr y' => y ≤ y'
-            | _, _ => False
-        end
+  carrier := CoqSetoid_coprodOb X Y;
+  leq := fun a b : X + Y =>
+    match a, b with
+    | inl x, inl x' => x ≤ x'
+    | inr y, inr y' => y ≤ y'
+    | _, _ => False
+    end
 }.
 Proof.
   proper. destruct x, y, x0, y0; split; intros; rewrite ?H, ?H0 in *;
@@ -262,10 +262,10 @@ Defined.
 #[export]
 Instance Pros_has_coproducts : has_coproducts ProsCat :=
 {
-    coprodOb := Pros_coprodOb;
-    coproj1 := Pros_coproj1;
-    coproj2 := Pros_coproj2;
-    copair := Pros_copair
+  coprodOb := Pros_coprodOb;
+  coproj1 := Pros_coproj1;
+  coproj2 := Pros_coproj2;
+  copair := Pros_copair
 }.
 Proof.
   proper. destruct x1; proper.

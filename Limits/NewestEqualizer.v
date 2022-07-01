@@ -37,7 +37,7 @@ Definition biequalizer
 Instance SetoidFunExt_setoid (A B : Type) (A' : Setoid A) (B' : Setoid B)
     : Setoid (A -> B) :=
 {
-    equiv := fun f g : A -> B => forall x : A, f x == g x
+  equiv := fun f g : A -> B => forall x : A, f x == g x
 }.
 Proof. solve_equiv. Defined.
 
@@ -49,9 +49,9 @@ Instance SetoidFunExt (A B : Setoid') : Setoid' :=
 }.
 
 Inductive JMequiv_ext : forall (A B : Setoid'), A -> B -> Prop :=
-    | JMequiv_step : forall (A B : Setoid') (x y : A),
+| JMequiv_step : forall (A B : Setoid') (x y : A),
         x == y -> JMequiv_ext A A x y
-    | JMequiv_ext' : forall (A B : Setoid') (f g : A -> B),
+| JMequiv_ext' : forall (A B : Setoid') (f g : A -> B),
         (forall x : A, f x == g x) ->
         JMequiv_ext (SetoidFunExt A B) (SetoidFunExt A B) f g.
 
@@ -73,50 +73,50 @@ Abort.
 
 Class has_equalizers (C : Cat) : Type :=
 {
-    eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-    eq_ob_Proper :
-      forall (X Y : Ob C) (f f' g g' : Hom X Y),
-        f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
-    eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-    eq_mor_Proper :
-      forall (X Y : Ob C) (f f' g g' : Hom X Y),
-        f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
-          JMequiv (eq_mor f g) (eq_mor f' g');
-    factorize :
-      forall {X Y : Ob C} (f g : Hom X Y) (E' : Ob C) (e' : Hom E' X),
-        e' .> f == e' .> g -> Hom E' (eq_ob f g);
-    (* TODO : factorize_Proper : forall (X Y E' : Ob C) (f f' g g' : Hom X Y)
-      (e' : Hom E' X) (H : e' .> f == e' .> g) (H' : e' .> f' == e' .> g'),
-      f == f' -> g == g' ->
-      JMequiv (factorize f g E' e' H) (factorize f' g' E' e' H'); *)
-    is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
-      equalizer C f g (eq_ob f g) (eq_mor f g) (factorize f g)
+  eq_ob : forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
+  eq_ob_Proper :
+    forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+  eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+  eq_mor_Proper :
+    forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
+        JMequiv (eq_mor f g) (eq_mor f' g');
+  factorize :
+    forall {X Y : Ob C} (f g : Hom X Y) (E' : Ob C) (e' : Hom E' X),
+      e' .> f == e' .> g -> Hom E' (eq_ob f g);
+  (* TODO : factorize_Proper : forall (X Y E' : Ob C) (f f' g g' : Hom X Y)
+    (e' : Hom E' X) (H : e' .> f == e' .> g) (H' : e' .> f' == e' .> g'),
+    f == f' -> g == g' ->
+    JMequiv (factorize f g E' e' H) (factorize f' g' E' e' H'); *)
+  is_equalizer : forall (X Y : Ob C) (f g : Hom X Y),
+    equalizer C f g (eq_ob f g) (eq_mor f g) (factorize f g)
 }.
 
 Class has_coequalizers (C : Cat) : Type :=
 {
-    coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-    coeq_ob_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
-    coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
-    coeq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
-    cofactorize : forall {X Y : Ob C} (f g : Hom X Y)
-      (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom (coeq_ob f g) Q';
-    (* TODO : cofactorize_Proper : forall (X Y Q' : Ob C) (f f' g g' : Hom X Y)
-      (q' : Hom Y Q') (H : f .> q' == g .> q') (H' : f' .> q' == g' .> q'),
-      f == f' -> g == g' ->
-      JMequiv (cofactorize f g Q' q' H) (cofactorize f' g' Q' q' H'); *)
-    is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
-      coequalizer C f g (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
+  coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
+  coeq_ob_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
+    f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
+  coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
+  coeq_mor_Proper : forall (X Y : Ob C) (f f' g g' : Hom X Y),
+    f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
+  cofactorize : forall {X Y : Ob C} (f g : Hom X Y)
+    (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom (coeq_ob f g) Q';
+  (* TODO : cofactorize_Proper : forall (X Y Q' : Ob C) (f f' g g' : Hom X Y)
+    (q' : Hom Y Q') (H : f .> q' == g .> q') (H' : f' .> q' == g' .> q'),
+    f == f' -> g == g' ->
+    JMequiv (cofactorize f g Q' q' H) (cofactorize f' g' Q' q' H'); *)
+  is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
+    coequalizer C f g (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
 }.
 
 Class has_biequalizers (C : Cat) : Type :=
 {
-    bi_has_equalizers :> has_equalizers C;
-    bi_has_coequalizers :> has_coequalizers C;
-    equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
-      eq_ob f g = coeq_ob f g
+  bi_has_equalizers :> has_equalizers C;
+  bi_has_coequalizers :> has_coequalizers C;
+  equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
+    eq_ob f g = coeq_ob f g
 }.
 
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
@@ -454,12 +454,12 @@ Defined.
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=
 {
-    coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
-    coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
-    cofactorize := fun X Y : Ob (Dual C) => @factorize C he Y X;
-    (*cofactorize_Proper := fun X Y : Ob (Dual C) =>
-      @factorize_Proper C he Y X;*)
-    is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
+  coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
+  coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
+  cofactorize := fun X Y : Ob (Dual C) => @factorize C he Y X;
+  (*cofactorize_Proper := fun X Y : Ob (Dual C) =>
+    @factorize_Proper C he Y X;*)
+  is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
 }.
 Proof.
   all: cbn; intros.
@@ -472,12 +472,12 @@ Defined.
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     : has_equalizers (Dual C) :=
 {
-    eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
-    eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
-    factorize := fun X Y : Ob (Dual C) => @cofactorize C he Y X;
-    (*factorize_Proper := fun X Y : Ob (Dual C) =>
-      @cofactorize_Proper C he Y X;*)
-    is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
+  eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
+  eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
+  factorize := fun X Y : Ob (Dual C) => @cofactorize C he Y X;
+  (*factorize_Proper := fun X Y : Ob (Dual C) =>
+    @cofactorize_Proper C he Y X;*)
+  is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
 }.
 Proof.
   all: cbn; intros.
@@ -490,8 +490,8 @@ Defined.
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {
-    bi_has_equalizers := Dual_has_equalizers he;
-    bi_has_coequalizers := Dual_has_coequalizers he;
+  bi_has_equalizers := Dual_has_equalizers he;
+  bi_has_coequalizers := Dual_has_coequalizers he;
 }.
 Proof.
   simpl. intros. rewrite equalizer_is_coequalizer. trivial.

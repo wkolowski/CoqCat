@@ -6,10 +6,10 @@ From Cat Require Import Cat.
 #[export]
 Instance N (n : nat) : Cat :=
 {
-    Ob := {k : nat | k <= n};
-    Hom := fun X Y => proj1_sig X <= proj1_sig Y;
-    HomSetoid := fun _ _ => {| equiv := fun _ _ => True |}
-        (* proof irrelevance *)
+  Ob := {k : nat | k <= n};
+  Hom := fun X Y => proj1_sig X <= proj1_sig Y;
+  HomSetoid := fun _ _ => {| equiv := fun _ _ => True |}
+      (* proof irrelevance *)
 }.
 Proof.
   (* Equiv *) solve_equiv.

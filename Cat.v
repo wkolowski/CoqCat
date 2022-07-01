@@ -5,17 +5,17 @@ From Cat Require Export Base.
 
 Class Cat : Type :=
 {
-    Ob : Type;
-    Hom : Ob -> Ob -> Type;
-    HomSetoid :> forall A B : Ob, Setoid (Hom A B);
-    comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
-    comp_Proper :> forall A B C : Ob,
-        Proper (equiv ==> equiv ==> equiv) (@comp A B C);
-    comp_assoc : forall {A B C D : Ob} (f : Hom A B) (g : Hom B C)
-        (h : Hom C D), comp (comp f g) h == comp f (comp g h);
-    id : forall A : Ob, Hom A A;
-    id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
-    id_right : forall (A B : Ob) (f : Hom A B), comp f (id B) == f
+  Ob : Type;
+  Hom : Ob -> Ob -> Type;
+  HomSetoid :> forall A B : Ob, Setoid (Hom A B);
+  comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
+  comp_Proper :> forall A B C : Ob,
+      Proper (equiv ==> equiv ==> equiv) (@comp A B C);
+  comp_assoc : forall {A B C D : Ob} (f : Hom A B) (g : Hom B C)
+      (h : Hom C D), comp (comp f g) h == comp f (comp g h);
+  id : forall A : Ob, Hom A A;
+  id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
+  id_right : forall (A B : Ob) (f : Hom A B), comp f (id B) == f
 }.
 
 Arguments Ob _ : clear implicits.
@@ -25,10 +25,9 @@ Notation "f .> g" := (comp f g) (at level 50).
 #[global] Hint Resolve comp_assoc id_left id_right : core.
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
-    | Id : forall X : Ob C, exp X X
-    | Var : forall X Y : Ob C, Hom X Y -> exp X Y
-    | Comp : forall X Y Z : Ob C,
-        exp X Y -> exp Y Z -> exp X Z.
+| Id   : forall X : Ob C, exp X X
+| Var  : forall X Y : Ob C, Hom X Y -> exp X Y
+| Comp : forall X Y Z : Ob C, exp X Y -> exp Y Z -> exp X Z.
 
 Arguments Id [C] _.
 Arguments Var [C X Y] _.
@@ -36,12 +35,11 @@ Arguments Comp [C X Y Z] _ _.
 
 #[global] Hint Constructors exp : core.
 
-Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
-    : Hom X Y :=
+Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y) : Hom X Y :=
 match e with
-    | Id X => id X
-    | Var f => f
-    | Comp e1 e2 => expDenote e1 .> expDenote e2
+| Id X => id X
+| Var f => f
+| Comp e1 e2 => expDenote e1 .> expDenote e2
 end.
 
 Fixpoint simplify {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y.
@@ -70,35 +68,31 @@ Proof.
 Qed.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
-    | HomNil : forall X : Ob C, HomList X X
-    | HomCons : forall X Y Z : Ob C,
-        Hom X Y -> HomList Y Z -> HomList X Z.
+| HomNil  : forall X : Ob C, HomList X X
+| HomCons : forall X Y Z : Ob C, Hom X Y -> HomList Y Z -> HomList X Z.
 
 Arguments HomNil [C] _.
 Arguments HomCons [C X Y Z] _ _.
 
-Fixpoint expDenoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y)
-    : Hom X Y :=
+Fixpoint expDenoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y) : Hom X Y :=
 match l with
-    | HomNil X => id X
-    | HomCons h t => h .> expDenoteHL t
+| HomNil X    => id X
+| HomCons h t => h .> expDenoteHL t
 end.
 
-Fixpoint Happ {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y)
-    : HomList Y Z -> HomList X Z :=
+Fixpoint Happ {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y) : HomList Y Z -> HomList X Z :=
 match l1 with
-    | HomNil _ => fun l2 => l2
-    | HomCons h t => fun l2 => HomCons h (Happ t l2)
+| HomNil _    => fun l2 => l2
+| HomCons h t => fun l2 => HomCons h (Happ t l2)
 end.
 
 Local Infix "+++" := (Happ) (at level 40).
 
-Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y)
-    : HomList X Y :=
+Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y) : HomList X Y :=
 match e with
-    | Id X => HomNil X
-    | Var f => HomCons f (HomNil _)
-    | Comp e1 e2 => flatten e1 +++ flatten e2
+| Id X       => HomNil X
+| Var f      => HomCons f (HomNil _)
+| Comp e1 e2 => flatten e1 +++ flatten e2
 end.
 
 Lemma expDenoteHL_comp_app :
@@ -139,33 +133,34 @@ Qed.
 
 Ltac reify mor :=
 match mor with
-    | id ?X => constr:(Id X)
-    | ?f .> ?g =>
-        let e1 := reify f in
-        let e2 := reify g in constr:(Comp e1 e2)
-    | ?f => match type of f with
-        | Hom ?X ?Y => constr:(Var f)
-        | _ => fail
-    end
+| id ?X => constr:(Id X)
+| ?f .> ?g =>
+  let e1 := reify f in
+  let e2 := reify g in constr:(Comp e1 e2)
+| ?f =>
+  match type of f with
+  | Hom ?X ?Y => constr:(Var f)
+  | _ => fail
+  end
 end.
 
 Ltac reflect_eqv H :=
 match type of H with
-    | ?f == ?g =>
-        let e1 := reify f in
-        let e2 := reify g in
-          change (expDenote e1 == expDenote e2) in H;
-          apply cat_expand in H; cbn in H;
-          rewrite ?id_left, ?id_right in H
+| ?f == ?g =>
+  let e1 := reify f in
+  let e2 := reify g in
+    change (expDenote e1 == expDenote e2) in H;
+    apply cat_expand in H; cbn in H;
+    rewrite ?id_left, ?id_right in H
 end.
 
 Ltac reflect_cat :=
 match goal with
-    | |- ?f == ?g =>
-        let e1 := reify f in
-        let e2 := reify g in
-          change (expDenote e1 == expDenote e2);
-          apply cat_reflect; cbn; rewrite ?id_left, ?id_right
+| |- ?f == ?g =>
+  let e1 := reify f in
+  let e2 := reify g in
+    change (expDenote e1 == expDenote e2);
+    apply cat_reflect; cbn; rewrite ?id_left, ?id_right
 end.
 
 Ltac assocr := rewrite comp_assoc.
@@ -176,24 +171,24 @@ Ltac assocl' := rewrite <- !comp_assoc.
 
 Ltac cat := repeat (intros; my_simpl; cbn in *; eauto;
 match goal with
-    | |- _ == _ => progress (reflect_cat; try reflexivity)
-    | |- ?x == ?x => reflexivity
-    | H : _ == _ |- _ => progress (reflect_eqv H)
-    | |- Equivalence _ => solve_equiv
-    | |- Proper _ _ => proper
-    | _ => cbn in *
+| |- _ == _ => progress (reflect_cat; try reflexivity)
+| |- ?x == ?x => reflexivity
+| H : _ == _ |- _ => progress (reflect_eqv H)
+| |- Equivalence _ => solve_equiv
+| |- Proper _ _ => proper
+| _ => cbn in *
 end; eauto).
 
 #[refine]
 #[export]
 Instance Dual (C : Cat) : Cat :=
 {|
-    Ob := Ob C;
-    Hom := fun A B : Ob C => Hom B A;
-    HomSetoid := fun A B : Ob C => {| equiv := fun f g : Hom B A =>
-        @equiv (Hom B A) (@HomSetoid C B A) f g |};
-    comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
-    id := @id C
+  Ob := Ob C;
+  Hom := fun A B : Ob C => Hom B A;
+  HomSetoid := fun A B : Ob C => {| equiv := fun f g : Hom B A =>
+      @equiv (Hom B A) (@HomSetoid C B A) f g |};
+  comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
+  id := @id C
 |}.
 Proof. all: cat. Defined.
 
@@ -226,9 +221,9 @@ Theorem cat_split : forall
 Proof.
   intros. repeat
   match goal with
-      | H : _ = _ |- _ => subst
-      | H : JMeq _ _ |- _ => apply JMeq_eq in H
-      | |- ?x = ?x => reflexivity
+  | H : _ = _ |- _ => subst
+  | H : JMeq _ _ |- _ => apply JMeq_eq in H
+  | |- ?x = ?x => reflexivity
   end;
   f_equal; apply proof_irrelevance.
 Qed.
@@ -240,9 +235,9 @@ Theorem setoid_split : forall A A' equiv equiv' setoid_equiv setoid_equiv',
 Proof.
   intros. repeat
   match goal with
-      | H : _ = _ |- _ => subst
-      | H : JMeq _ _ |- _ => apply JMeq_eq in H
-      | |- ?x = ?x => reflexivity
+  | H : _ = _ |- _ => subst
+  | H : JMeq _ _ |- _ => apply JMeq_eq in H
+  | |- ?x = ?x => reflexivity
   end.
   f_equal.
   assert (setoid_equiv = setoid_equiv') by apply proof_irrelevance.
@@ -344,27 +339,28 @@ Notation "A ~~ B" := (uniquely_isomorphic A B) (at level 50).
 
 Ltac uniso' f :=
 match goal with
-    | H : Iso f |- _ => rewrite iso_inv_unique in H;
-        let f_inv := fresh f "_inv" in
-        let f_inv_eq1 := fresh f "_inv_eq1" in
-        let f_inv_eq2 := fresh f "_inv_eq2" in
-        let f_inv_unique := fresh f "_inv_unique" in
-        destruct H as [f_inv [[f_inv_eq1 f_inv_eq2] f_inv_unique]]
+| H : Iso f |- _ =>
+  rewrite iso_inv_unique in H;
+  let f_inv := fresh f "_inv" in
+  let f_inv_eq1 := fresh f "_inv_eq1" in
+  let f_inv_eq2 := fresh f "_inv_eq2" in
+  let f_inv_unique := fresh f "_inv_unique" in
+  destruct H as [f_inv [[f_inv_eq1 f_inv_eq2] f_inv_unique]]
 end.
 
 Ltac iso := repeat  (intros;
 match goal with
-    | H : _ ~~ _ |- _ => red in H
-    | H : _ ~ _ |- _ => red in H
-    | |- context [_ ~~ _] => unfold uniquely_isomorphic
-    | |- context [_ ~ _] => unfold isomorphic
-    | H : exists _ : Hom _ _, Iso _ |- _ => destruct H
-    | _ : Iso ?f |- _ => uniso' f
-    | |- Iso _ => unfold Iso
-    | |- exists _ : Hom _ _, _ => eexists
-    | |- _ /\ _ => split
-    | |- _ <-> _ => split
-    | _ => cat
+| H : _ ~~ _ |- _ => red in H
+| H : _ ~ _ |- _ => red in H
+| |- context [_ ~~ _] => unfold uniquely_isomorphic
+| |- context [_ ~ _] => unfold isomorphic
+| H : exists _ : Hom _ _, Iso _ |- _ => destruct H
+| _ : Iso ?f |- _ => uniso' f
+| |- Iso _ => unfold Iso
+| |- exists _ : Hom _ _, _ => eexists
+| |- _ /\ _ => split
+| |- _ <-> _ => split
+| _ => cat
 end).
 
 Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),

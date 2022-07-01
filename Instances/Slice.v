@@ -2,8 +2,8 @@ From Cat Require Import Cat.
 
 Class SliceOb (C : Cat) (Y : Ob C) : Type :=
 {
-    dom : Ob C;
-    mor : Hom dom Y
+  dom : Ob C;
+  mor : Hom dom Y
 }.
 
 Arguments dom [C] [Y] _.
@@ -19,7 +19,7 @@ Definition SliceHom {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Type :=
 Instance SliceHomSetoid (C : Cat) (Y : Ob C) (A B : SliceOb C Y)
     : Setoid (SliceHom A B) :=
 {
-    equiv := fun f g : SliceHom A B => proj1_sig f == proj1_sig g
+  equiv := fun f g : SliceHom A B => proj1_sig f == proj1_sig g
 }.
 Proof. solve_equiv. Defined.
 
@@ -41,17 +41,17 @@ Defined.
 #[export]
 Instance Slice (C : Cat) (Y : Ob C) : Cat :=
 {
-    Ob := SliceOb C Y;
-    Hom := @SliceHom C Y;
-    HomSetoid := SliceHomSetoid C Y;
-    comp := SliceComp C Y;
-    id := SliceId C Y
+  Ob := SliceOb C Y;
+  Hom := @SliceHom C Y;
+  HomSetoid := SliceHomSetoid C Y;
+  comp := SliceComp C Y;
+  id := SliceId C Y
 }.
 Proof.
   unfold Proper, respectful; intros.
     destruct x, y, x0, y0; cbn in *. rewrite H, H0. reflexivity.
   all: (cat; repeat
   match goal with
-      | f : SliceHom _ _ |- _ => destruct f; cbn in *
+  | f : SliceHom _ _ |- _ => destruct f; cbn in *
   end; cat).
 Defined.

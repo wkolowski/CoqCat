@@ -11,11 +11,11 @@ Definition distr
 
 Class distributive (C : Cat) : Type :=
 {
-    distr_has_init :> has_init C;
-    distr_has_term :> has_term C;
-    distr_has_products :> has_products C;
-    distr_has_coproducts :> has_coproducts C;
-    distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
+  distr_has_init :> has_init C;
+  distr_has_term :> has_term C;
+  distr_has_products :> has_products C;
+  distr_has_coproducts :> has_coproducts C;
+  distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
 }.
 
 (* TODO *) Theorem distr_prodOb_init :

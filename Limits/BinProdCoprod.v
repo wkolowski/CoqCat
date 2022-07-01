@@ -23,15 +23,15 @@ Definition biproduct_skolem (C : Cat) {A B : Ob C} (P : Ob C)
 
 Class has_products (C : Cat) : Type :=
 {
-    prodOb : Ob C -> Ob C -> Ob C;
-    proj1 : forall A B : Ob C, Hom (prodOb A B) A;
-    proj2 : forall A B : Ob C, Hom (prodOb A B) B;
-    fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
-      Hom X (prodOb A B);
-    fpair_Proper :> forall (A B X : Ob C),
-      Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
-    is_product : forall (A B : Ob C),
-      product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
+  prodOb : Ob C -> Ob C -> Ob C;
+  proj1 : forall A B : Ob C, Hom (prodOb A B) A;
+  proj2 : forall A B : Ob C, Hom (prodOb A B) B;
+  fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
+    Hom X (prodOb A B);
+  fpair_Proper :> forall (A B X : Ob C),
+    Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
+  is_product : forall (A B : Ob C),
+    product_skolem C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
 }.
 
 Arguments prodOb {C has_products} _ _.
@@ -41,15 +41,15 @@ Arguments fpair  {C has_products A B X} _ _.
 
 Class has_coproducts (C : Cat) : Type :=
 {
-    coprodOb : Ob C -> Ob C -> Ob C;
-    coproj1 : forall A B : Ob C, Hom A (coprodOb A B);
-    coproj2 : forall A B : Ob C, Hom B (coprodOb A B);
-    copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X),
-      Hom (coprodOb A B) X;
-    copair_Proper :> forall (A B X : Ob C),
-      Proper (equiv ==> equiv ==> equiv) (@copair A B X);
-    is_coproduct : forall A B : Ob C,
-      coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@copair A B)
+  coprodOb : Ob C -> Ob C -> Ob C;
+  coproj1 : forall A B : Ob C, Hom A (coprodOb A B);
+  coproj2 : forall A B : Ob C, Hom B (coprodOb A B);
+  copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X),
+    Hom (coprodOb A B) X;
+  copair_Proper :> forall (A B X : Ob C),
+    Proper (equiv ==> equiv ==> equiv) (@copair A B X);
+  is_coproduct : forall A B : Ob C,
+    coproduct_skolem C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@copair A B)
 }.
 
 Arguments coprodOb {C has_coproducts} _ _.
@@ -59,21 +59,23 @@ Arguments copair   {C has_coproducts A B X} _ _.
 
 Class has_biproducts (C : Cat) : Type :=
 {
-    products :> has_products C;
-    coproducts :> has_coproducts C;
-    product_is_coproduct : forall X Y : Ob C,
-      prodOb X Y = coprodOb X Y
+  products :> has_products C;
+  coproducts :> has_coproducts C;
+  product_is_coproduct : forall X Y : Ob C,
+    prodOb X Y = coprodOb X Y
 }.
 
 Coercion products : has_biproducts >-> has_products.
 Coercion coproducts : has_biproducts >-> has_coproducts.
 
 Theorem dual_product_coproduct_skolem :
-  forall (C : Cat) (X Y : Ob C)
-  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-  (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-    product_skolem C P p1 p2 fpair <->
-    coproduct_skolem (Dual C) P p1 p2 fpair.
+  forall
+    (C : Cat) (X Y : Ob C)
+    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+    (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
+      product_skolem C P p1 p2 fpair
+        <->
+      coproduct_skolem (Dual C) P p1 p2 fpair.
 Proof. cat. Defined.
 
 Theorem dual_biproduct_skolem_self :
@@ -81,13 +83,15 @@ Theorem dual_biproduct_skolem_self :
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (q1 : Hom X P) (q2 : Hom Y P)
   (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
   (copair : forall (P' : Ob C) (q1' : Hom X P') (q2' : Hom Y P'), Hom P P'),
-    biproduct_skolem C P p1 p2 q1 q2 fpair copair <->
+    biproduct_skolem C P p1 p2 q1 q2 fpair copair
+      <->
     biproduct_skolem (Dual C) P q1 q2 p1 p2 copair fpair.
 Proof.
   unfold biproduct_skolem. cat.
 Qed.
 
-Theorem fpair_proj1 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
+Theorem fpair_proj1 :
+  forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj1 == f.
 Proof.
   destruct hp; cbn; intros. do 2 red in is_product0.
@@ -95,7 +99,8 @@ Proof.
   rewrite <- H1. reflexivity.
 Qed.
 
-Theorem fpair_proj2 : forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
+Theorem fpair_proj2 :
+  forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj2 == g.
 Proof.
   destruct hp; cbn; intros. do 2 red in is_product0.
@@ -103,7 +108,8 @@ Proof.
   rewrite <- H2. reflexivity.
 Qed.
 
-Theorem fpair_pre : forall (C : Cat) (hp : has_products C) (A B X Y : Ob C)
+Theorem fpair_pre :
+  forall (C : Cat) (hp : has_products C) (A B X Y : Ob C)
     (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
         f .> fpair g1 g2 == fpair (f .> g1) (f .> g2).
 Proof.
@@ -117,7 +123,8 @@ Proof.
       rewrite comp_assoc, <- H2'. reflexivity.
 Qed.
 
-Theorem fpair_id : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
+Theorem fpair_id :
+  forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     fpair proj1 proj2 == id (prodOb X Y).
 Proof.
   destruct hp; cbn; intros. do 2 red in is_product0.
@@ -148,21 +155,19 @@ Qed.
 
 Ltac fpair := intros; try split;
 repeat match goal with
-    | |- context [fpair (_ .> proj1) (_ .> proj2)] =>
-        rewrite <- fpair_pre, fpair_id
-    | |- context [_ .> fpair _ _] => rewrite fpair_pre
-    | |- context [fpair _ _ .> proj1] => rewrite fpair_proj1
-    | |- context [fpair _ _ .> proj2] => rewrite fpair_proj2
-    | |- context [fpair proj1 proj2] => rewrite fpair_id
-    | |- ?x == ?x => reflexivity
-    | |- fpair _ _ == fpair _ _ => apply fpair_Proper
-    | |- context [id _ .> _] => rewrite id_left
-    | |- context [_ .> id _] => rewrite id_right
-    | |- fpair _ _ == id (prodOb _ _) =>
-        rewrite <- fpair_id; apply fpair_Proper
-    | |- ?f .> ?g == ?f .> ?g' => f_equiv
-    | |- ?f .> ?g == ?f' .> ?g => f_equiv
-    | _ => rewrite <- ?comp_assoc; auto
+| |- context [fpair (_ .> proj1) (_ .> proj2)] => rewrite <- fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite fpair_pre
+| |- context [fpair _ _ .> proj1] => rewrite fpair_proj1
+| |- context [fpair _ _ .> proj2] => rewrite fpair_proj2
+| |- context [fpair proj1 proj2] => rewrite fpair_id
+| |- ?x == ?x => reflexivity
+| |- fpair _ _ == fpair _ _ => apply fpair_Proper
+| |- context [id _ .> _] => rewrite id_left
+| |- context [_ .> id _] => rewrite id_right
+| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply fpair_Proper
+| |- ?f .> ?g == ?f .> ?g' => f_equiv
+| |- ?f .> ?g == ?f' .> ?g => f_equiv
+| _ => rewrite <- ?comp_assoc; auto
 end.
 
 #[global] Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id
@@ -170,7 +175,7 @@ end.
 
 Ltac fpair' := autorewrite with fpair'_base.
 
-(*Module Wut.
+Module Wut.
 
 From Cat Require Export TacticFunctor.
 
@@ -180,7 +185,7 @@ Instance Simplify_fpair_proj1
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj1)) | 1 :=
 {
-    simplify := Var f
+  simplify := Var f
 }.
 Proof.
   cbn. rewrite fpair_proj1. reflexivity.
@@ -192,7 +197,7 @@ Instance Simplify_fpair_proj2
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var proj2)) | 1 :=
 {
-    simplify := Var g
+  simplify := Var g
 }.
 Proof.
   cbn. rewrite fpair_proj2. reflexivity.
@@ -204,15 +209,11 @@ Instance Simplify_fpair_id
   (C : Cat) (hp : has_products C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Var (fpair proj1 proj2)) | 1 :=
 {
-    simplify := Id (prodOb X Y)
+  simplify := Id (prodOb X Y)
 }.
 Proof.
   cbn. rewrite fpair_id. reflexivity.
 Defined.
-
-
-
-
 
 Goal forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
   fpair (@proj1 _ _ X Y) proj2 .> proj1 == proj1.
@@ -225,14 +226,12 @@ End Wut.
 Module Tactic.
 
 Inductive exp {C : Cat} {hp : has_products C} : Ob C -> Ob C -> Type :=
-    | Id : forall X : Ob C, exp X X
-    | Var : forall X Y : Ob C, Hom X Y -> exp X Y
-    | Comp : forall X Y Z : Ob C,
-        exp X Y -> exp Y Z -> exp X Z
-    | Proj1 : forall X Y : Ob C, exp (prodOb X Y) X
-    | Proj2 : forall X Y : Ob C, exp (prodOb X Y) Y
-    | Fpair : forall A B X : Ob C,
-        exp X A -> exp X B -> exp X (prodOb A B).
+| Id : forall X : Ob C, exp X X
+| Var : forall X Y : Ob C, Hom X Y -> exp X Y
+| Comp : forall X Y Z : Ob C, exp X Y -> exp Y Z -> exp X Z
+| Proj1 : forall X Y : Ob C, exp (prodOb X Y) X
+| Proj2 : forall X Y : Ob C, exp (prodOb X Y) Y
+| Fpair : forall A B X : Ob C, exp X A -> exp X B -> exp X (prodOb A B).
 
 Arguments Id    {C hp} _.
 Arguments Var   {C hp X Y} _.
@@ -241,21 +240,19 @@ Arguments Proj1 {C hp X Y}.
 Arguments Proj2 {C hp X Y}.
 Arguments Fpair {C hp A B X} _ _.
 
-Fixpoint expDenote {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y)
-    : Hom X Y :=
+Fixpoint expDenote {C : Cat} {hp : has_products C} {X Y : Ob C} (e : exp X Y) : Hom X Y :=
 match e with
-    | Id X => id X
-    | Var f => f
-    | Comp e1 e2 => expDenote e1 .> expDenote e2
-    | Proj1 => proj1
-    | Proj2 => proj2
-    | Fpair e1 e2 => fpair (expDenote e1) (expDenote e2)
+| Id X        => id X
+| Var f       => f
+| Comp e1 e2  => expDenote e1 .> expDenote e2
+| Proj1       => proj1
+| Proj2       => proj2
+| Fpair e1 e2 => fpair (expDenote e1) (expDenote e2)
 end.
 
 (* TODO: class-based simplification *)
 
-
-End Tactic.*)
+End Tactic.
 
 Theorem product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
@@ -358,7 +355,7 @@ Qed.
     product_skolem C Q (f .> p1) (f .> p2)
       (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
         match constructive_indefinite_description _ H with
-          | exist _ g _ => fpair A p1' p2' .> g
+      | exist _ g _ => fpair A p1' p2' .> g
         end).
 Proof.
   unfold product_skolem in *. intros.
@@ -386,7 +383,8 @@ Qed.
 (* TODO: TESTS *)
 (*Import Wut.*)
 
-Theorem prodOb_comm : forall (C : Cat) (hp : has_products C) (X Y : Ob C),
+Theorem prodOb_comm :
+  forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     prodOb X Y ~ prodOb Y X.
 Proof.
   intros.
@@ -469,21 +467,19 @@ Qed.
 
 Ltac copair := intros; try split;
 repeat match goal with
-    | |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] =>
-        rewrite <- copair_post, copair_id
-    | |- context [copair _ _ .> _] => rewrite copair_post
-    | |- context [coproj1 .> copair _ _] => rewrite copair_coproj1
-    | |- context [coproj2 .> copair _ _] => rewrite copair_coproj2
-    | |- context [copair coproj1 coproj2] => rewrite copair_id
-    | |- ?x == ?x => reflexivity
-    | |- copair _ _ == copair _ _ => apply copair_Proper
-    | |- context [id _ .> _] => rewrite id_left
-    | |- context [_ .> id _] => rewrite id_right
-    | |- copair _ _ == id (coprodOb _ _) =>
-        rewrite <- copair_id; apply copair_Proper
-    | |- ?f .> ?g == ?f .> ?g' => f_equiv
-    | |- ?f .> ?g == ?f' .> ?g => f_equiv
-    | _ => rewrite ?comp_assoc; auto
+| |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] => rewrite <- copair_post, copair_id
+| |- context [copair _ _ .> _] => rewrite copair_post
+| |- context [coproj1 .> copair _ _] => rewrite copair_coproj1
+| |- context [coproj2 .> copair _ _] => rewrite copair_coproj2
+| |- context [copair coproj1 coproj2] => rewrite copair_id
+| |- ?x == ?x => reflexivity
+| |- copair _ _ == copair _ _ => apply copair_Proper
+| |- context [id _ .> _] => rewrite id_left
+| |- context [_ .> id _] => rewrite id_right
+| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply copair_Proper
+| |- ?f .> ?g == ?f .> ?g' => f_equiv
+| |- ?f .> ?g == ?f' .> ?g => f_equiv
+| _ => rewrite ?comp_assoc; auto
 end.
 
 Theorem coproduct_skolem_uiso :
@@ -640,14 +636,14 @@ Defined.
 #[export]
 Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 {
-    Ob := Ob C * Ob D;
-    Hom := ProdCatHom;
-    HomSetoid := ProdCatSetoid;
-    comp := fun (X Y Z : Ob C * Ob D)
-        (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
-        (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
-        (fst f .> fst g, snd f .> snd g);
-    id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
+  Ob := Ob C * Ob D;
+  Hom := ProdCatHom;
+  HomSetoid := ProdCatSetoid;
+  comp := fun (X Y Z : Ob C * Ob D)
+      (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
+      (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
+      (fst f .> fst g, snd f .> snd g);
+  id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
 }.
 Proof.
   (* Proper *) proper; my_simpl.
@@ -712,9 +708,9 @@ Defined.
 Instance ProductFunctor {C : Cat} {hp : has_products C} :
     Functor (CAT_prodOb C C) C :=
 {
-    fob := fun P : Ob (CAT_prodOb C C) => prodOb (fst P) (snd P);
-    fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
-      ProductFunctor_fmap (fst f) (snd f)
+  fob := fun P : Ob (CAT_prodOb C C) => prodOb (fst P) (snd P);
+  fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
+    ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
   proper. apply ProductFunctor_fmap_Proper; cat.
@@ -777,9 +773,9 @@ Defined.
 Instance CoproductFunctor {C : Cat} (hp : has_coproducts C) :
     Functor (CAT_prodOb C C) C :=
 {
-    fob := fun P : Ob (CAT_prodOb C C) => coprodOb (fst P) (snd P);
-    fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
-      CoproductFunctor_fmap (fst f) (snd f)
+  fob := fun P : Ob (CAT_prodOb C C) => coprodOb (fst P) (snd P);
+  fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) =>
+    CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
   proper. apply CoproductFunctor_fmap_Proper; cat.
@@ -796,24 +792,24 @@ Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
 Instance Dual_has_coproducts (C : Cat) (hp : has_products C)
     : has_coproducts (Dual C) :=
 {
-    coprodOb := @prodOb C hp;
-    coproj1 := @proj1 C hp;
-    coproj2 := @proj2 C hp;
-    copair := @fpair C hp;
-    copair_Proper := @fpair_Proper C hp;
-    is_coproduct := @is_product C hp
+  coprodOb := @prodOb C hp;
+  coproj1 := @proj1 C hp;
+  coproj2 := @proj2 C hp;
+  copair := @fpair C hp;
+  copair_Proper := @fpair_Proper C hp;
+  is_coproduct := @is_product C hp
 }.
 
 #[export]
 Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
     : has_products (Dual C) :=
 {
-    prodOb := @coprodOb C hp;
-    proj1 := @coproj1 C hp;
-    proj2 := @coproj2 C hp;
-    fpair := @copair C hp;
-    fpair_Proper := @copair_Proper C hp;
-    is_product := @is_coproduct C hp
+  prodOb := @coprodOb C hp;
+  proj1 := @coproj1 C hp;
+  proj2 := @coproj2 C hp;
+  fpair := @copair C hp;
+  fpair_Proper := @copair_Proper C hp;
+  is_product := @is_coproduct C hp
 }.
 
 #[refine]
@@ -821,8 +817,8 @@ Instance Dual_has_products (C : Cat) (hp : has_coproducts C)
 Instance Dual_has_biproducts (C : Cat) (hp : has_biproducts C)
     : has_biproducts (Dual C) :=
 {
-    products := Dual_has_products hp;
-    coproducts := Dual_has_coproducts hp;
+  products := Dual_has_products hp;
+  coproducts := Dual_has_coproducts hp;
 }.
 Proof.
   simpl. intros. rewrite product_is_coproduct. trivial.

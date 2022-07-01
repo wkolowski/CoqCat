@@ -7,9 +7,9 @@ Set Implicit Arguments.
 
 Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 {
-    component : forall X : Ob C, Hom (fob T X) (fob S X);
-    coherence : forall (X Y : Ob C) (f : Hom X Y),
-      component X .> fmap S f == fmap T f .> component Y
+  component : forall X : Ob C, Hom (fob T X) (fob S X);
+  coherence : forall (X Y : Ob C) (f : Hom X Y),
+    component X .> fmap S f == fmap T f .> component Y
 }.
 
 Arguments component [C D T S] _ _.
@@ -20,8 +20,8 @@ Arguments coherence [C D T S] _ [X Y] _.
 Instance NatTransSetoid {C D : Cat} (F G : Functor C D)
     : Setoid (NatTrans F G) :=
 {
-    equiv := fun alfa beta : NatTrans F G =>
-      forall X : Ob C, component alfa X == component beta X
+  equiv := fun alfa beta : NatTrans F G =>
+    forall X : Ob C, component alfa X == component beta X
 }.
 Proof.
   split; red; intros; try rewrite H; try rewrite H0; reflexivity.
@@ -33,7 +33,7 @@ Instance NatTransComp {C D : Cat}
     {F : Functor C D} {G : Functor C D} {H : Functor C D}
     (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H :=
 {
-    component := fun X : Ob C => component α X .> component β X
+  component := fun X : Ob C => component α X .> component β X
 }.
 Proof.
   intros. destruct α, β; cbn in *.
@@ -44,7 +44,7 @@ Defined.
 #[export]
 Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 {
-    component := fun X : Ob C => id (fob F X)
+  component := fun X : Ob C => id (fob F X)
 }.
 Proof. cat. Defined.
 
@@ -52,11 +52,11 @@ Proof. cat. Defined.
 #[export]
 Instance FunCat (C D : Cat) : Cat :=
 {
-    Ob := Functor C D;
-    Hom := @NatTrans C D;
-    HomSetoid := NatTransSetoid;
-    comp := @NatTransComp C D;
-    id := NatTransId
+  Ob := Functor C D;
+  Hom := @NatTrans C D;
+  HomSetoid := NatTransSetoid;
+  comp := @NatTransComp C D;
+  id := NatTransId
 }.
 Proof.
   (* Proper *) do 3 red; cbn; intros. rewrite H, H0. reflexivity.
@@ -103,9 +103,9 @@ Defined.
 Instance FunCat_prodOb {C D : Cat} {hp : has_products D}
     (F G : Functor C D) : Functor C D :=
 {
-    fob := fun X : Ob C => prodOb (fob F X) (fob G X);
-    fmap := fun (X Y : Ob C) (f : Hom X Y) =>
-      ProductFunctor_fmap (fmap F f) (fmap G f)
+  fob := fun X : Ob C => prodOb (fob F X) (fob G X);
+  fmap := fun (X Y : Ob C) (f : Hom X Y) =>
+    ProductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
   proper.
@@ -118,7 +118,7 @@ Defined.
 Instance FunCat_proj1 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
 {
-    component := fun _ : Ob C => proj1
+  component := fun _ : Ob C => proj1
 }.
 Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
@@ -129,7 +129,7 @@ Defined.
 Instance FunCat_proj2 {C D : Cat} {hp : has_products D}
     {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
 {
-    component := fun _ : Ob C => proj2
+  component := fun _ : Ob C => proj2
 }.
 Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
@@ -141,7 +141,7 @@ Instance FunCat_fpair
     {C D : Cat} {hp : has_products D} {F G H : Functor C D}
     (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
 {
-    component := fun X : Ob C => fpair (component α X) (component β X)
+  component := fun X : Ob C => fpair (component α X) (component β X)
 }.
 Proof.
   intros. cbn. unfold ProductFunctor_fmap.
@@ -153,12 +153,11 @@ Defined.
 Instance FunCat_has_products {C D : Cat} {hp : has_products D}
     : has_products (FunCat C D) :=
 {
-    prodOb := FunCat_prodOb;
-    proj1 := @FunCat_proj1 C D hp;
-    proj2 := @FunCat_proj2 C D hp;
-    fpair := fun (G H F : Functor C D)
-      (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H)
-      => @FunCat_fpair C D hp F G H α β
+  prodOb := FunCat_prodOb;
+  proj1 := @FunCat_proj1 C D hp;
+  proj2 := @FunCat_proj2 C D hp;
+  fpair := fun (G H F : Functor C D) (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H) =>
+    @FunCat_fpair C D hp F G H α β
 }.
 Proof.
   proper. fpair.
@@ -171,9 +170,9 @@ Defined.
 Instance FunCat_coprodOb {C D : Cat} {hp : has_coproducts D}
     (F G : Functor C D) : Functor C D :=
 {
-    fob := fun X : Ob C => coprodOb (fob F X) (fob G X);
-    fmap := fun (X Y : Ob C) (f : Hom X Y) =>
-      CoproductFunctor_fmap (fmap F f) (fmap G f)
+  fob := fun X : Ob C => coprodOb (fob F X) (fob G X);
+  fmap := fun (X Y : Ob C) (f : Hom X Y) =>
+    CoproductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
   proper.
@@ -186,7 +185,7 @@ Defined.
 Instance FunCat_coproj1 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans F (FunCat_coprodOb F G) :=
 {
-    component := fun _ : Ob C => coproj1
+  component := fun _ : Ob C => coproj1
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap. copair.
@@ -197,7 +196,7 @@ Defined.
 Instance FunCat_coproj2 {C D : Cat} {hp : has_coproducts D}
     {F G : Functor C D} : NatTrans G (FunCat_coprodOb F G) :=
 {
-    component := fun _ : Ob C => coproj2
+  component := fun _ : Ob C => coproj2
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap. copair.
@@ -209,7 +208,7 @@ Instance FunCat_copair
     {C D : Cat} {hp : has_coproducts D} {F G H : Functor C D}
     (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_coprodOb F G) H :=
 {
-    component := fun X : Ob C => copair (component α X) (component β X)
+  component := fun X : Ob C => copair (component α X) (component β X)
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap.
@@ -221,12 +220,12 @@ Defined.
 Instance FunCat_has_coproducts {C D : Cat} {hp : has_coproducts D}
   : has_coproducts (FunCat C D) :=
 {
-    coprodOb := FunCat_coprodOb;
-    coproj1 := @FunCat_coproj1 C D hp;
-    coproj2 := @FunCat_coproj2 C D hp;
-    copair := fun (F G H : Functor C D)
-      (α : @Hom (FunCat C D) F H) (β : @Hom (FunCat C D) G H)
-      => @FunCat_copair C D hp F G H α β
+  coprodOb := FunCat_coprodOb;
+  coproj1 := @FunCat_coproj1 C D hp;
+  coproj2 := @FunCat_coproj2 C D hp;
+  copair := fun (F G H : Functor C D)
+    (α : @Hom (FunCat C D) F H) (β : @Hom (FunCat C D) G H)
+    => @FunCat_copair C D hp F G H α β
 }.
 Proof.
   proper. copair.
@@ -241,7 +240,7 @@ Instance FunCat_expOb
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
   (F G : Functor C D) : Functor C D :=
 {
-    fob := fun X : Ob C => expOb (fob F X) (fob G X)
+  fob := fun X : Ob C => expOb (fob F X) (fob G X)
 }.
 Proof.
   intros.
@@ -253,7 +252,6 @@ Abort.
 #[export]
 Instance FunCat_has_exponentials
   {C D : Cat} {hp : has_products D} {he : has_exponentials D}
-  : has_exponentials (FunCat C D) :=
-{}.
+  : has_exponentials (FunCat C D) := {}.
 Proof.
 Abort.

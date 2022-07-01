@@ -13,10 +13,10 @@ Set Implicit Arguments.
 
 Class Grp : Type :=
 {
-    mon :> Mon;
-    inv : SetoidHom mon mon;
-    inv_l : forall x : mon, op (inv x) x == neutr;
-    inv_r : forall x : mon, op x (inv x) == neutr
+  mon :> Mon;
+  inv : SetoidHom mon mon;
+  inv_l : forall x : mon, op (inv x) x == neutr;
+  inv_r : forall x : mon, op x (inv x) == neutr
 }.
 
 #[global] Hint Resolve inv_l inv_r : core.
@@ -80,18 +80,18 @@ Defined.
 
 Class GrpHom (X Y : Grp) : Type :=
 {
-    monHom :> MonHom X Y;
-    pres_inv : forall x : X, monHom (inv x) == inv (monHom x)
+  monHom :> MonHom X Y;
+  pres_inv : forall x : X, monHom (inv x) == inv (monHom x)
 }.
 
 Coercion monHom : GrpHom >-> MonHom.
 
 Inductive exp (X : Grp) : Type :=
-    | Id : exp X
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
-    | Inv : exp X -> exp X.
+| Id : exp X
+| Var : X -> exp X
+| Op : exp X -> exp X -> exp X
+| Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
+| Inv : exp X -> exp X.
 
 Arguments Id  {X}.
 Arguments Var {X} _.
@@ -103,32 +103,32 @@ Unset Asymmetric Patterns.
 
 Fixpoint expDenote {X : Grp} (e : exp X) : X :=
 match e with
-    | Id => neutr
-    | Var v => v
-    | Op e1 e2 => op (expDenote e1) (expDenote e2)
-    | Mor f e' => f (expDenote e')
-    | Inv e' => inv (expDenote e')
+| Id => neutr
+| Var v => v
+| Op e1 e2 => op (expDenote e1) (expDenote e2)
+| Mor f e' => f (expDenote e')
+| Inv e' => inv (expDenote e')
 end.
 
 Fixpoint simplify {X : Grp} (e : exp X) : exp X :=
 match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 => Op (simplify e1) (simplify e2)
-    | Mor f e' =>
-        match simplify e' with
-            | Id => Id
-            | Op e1 e2 => Op (Mor f e1) (Mor f e2)
-            | Inv e'' => Inv (Mor f e'')
-            | e'' => Mor f e''
-        end
-    | Inv e' =>
-        match simplify e' with
-            | Id => Id
-            | Op e1 e2 => Op (Inv e2) (Inv e1)
-            | Inv e'' => e''
-            | e'' => Inv e''
-        end
+| Id => Id
+| Var v => Var v
+| Op e1 e2 => Op (simplify e1) (simplify e2)
+| Mor f e' =>
+  match simplify e' with
+  | Id => Id
+  | Op e1 e2 => Op (Mor f e1) (Mor f e2)
+  | Inv e'' => Inv (Mor f e'')
+  | e'' => Mor f e''
+  end
+| Inv e' =>
+  match simplify e' with
+  | Id => Id
+  | Op e1 e2 => Op (Inv e2) (Inv e1)
+  | Inv e'' => e''
+  | e'' => Inv e''
+  end
 end.
 
 Theorem simplify_correct :
@@ -153,8 +153,8 @@ Qed.
 
 Fixpoint expDenoteL {X : Grp} (l : list X) : X :=
 match l with
-    | [] => neutr
-    | h :: t => op h (expDenoteL t)
+| [] => neutr
+| h :: t => op h (expDenoteL t)
 end.
 
 Lemma expDenoteL_app :
@@ -187,11 +187,11 @@ Qed.
 
 Fixpoint flatten {X : Grp} (e : exp X) : list X :=
 match e with
-    | Id => []
-    | Var v => [v]
-    | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor f e' => map f (flatten e')
-    | Inv e' => rev (map inv (flatten e'))
+| Id => []
+| Var v => [v]
+| Op e1 e2 => flatten e1 ++ flatten e2
+| Mor f e' => map f (flatten e')
+| Inv e' => rev (map inv (flatten e'))
 end.
 
 Theorem flatten_correct :
@@ -226,8 +226,8 @@ Qed.
 
 Class Reify (X : Grp) (x : X) : Type :=
 {
-    reify : exp X;
-    reify_spec : expDenote reify == x
+  reify : exp X;
+  reify_spec : expDenote reify == x
 }.
 
 Arguments Reify {X} _.
@@ -237,7 +237,7 @@ Arguments reify {X} _ {Reify}.
 #[export]
 Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
 {
-    reify := Var x
+  reify := Var x
 }.
 Proof. reflexivity. Defined.
 
@@ -246,7 +246,7 @@ Proof. reflexivity. Defined.
 Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
-    reify := Op (reify a) (reify b)
+  reify := Op (reify a) (reify b)
 }.
 Proof.
   cbn. rewrite !reify_spec. reflexivity.
@@ -257,7 +257,7 @@ Defined.
 Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
-    reify := Mor f (reify x)
+  reify := Mor f (reify x)
 }.
 Proof.
   cbn. rewrite reify_spec. reflexivity.
@@ -267,7 +267,7 @@ Defined.
 #[export]
 Instance ReifyId (X : Grp) : Reify neutr | 0 :=
 {
-    reify := Id
+  reify := Id
 }.
 Proof.
   cbn. reflexivity.
@@ -277,7 +277,7 @@ Defined.
 #[export]
 Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
 {
-    reify := Inv (reify x)
+  reify := Inv (reify x)
 }.
 Proof.
   cbn. rewrite reify_spec. reflexivity.
@@ -285,28 +285,28 @@ Defined.
 
 Ltac reflect_grp := cbn; intros;
 match goal with
-    | |- ?e1 == ?e2 =>
-        change (expDenote (reify e1) == expDenote (reify e2));
-        apply grp_reflect2; cbn
+| |- ?e1 == ?e2 =>
+  change (expDenote (reify e1) == expDenote (reify e2));
+  apply grp_reflect2; cbn
 end.
 
 Ltac grp_simpl := mon_simpl. 
 
 Ltac grpob G := try intros until G;
 match type of G with
-  | Grp =>
-    let a := fresh G "_inv" in 
-    let b := fresh G "_inv_l" in
-    let c := fresh G "_inv_r" in destruct G as [G a b c]
-  | Ob _ => progress cbn in G; grpob G
+| Grp =>
+  let a := fresh G "_inv" in 
+  let b := fresh G "_inv_l" in
+  let c := fresh G "_inv_r" in destruct G as [G a b c]
+| Ob _ => progress cbn in G; grpob G
 end.
 
 Ltac grpob' G := grpob G; monob' G.
 
 Ltac grpobs_template tac := repeat
 match goal with
-  | G : Grp |- _ => tac G
-  | G : Ob _ |- _ => tac G
+| G : Grp |- _ => tac G
+| G : Ob _ |- _ => tac G
 end.
 
 Ltac grpobs := grpobs_template grpob.
@@ -314,17 +314,17 @@ Ltac grpobs' := grpobs_template grpob'.
 
 Ltac grphom f :=
 match type of f with
-  | GrpHom _ _ =>
-    let a := fresh f "_pres_inv" in destruct f as [f a]
-  | Hom _ _ => progress cbn in f; grphom f
+| GrpHom _ _ =>
+  let a := fresh f "_pres_inv" in destruct f as [f a]
+| Hom _ _ => progress cbn in f; grphom f
 end; cbn in *.
 
 Ltac grphom' f := grphom f; monhom' f.
 
 Ltac grphoms_template tac := intros; repeat
 match goal with
-  | f : GrpHom _ _ |- _ => tac f
-  | f : Hom _ _ |- _ => tac f
+| f : GrpHom _ _ |- _ => tac f
+| f : Hom _ _ |- _ => tac f
 end; grp_simpl.
 
 Ltac grphoms := grphoms_template grphom.
@@ -332,11 +332,11 @@ Ltac grphoms' := grphoms_template grphom'.
 
 Ltac grp := intros; try (cat; fail); repeat
 match goal with
-    | |- _ == _ => reflect_grp; reflexivity
-    | |- Equivalence _ => solve_equiv
-    | |- Proper _ _ => proper
-(*    | |- (_, _) = (_, _) => f_equal*)
-    | _ => grp_simpl || grpobs' || grphoms' || cat
+| |- _ == _ => reflect_grp; reflexivity
+| |- Equivalence _ => solve_equiv
+| |- Proper _ _ => proper
+(*| |- (_, _) = (_, _) => f_equal*)
+| _ => grp_simpl || grpobs' || grphoms' || cat
 end.
 
 Section test.
@@ -397,8 +397,7 @@ End test.
 #[export]
 Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
-  equiv := fun f g : GrpHom X Y =>
-      @equiv _ (SgrHomSetoid X Y) f g
+  equiv := fun f g : GrpHom X Y => @equiv _ (SgrHomSetoid X Y) f g
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
@@ -417,11 +416,11 @@ Defined.
 #[export]
 Instance GrpCat : Cat :=
 {
-    Ob := Grp;
-    Hom := GrpHom;
-    HomSetoid := GrpHomSetoid;
-    comp := GrpComp;
-    id := GrpId;
+  Ob := Grp;
+  Hom := GrpHom;
+  HomSetoid := GrpHomSetoid;
+  comp := GrpComp;
+  id := GrpId;
 }.
 Proof.
   (* Proper *) proper; repeat red; intros; destruct x, y, x0, y0; cat;
@@ -438,8 +437,8 @@ Defined.
 #[export]
 Instance Grp_zero : Grp :=
 {
-    mon := Mon_init;
-    inv := Grp_zero_inv
+  mon := Mon_init;
+  inv := Grp_zero_inv
 }.
 Proof. all: grp. Defined.
 
@@ -466,8 +465,8 @@ Defined.
 #[export]
 Instance Grp_has_term : has_term GrpCat :=
 {
-    term := Grp_zero;
-    delete := Grp_delete
+  term := Grp_zero;
+  delete := Grp_delete
 }.
 Proof. grp. Defined.
 
@@ -475,8 +474,8 @@ Proof. grp. Defined.
 #[export]
 Instance Grp_has_zero : has_zero GrpCat :=
 {
-    zero_is_initial := Grp_has_init;
-    zero_is_terminal := Grp_has_term
+  zero_is_initial := Grp_has_init;
+  zero_is_terminal := Grp_has_term
 }.
 Proof. grp. Defined.
 
@@ -491,8 +490,8 @@ Defined.
 #[export]
 Instance Grp_prodOb (X Y : Grp) : Grp :=
 {
-    mon := Mon_prodOb X Y;
-    inv := Grp_prodOb_inv X Y
+  mon := Mon_prodOb X Y;
+  inv := Grp_prodOb_inv X Y
 }.
 Proof. all: destruct x; grp. Defined.
 
@@ -516,10 +515,10 @@ Defined.
 #[export]
 Instance Grp_has_products : has_products GrpCat :=
 {
-    prodOb := Grp_prodOb;
-    proj1 := Grp_proj1;
-    proj2 := Grp_proj2;
-    fpair := Grp_fpair
+  prodOb := Grp_prodOb;
+  proj1 := Grp_proj1;
+  proj2 := Grp_proj2;
+  fpair := Grp_fpair
 }.
 Proof.
   grp.
@@ -541,8 +540,7 @@ Coercion AutHom_Fun : AutHom >-> Hom.
 Instance AutHomSetoid (C : Cat) (X : Ob C)
     : forall A B : AutOb C X, Setoid (AutHom A B) :=
 {
-    equiv := fun f g : AutHom A B =>
-      @equiv _ (@HomSetoid C X X) f g
+  equiv := fun f g : AutHom A B => @equiv _ (@HomSetoid C X X) f g
 }.
 Proof. grp. Defined.
 
@@ -562,19 +560,19 @@ Defined.
 #[export]
 Instance AutCat (C : Cat) (X : Ob C) : Cat :=
 {
-    Ob := AutOb C X;
-    Hom := @AutHom C X;
-    HomSetoid := @AutHomSetoid C X;
-    comp := @AutComp C X;
-    id := @AutId C X;
+  Ob := AutOb C X;
+  Hom := @AutHom C X;
+  HomSetoid := @AutHomSetoid C X;
+  comp := @AutComp C X;
+  id := @AutId C X;
 }.
 Proof. all: grp. Defined.
 
 (* TODO : finish #[export]
 Instance Cayley_Sgr (G : Grp) : Sgr :=
 {
-    carrier := {f : G -> G & {g : G | f = op g}};
-    op := fun f g => fun x : G => g (f x)
+  carrier := {f : G -> G & {g : G | f = op g}};
+  op := fun f g => fun x : G => g (f x)
 }.
 Proof.
   destruct 1 as [f1 [g1 H1]], 1 as [f2 [g2 H2]].
@@ -586,8 +584,8 @@ Abort.*)
 (*#[export]
 Instance Cayley_Mon (G : Grp) : Mon :=
 {
-    sgr := Cayley_Sgr G;
-    neutr := fun x : G => x
+  sgr := Cayley_Sgr G;
+  neutr := fun x : G => x
 }.
 Proof. 
   all: intro; cbn; extensionality x; trivial.
@@ -597,6 +595,6 @@ Defined.
 #[export]
 Instance Cayley_Grp (G : Grp) : Grp :=
 {
-    mon := Cayley_Mon G;
-    (*inv := fun f : G -> G => *)
-}.*)
+  mon := Cayley_Mon G;
+}.
+*)

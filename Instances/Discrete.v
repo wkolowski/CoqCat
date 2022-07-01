@@ -8,12 +8,12 @@ From Cat Require Import BinProdCoprod.
 #[export]
 Instance Discrete (X : Set) : Cat :=
 {
-    Ob := X;
-    Hom := fun x x' : X => x = x';
-    HomSetoid := fun (x x' : X) =>
-      {| equiv := fun H H' : x = x' => True |}; (* Proof irrelevance *)
-    comp := @eq_trans X;
-    id := @eq_refl X
+  Ob := X;
+  Hom := fun x x' : X => x = x';
+  HomSetoid := fun (x x' : X) =>
+    {| equiv := fun H H' : x = x' => True |}; (* Proof irrelevance *)
+  comp := @eq_trans X;
+  id := @eq_refl X
 }.
 Proof.
   (* Equivalence *) solve_equiv.
@@ -38,10 +38,10 @@ Defined.
 #[export]
 Instance Two : Cat :=
 {
-    Ob := bool;
-    Hom := fun b b' : bool => if eqb b b' then True else False;
-    HomSetoid := fun b b' : bool =>
-      {| equiv := fun _ _ => True |}
+  Ob := bool;
+  Hom := fun b b' : bool => if eqb b b' then True else False;
+  HomSetoid := fun b b' : bool =>
+    {| equiv := fun _ _ => True |}
 }.
 Proof.
   (* Equivalence *) solve_equiv.

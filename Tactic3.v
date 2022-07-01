@@ -5,10 +5,9 @@ From Cat Require Import Cat.
 Set Implicit Arguments.
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
-    | Id : forall X : Ob C, exp X X
-    | Var : forall X Y : Ob C, Hom X Y -> exp X Y
-    | Comp : forall X Y Z : Ob C,
-        exp X Y -> exp Y Z -> exp X Z.
+| Id   : forall X : Ob C, exp X X
+| Var  : forall X Y : Ob C, Hom X Y -> exp X Y
+| Comp : forall X Y Z : Ob C, exp X Y -> exp Y Z -> exp X Z.
 
 Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
@@ -16,12 +15,11 @@ Arguments Comp {C X Y Z} _ _.
 
 #[global] Hint Constructors exp : core.
 
-Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y)
-    : Hom X Y :=
+Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y) : Hom X Y :=
 match e with
-    | Id X => id X
-    | Var f => f
-    | Comp e1 e2 => expDenote e1 .> expDenote e2
+| Id X => id X
+| Var f => f
+| Comp e1 e2 => expDenote e1 .> expDenote e2
 end.
 
 Fixpoint simplify {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y.
@@ -51,28 +49,26 @@ Qed.
 
 Class PackedHom (C : Cat) : Type := mk
 {
-    dom : Ob C;
-    cod : Ob C;
-    mor : Hom dom cod;
+  dom : Ob C;
+  cod : Ob C;
+  mor : Hom dom cod;
 }.
 
 Arguments mk [C] _ _.
 Arguments dom [C] _.
 Arguments cod [C] _.
 
-Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y)
-    : list (PackedHom C) :=
+Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp X Y) : list (PackedHom C) :=
 match e with
-    | Id _ => []
-    | @Var _ X Y f => [mk X Y f]
-    | Comp e1 e2 => flatten e1 ++ flatten e2
+| Id _         => []
+| @Var _ X Y f => [mk X Y f]
+| Comp e1 e2   => flatten e1 ++ flatten e2
 end.
 
 Inductive wf {C : Cat} : list (PackedHom C) -> Prop :=
-    | wf_nil : wf []
-    | wf_singl : forall f : PackedHom C, wf [f]
-    | wf_app : forall l1 l2 : list (PackedHom C),
-        wf l1 -> wf l2 -> wf (l1 ++ l2).
+| wf_nil : wf []
+| wf_singl : forall f : PackedHom C, wf [f]
+| wf_app : forall l1 l2 : list (PackedHom C), wf l1 -> wf l2 -> wf (l1 ++ l2).
 
 #[global] Hint Constructors wf : core.
 
@@ -83,11 +79,11 @@ Proof.
 Qed.
 
 Inductive wf' {C : Cat} : list (PackedHom C) -> Prop :=
-    | wf'_nil : wf' []
-    | wf'_singl : forall f : PackedHom C, wf' [f]
-    | wf'_cons : forall (X : Ob C) (f g : PackedHom C)
-        (l : list (PackedHom C)),
-          cod f = dom g -> wf' (g :: l) -> wf' (f :: g :: l).
+| wf'_nil : wf' []
+| wf'_singl : forall f : PackedHom C, wf' [f]
+| wf'_cons :
+  forall (X : Ob C) (f g : PackedHom C) (l : list (PackedHom C)),
+    cod f = dom g -> wf' (g :: l) -> wf' (f :: g :: l).
 
 #[global] Hint Constructors wf' : core.
 
@@ -154,19 +150,19 @@ Qed.
 
 Ltac reify mor :=
 match mor with
-    | id ?X => constr:(Id X)
-    | ?f .> ?g =>
+| id ?X => constr:(Id X)
+| ?f .> ?g =>
         let e1 := reify f in
         let e2 := reify g in constr:(Comp e1 e2)
-    | ?f => match type of f with
-        | Hom ?X ?Y => constr:(Var f)
-        | _ => fail
+| ?f => match type of f with
+    | Hom ?X ?Y => constr:(Var f)
+    | _ => fail
     end
 end.
 
 Ltac mor' := intros;
 match goal with
-    | |- ?f == ?g =>
+| |- ?f == ?g =>
         let e1 := reify f in
         let e2 := reify g in
           change (expDenote e1 == expDenote e2);
@@ -217,30 +213,30 @@ match e in (exp o o0) return (exp o o0) with
   | @Comp _ X0 Y0 Z e1 e2 =>
     match simplify' e1 in (exp o o0)
     return (exp o o0 -> exp o0 Z -> exp o Z) with
-      | Id X1 =>
+  | Id X1 =>
           fun _ (e2 : exp X1 Z) => simplify' e2
-      | @Var _ X1 Y1 f1 =>
+  | @Var _ X1 Y1 f1 =>
           fun _ (e2 : exp Y1 Z) =>
           match simplify' e2 in (exp o o0)
           return (exp o o0 -> Hom X1 o -> exp X1 o0)
           with
-          | Id X2 => fun _ (f1 : Hom X1 X2) => Var f1
-          | @Var _ X2 Y2 f2 =>
+      | Id X2 => fun _ (f1 : Hom X1 X2) => Var f1
+      | @Var _ X2 Y2 f2 =>
               fun _ (f1 : Hom X1 X2) => Comp (Var f1) (Var f2)
-          | @Comp _ X2 Y2 Z0 e21 e22 =>
+      | @Comp _ X2 Y2 Z0 e21 e22 =>
               fun _ (f2 : Hom X1 X2) =>
               Comp (Var f2) (Comp e21 e22)
           end e2 f1
-      | @Comp _ X1 Y1 Z0 e11 e12 =>
+  | @Comp _ X1 Y1 Z0 e11 e12 =>
           fun _ (e2 : exp Z0 Z) =>
           match simplify' e2 in (exp o o0)
           return (exp o o0 -> exp Y1 o -> exp X1 o0)
           with
-          | Id X2 => fun _ (e12 : exp Y1 X2) => Comp e11 e12
-          | @Var _ X2 Y2 f2 =>
+      | Id X2 => fun _ (e12 : exp Y1 X2) => Comp e11 e12
+      | @Var _ X2 Y2 f2 =>
               fun _ (e12 : exp Y1 X2) =>
               Comp (Comp e11 e12) (Var f2)
-          | @Comp _ X2 Y2 Z1 e21 e22 =>
+      | @Comp _ X2 Y2 Z1 e21 e22 =>
               fun _ (e12 : exp Y1 X2) =>
               Comp (Comp e11 e12) (Comp e21 e22)
           end e2 e12

@@ -1,10 +1,15 @@
 From Cat Require Import Base.
 
 Inductive ext : forall A : Set, A -> A -> Prop :=
-    | ext_eq : forall (A : Set) (x y : A), x = y -> ext A x y
-    | ext_trans : forall (A : Set) (x y z : A), ext A x y -> ext A y z -> ext A x z
-    | ext_ext : forall (A B : Set) (f g : A -> B),
-      (forall x : A, ext B (f x) (g x)) -> ext (A -> B) f g.
+| ext_eq :
+  forall (A : Set) (x y : A),
+    x = y -> ext A x y
+| ext_trans :
+  forall (A : Set) (x y z : A),
+    ext A x y -> ext A y z -> ext A x z
+| ext_ext :
+  forall (A B : Set) (f g : A -> B),
+    (forall x : A, ext B (f x) (g x)) -> ext (A -> B) f g.
 
 Arguments ext [A] _ _.
 
@@ -30,6 +35,6 @@ Abort.
 
 (*Inductive JMequiv_ext : forall (A : Type) (_ : Setoid A) (B : Type),
     A -> B -> Prop :=
-    | JMequiv_equiv : forall (A B : Type), Setoid A ->
+| JMequiv_equiv : forall (A B : Type), Setoid A ->
         forall x y : A, x == y -> JMequiv_ext x y.
-    | JMequiv_ext : forall *)
+| JMequiv_ext : forall *)

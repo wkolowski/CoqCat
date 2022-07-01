@@ -5,38 +5,38 @@ Set Implicit Arguments.
 
 Class has_init (C : Cat) : Type :=
 {
-    init : Ob C;
-    create : forall X : Ob C, Hom init X;
-    create_unique :
-      forall (X : Ob C) (f : Hom init X), f == create X;
+  init : Ob C;
+  create : forall X : Ob C, Hom init X;
+  create_unique :
+    forall (X : Ob C) (f : Hom init X), f == create X;
 }.
 
 Arguments init _ {has_init}.
 
 Ltac init := intros; repeat
 match goal with
-    | |- context [?f] =>
-        match type of f with
-            | Hom (init _) _ => rewrite (create_unique _ f)
-        end
-    | |- ?x == ?x => reflexivity
+| |- context [?f] =>
+    match type of f with
+    | Hom (init _) _ => rewrite (create_unique _ f)
+    end
+| |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
 Class has_term (C : Cat) : Type :=
 {
-    term : Ob C;
-    delete : forall X : Ob C, Hom X term;
-    delete_unique :
-      forall (X : Ob C) (f : Hom X term), f == delete X;
+  term : Ob C;
+  delete : forall X : Ob C, Hom X term;
+  delete_unique :
+    forall (X : Ob C) (f : Hom X term), f == delete X;
 }.
 
 Arguments term _ {has_term}.
 
 Class has_zero (C : Cat) : Type :=
 {
-    zero_is_initial :> has_init C;
-    zero_is_terminal :> has_term C;
-    initial_is_terminal : init C = term C
+  zero_is_initial :> has_init C;
+  zero_is_terminal :> has_term C;
+  initial_is_terminal : init C = term C
 }.
 
 Coercion zero_is_initial : has_zero >-> has_init.
@@ -62,8 +62,8 @@ Module Equiv.
 #[export]
 Instance hi_hieq (C : Cat) (hi : InitTerm.has_init C) : has_init C :=
 {
-    init := @InitTerm.init C hi;
-    create := @InitTerm.create C hi;
+  init := @InitTerm.init C hi;
+  create := @InitTerm.create C hi;
 }.
 Proof. InitTerm.init. Defined.
 
@@ -71,8 +71,8 @@ Proof. InitTerm.init. Defined.
 #[export]
 Instance hieq_hi (C : Cat) (hieq : has_init C) : InitTerm.has_init C :=
 {
-    InitTerm.init := @init C hieq;
-    InitTerm.create := @create C hieq
+  InitTerm.init := @init C hieq;
+  InitTerm.create := @create C hieq
 }.
 Proof. init. Defined.
 
@@ -80,8 +80,8 @@ Proof. init. Defined.
 #[export]
 Instance ht_hteq (C : Cat) (ht : InitTerm.has_term C) : has_term C :=
 {
-    term := @InitTerm.term C ht;
-    delete := @InitTerm.delete C ht;
+  term := @InitTerm.term C ht;
+  delete := @InitTerm.delete C ht;
 }.
 Proof. InitTerm.term. Defined.
 
@@ -89,8 +89,8 @@ Proof. InitTerm.term. Defined.
 #[export]
 Instance hteq_ht (C : Cat) (hteq : has_term C) : InitTerm.has_term C :=
 {
-    InitTerm.term := @term C hteq;
-    InitTerm.delete := @delete C hteq;
+  InitTerm.term := @term C hteq;
+  InitTerm.delete := @delete C hteq;
 }.
 Proof. intros. apply delete_unique. Defined.
 
@@ -102,8 +102,8 @@ End Equiv.
 #[export]
 Instance Dual_init_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
 {
-    term := init C;
-    delete := @create C hi
+  term := init C;
+  delete := @create C hi
 }.
 Proof. init. init. cat. apply create_unique. Defined.
 
@@ -111,8 +111,8 @@ Proof. init. init. cat. apply create_unique. Defined.
 #[export]
 Instance Dual_term_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
 {
-    init := term C;
-    create := @delete C ht
+  init := term C;
+  create := @delete C ht
 }.
 Proof. cat. apply delete_unique. Defined.
 
@@ -120,8 +120,8 @@ Proof. cat. apply delete_unique. Defined.
 #[export]
 Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 {
-    zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
-    zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);
+  zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
+  zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);
 }.
 Proof. cat. Defined.
 

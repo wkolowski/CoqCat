@@ -16,27 +16,27 @@ Definition biequalizer (C : Cat) {X Y : Ob C} (f g : Hom X Y)
 
 Class has_equalizers (C : Cat) : Type :=
 {
-    eq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-    eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-    is_equalizer :
-      forall (X Y : Ob C) (f g : Hom X Y),
-        equalizer C f g (eq_ob f g) (eq_mor f g)
+  eq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
+  eq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+  is_equalizer :
+    forall (X Y : Ob C) (f g : Hom X Y),
+      equalizer C f g (eq_ob f g) (eq_mor f g)
 }.
 
 Class has_coequalizers (C : Cat) : Type :=
 {
-    coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-    coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
-    is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
-        coequalizer C f g (coeq_ob f g) (coeq_mor f g)
+  coeq_ob : forall {X Y : Ob C} (f g : Hom X Y), Ob C;
+  coeq_mor : forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
+  is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
+      coequalizer C f g (coeq_ob f g) (coeq_mor f g)
 }.
 
 Class has_biequalizers (C : Cat) : Type :=
 {
-    bi_has_equalizers :> has_equalizers C;
-    bi_has_coequalizers :> has_coequalizers C;
-    equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
-        eq_ob f g = coeq_ob f g
+  bi_has_equalizers :> has_equalizers C;
+  bi_has_coequalizers :> has_coequalizers C;
+  equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y),
+      eq_ob f g = coeq_ob f g
 }.
 
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
@@ -119,18 +119,18 @@ Defined.
 Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C)
     : has_coequalizers (Dual C) :=
 {
-    coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
-    coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
-    is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
+  coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
+  coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
+  is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
 }.
 
 #[export]
 Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
     : has_equalizers (Dual C) :=
 {
-    eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
-    eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
-    is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
+  eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
+  eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
+  is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
 }.
 
 #[refine]
@@ -138,8 +138,8 @@ Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
 Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
     : has_biequalizers (Dual C) :=
 {
-    bi_has_equalizers := Dual_has_equalizers C he;
-    bi_has_coequalizers := Dual_has_coequalizers C he;
+  bi_has_equalizers := Dual_has_equalizers C he;
+  bi_has_coequalizers := Dual_has_coequalizers C he;
 }.
 Proof.
   simpl. intros. rewrite equalizer_is_coequalizer. trivial.

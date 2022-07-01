@@ -2,8 +2,8 @@ From Cat Require Export Instances.Setoid.Pos.
 
 Class Lin : Type :=
 {
-    pos :> Pos;
-    leq_total : forall x y : pos, leq x y \/ leq y x
+  pos :> Pos;
+  leq_total : forall x y : pos, leq x y \/ leq y x
 }.
 
 #[global] Hint Resolve leq_total : core.
@@ -14,17 +14,17 @@ Ltac lin_simpl := pos_simpl.
 
 Ltac linob P := try intros until P;
 match type of P with
-  | Lin =>
-    let a := fresh P "_leq_total" in destruct P as [P a]
-  | Ob _ => progress cbn in P; prosob P
+| Lin =>
+  let a := fresh P "_leq_total" in destruct P as [P a]
+| Ob _ => progress cbn in P; prosob P
 end.
 
 Ltac linob' P := linob P; posob' P.
 
 Ltac linobs_template tac := intros; repeat
 match goal with
-  | P : Lin |- _ => tac P
-  | P : Ob _ |- _ => tac P
+| P : Lin |- _ => tac P
+| P : Ob _ |- _ => tac P
 end.
 
 Ltac linobs := linobs_template linob.
@@ -37,11 +37,11 @@ Ltac lin := try (lin'; fail).
 #[export]
 Instance LinCat : Cat :=
 {
-    Ob := Lin;
-    Hom := ProsHom;
-    HomSetoid := @HomSetoid ProsCat;
-    comp := ProsComp;
-    id := ProsId
+  Ob := Lin;
+  Hom := ProsHom;
+  HomSetoid := @HomSetoid ProsCat;
+  comp := ProsComp;
+  id := ProsId
 }.
 Proof. 
   (* Proper *) proper. rewrite H, H0. reflexivity.
@@ -52,7 +52,7 @@ Defined.
 #[export]
 Instance Lin_init : Lin :=
 {
-    pos := Pos_init
+  pos := Pos_init
 }.
 Proof. lin. Defined.
 
@@ -60,8 +60,8 @@ Proof. lin. Defined.
 #[export]
 Instance Lin_has_init : has_init LinCat :=
 {
-    init := Lin_init;
-    create := Pros_create
+  init := Lin_init;
+  create := Pros_create
 }.
 Proof. lin. Defined.
 
@@ -69,7 +69,7 @@ Proof. lin. Defined.
 #[export]
 Instance Lin_term : Lin :=
 {
-    pos := Pos_term
+  pos := Pos_term
 }.
 Proof. lin. Defined.
 
@@ -77,8 +77,8 @@ Proof. lin. Defined.
 #[export]
 Instance Lin_has_term : has_term LinCat :=
 {
-    term := Lin_term;
-    delete := Pros_delete
+  term := Lin_term;
+  delete := Pros_delete
 }.
 Proof. lin. Defined.
 
@@ -86,10 +86,10 @@ Proof. lin. Defined.
 #[export]
 Instance Lin_prod_Pros (X Y : Lin) : Pros :=
 {
-    carrier := CoqSetoid_prodOb X Y;
-    leq := fun p1 p2 : X * Y =>
-      (fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2) \/
-      (fst p1 == fst p2 /\ snd p1 ≤ snd p2)
+  carrier := CoqSetoid_prodOb X Y;
+  leq := fun p1 p2 : X * Y =>
+    (fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2) \/
+    (fst p1 == fst p2 /\ snd p1 ≤ snd p2)
 }.
 Proof. 
   (* Proper *) proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
@@ -106,13 +106,13 @@ Defined.
 #[export]
 Instance Lin_prod_Pos (X Y : Lin) : Pos :=
 {
-    pros := Lin_prod_Pros X Y
+  pros := Lin_prod_Pros X Y
 }.
 Proof.
   intros. destruct x, y. cbn in *. repeat
   match goal with
-      | H : _ /\ _ |- _ => destruct H
-      | H : _ \/ _ |- _ => destruct H
+  | H : _ /\ _ |- _ => destruct H
+  | H : _ \/ _ |- _ => destruct H
   end; intuition.
 Defined.
 
@@ -120,7 +120,7 @@ Defined.
 #[export]
 Instance Lin_prod (X Y : Lin) : Lin :=
 {
-    pos := Lin_prod_Pos X Y
+  pos := Lin_prod_Pos X Y
 }.
 Proof.
   destruct x, y; cbn.
@@ -144,10 +144,10 @@ Abort. *)
 (* TODO #[export]
 Instance Lin_has_products : has_products LinCat :=
 {
-    prodOb := Lin_prod;
-    proj1 := Pros_proj1;
-    proj2 := Pros_proj2;
-    fpair := @Pros_fpair
+  prodOb := Lin_prod;
+  proj1 := Pros_proj1;
+  proj2 := Pros_proj2;
+  fpair := @Pros_fpair
 }.
 Proof.
   all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.
@@ -156,33 +156,33 @@ Defined.*)
 
 Ltac proper_lin := proper; repeat
 match goal with
-    | p : _ + _ |- _ => destruct p
+| p : _ + _ |- _ => destruct p
 end;
 intuition eauto;
 match goal with
-    | H : _ == _, H' : _ == _ |- _ =>
-        rewrite <- ?H, <- ?H'; auto;
-        rewrite ?H, ?H'; auto
+| H : _ == _, H' : _ == _ |- _ =>
+  rewrite <- ?H, <- ?H'; auto;
+  rewrite ?H, ?H'; auto
 end.
 
 #[refine]
 #[export]
 Instance Lin_Pros_coprod (X Y : Lin) : Pros :=
 {
-    carrier := CoqSetoid_coprodOb X Y;
-    leq := fun p1 p2 : X + Y =>
-      match p1, p2 with
-        | inl x, inl x' => leq x x'
-        | inr y, inr y' => leq y y'
-        | inl _, inr _ => True
-        | inr _, inl _ => False
-      end
+  carrier := CoqSetoid_coprodOb X Y;
+  leq := fun p1 p2 : X + Y =>
+    match p1, p2 with
+    | inl x, inl x' => leq x x'
+    | inr y, inr y' => leq y y'
+    | inl _, inr _ => True
+    | inr _, inl _ => False
+    end
 }.
 Proof.
   proper_lin.
   all: cbn; intros; repeat
   match goal with
-    | p : _ + _ |- _ => destruct p
+| p : _ + _ |- _ => destruct p
   end; lin.
 Defined.
 
@@ -191,15 +191,17 @@ Defined.
 Instance Lin_coprodOb (X Y : Lin) : Lin :=
 {
     pos :=
-    {| pros :=
-      {|  carrier := CoqSetoid_coprodOb X Y;
-          leq := fun p1 p2 : X + Y =>
-            match p1, p2 with
-              | inl x, inl x' => leq x x'
-              | inr y, inr y' => leq y y'
-              | inl _, inr _ => True
-              | inr _, inl _ => False
-            end
+    {|
+      pros :=
+      {|
+        carrier := CoqSetoid_coprodOb X Y;
+        leq := fun p1 p2 : X + Y =>
+          match p1, p2 with
+          | inl x, inl x' => leq x x'
+          | inr y, inr y' => leq y y'
+          | inl _, inr _ => True
+          | inr _, inl _ => False
+          end
       |}
     |}
 }.
@@ -207,7 +209,7 @@ Proof.
   proper_lin.
   all: intros; repeat
   (try match goal with
-    | p : _ + _ |- _ => destruct p
+| p : _ + _ |- _ => destruct p
   end; my_simpl; try f_equal; lin').
 Defined.
 

@@ -27,46 +27,46 @@ Definition pushout
 
 Class has_pullbacks (C : Cat) : Type :=
 {
-    pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
-    pullbackObProper : forall (X Y A : Ob C) (f f' : Hom X A)
-      (g g' : Hom Y A), f == f' -> g == g' ->
-        JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
-    pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
-      Hom (pullbackOb f g) X;
-    pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
-      Hom (pullbackOb f g) Y;
-    pull1_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> JMequiv (pull1 f g) (pull1 f' g');
-    pull2_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> JMequiv (pull2 f g) (pull2 f' g');
-    factor : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
-      {P : Ob C} (p1 : Hom P X) (p2 : Hom P Y),
-        p1 .> f == p2 .> g -> Hom P (pullbackOb f g);
-    is_pullback : forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
-      pullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g)
-        (@factor X Y A f g)
+  pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
+  pullbackObProper : forall (X Y A : Ob C) (f f' : Hom X A)
+    (g g' : Hom Y A), f == f' -> g == g' ->
+      JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
+  pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
+    Hom (pullbackOb f g) X;
+  pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A),
+    Hom (pullbackOb f g) Y;
+  pull1_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
+    f == f' -> g == g' -> JMequiv (pull1 f g) (pull1 f' g');
+  pull2_Proper : forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
+    f == f' -> g == g' -> JMequiv (pull2 f g) (pull2 f' g');
+  factor : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
+    {P : Ob C} (p1 : Hom P X) (p2 : Hom P Y),
+      p1 .> f == p2 .> g -> Hom P (pullbackOb f g);
+  is_pullback : forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
+    pullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g)
+      (@factor X Y A f g)
 }.
 
 Class has_pushouts (C : Cat) : Type :=
 {
-    pushoutOb : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
-    pushoutObProper : forall (X Y A : Ob C) (f f' : Hom A X)
-      (g g' : Hom A Y), f == f' -> g == g' ->
-        JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
-    push1 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y),
-      Hom X (pushoutOb f g);
-    push2 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y),
-      Hom Y (pushoutOb f g);
-    push1_Proper : forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
-      f == f' -> g == g' -> JMequiv (push1 f g) (push1 f' g');
-    push2_Proper : forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
-      f == f' -> g == g' -> JMequiv (push2 f g) (push2 f' g');
-    cofactor : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-      {P : Ob C} (p1 : Hom X P) (p2 : Hom Y P),
-        f .> p1 == g .> p2 -> Hom (pushoutOb f g) P;
-    is_pushout : forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-      pushout C f g (pushoutOb f g) (push1 f g) (push2 f g)
-        (@cofactor X Y A f g)
+  pushoutOb : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
+  pushoutObProper : forall (X Y A : Ob C) (f f' : Hom A X)
+    (g g' : Hom A Y), f == f' -> g == g' ->
+      JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
+  push1 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y),
+    Hom X (pushoutOb f g);
+  push2 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y),
+    Hom Y (pushoutOb f g);
+  push1_Proper : forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
+    f == f' -> g == g' -> JMequiv (push1 f g) (push1 f' g');
+  push2_Proper : forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
+    f == f' -> g == g' -> JMequiv (push2 f g) (push2 f' g');
+  cofactor : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
+    {P : Ob C} (p1 : Hom X P) (p2 : Hom Y P),
+      f .> p1 == g .> p2 -> Hom (pushoutOb f g) P;
+  is_pushout : forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
+    pushout C f g (pushoutOb f g) (push1 f g) (push2 f g)
+      (@cofactor X Y A f g)
 }.
 
 Theorem dual_pullback_pushout :
@@ -287,9 +287,9 @@ Qed.
 
 Class SpanHom (C : Cat) (hp : has_pullbacks C) (A B : Ob C) : Type :=
 {
-    center : Ob C;
-    left : Hom center A;
-    right : Hom center B;
+  center : Ob C;
+  left : Hom center A;
+  right : Hom center B;
 }.
 
 Definition transport
@@ -321,19 +321,19 @@ Defined.
 #[export]
 Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
 {
-    center := A;
-    left := id A;
-    right := id A;
+  center := A;
+  left := id A;
+  right := id A;
 }.
 
 #[refine]
 #[export]
 Instance Span (C' : Cat) (hp : has_pullbacks C') : Cat :=
 {
-    Ob := Ob C';
-    Hom := SpanHom hp;
-    HomSetoid := SpanHomSetoid hp;
-    id := SpanId hp;
+  Ob := Ob C';
+  Hom := SpanHom hp;
+  HomSetoid := SpanHomSetoid hp;
+  id := SpanId hp;
 }.
 Proof.
 Abort.

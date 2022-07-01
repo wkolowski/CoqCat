@@ -13,10 +13,10 @@ Set Implicit Arguments.
 
 Class Mon : Type :=
 {
-    sgr :> Sgr;
-    neutr : sgr;
-    neutr_l : forall a : sgr, op neutr a = a;
-    neutr_r : forall a : sgr, op a neutr = a
+  sgr :> Sgr;
+  neutr : sgr;
+  neutr_l : forall a : sgr, op neutr a = a;
+  neutr_r : forall a : sgr, op a neutr = a
 }.
 
 Arguments sgr _ : clear implicits.
@@ -27,17 +27,17 @@ Coercion sgr : Mon >-> Sgr.
 
 Class MonHom (X Y : Mon) : Type :=
 {
-    sgrHom :> SgrHom X Y;
-    pres_neutr : sgrHom neutr == neutr;
+  sgrHom :> SgrHom X Y;
+  pres_neutr : sgrHom neutr == neutr;
 }.
 
 Coercion sgrHom : MonHom >-> SgrHom.
 
 Inductive exp (X : Mon) : Type :=
-    | Id : exp X
-    | Var : X -> exp X
-    | Op : exp X -> exp X -> exp X
-    | Mor : forall A : Mon, MonHom A X -> exp A -> exp X.
+| Id : exp X
+| Var : X -> exp X
+| Op : exp X -> exp X -> exp X
+| Mor : forall A : Mon, MonHom A X -> exp A -> exp X.
 
 Arguments Id {X}.
 Arguments Var {X} _.
@@ -46,27 +46,28 @@ Arguments Mor {X A} _ _ .
 
 Fixpoint expDenote {X : Mon} (e : exp X) : X :=
 match e with
-    | Id => neutr
-    | Var v => v
-    | Op e1 e2 => op (expDenote e1) (expDenote e2)
-    | Mor f e' => f (expDenote e')
+| Id => neutr
+| Var v => v
+| Op e1 e2 => op (expDenote e1) (expDenote e2)
+| Mor f e' => f (expDenote e')
 end.
 
 Fixpoint simplify {X : Mon} (e : exp X) : exp X :=
 match e with
-    | Id => Id
-    | Var v => Var v
-    | Op e1 e2 =>
-        match simplify e1, simplify e2 with
-            | Id, e2' => e2'
-            | e1', Id => e1'
-            | e1', e2' => Op e1' e2'
-        end
-    | Mor f e' => match simplify e' with
-        | Id => Id
-        | Op e1 e2 => Op (Mor f e1) (Mor f e2)
-        | e'' => Mor f e''
-    end
+| Id => Id
+| Var v => Var v
+| Op e1 e2 =>
+  match simplify e1, simplify e2 with
+  | Id, e2' => e2'
+  | e1', Id => e1'
+  | e1', e2' => Op e1' e2'
+  end
+| Mor f e' =>
+  match simplify e' with
+  | Id => Id
+  | Op e1 e2 => Op (Mor f e1) (Mor f e2)
+  | e'' => Mor f e''
+  end
 end.
 
 Theorem simplify_correct :
@@ -87,8 +88,8 @@ Qed.
 
 Fixpoint expDenoteL {X : Mon} (l : list X) : X :=
 match l with
-    | [] => neutr
-    | h :: t => op h (expDenoteL t)
+| [] => neutr
+| h :: t => op h (expDenoteL t)
 end.
 
 Lemma expDenoteL_app :
@@ -111,10 +112,10 @@ Qed.
 
 Fixpoint flatten {X : Mon} (e : exp X) : list X :=
 match e with
-    | Id => []
-    | Var v => [v]
-    | Op e1 e2 => flatten e1 ++ flatten e2
-    | Mor f e' => map f (flatten e')
+| Id => []
+| Var v => [v]
+| Op e1 e2 => flatten e1 ++ flatten e2
+| Mor f e' => map f (flatten e')
 end.
 
 Theorem flatten_correct :
@@ -139,8 +140,8 @@ Qed.
 
 Class Reify (X : Mon) (x : X) : Type :=
 {
-    reify : exp X;
-    reify_spec : expDenote reify == x
+  reify : exp X;
+  reify_spec : expDenote reify == x
 }.
 
 Arguments Reify {X} _.
@@ -150,7 +151,7 @@ Arguments reify {X} _ {Reify}.
 #[export]
 Instance ReifyVar (X : Mon) (x : X) : Reify x | 1 :=
 {
-    reify := Var x
+  reify := Var x
 }.
 Proof. reflexivity. Defined.
 
@@ -159,7 +160,7 @@ Proof. reflexivity. Defined.
 Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
     : Reify (@op X a b) | 0 :=
 {
-    reify := Op (reify a) (reify b)
+  reify := Op (reify a) (reify b)
 }.
 Proof.
   cbn. rewrite !reify_spec. reflexivity.
@@ -170,7 +171,7 @@ Defined.
 Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
     : Reify (f x) | 0 :=
 {
-    reify := Mor f (reify x)
+  reify := Mor f (reify x)
 }.
 Proof.
   cbn. rewrite reify_spec. reflexivity.
@@ -180,7 +181,7 @@ Defined.
 #[export]
 Instance ReifyId (X : Mon) : Reify neutr | 0 :=
 {
-    reify := Id
+  reify := Id
 }.
 Proof.
   cbn. reflexivity.
@@ -188,29 +189,29 @@ Defined.
 
 Ltac reflect_mon := cbn; intros;
 match goal with
-    | |- ?e1 == ?e2 =>
-        change (expDenote (reify e1) == expDenote (reify e2));
-        apply mon_reflect; cbn
+| |- ?e1 == ?e2 =>
+  change (expDenote (reify e1) == expDenote (reify e2));
+  apply mon_reflect; cbn
 end.
 
 Ltac mon_simpl := sgr_simpl.
 
 Ltac monob M := try intros until M;
 match type of M with
-  | Mon =>
-    let a := fresh M "_neutr" in
-    let b := fresh M "_neutr_l" in
-    let c := fresh M "_neutr_r" in
-      destruct M as [?M a b c]
-  | Ob _ => progress cbn in M; monob M
+| Mon =>
+  let a := fresh M "_neutr" in
+  let b := fresh M "_neutr_l" in
+  let c := fresh M "_neutr_r" in
+    destruct M as [?M a b c]
+| Ob _ => progress cbn in M; monob M
 end; cbn.
 
 Ltac monob' M := monob M; sgrob M.
 
 Ltac monobs_template tac := repeat
 match goal with
-  | M : Mon |- _ => tac M
-  | M : Ob _ |- _ => tac M
+| M : Mon |- _ => tac M
+| M : Ob _ |- _ => tac M
 end.
 
 Ltac monobs := monobs_template monob.
@@ -218,17 +219,16 @@ Ltac monobs' := monobs_template monob'.
 
 Ltac monhom f := try intros until f;
 match type of f with
-    | MonHom _ _ =>
-      let a := fresh f "_pres_neutr" in destruct f as [f a]
-    | Hom _ _ => progress cbn in f; monhom f
+| MonHom _ _ => let a := fresh f "_pres_neutr" in destruct f as [f a]
+| Hom _ _ => progress cbn in f; monhom f
 end.
 
 Ltac monhom' f := monhom f; sgrhom f.
 
 Ltac monhoms_template tac := intros; repeat
 match goal with
-  | f : MonHom _ _ |- _ => tac f
-  | f : Hom _ _ |- _ => tac f
+| f : MonHom _ _ |- _ => tac f
+| f : Hom _ _ |- _ => tac f
 end; mon_simpl.
 
 Ltac monhoms := monhoms_template monhom.
@@ -236,11 +236,11 @@ Ltac monhoms' := monhoms_template monhom'.
 
 Ltac mon := intros; try (reflect_mon; try reflexivity; fail); repeat
 match goal with
-    | |- _ == _ => reflect_mon; reflexivity
-    | |- Equivalence _ => solve_equiv
-    | |- Proper _ _ => proper
-    | |- (_, _) = (_, _) => f_equal
-    | _ => mon_simpl || monobs' || monhoms' || cat
+| |- _ == _ => reflect_mon; reflexivity
+| |- Equivalence _ => solve_equiv
+| |- Proper _ _ => proper
+| |- (_, _) = (_, _) => f_equal
+| _ => mon_simpl || monobs' || monhoms' || cat
 end.
 
 Goal forall (X : Mon) (a b c : X),
@@ -295,9 +295,9 @@ Qed.
 
 Ltac reflect_goal := cbn; intros;
 match goal with
-    | |- ?e1 == ?e2 =>
-        change (expDenote (reify e1) == expDenote (reify e2));
-          apply flat_reflect_goal
+| |- ?e1 == ?e2 =>
+  change (expDenote (reify e1) == expDenote (reify e2));
+    apply flat_reflect_goal
 end.
 
 Theorem cons_nil_all :
@@ -312,9 +312,9 @@ Goal forall (X : Mon) (a b b' c : X),
 Proof.
   intros. reflect_goal. cbn.
   match goal with
-      | H : ?x == ?y |- _ =>
-          change (expDenote (reify x) == expDenote (reify y)) in H;
-            apply flat_reflect_hyp in H; cbn in H
+  | H : ?x == ?y |- _ =>
+    change (expDenote (reify x) == expDenote (reify y)) in H;
+      apply flat_reflect_hyp in H; cbn in H
   end.
   assert (forall l, cons b l = cons b' l). apply cons_nil_all. auto.
   assert (exists l1 l2, [a; b'; c] = l1 ++ [b] ++ l2).
@@ -325,8 +325,8 @@ Abort.
 #[export]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
-    equiv := fun f g : MonHom X Y =>
-      @equiv _ (SgrHomSetoid X Y) f g
+  equiv := fun f g : MonHom X Y =>
+    @equiv _ (SgrHomSetoid X Y) f g
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
@@ -345,11 +345,11 @@ Defined.
 #[export]
 Instance MonCat : Cat :=
 {
-    Ob := Mon;
-    Hom := MonHom;
-    HomSetoid := MonHomSetoid;
-    comp := MonComp;
-    id := MonId
+  Ob := Mon;
+  Hom := MonHom;
+  HomSetoid := MonHomSetoid;
+  comp := MonComp;
+  id := MonId
 }.
 Proof. all: mon. Defined.
 
@@ -357,8 +357,8 @@ Proof. all: mon. Defined.
 #[export]
 Instance Mon_init : Mon :=
 {
-    sgr := Sgr_term;
-    neutr := tt
+  sgr := Sgr_term;
+  neutr := tt
 }.
 Proof. all: mon. Defined.
 
@@ -381,8 +381,8 @@ Defined.
 #[export]
 Instance Mon_has_init : has_init MonCat :=
 {
-    init := Mon_init;
-    create := Mon_create
+  init := Mon_init;
+  create := Mon_create
 }.
 Proof. mon. Defined.
 
@@ -390,8 +390,8 @@ Proof. mon. Defined.
 #[export]
 Instance Mon_term : Mon :=
 {
-    sgr := Sgr_term;
-    neutr := tt
+  sgr := Sgr_term;
+  neutr := tt
 }.
 Proof. all: mon. Defined.
 
@@ -414,8 +414,8 @@ Defined.
 #[export]
 Instance Mon_has_term : has_term MonCat :=
 {
-    term := Mon_term;
-    delete := Mon_delete
+  term := Mon_term;
+  delete := Mon_delete
 }.
 Proof. mon. Defined.
 
@@ -423,8 +423,8 @@ Proof. mon. Defined.
 #[export]
 Instance Mon_has_zero : has_zero MonCat :=
 {
-    zero_is_initial := Mon_has_init;
-    zero_is_terminal := Mon_has_term
+  zero_is_initial := Mon_has_init;
+  zero_is_terminal := Mon_has_term
 }.
 Proof. mon. Defined.
 
@@ -432,8 +432,8 @@ Proof. mon. Defined.
 #[export]
 Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
-    sgr := Sgr_prodOb X Y;
-    neutr := (neutr, neutr);
+  sgr := Sgr_prodOb X Y;
+  neutr := (neutr, neutr);
 }.
 Proof. all: destruct a; mon. Defined.
 
@@ -457,10 +457,10 @@ Defined.
 #[export]
 Instance Mon_has_products : has_products MonCat :=
 {
-    prodOb := Mon_prodOb;
-    proj1 := Mon_proj1;
-    proj2 := Mon_proj2;
-    fpair := Mon_fpair
+  prodOb := Mon_prodOb;
+  proj1 := Mon_proj1;
+  proj2 := Mon_proj2;
+  fpair := Mon_fpair
 }.
 Proof.
   proper.
@@ -471,7 +471,7 @@ Defined.
 #[export]
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
-    fob := fun X : Mon => @setoid (sgr X);
+  fob := fun X : Mon => @setoid (sgr X);
 }.
 Proof.
   cbn. intros. exact X.
@@ -488,20 +488,20 @@ Definition free_monoid
 #[export]
 Instance MonListUnit_Setoid' : Setoid' :=
 {
-    carrier := nat;
-    setoid := {| equiv := eq |}
+  carrier := nat;
+  setoid := {| equiv := eq |}
 }.
 
 #[refine]
 #[export]
 Instance MonListUnit : Mon :=
 {
-    sgr :=
-    {|
-        setoid := MonListUnit_Setoid';
-        op := plus
-    |};
-    neutr := 0
+  sgr :=
+  {|
+    setoid := MonListUnit_Setoid';
+    op := plus
+  |};
+  neutr := 0
 }.
 Proof.
   all: cbn; intros; ring.
@@ -522,8 +522,8 @@ Proof.
   {|
       func := fix f n : N :=
       match n with
-          | 0 => @neutr N
-          | S n' => op (q tt) (f n')
+      | 0 => @neutr N
+      | S n' => op (q tt) (f n')
       end;
       func_Proper := ltac: (proper; subst; reflexivity)
   |}.
@@ -536,8 +536,8 @@ Proof.
     : SetoidHom MonListUnit N.
     exists (fix f (n : nat) : N :=
       match n with
-          | 0 => @neutr N
-          | S n' => op (q tt) (f n')
+      | 0 => @neutr N
+      | S n' => op (q tt) (f n')
       end).
     proper. subst. reflexivity.
   Defined.

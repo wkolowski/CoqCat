@@ -166,16 +166,15 @@ Proof.
 
 Class has_all_products (C : Cat) : Type :=
 {
-    bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
-    bigProj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (bigProdOb J A) (A j);
-    tuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
-    tuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
-      (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
-    is_big_product : forall (J : Set) (A : J -> Ob C),
-        big_product_skolem C (bigProdOb J A) (bigProj J A) (tuple J A)
+  bigProdOb : forall J : Set, (J -> Ob C) -> Ob C;
+  bigProj : forall (J : Set) (A : J -> Ob C) (j : J), Hom (bigProdOb J A) (A j);
+  tuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    (f : forall j : J, Hom X (A j)), Hom X (bigProdOb J A);
+  tuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
+    (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
+  is_big_product : forall (J : Set) (A : J -> Ob C),
+    big_product_skolem C (bigProdOb J A) (bigProj J A) (tuple J A)
 }.
 
 Arguments bigProdOb [C] [_] [J] _.
@@ -226,16 +225,15 @@ Qed.
 
 Class has_all_coproducts (C : Cat) : Type :=
 {
-    bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
-    bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J),
-        Hom (A j) (bigCoprodOb J A);
-    cotuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
-    cotuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
-      (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
-    is_big_coproduct : forall (J : Set) (A : J -> Ob C),
-        big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (cotuple J A)
+  bigCoprodOb : forall J : Set, (J -> Ob C) -> Ob C;
+  bigCoproj : forall (J : Set) (A : J -> Ob C) (j : J), Hom (A j) (bigCoprodOb J A);
+  cotuple : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    (f : forall j : J, Hom (A j) X), Hom (bigCoprodOb J A) X;
+  cotuple_Proper : forall (J : Set) (A : J -> Ob C) (X : Ob C)
+    (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
+    (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
+  is_big_coproduct : forall (J : Set) (A : J -> Ob C),
+    big_coproduct_skolem C (bigCoprodOb J A) (bigCoproj J A) (cotuple J A)
 }.
 
 Arguments bigCoprodOb [C] [_] [J] _.
@@ -286,10 +284,10 @@ Qed.
 
 Class has_all_biproducts (C : Cat) : Type :=
 {
-    bigProduct :> has_all_products C;
-    bigCoproduct :> has_all_coproducts C;
-    product_is_coproduct : forall (J : Set) (A : J -> Ob C),
-      @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
+  bigProduct :> has_all_products C;
+  bigCoproduct :> has_all_coproducts C;
+  product_is_coproduct : forall (J : Set) (A : J -> Ob C),
+    @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
 }.
 
 Coercion bigProduct : has_all_biproducts >-> has_all_products.
@@ -327,22 +325,22 @@ Qed.
 Instance Dual_has_all_products (C : Cat) (hp : has_all_coproducts C)
     : has_all_products (Dual C) :=
 {
-    bigProdOb := @bigCoprodOb C hp;
-    bigProj := @bigCoproj C hp;
-    tuple := @cotuple C hp;
-    tuple_Proper := @cotuple_Proper C hp;
-    is_big_product := @is_big_coproduct C hp
+  bigProdOb := @bigCoprodOb C hp;
+  bigProj := @bigCoproj C hp;
+  tuple := @cotuple C hp;
+  tuple_Proper := @cotuple_Proper C hp;
+  is_big_product := @is_big_coproduct C hp
 }.
 
 #[export]
 Instance Dual_has_all_coproducts (C : Cat) (hp : has_all_products C)
     : has_all_coproducts (Dual C) :=
 {
-    bigCoprodOb := @bigProdOb C hp;
-    bigCoproj := @bigProj C hp;
-    cotuple := @tuple C hp;
-    cotuple_Proper := @tuple_Proper C hp;
-    is_big_coproduct := @is_big_product C hp
+  bigCoprodOb := @bigProdOb C hp;
+  bigCoproj := @bigProj C hp;
+  cotuple := @tuple C hp;
+  cotuple_Proper := @tuple_Proper C hp;
+  is_big_coproduct := @is_big_product C hp
 }.
 
 #[refine]
@@ -350,8 +348,8 @@ Instance Dual_has_all_coproducts (C : Cat) (hp : has_all_products C)
 Instance Dual_has_all_biproducts (C : Cat) (hp : has_all_biproducts C)
     : has_all_biproducts (Dual C) :=
 {
-    bigProduct := Dual_has_all_products C hp;
-    bigCoproduct := Dual_has_all_coproducts C hp;
+  bigProduct := Dual_has_all_products C hp;
+  bigCoproduct := Dual_has_all_coproducts C hp;
 }.
 Proof.
   intros. simpl. rewrite product_is_coproduct. trivial.

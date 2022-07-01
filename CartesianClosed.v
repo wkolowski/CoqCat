@@ -5,9 +5,9 @@ From Cat Require Import Exponential.
 
 Class cartesian_closed (C : Cat) : Type :=
 {
-    ccc_term :> has_term C;
-    ccc_prod :> has_products C;
-    ccc_exp :> has_exponentials C
+  ccc_term :> has_term C;
+  ccc_prod :> has_products C;
+  ccc_exp :> has_exponentials C
 }.
 
 Coercion ccc_term : cartesian_closed >-> has_term.

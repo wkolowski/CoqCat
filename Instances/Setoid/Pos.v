@@ -7,8 +7,8 @@ From Cat Require Export Instances.Setoid.Pros.
 
 Class Pos : Type :=
 {
-    pros :> Pros;
-    leq_antisym : forall x y : carrier, x ≤ y -> y ≤ x -> x == y
+  pros :> Pros;
+  leq_antisym : forall x y : carrier, x ≤ y -> y ≤ x -> x == y
 }.
 
 #[global] Hint Resolve leq_antisym : core.
@@ -19,17 +19,17 @@ Ltac pos_simpl := pros_simpl.
 
 Ltac posob P := try intros until P;
 match type of P with
-  | Pos =>
-    let a := fresh P "_leq_antisym" in destruct P as [P a]
-  | Ob _ => progress cbn in P; prosob P
+| Pos =>
+  let a := fresh P "_leq_antisym" in destruct P as [P a]
+| Ob _ => progress cbn in P; prosob P
 end.
 
 Ltac posob' P := posob P; prosob' P.
 
 Ltac posobs_template tac := intros; repeat
 match goal with
-  | P : Pos |- _ => tac P
-  | P : Ob _ |- _ => tac P
+| P : Pos |- _ => tac P
+| P : Ob _ |- _ => tac P
 end.
 
 Ltac posobs := posobs_template posob.
@@ -44,11 +44,11 @@ Ltac pos := try (pos'; fail).
 #[export]
 Instance PosCat : Cat :=
 {
-    Ob := Pos;
-    Hom := ProsHom;
-    HomSetoid := @HomSetoid ProsCat;
-    comp := ProsComp;
-    id := ProsId
+  Ob := Pos;
+  Hom := ProsHom;
+  HomSetoid := @HomSetoid ProsCat;
+  comp := ProsComp;
+  id := ProsId
 }.
 Proof.
   (* Proper *) proper. pos'.
@@ -59,7 +59,7 @@ Defined.
 #[export]
 Instance Pos_init : Pos :=
 {
-    pros := Pros_init
+  pros := Pros_init
 }.
 Proof. pos. Defined.
 
@@ -67,8 +67,8 @@ Proof. pos. Defined.
 #[export]
 Instance Pos_has_init : has_init PosCat :=
 {
-    init := Pos_init;
-    create := Pros_create
+  init := Pos_init;
+  create := Pros_create
 }.
 Proof. pos. Defined.
 
@@ -76,7 +76,7 @@ Proof. pos. Defined.
 #[export]
 Instance Pos_term : Pos :=
 {
-    pros := Pros_term
+  pros := Pros_term
 }.
 Proof. pos. Defined.
 
@@ -84,8 +84,8 @@ Proof. pos. Defined.
 #[export]
 Instance Pos_has_term : has_term PosCat :=
 {
-    term := Pos_term;
-    delete := Pros_delete
+  term := Pos_term;
+  delete := Pros_delete
 }.
 Proof. pos. Defined.
 
@@ -93,7 +93,7 @@ Proof. pos. Defined.
 #[export]
 Instance Pos_prodOb (X Y : Pos) : Pos :=
 {
-    pros := Pros_prodOb X Y
+  pros := Pros_prodOb X Y
 }.
 Proof. pos. Defined.
 
@@ -101,10 +101,10 @@ Proof. pos. Defined.
 #[export]
 Instance Pos_has_products : has_products PosCat :=
 {
-    prodOb := Pos_prodOb;
-    proj1 := Pros_proj1;
-    proj2 := Pros_proj2;
-    fpair := @Pros_fpair
+  prodOb := Pos_prodOb;
+  proj1 := Pros_proj1;
+  proj2 := Pros_proj2;
+  fpair := @Pros_fpair
 }.
 Proof.
   proper.
@@ -115,7 +115,7 @@ Defined.
 #[export]
 Instance Pos_coprodOb (X Y : Pos) : Pos :=
 {
-    pros := Pros_coprodOb X Y;
+  pros := Pros_coprodOb X Y;
 }.
 Proof.
   destruct x, y; pos.
@@ -143,10 +143,10 @@ Defined.
 #[export]
 Instance Pos_has_coproducts : has_coproducts PosCat :=
 {
-    coprodOb := Pos_coprodOb;
-    coproj1 := Pos_coproj1;
-    coproj2 := Pos_coproj2;
-    copair := Pos_copair
+  coprodOb := Pos_coprodOb;
+  coproj1 := Pos_coproj1;
+  coproj2 := Pos_coproj2;
+  copair := Pos_copair
 }.
 Proof.
   proper. destruct x1; proper.

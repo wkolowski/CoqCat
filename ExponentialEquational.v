@@ -5,15 +5,15 @@ From Cat Require Export BinProdCoprodEquational.
 (* TODO *)
 Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 {
-    expOb : Ob C -> Ob C -> Ob C;
-    eval : forall {X Y : Ob C},
-      Hom (prodOb (expOb X Y) X) Y;
-    curry : forall {X Y Z : Ob C},
-      Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
-    curry_Proper :> forall X Y Z : Ob C,
-      Proper (equiv ==> equiv) (@curry X Y Z);
-    curry_eval :
-      forall X Y : Ob C, curry eval == id (expOb X Y)
+  expOb : Ob C -> Ob C -> Ob C;
+  eval : forall {X Y : Ob C},
+    Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C},
+    Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  curry_Proper :> forall X Y Z : Ob C,
+    Proper (equiv ==> equiv) (@curry X Y Z);
+  curry_eval :
+    forall X Y : Ob C, curry eval == id (expOb X Y)
 }.
 
 (*
