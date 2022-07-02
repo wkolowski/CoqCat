@@ -167,8 +167,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
-    : Reify (f x) | 0 :=
+Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
 {
   reify := Mor f (reify x)
 }.

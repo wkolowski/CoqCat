@@ -57,18 +57,18 @@ Defined.
 Ltac init := intros; repeat
 match goal with
 | |- context [?f] =>
-    match type of f with
-    | Hom (init _) _ => rewrite (is_initial _ f)
-    end
+  match type of f with
+  | Hom (init _) _ => rewrite (is_initial _ f)
+  end
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
 Ltac term := intros; repeat
 match goal with
 | |- context [?f] =>
-    match type of f with
-    | Hom _ (term _) => rewrite (is_terminal _ f)
-    end
+  match type of f with
+  | Hom _ (term _) => rewrite (is_terminal _ f)
+  end
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 

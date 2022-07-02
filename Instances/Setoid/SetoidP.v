@@ -9,9 +9,11 @@ Instance SetP : Cat :=
   Ob := Set;
   Hom := fun X Y : Set => X -> option Y;
   HomSetoid := fun X Y : Set =>
-    {| equiv := fun f g : X -> option Y => forall x : X , f x = g x |};
-  comp := fun (X Y Z : Set) (f : X -> option Y) (g : Y -> option Z) =>
-    fun x : X => match f x with
+  {|
+    equiv := fun f g : X -> option Y => forall x : X , f x = g x
+  |};
+  comp := fun (X Y Z : Set) (f : X -> option Y) (g : Y -> option Z) => fun x : X =>
+    match f x with
     | None => None
     | Some y => g y
     end;

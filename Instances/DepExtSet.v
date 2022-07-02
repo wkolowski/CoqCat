@@ -10,8 +10,7 @@ Instance DepExtSet : Cat :=
 {|
   Ob := Set;
   Hom := fun A B : Set => A -> B;
-  HomSetoid := fun A B : Set =>
-      {| equiv := fun f g : A -> B => depExtEq f g |};
+  HomSetoid := fun A B : Set => {| equiv := fun f g : A -> B => depExtEq f g |};
   comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
   id := fun (A : Set) (a : A) => a
 |}.
@@ -78,19 +77,14 @@ Defined.
 #[export]
 Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
 {
-  bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) =>
-      forall j : J, A j;
-  bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) =>
-      fun (f : forall j : J, A j) => f j;
-  tuple := fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
-      (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
+  bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) => forall j : J, A j;
+  bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  tuple :=
+    fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
+        (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
   (* Proper *) repeat red; cbn; intros. apply depExtEq_ext. intro.
-
-(*    change (fun j : J => f j a) with (fun j : J => (f j) a).
-    change (fun j : J => f j a) with (fun j : J => (f j) a).
-*)
     change (fun j : J => f j x) with (fun j : J => (fun a : X => f j a) x).
     change (fun j : J => g j x) with (fun j : J => (fun a : X => g j a) x). admit.
   (* Universal property *) unfold big_product_skolem; cbn; intros.
@@ -106,21 +100,18 @@ Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
   coprodOb := sum;
   coproj1 := @inl;
   coproj2 := @inr;
-  copair := fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
-    fun p : A + B =>
-    match p with
-    | inl a => f a
-    | inr b => g b
-    end
+  copair :=
+    fun (A B X : Ob DepExtSet) (f : Hom A X) (g : Hom B X) =>
+      fun p : A + B =>
+      match p with
+      | inl a => f a
+      | inr b => g b
+      end
 }.
 Proof.
   (* codiag is proper *) proper. solve_depExtEq; destruct x1; solve_depExtEq.
   (* Coproduct law *) red; my_simpl; cbn; intros; solve_depExtEq.
     destruct H, x.
-      (*match goal with
-      | H : depExtEq ?f _ |- depExtEq (?f ?x) _ =>
-              idtac f; idtac x
-      end.*)
       apply (depExtEq_unext _ _ H a a). auto.
       apply (depExtEq_unext _ _ H0 b b). auto.
 Defined.

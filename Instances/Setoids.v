@@ -58,8 +58,7 @@ Coercion func : SetoidHom >-> Funclass.
 Ltac setoidhom f := try intros until f;
 match type of f with
 | SetoidHom _ _ =>
-  let a := fresh f "_pres_equiv" in destruct f as [f a];
-    repeat red in a
+  let a := fresh f "_pres_equiv" in destruct f as [f a]; repeat red in a
 | Hom _ _ => progress cbn in f; setoidhom f
 end.
 
@@ -290,7 +289,7 @@ Defined.
 Instance CoqSetoid_coproj1 (X Y : Setoid')
     : SetoidHom X (CoqSetoid_coprodOb X Y).
 Proof.
-  split with inl. proper. (* TODO : finish *)
+  split with inl. proper.
 Defined.
 
 #[export]

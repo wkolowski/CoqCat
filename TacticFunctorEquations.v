@@ -96,26 +96,26 @@ Ltac reify mor :=
 match mor with
 | id ?X => constr:(Id X)
 | ?f .> ?g =>
-    let e1 := reify f in
-    let e2 := reify g in constr:(Comp e1 e2)
+  let e1 := reify f in
+  let e2 := reify g in constr:(Comp e1 e2)
 | fmap ?F ?f =>
-    let e := reify f in constr:(Fmap F e)
+  let e := reify f in constr:(Fmap F e)
 | ?f =>
-    match type of f with
-    | Hom ?X ?Y => constr:(Var f)
-    | _ => fail
-    end
+  match type of f with
+  | Hom ?X ?Y => constr:(Var f)
+  | _ => fail
+  end
 end.
 
 Ltac reflect_cat := intros;
 match goal with
 | |- ?f == ?g =>
-    let e1 := reify f in
-    let e2 := reify g in
-      change (denote e1 == denote e2);
-      apply cat_reflect;
-      repeat (simp flatten || simp Happ || simp denoteHL);
-      rewrite ?id_right
+  let e1 := reify f in
+  let e2 := reify g in
+    change (denote e1 == denote e2);
+    apply cat_reflect;
+    repeat (simp flatten || simp Happ || simp denoteHL);
+    rewrite ?id_right
 end.
 
 Section Test.

@@ -121,7 +121,8 @@ Proof.
       rewrite app_comm_cons in H. inversion H; subst.
 Abort.
 
-(*Lemma expDenoteHL_comp_app :
+(*
+Lemma expDenoteHL_comp_app :
   forall (C : Cat) (X Y Z : Ob C) (l1 : HomList X Y) (l2 : HomList Y Z),
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 ++ l2).
 Proof.
@@ -152,21 +153,22 @@ Ltac reify mor :=
 match mor with
 | id ?X => constr:(Id X)
 | ?f .> ?g =>
-        let e1 := reify f in
-        let e2 := reify g in constr:(Comp e1 e2)
-| ?f => match type of f with
-    | Hom ?X ?Y => constr:(Var f)
-    | _ => fail
-    end
+  let e1 := reify f in
+  let e2 := reify g in constr:(Comp e1 e2)
+| ?f =>
+  match type of f with
+  | Hom ?X ?Y => constr:(Var f)
+  | _ => fail
+  end
 end.
 
 Ltac mor' := intros;
 match goal with
 | |- ?f == ?g =>
-        let e1 := reify f in
-        let e2 := reify g in
-          change (expDenote e1 == expDenote e2);
-          apply cat_reflect; cbn
+  let e1 := reify f in
+  let e2 := reify g in
+    change (expDenote e1 == expDenote e2);
+    apply cat_reflect; cbn
 end.
 
 Ltac mor := mor'; reflexivity.
@@ -208,39 +210,35 @@ Qed.
 
 Fixpoint simplify' {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y :=
 match e in (exp o o0) return (exp o o0) with
-  | Id X0 => Id X0
-  | Var h => Var h
-  | @Comp _ X0 Y0 Z e1 e2 =>
-    match simplify' e1 in (exp o o0)
-    return (exp o o0 -> exp o0 Z -> exp o Z) with
-  | Id X1 =>
-          fun _ (e2 : exp X1 Z) => simplify' e2
+| Id X0 => Id X0
+| Var h => Var h
+| @Comp _ X0 Y0 Z e1 e2 =>
+  match simplify' e1
+    in (exp o o0)
+    return (exp o o0 -> exp o0 Z -> exp o Z)
+  with
+  | Id X1 => fun _ (e2 : exp X1 Z) => simplify' e2
   | @Var _ X1 Y1 f1 =>
-          fun _ (e2 : exp Y1 Z) =>
-          match simplify' e2 in (exp o o0)
-          return (exp o o0 -> Hom X1 o -> exp X1 o0)
-          with
-      | Id X2 => fun _ (f1 : Hom X1 X2) => Var f1
-      | @Var _ X2 Y2 f2 =>
-              fun _ (f1 : Hom X1 X2) => Comp (Var f1) (Var f2)
-      | @Comp _ X2 Y2 Z0 e21 e22 =>
-              fun _ (f2 : Hom X1 X2) =>
-              Comp (Var f2) (Comp e21 e22)
-          end e2 f1
+    fun _ (e2 : exp Y1 Z) =>
+    match simplify' e2
+      in (exp o o0)
+      return (exp o o0 -> Hom X1 o -> exp X1 o0)
+    with
+    | Id X2 => fun _ (f1 : Hom X1 X2) => Var f1
+    | @Var _ X2 Y2 f2 => fun _ (f1 : Hom X1 X2) => Comp (Var f1) (Var f2)
+    | @Comp _ X2 Y2 Z0 e21 e22 => fun _ (f2 : Hom X1 X2) => Comp (Var f2) (Comp e21 e22)
+    end e2 f1
   | @Comp _ X1 Y1 Z0 e11 e12 =>
-          fun _ (e2 : exp Z0 Z) =>
-          match simplify' e2 in (exp o o0)
-          return (exp o o0 -> exp Y1 o -> exp X1 o0)
-          with
-      | Id X2 => fun _ (e12 : exp Y1 X2) => Comp e11 e12
-      | @Var _ X2 Y2 f2 =>
-              fun _ (e12 : exp Y1 X2) =>
-              Comp (Comp e11 e12) (Var f2)
-      | @Comp _ X2 Y2 Z1 e21 e22 =>
-              fun _ (e12 : exp Y1 X2) =>
-              Comp (Comp e11 e12) (Comp e21 e22)
-          end e2 e12
-      end e1 e2
+    fun _ (e2 : exp Z0 Z) =>
+    match simplify' e2
+      in (exp o o0)
+      return (exp o o0 -> exp Y1 o -> exp X1 o0)
+    with
+    | Id X2 => fun _ (e12 : exp Y1 X2) => Comp e11 e12
+    | @Var _ X2 Y2 f2 => fun _ (e12 : exp Y1 X2) => Comp (Comp e11 e12) (Var f2)
+    | @Comp _ X2 Y2 Z1 e21 e22 => fun _ (e12 : exp Y1 X2) => Comp (Comp e11 e12) (Comp e21 e22)
+    end e2 e12
+  end e1 e2
 end.
 
 Theorem simplify'_correct :

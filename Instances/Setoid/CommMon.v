@@ -174,8 +174,7 @@ end.
 
 Ltac allVars xs e :=
 match e with
-| op ?e1 ?e2 =>
-        let xs' := allVars xs e2 in allVars xs' e1
+| op ?e1 ?e2 => let xs' := allVars xs e2 in allVars xs' e1
 | ?f ?e' => allVars xs e'
 | _ => addToList e xs
 end.
@@ -184,36 +183,35 @@ Ltac reifyTerm env x :=
 match x with
 | neutr => constr:(Id)
 | op ?a ?b =>
-        let e1 := reifyTerm env a in
-        let e2 := reifyTerm env b in constr:(Op e1 e2)
-| _ =>
-        let n := lookup x env in constr:(Var n)
+  let e1 := reifyTerm env a in
+  let e2 := reifyTerm env b in constr:(Op e1 e2)
+| _ => let n := lookup x env in constr:(Var n)
 end.
 
 Ltac functionalize l X :=
 let rec loop n l' :=
-    match l' with
-    | [] => constr:(fun _ : nat => @neutr X)
-    | ?h :: ?t =>
-            let f := loop (S n) t in
-            constr:(fun m : nat => if m =? n then h else f m)
-    end
+  match l' with
+  | [] => constr:(fun _ : nat => @neutr X)
+  | ?h :: ?t =>
+    let f := loop (S n) t in
+    constr:(fun m : nat => if m =? n then h else f m)
+  end
 in loop 0 l.
 
 Ltac reify X :=
 match goal with
 | |- ?e1 == ?e2 =>
-        let xs := allVars constr:(@nil X) e1 in
-        let xs' := allVars xs e2 in
-        let r1 := reifyTerm xs' e1 in
-        let r2 := reifyTerm xs' e2 in
-        let env := functionalize xs' X in
-        change (expDenote env r1 == expDenote env r2)
+  let xs := allVars constr:(@nil X) e1 in
+  let xs' := allVars xs e2 in
+  let r1 := reifyTerm xs' e1 in
+  let r2 := reifyTerm xs' e2 in
+  let env := functionalize xs' X in
+    change (expDenote env r1 == expDenote env r2)
 end.
 
 Ltac reifyEqv X env a b :=
-    let e1 := reifyTerm env a in
-    let e2 := reifyTerm env b in constr:((e1, e2)).
+  let e1 := reifyTerm env a in
+  let e2 := reifyTerm env b in constr:((e1, e2)).
 
 (* TODO : improve reflection *)
 Theorem flat_reflect_goal :
@@ -251,16 +249,14 @@ end.
 
 Ltac reflect_cmon' := cbn; intros; cmon_subst;
 match goal with
-| X : ComMon |- ?e1 == ?e2 =>
-        reify X; apply simplify_correct; cbn; rewrite ?neutr_l, ?neutr_r
+| X : ComMon |- ?e1 == ?e2 => reify X; apply simplify_correct; cbn; rewrite ?neutr_l, ?neutr_r
 end.
 
 Ltac reflect_cmon := reflect_cmon'; try reflexivity.
 
 Ltac reflect_goal := cbn; intros;
 match goal with
-| X : ComMon |- ?e1 == ?e2 =>
-        reify X; apply flat_reflect_goal
+| X : ComMon |- ?e1 == ?e2 => reify X; apply flat_reflect_goal
 end.
 
 (* Theorem cons_nil_all :
@@ -302,67 +298,60 @@ Proof.
 Qed.
 
 Inductive formula (X : ComMon) : Type :=
-| fVar : Prop -> formula X
+| fVar   : Prop -> formula X
 | fEquiv : exp X -> exp X -> formula X
-| fNot : formula X -> formula X
-| fAnd : formula X -> formula X -> formula X
-| fOr : formula X -> formula X -> formula X
-| fImpl : formula X -> formula X -> formula X.
+| fNot   : formula X -> formula X
+| fAnd   : formula X -> formula X -> formula X
+| fOr    : formula X -> formula X -> formula X
+| fImpl  : formula X -> formula X -> formula X.
 
 Arguments fVar {X} _.
 
 Fixpoint formulaDenote {X : ComMon} (env : nat -> X) (p : formula X)
   : Prop :=
 match p with
-| fVar P => P
+| fVar P       => P
 | fEquiv e1 e2 => expDenote env e1 == expDenote env e2
-| fNot p' => ~ formulaDenote env p'
-| fAnd p1 p2 => formulaDenote env p1 /\ formulaDenote env p2
-| fOr p1 p2 => formulaDenote env p1 \/ formulaDenote env p2
-| fImpl p1 p2 => formulaDenote env p1 -> formulaDenote env p2
+| fNot p'      => ~ formulaDenote env p'
+| fAnd p1 p2   => formulaDenote env p1 /\ formulaDenote env p2
+| fOr p1 p2    => formulaDenote env p1 \/ formulaDenote env p2
+| fImpl p1 p2  => formulaDenote env p1 -> formulaDenote env p2
 end.
 
 Ltac allVarsFormula xs P :=
 match P with
 | ?a == ?b => allVars xs P
 | ~ ?P' => allVarsFormula xs P'
-| ?P1 /\ ?P2 =>
-        let xs' := allVarsFormula xs P1 in
-          allVarsFormula xs' P2
-| ?P1 \/ ?P2 =>
-        let xs' := allVarsFormula xs P1 in
-          allVarsFormula xs' P2
-| ?P1 -> ?P2 =>
-        let xs' := allVarsFormula xs P1 in
-          allVarsFormula xs' P2
+| ?P1 /\ ?P2 => let xs' := allVarsFormula xs P1 in allVarsFormula xs' P2
+| ?P1 \/ ?P2 => let xs' := allVarsFormula xs P1 in allVarsFormula xs' P2
+| ?P1 -> ?P2 => let xs' := allVarsFormula xs P1 in allVarsFormula xs' P2
 | _ => xs
 end.
 
 Ltac reifyFormula X xs P :=
 match P with
-| ~ ?P' =>
-        let e := reifyFormula X xs P' in constr:(fNot e)
+| ~ ?P' => let e := reifyFormula X xs P' in constr:(fNot e)
 | ?a == ?b =>
-        let e1 := reifyTerm xs a in
-        let e2 := reifyTerm xs b in constr:(fEquiv e1 e2)
+  let e1 := reifyTerm xs a in
+  let e2 := reifyTerm xs b in constr:(fEquiv e1 e2)
 | ?P1 /\ ?P2 =>
-        let e1 := reifyFormula X xs P1 in
-        let e2 := reifyFormula X xs P2 in constr:(fAnd e1 e2)
+  let e1 := reifyFormula X xs P1 in
+  let e2 := reifyFormula X xs P2 in constr:(fAnd e1 e2)
 | ?P1 \/ ?P2 =>
-        let e1 := reifyFormula X xs P1 in
-        let e2 := reifyFormula X xs P2 in constr:(fOr e1 e2)
+  let e1 := reifyFormula X xs P1 in
+  let e2 := reifyFormula X xs P2 in constr:(fOr e1 e2)
 | ?P1 -> ?P2 =>
-        let e1 := reifyFormula X xs P1 in
-        let e2 := reifyFormula X xs P2 in constr:(fImpl e1 e2)
+  let e1 := reifyFormula X xs P1 in
+  let e2 := reifyFormula X xs P2 in constr:(fImpl e1 e2)
 | _ => constr:(fVar X P)
 end.
 
 Ltac reifyGoal :=
 match goal with
 | X : ComMon |- ?P =>
-        let xs := allVarsFormula constr:(@nil X) P in
-        let env := functionalize xs X in
-        let e := reifyFormula X xs P in change (formulaDenote env e)
+  let xs := allVarsFormula constr:(@nil X) P in
+  let env := functionalize xs X in
+  let e := reifyFormula X xs P in change (formulaDenote env e)
 end.
 
 Definition list_eq :
@@ -423,10 +412,10 @@ Proof.
   intros X a _ b b' c c'.
   match goal with
   | X : ComMon |- ?P =>
-          let xs := allVarsFormula constr:(@nil X) P in
-          let env := functionalize xs X in
-          let f := fresh "f" in
-          let f' := constr:(@formulaDenote X env) in pose f' as f
+    let xs := allVarsFormula constr:(@nil X) P in
+    let env := functionalize xs X in
+    let f := fresh "f" in
+    let f' := constr:(@formulaDenote X env) in pose f' as f
   end; cbn in *.
 Abort.
 *)
@@ -436,8 +425,8 @@ Abort.
 #[export]
 Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
-    equiv := fun f g : MonHom X Y =>
-      @equiv _ (SgrHomSetoid X Y) f g
+  equiv := fun f g : MonHom X Y =>
+    @equiv _ (SgrHomSetoid X Y) f g
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
@@ -456,11 +445,11 @@ Defined.
 #[export]
 Instance MonCat : Cat :=
 {
-    Ob := Mon;
-    Hom := MonHom;
-    HomSetoid := MonHomSetoid;
-    comp := MonComp;
-    id := MonId
+  Ob := Mon;
+  Hom := MonHom;
+  HomSetoid := MonHomSetoid;
+  comp := MonComp;
+  id := MonId
 }.
 Proof. all: mon. Defined.
 
@@ -468,8 +457,8 @@ Proof. all: mon. Defined.
 #[export]
 Instance Mon_init : Mon :=
 {
-    sgr := Sgr_term;
-    neutr := tt
+  sgr := Sgr_term;
+  neutr := tt
 }.
 Proof. all: mon. Defined.
 
@@ -492,8 +481,8 @@ Defined.
 #[export]
 Instance Mon_has_init : has_init MonCat :=
 {
-    init := Mon_init;
-    create := Mon_create
+  init := Mon_init;
+  create := Mon_create
 }.
 Proof. mon. Defined.
 
@@ -501,8 +490,8 @@ Proof. mon. Defined.
 #[export]
 Instance Mon_term : Mon :=
 {
-    sgr := Sgr_term;
-    neutr := tt
+  sgr := Sgr_term;
+  neutr := tt
 }.
 Proof. all: mon. Defined.
 
@@ -525,8 +514,8 @@ Defined.
 #[export]
 Instance Mon_has_term : has_term MonCat :=
 {
-    term := Mon_term;
-    delete := Mon_delete
+  term := Mon_term;
+  delete := Mon_delete
 }.
 Proof. mon. Defined.
 
@@ -543,8 +532,8 @@ Proof. mon. Defined.
 #[export]
 Instance Mon_prodOb (X Y : Mon) : Mon :=
 {
-    sgr := Sgr_prodOb X Y;
-    neutr := (neutr, neutr);
+  sgr := Sgr_prodOb X Y;
+  neutr := (neutr, neutr);
 }.
 Proof. all: destruct a; mon. Defined.
 
@@ -568,10 +557,10 @@ Defined.
 #[export]
 Instance Mon_has_products : has_products MonCat :=
 {
-    prodOb := Mon_prodOb;
-    proj1 := Mon_proj1;
-    proj2 := Mon_proj2;
-    fpair := Mon_fpair
+  prodOb := Mon_prodOb;
+  proj1 := Mon_proj1;
+  proj2 := Mon_proj2;
+  fpair := Mon_fpair
 }.
 Proof.
   formulaer.
@@ -582,7 +571,7 @@ Defined.
 #[export]
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
-    fob := fun X : Mon => @setoid (sgr X);
+  fob := fun X : Mon => @setoid (sgr X);
 }.
 Proof.
   cbn. intros. exact X.
@@ -600,20 +589,20 @@ Definition free_monoid
 #[export]
 Instance MonListUnit_Setoid' : Setoid' :=
 {
-    carrier := nat;
-    setoid := {| equiv := eq |}
+  carrier := nat;
+  setoid := {| equiv := eq |}
 }.
 
 #[refine]
 #[export]
 Instance MonListUnit : Mon :=
 {
-    sgr :=
-    {|
-        setoid := MonListUnit_Setoid';
-        op := plus
-|};
-    neutr := 0
+  sgr :=
+  {|
+    setoid := MonListUnit_Setoid';
+    op := plus
+  |};
+  neutr := 0
 }.
 Proof.
   all: cbn; intros; ring.
@@ -630,17 +619,17 @@ Proof.
   unfold free_monoid. intros.
   (*pose f1 : SetoidHom MonListUnit N :=
   {|
-      func := fix f n : N :=
-      match n with
-      | 0 => @neutr N
-      | S n' => op (q tt) (f n')
-      end;
-      func_Proper := ltac: (formulaer; subst; reflexivity)
+    func := fix f n : N :=
+    match n with
+    | 0 => @neutr N
+    | S n' => op (q tt) (f n')
+    end;
+    func_Proper := ltac: (formulaer; subst; reflexivity)
   |}.
   pose f2 : SgrHom MonListUnit N :=
   {|
-      setoidHom := @f1;
-      pres_op := ltac:(mon)
+    setoidHom := @f1;
+    pres_op := ltac:(mon)
   |}.*)
   Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SetoidHom MonListUnit N.

@@ -172,8 +172,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x)
-    : Reify (f x) | 0 :=
+Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
 {
   reify := Mor f (reify x)
 }.
@@ -364,10 +363,12 @@ Instance Sgr_sum (X Y : Sgr) : Sgr :=
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
- (*   left. exact (op x x').
+  (*
+    left. exact (op x x').
     left. exact x.
     left. exact x'.
-    right. exact (op y y').*)
+    right. exact (op y y').
+  *)
   proper. repeat
   match goal with
   | H : match ?x with _ => _ end |- _ => destruct x
@@ -455,13 +456,14 @@ Proof.
   exists (fun y : Y => singl (inr y)). sgr.
 Defined.
 
-(*Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y))
-    : Prop :=
+(*
+Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coprodOb X Y)) : Prop :=
 match l1, l2 with
 | singl h, singl h' => h == h'
 | h1 ::: t1, h2 ::: t2 => h1 == h2 /\ fp_equiv t1 t2
 | _, _ => False
-end.*)
+end.
+*)
 
 Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (X + Y)) : Prop :=
 match l1, l2 with
@@ -544,7 +546,8 @@ Proof.
       fpeq4.
 Abort.
 
-(*#[export]
+(*
+#[export]
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
   setoid := Sgr_freeprod_setoid X Y;
@@ -610,7 +613,8 @@ Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SgrHom (Sgr_freeprod X Y) A.
 Proof.
   red.
-Abort.*)
+Abort.
+*)
 
 Class SgrWut : Type :=
 {
@@ -631,14 +635,16 @@ Proof.
   cbn. rewrite wut_eq. reflexivity.
 Defined.
 
-(*#[export]
+(*
+#[export]
 Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
 {
   reify := Var wut
 }.
 Proof.
   cbn. rewrite wut_eq. reflexivity.
-Defined.*)
+Defined.
+*)
 
 Ltac reflect_sgr2 := intros; do 2 (rewrite <- reify_spec; symmetry);
   apply sgr_reflect; cbn.
@@ -681,7 +687,6 @@ Proof.
   reflect_sgr2.
   reflect_sgr3.
   rewrite <- reify_spec. rewrite <- simplify_correct2. cbn.
-  
   instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).
   cbn. reflexivity.
 Qed.

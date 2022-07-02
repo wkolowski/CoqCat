@@ -355,7 +355,7 @@ Qed.
     product_skolem C Q (f .> p1) (f .> p2)
       (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
         match constructive_indefinite_description _ H with
-      | exist _ g _ => fpair A p1' p2' .> g
+        | exist _ g _ => fpair A p1' p2' .> g
         end).
 Proof.
   unfold product_skolem in *. intros.

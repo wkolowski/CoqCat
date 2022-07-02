@@ -518,20 +518,6 @@ Theorem free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.
   unfold free_monoid. intros.
-  (*pose f1 : SetoidHom MonListUnit N :=
-  {|
-      func := fix f n : N :=
-      match n with
-      | 0 => @neutr N
-      | S n' => op (q tt) (f n')
-      end;
-      func_Proper := ltac: (proper; subst; reflexivity)
-  |}.
-  pose f2 : SgrHom MonListUnit N :=
-  {|
-      setoidHom := @f1;
-      pres_op := ltac:(mon)
-  |}.*)
   Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SetoidHom MonListUnit N.
     exists (fix f (n : nat) : N :=

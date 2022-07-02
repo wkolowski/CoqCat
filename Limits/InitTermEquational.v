@@ -16,9 +16,9 @@ Arguments init _ {has_init}.
 Ltac init := intros; repeat
 match goal with
 | |- context [?f] =>
-    match type of f with
-    | Hom (init _) _ => rewrite (create_unique _ f)
-    end
+  match type of f with
+  | Hom (init _) _ => rewrite (create_unique _ f)
+  end
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 

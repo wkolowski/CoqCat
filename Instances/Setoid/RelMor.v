@@ -84,8 +84,7 @@ Proof. all: rel. Defined.
 Program Instance SetoidRel_has_init : has_init SetoidRelCat :=
 {
   init := CoqSetoid_init;
-  create := fun X : Setoid' =>
-      {| rel := fun (e : Empty_set) _ => match e with end |}
+  create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |}
 }.
 Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
@@ -94,8 +93,7 @@ Next Obligation. rel. Defined.
 Program Instance SetoidRel_has_term : has_term SetoidRelCat :=
 {
   term := CoqSetoid_init;
-  delete := fun X : Setoid' =>
-    {| rel := fun _ (e : Empty_set) => match e with end |}
+  delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |}
 }.
 Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
