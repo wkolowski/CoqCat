@@ -37,14 +37,14 @@ Definition embedding {C D : Cat} (T : Functor C D) : Prop :=
 
 #[global] Hint Unfold full faithful iso_dense embedding : core.
 
-Theorem functor_pres_sec : forall (C D : Cat) (T : Functor C D)
+Lemma functor_pres_sec : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y), Sec f -> Sec (fmap T f).
 Proof.
   unfold Sec; intros. destruct H as (g, H). exists (fmap T g).
   functor_simpl'. f_equiv. assumption.
 Defined.
 
-Theorem functor_pres_ret : forall (C D : Cat) (T : Functor C D)
+Lemma functor_pres_ret : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y), Ret f -> Ret (fmap T f).
 Proof.
   unfold Ret; cat. exists (fmap T x). rewrite <- pres_comp, e.
@@ -53,11 +53,11 @@ Defined.
 
 #[global] Hint Resolve functor_pres_sec functor_pres_ret : core.
 
-Theorem functor_pres_iso : forall (C D : Cat) (T : Functor C D)
+Lemma functor_pres_iso : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y), Iso f -> Iso (fmap T f).
 Proof. intros. rewrite iso_iff_sec_ret in *. cat. Defined.
 
-Theorem full_faithful_refl_sec : forall (C D : Cat) (T : Functor C D)
+Lemma full_faithful_refl_sec : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> Sec (fmap T f) -> Sec f.
 Proof.
@@ -66,7 +66,7 @@ Proof.
   exists g. apply T_faithful. rewrite pres_comp, pres_id, eq. auto.
 Defined.
 
-Theorem full_faithful_refl_ret : forall (C D : Cat) (T : Functor C D)
+Lemma full_faithful_refl_ret : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> Ret (fmap T f) -> Ret f.
 Proof.
@@ -77,7 +77,7 @@ Defined.
 
 #[global] Hint Resolve full_faithful_refl_sec full_faithful_refl_ret : core.
 
-Theorem full_faithful_refl_iso : forall (C D : Cat) (T : Functor C D)
+Lemma full_faithful_refl_iso : forall (C D : Cat) (T : Functor C D)
     (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> Iso (fmap T f) -> Iso f.
 Proof.

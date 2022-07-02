@@ -42,17 +42,17 @@ Class has_biequalizers (C : Cat) : Type :=
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
 Coercion bi_has_coequalizers : has_biequalizers >-> has_coequalizers.
 
-Theorem dual_equalizer_coequalizer : forall (C : Cat) (X Y E : Ob C)
+Lemma dual_equalizer_coequalizer : forall (C : Cat) (X Y E : Ob C)
     (f g : Hom X Y) (e : Hom E X),
     @equalizer C X Y f g E e <-> @coequalizer (Dual C) Y X f g E e.
 Proof. unfold equalizer, coequalizer. cat. Qed.
 
-Theorem dual_biqualizer_self : forall (C : Cat) (X Y E : Ob C)
+Lemma dual_biqualizer_self : forall (C : Cat) (X Y E : Ob C)
     (f g : Hom X Y) (e : Hom E X) (q : Hom Y E),
     @biequalizer C X Y f g E e q <-> @biequalizer (Dual C) Y X f g E q e.
 Proof. unfold biequalizer, equalizer, coequalizer. cat. Qed.
 
-Theorem equalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+Lemma equalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X),
     equalizer C f g E e -> equalizer C f g E' e' -> E ~ E'.
 Proof.
@@ -72,7 +72,7 @@ Proof.
       rewrite comp_assoc, eq'. reflexivity.
 Qed.
 
-Theorem coequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+Lemma coequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q'),
     coequalizer C f g Q q -> coequalizer C f g Q' q' -> Q ~ Q'.
 Proof.
@@ -82,7 +82,7 @@ Proof.
   exact H0. exact H.
 Defined.
 
-Theorem biequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+Lemma biequalizer_iso : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (q : Hom Y E) (e' : Hom E' X) (q' : Hom Y E'),
     biequalizer C f g E e q -> biequalizer C f g E' e' q' -> E ~ E'.
 Proof.
@@ -90,7 +90,7 @@ Proof.
   eapply equalizer_iso; eauto.
 Qed.
 
-Theorem equalizer_is_mono : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+Lemma equalizer_is_mono : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X), equalizer C f g E e -> Mon e.
 Proof.
   unfold equalizer, Mon. intros.
@@ -106,7 +106,7 @@ Proof.
   rewrite <- H2, <- H4; try assumption; reflexivity.
 Defined.
 
-Theorem coequalizer_is_epi : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+Lemma coequalizer_is_epi : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q : Ob C) (q : Hom Y Q), coequalizer C f g Q q -> Epi q.
 Proof.
   intro C. rewrite <- (dual_involution_axiom C); cbn; intros.

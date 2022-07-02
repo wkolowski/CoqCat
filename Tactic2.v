@@ -37,7 +37,7 @@ Proof.
         exact (Comp (Comp e11 e12) (Comp e21 e22)).
 Defined.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -83,7 +83,7 @@ Proof.
     assocr. rewrite IHl1. reflexivity.
 Qed.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -91,7 +91,7 @@ Proof.
     rewrite <- expDenoteHL_comp_app, IHe1, IHe2. reflexivity.
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenoteHL (flatten (simplify e1)) ==
     expDenoteHL (flatten (simplify e2)) ->
@@ -202,7 +202,7 @@ match e in (exp o o0) return (exp o o0) with
   end e1 e2
 end.
 
-Theorem simplify'_correct :
+Lemma simplify'_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify' e) == expDenote e.
 Proof.

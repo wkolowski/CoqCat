@@ -103,7 +103,7 @@ Proof.
   (* Category laws *) all: pros.
 Defined.
 
-(*Theorem Pros_mon_inj : forall (X Y : Pros) (f : ProsHom X Y),
+(*Lemma Pros_mon_inj : forall (X Y : Pros) (f : ProsHom X Y),
     Mon f <-> injectiveS f.
 Proof.
   unfold Mon, injective; split; red; intros.
@@ -113,7 +113,7 @@ Proof.
     simpl. intro. apply H. proshoms. auto.
 Defined.
 
-Theorem Pros_epi_sur : forall (X Y : Pros) (f : ProsHom X Y),
+Lemma Pros_epi_sur : forall (X Y : Pros) (f : ProsHom X Y),
     Epi f <-> surjective f.
 Proof.
   unfold Epi, surjective; split; intros.
@@ -122,7 +122,7 @@ Proof.
     proshoms. intro. destruct (H x). rewrite <- H1. auto.
 Abort.
 
-Theorem Pros_sec_inj : forall (X Y : Pros) (f : ProsHom X Y),
+Lemma Pros_sec_inj : forall (X Y : Pros) (f : ProsHom X Y),
     Sec f <-> injective f.
 Proof.
   unfold Sec, injective; split; intros.

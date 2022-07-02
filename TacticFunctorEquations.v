@@ -84,7 +84,7 @@ Proof.
     rewrite denoteHL_Hfmap, H. reflexivity.
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp C X Y),
     denoteHL (flatten e1) == denoteHL (flatten e2) ->
       denote e1 == denote e2.

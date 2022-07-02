@@ -69,7 +69,7 @@ Class has_pushouts (C : Cat) : Type :=
       (@cofactor X Y A f g)
 }.
 
-Theorem dual_pullback_pushout :
+Lemma dual_pullback_pushout :
   forall (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y),
@@ -78,7 +78,7 @@ Theorem dual_pullback_pushout :
     pushout (Dual C) f g P p1 p2 factor.
 Proof. cat. Defined.
 
-Theorem pullback_uiso :
+Lemma pullback_uiso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y),
@@ -106,7 +106,7 @@ Proof.
         assocr'. rewrite HQ2', HQ1', HP2', HP1'. cat.
 Qed.
 
-Theorem pullback_iso :
+Lemma pullback_iso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y),
@@ -122,7 +122,7 @@ Proof.
   red. exists x. destruct H1 as [[H1 _] _]. assumption.
 Qed.
 
-Theorem pushout_uiso :
+Lemma pushout_uiso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
@@ -149,7 +149,7 @@ Proof.
         symmetry. assumption.
 Qed.
 
-Theorem pushout_iso :
+Lemma pushout_iso :
   forall (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
@@ -165,7 +165,7 @@ Proof.
   symmetry. cat.
 Qed.
 
-Theorem pullback_product :
+Lemma pullback_product :
   forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y),
@@ -183,7 +183,7 @@ Proof.
       intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
 Qed.
 
-Theorem product_pullback :
+Lemma product_pullback :
   forall (C : Cat) (ht : has_term C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
@@ -200,7 +200,7 @@ Proof.
       rewrite H5. reflexivity.
 Qed.
 
-Theorem pullback_equalizer :
+Lemma pullback_equalizer :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (P : Ob C) (p : Hom P X)
   (factor : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' X), Hom P' P),
@@ -214,7 +214,7 @@ Proof.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
 
-(* TODO : finish *) (*Theorem equalizer_pullback :
+(* TODO : finish *) (*Lemma equalizer_pullback :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
   (factorize : forall (E' : Ob C) (e : Hom E' X),
@@ -236,7 +236,7 @@ https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equ
 
 Zhen Lin *)
 
-Theorem pushout_coproduct :
+Lemma pushout_coproduct :
   forall (C : Cat) (ht : has_init C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
@@ -252,7 +252,7 @@ Proof.
       intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
 Qed.
 
-Theorem coproduct_pushout :
+Lemma coproduct_pushout :
   forall (C : Cat) (ht : has_init C) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
@@ -269,7 +269,7 @@ Proof.
       rewrite H5. reflexivity.
 Qed.
 
-Theorem pushout_coequalizer :
+Lemma pushout_coequalizer :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (P : Ob C) (p : Hom Y P)
   (cofactor : forall (P' : Ob C) (f : Hom Y P') (g : Hom Y P'), Hom P P'),

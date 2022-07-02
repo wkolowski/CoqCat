@@ -58,7 +58,7 @@ Proof.
         exact (Comp (Comp e11 e12) (Comp e21 e22)).
 Defined.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -104,7 +104,7 @@ Proof.
     rewrite comp_assoc, IHl1. reflexivity.
 Qed.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -113,7 +113,7 @@ Proof.
     rewrite IHe1, IHe2. reflexivity.
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenoteHL (flatten (simplify e1)) ==
     expDenoteHL (flatten (simplify e2)) ->
@@ -122,7 +122,7 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
-Theorem cat_expand :
+Lemma cat_expand :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenote e1 == expDenote e2 ->
       expDenoteHL (flatten (simplify e1)) ==
@@ -196,7 +196,7 @@ Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
 
 (* Warning: the following also uses the JMeq_eq axiom *)
 
-Theorem cat_split : forall
+Lemma cat_split : forall
   (Ob Ob' : Type)
   (Hom : Ob -> Ob -> Type)
   (Hom': Ob' -> Ob' -> Type)
@@ -228,7 +228,7 @@ Proof.
   f_equal; apply proof_irrelevance.
 Qed.
 
-Theorem setoid_split : forall A A' equiv equiv' setoid_equiv setoid_equiv',
+Lemma setoid_split : forall A A' equiv equiv' setoid_equiv setoid_equiv',
     A = A' -> JMeq equiv equiv' ->
     JMeq (@Build_Setoid A equiv setoid_equiv)
          (@Build_Setoid A' equiv' setoid_equiv').
@@ -244,7 +244,7 @@ Proof.
   rewrite H. trivial.
 Qed.
 
-Theorem dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
+Lemma dual_involution_theorem : forall (C : Cat), Dual (Dual C) = C.
 Proof.
   destruct C. unfold Dual. apply cat_split; cbn; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
@@ -253,7 +253,7 @@ Proof.
       destruct (HomSetoid0 A B). apply setoid_split; trivial.
 Qed.
 
-Theorem duality_principle : forall (P : Cat -> Prop),
+Lemma duality_principle : forall (P : Cat -> Prop),
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
 Proof. trivial. Qed.
 
@@ -273,7 +273,7 @@ Definition Aut {C : Cat} {A : Ob C} (f : Hom A A) : Prop := Iso f.
 
 #[global] Hint Unfold End Mon Epi Bim Sec Ret Iso Aut : core.
 
-Theorem dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma dual_mon_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Mon C A B f <-> @Epi (Dual C) B A f.
 Proof.
 (*
@@ -285,13 +285,13 @@ Restart.
   cat.
 Qed.
 
-Theorem dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma dual_bim_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Bim C A B f <-> @Bim (Dual C) B A f.
 Proof.
   unfold Bim; cat.
 Qed.
 
-Theorem dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma dual_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Sec C A B f <-> @Ret (Dual C) B A f.
 Proof.
 (*
@@ -302,7 +302,7 @@ Restart.
   cat.
 Qed.
 
-Theorem dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma dual_iso_self : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     @Iso C A B f <-> @Iso (Dual C) B A f.
 Proof.
 (*
@@ -313,7 +313,7 @@ Restart.
   unfold Iso; cat.
 Qed.
 
-Theorem iso_inv_unique : forall {C : Cat} {A B : Ob C} (f : Hom A B),
+Lemma iso_inv_unique : forall {C : Cat} {A B : Ob C} (f : Hom A B),
     Iso f <-> exists!! g : Hom B A, (f .> g == id A /\ g .> f == id B).
 Proof.
   unfold Iso; split; intros.
@@ -363,7 +363,7 @@ match goal with
 | _ => cat
 end).
 
-Theorem dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
+Lemma dual_isomorphic_self : forall (C : Cat) (A B : Ob C),
     @isomorphic C A B <-> @isomorphic (Dual C) B A.
 Proof.
 (*
@@ -374,7 +374,7 @@ Restart.
   iso.
 Defined.
 
-Theorem dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
+Lemma dual_unique_iso_self : forall (C : Cat) (A B : Ob C),
     @uniquely_isomorphic C A B <-> @uniquely_isomorphic (Dual C) A B.
 Proof.
 (* It works, but it's slow — I don't know why.
@@ -394,7 +394,7 @@ Restart.
     apply x_inv_unique. cat; rewrite H0; iso.
 Qed.
 
-Theorem unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
+Lemma unique_iso_is_iso : forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
 Proof.
 (*
   unfold uniquely_isomorphic, isomorphic.
@@ -407,13 +407,13 @@ Qed.
 #[global] Hint Resolve dual_isomorphic_self dual_unique_iso_self unique_iso_is_iso : core.
 
 (* The identity is unique. *)
-Theorem id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
+Lemma id_unique_left : forall (C : Cat) (A : Ob C) (idA : Hom A A),
     (forall (B : Ob C) (f : Hom A B), idA .> f == f) -> idA == id A.
 Proof.
   intros. specialize (H A (id A)). cat.
 Qed.
 
-Theorem id_unique_right : forall (C : Cat) (B : Ob C) (idB : Hom B B),
+Lemma id_unique_right : forall (C : Cat) (B : Ob C) (idB : Hom B B),
     (forall (A : Ob C) (f : Hom A B), f .> idB == f) -> idB == id B.
 Proof.
   intros. specialize (H B (id B)). cat.
@@ -422,7 +422,7 @@ Qed.
 #[global] Hint Resolve id_unique_left id_unique_right : core.
 
 (* Relations between different types of morphisms. *)
-Theorem sec_is_mon : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma sec_is_mon : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Sec f -> Mon f.
 Proof.
   intros; unfold Sec, Mon in *; intros X h1 h2 eq. destruct H as (g, H).
@@ -431,7 +431,7 @@ Proof.
     rewrite !comp_assoc, H in eq2. cat.
 Qed.
 
-Theorem ret_is_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma ret_is_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Ret f -> Epi f.
 Proof.
   intros. unfold Ret, Epi in *. intros X h1 h2 eq. destruct H as (g, H).
@@ -440,7 +440,7 @@ Proof.
     rewrite <- 2 comp_assoc, H in eq2. cat.
 Qed.
 
-Theorem iso_is_sec : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma iso_is_sec : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f -> Sec f.
 Proof.
 (*
@@ -450,7 +450,7 @@ Restart.
   unfold Iso, Sec; cat.
 Qed.
 
-Theorem iso_is_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma iso_is_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f -> Ret f.
 Proof.
 (*
@@ -462,7 +462,7 @@ Qed.
 
 #[global] Hint Resolve sec_is_mon ret_is_epi iso_is_sec iso_is_ret : core.
 
-Theorem iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma iso_iff_sec_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Sec f /\ Ret f.
 Proof.
   split; intros. cat.
@@ -473,7 +473,7 @@ Proof.
     exists g. split. assumption. rewrite eq. assumption.
 Defined.
 
-Theorem iso_iff_sec_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma iso_iff_sec_epi : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Sec f /\ Epi f.
 Proof.
   split; intros.
@@ -483,7 +483,7 @@ Proof.
       apply H. rewrite <- comp_assoc. rewrite eq. cat.
 Defined.
 
-Theorem iso_iff_mon_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma iso_iff_mon_ret : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Iso f <-> Mon f /\ Ret f.
 Proof.
   split; intros.
@@ -496,7 +496,7 @@ Defined.
 #[global] Hint Resolve iso_iff_sec_ret iso_iff_mon_ret iso_iff_sec_epi : core.
 
 (* Characterizations. *)
-Theorem mon_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma mon_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Mon f <-> forall X : Ob C, injectiveS (fun g : Hom X A => g .> f).
 Proof.
 (*
@@ -508,20 +508,20 @@ Restart.
   cat.
 Qed.
 
-Theorem epi_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
+Lemma epi_char : forall (C : Cat) (A B : Ob C) (f : Hom A B),
     Epi f <-> forall X : Ob C, injectiveS (fun g : Hom B X => f .> g).
 Proof. cat. Qed.
 
 #[global] Hint Resolve mon_char epi_char : core.
 
 (* Composition theorems. *)
-Theorem mon_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma mon_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Mon f -> Mon g -> Mon (f .> g).
 Proof.
   unfold Mon. cat. apply H, H0. reflect_cat. cat.
 Defined.
 
-Theorem epi_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma epi_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Epi f -> Epi g -> Epi (f .> g).
 Proof.
   unfold Epi. cat.
@@ -529,20 +529,20 @@ Defined.
 
 #[global] Hint Resolve mon_comp epi_comp : core.
 
-Theorem bim_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma bim_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Bim f -> Bim g -> Bim (f .> g).
 Proof.
   unfold Bim; cat.
 Defined.
 
-Theorem sec_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma sec_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Sec f -> Sec g -> Sec (f .> g).
 Proof.
   destruct 1 as [h1 eq1], 1 as [h2 eq2]. red. exists (h2 .> h1).
   rewrite comp_assoc, <- (comp_assoc g h2). rewrite eq2. cat.
 Defined.
 
-Theorem ret_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma ret_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Ret f -> Ret g -> Ret (f .> g).
 Proof.
   destruct 1 as [h1 eq1], 1 as [h2 eq2]. exists (h2 .> h1).
@@ -551,7 +551,7 @@ Defined.
 
 #[global] Hint Resolve bim_comp sec_comp ret_comp : core.
 
-Theorem iso_comp : forall (C : Cat) (X Y Z : Ob C)
+Lemma iso_comp : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Iso f -> Iso g -> Iso (f .> g).
 Proof.
   intros. apply iso_iff_sec_ret; cat.
@@ -559,40 +559,40 @@ Defined.
 
 #[global] Hint Resolve iso_comp : core.
 
-Theorem aut_comp : forall (C : Cat) (X : Ob C)
+Lemma aut_comp : forall (C : Cat) (X : Ob C)
     (f : Hom X X) (g : Hom X X), Aut f -> Aut g -> Aut (f .> g).
 Proof. cat. Defined.
 
 #[global] Hint Resolve aut_comp : core.
 
 (* Composition properties. *)
-Theorem mon_prop : forall (C : Cat) (X Y Z : Ob C)
+Lemma mon_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Mon (f .> g) -> Mon f.
 Proof.
   unfold Mon; intros. apply H. rewrite <- !comp_assoc.
   rewrite H0. reflexivity.
 Defined.
 
-Theorem epi_prop : forall (C : Cat) (X Y Z : Ob C)
+Lemma epi_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Epi (f .> g) -> Epi g.
 Proof.
   unfold Epi; intros. apply H.
   rewrite !comp_assoc. rewrite H0. reflexivity.
 Defined.
 
-Theorem sec_prop : forall (C : Cat) (X Y Z : Ob C)
+Lemma sec_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Sec (f .> g) -> Sec f.
 Proof.
   unfold Sec. destruct 1 as [h eq]. exists (g .> h). rewrite <- eq; cat.
 Defined.
 
-Theorem ret_prop : forall (C : Cat) (X Y Z : Ob C)
+Lemma ret_prop : forall (C : Cat) (X Y Z : Ob C)
     (f : Hom X Y) (g : Hom Y Z), Ret (f .> g) -> Ret g.
 Proof.
   unfold Ret. destruct 1 as [h eq]. exists (h .> f). cat.
 Defined.
 
-Theorem id_is_aut : forall (C : Cat) (X : Ob C), Aut (id X).
+Lemma id_is_aut : forall (C : Cat) (X : Ob C), Aut (id X).
 Proof. unfold Aut, Iso; intros; exists (id X); cat. Defined.
 
 #[global] Hint Resolve mon_prop epi_prop sec_prop ret_prop id_is_aut : core.

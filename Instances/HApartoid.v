@@ -19,7 +19,7 @@ Arguments hneq [HApartoid] [A] [B] _ _.
 
 Coercion carrier : HApartoid >-> Sortclass.
 
-(*Theorem hneq_arg : forall (X Y : HApartoid) (A : Type) (x y : A),
+(*Lemma hneq_arg : forall (X Y : HApartoid) (A : Type) (x y : A),
     @hneq X A A x y <-> @hneq Y A A x y.
 Proof.
   split; intros.

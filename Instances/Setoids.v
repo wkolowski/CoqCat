@@ -123,7 +123,7 @@ Proof. setoid. Defined.
 
 Arguments const _ [Y] _.
 
-Theorem CoqSetoid_mon_char : forall (X Y : Setoid') (f : SetoidHom X Y),
+Lemma CoqSetoid_mon_char : forall (X Y : Setoid') (f : SetoidHom X Y),
     Mon f <-> injectiveS f.
 Proof.
   unfold Mon, injectiveS; split; intros.
@@ -132,7 +132,7 @@ Proof.
     cbn. intro. apply H. apply H0.
 Defined.
 
-Theorem CoqSetoid_sur_is_epi : forall (X Y : Setoid') (f : SetoidHom X Y),
+Lemma CoqSetoid_sur_is_epi : forall (X Y : Setoid') (f : SetoidHom X Y),
     surjectiveS f -> Epi f.
 Proof.
   unfold Epi, surjectiveS; intros. cbn in *. intro.
@@ -142,7 +142,7 @@ Proof.
     all: rewrite eq; reflexivity.
 Defined.
 
-Theorem CoqSetoid_sec_is_inj : forall (X Y : Setoid') (f : SetoidHom X Y),
+Lemma CoqSetoid_sec_is_inj : forall (X Y : Setoid') (f : SetoidHom X Y),
     Sec f -> injectiveS f.
 Proof.
   unfold Sec, injectiveS; intros.
@@ -156,7 +156,7 @@ Definition surjectiveS_skolem
     exists g : B -> A, Proper (equiv ==> equiv) g /\
       forall b : B, f (g b) == b.
 
-Theorem CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
+Lemma CoqSetoid_ret_char : forall (X Y : Setoid') (f : SetoidHom X Y),
     Ret f <-> surjectiveS_skolem f.
 Proof.
   unfold Ret, surjectiveS; split; cbn; intros.
@@ -478,7 +478,7 @@ Inductive equiv_hetero {A : Type} (S : Setoid A) : forall (B : Type), A -> B -> 
 
 #[global] Hint Constructors equiv_hetero : core.
 
-Theorem equiv_hetero_trans :
+Lemma equiv_hetero_trans :
   forall (A B C : Type) (SA : Setoid A) (SB : Setoid B)
   (x : A) (y : B) (z : C), A = B -> JMeq SA SB ->
     equiv_hetero SA x y -> equiv_hetero SB y z -> equiv_hetero SA x z.

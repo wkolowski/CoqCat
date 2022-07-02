@@ -20,7 +20,7 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Theorem DepExtSet_mon_inj : forall (A B : Ob DepExtSet) (f : A -> B),
+Lemma DepExtSet_mon_inj : forall (A B : Ob DepExtSet) (f : A -> B),
     Mon f <-> @injectiveS A B
       {| equiv := @depExtEq A A |} {| equiv := @depExtEq B B |} f.
 Proof.

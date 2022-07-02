@@ -52,7 +52,7 @@ match e with
   end
 end.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (X : Sgr) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -94,7 +94,7 @@ match e with
 | Mor f e' => nel_map f (flatten e')
 end.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (X : Sgr) (e : exp X),
     expDenoteNel (flatten e) == expDenote e.
 Proof.
@@ -104,7 +104,7 @@ Proof.
     rewrite expDenoteNel_hom. rewrite IHe. reflexivity.
 Qed.
 
-Theorem sgr_reflect :
+Lemma sgr_reflect :
   forall (X : Sgr) (e1 e2 : exp X),
     expDenoteNel (flatten (simplify e1)) ==
     expDenoteNel (flatten (simplify e2)) ->
@@ -357,20 +357,20 @@ match l1, l2 with
 | _, _ => False
 end.
 
-Theorem equiv_nel_refl : forall (X : Setoid') (l : nel X),
+Lemma equiv_nel_refl : forall (X : Setoid') (l : nel X),
     equiv_nel l l.
 Proof.
   induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
 Qed.
 
-Theorem equiv_nel_sym : forall (X : Setoid') (l1 l2 : nel X),
+Lemma equiv_nel_sym : forall (X : Setoid') (l1 l2 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l1.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
   intros; solve_equiv.
 Qed.
 
-Theorem equiv_nel_trans : forall (X : Setoid') (l1 l2 l3 : nel X),
+Lemma equiv_nel_trans : forall (X : Setoid') (l1 l2 l3 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
 Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
@@ -458,19 +458,19 @@ match goal with
 | _ => eauto
 end.
 
-Theorem fp_equiv_refl : forall (X Y : Setoid') (l : nel (X + Y)),
+Lemma fp_equiv_refl : forall (X Y : Setoid') (l : nel (X + Y)),
     fp_equiv l l.
 Proof.
   induction l as [| h t]; fp_equiv.
 Qed.
 
-Theorem fp_equiv_sym : forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
+Lemma fp_equiv_sym : forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l1.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
 Qed.
 
-Theorem fp_equiv_trans : forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
+Lemma fp_equiv_trans : forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
 Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
@@ -489,19 +489,19 @@ match goal with
 | _ => solve_equiv
 end.
 
-Theorem fpeq4_refl : forall (X Y : Sgr) (l : nel (X + Y)),
+Lemma fpeq4_refl : forall (X Y : Sgr) (l : nel (X + Y)),
     fpeq4 l l.
 Proof.
   unfold fpeq4. induction l as [| h [| h' t]]; fpeq4.
 Qed.
 
-Theorem fpeq4_sym : forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+Lemma fpeq4_sym : forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l1.
 Proof.
   unfold fpeq4. induction l1 as [| h [| h' t]]; fpeq4.
 Qed.
 
-Theorem fpeq4_trans : forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
+Lemma fpeq4_trans : forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1]; fpeq4.
@@ -509,7 +509,7 @@ Qed.
 
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
-Theorem app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
+Lemma app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1].
@@ -561,7 +561,7 @@ match l with
 | a ::: t => op a (fold t)
 end.
 
-Theorem fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
+Lemma fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
     equiv_nel l1 l2 -> fold l1 == fold l2.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.

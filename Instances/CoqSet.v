@@ -30,7 +30,7 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Theorem CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
+Lemma CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> injective f.
 Proof.
   unfold Mon, injective; cbn; split; intros.
@@ -39,7 +39,7 @@ Proof.
     apply H. apply H0.
 Defined.
 
-Theorem CoqSet_ret_sur : forall (X Y : Set) (f : Hom X Y),
+Lemma CoqSet_ret_sur : forall (X Y : Set) (f : Hom X Y),
     Ret f <-> surjective f.
 Proof.
   unfold Ret, surjective; cbn; split; intros.
@@ -52,7 +52,7 @@ Defined.
 
 (* TODO : characterize epimorphisms and sections *)
 
-Theorem CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
+Lemma CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
     Iso f <-> bijective f.
 Proof.
 (*
@@ -101,7 +101,7 @@ Proof.
   destruct H as [a [_ H]]. exact a.
 Defined.
 
-Theorem CoqSet_terminal_ob :
+Lemma CoqSet_terminal_ob :
   forall (A : Set) (H : is_singleton A),
     @terminal CoqSet A (is_singleton_delete A H).
 Proof.
@@ -185,7 +185,7 @@ Proof.
   all: try red; cat.
 Defined.
 
-Theorem CoqSet_counterexample1 :
+Lemma CoqSet_counterexample1 :
     exists (A B C : Set) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ (injective g).
 Proof.
@@ -195,7 +195,7 @@ Proof.
     specialize (H true false eq_refl). discriminate H.
 Qed.
 
-Theorem CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
+Lemma CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
     (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).

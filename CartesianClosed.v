@@ -14,7 +14,7 @@ Coercion ccc_term : cartesian_closed >-> has_term.
 Coercion ccc_prod : cartesian_closed >-> has_products.
 Coercion ccc_exp : cartesian_closed >-> has_exponentials.
 
-Theorem prod_term_iso_l : forall (C : Cat) (X : Ob C)
+Lemma prod_term_iso_l : forall (C : Cat) (X : Ob C)
   (ht : has_term C) (hp : has_products C), prodOb (term C) X ~ X.
 Proof.
   symmetry.
@@ -23,7 +23,7 @@ Proof.
   fpair. term.
 Defined.
 
-Theorem prod_term_iso_l' :
+Lemma prod_term_iso_l' :
   forall (C : Cat) (X : Ob C) (ht : has_term C) (hp : has_products C),
     {f : Hom (prodOb (term C) X) X | Iso f}.
 Proof.
@@ -31,13 +31,13 @@ Proof.
   red. exists (fpair (delete X) (id X)). fpair. term.
 Defined.
 
-Theorem prod_term_iso_r : forall (C : Cat) (X : Ob C)
+Lemma prod_term_iso_r : forall (C : Cat) (X : Ob C)
   (ht : has_term C) (hp : has_products C), prodOb X (term C) ~ X.
 Proof.
   intros. rewrite prodOb_comm. apply prod_term_iso_l.
 Defined.
 
-Theorem prod_term_iso_r' :
+Lemma prod_term_iso_r' :
   forall (C : Cat) (X : Ob C) (ht : has_term C) (hp : has_products C),
     {f : Hom (prodOb X (term C)) X | Iso f}.
 Proof.
@@ -45,7 +45,7 @@ Proof.
   red. exists (fpair (id X) (delete X)). fpair. term.
 Defined.
 
-Theorem coprod_init_iso_l : forall (C : Cat) (X : Ob C)
+Lemma coprod_init_iso_l : forall (C : Cat) (X : Ob C)
   (hi : has_init C) (hp : has_coproducts C), coprodOb (init C) X ~ X.
 Proof.
   intros.
@@ -54,7 +54,7 @@ Proof.
   copair. init.
 Defined.
 
-Theorem coprod_init_iso_l' :
+Lemma coprod_init_iso_l' :
   forall (C : Cat) (X : Ob C) (hi : has_init C) (hp : has_coproducts C),
     {f : Hom (coprodOb (init C) X) X | Iso f}.
 Proof.
@@ -64,13 +64,13 @@ Proof.
   copair. init.
 Defined.
 
-Theorem coprod_init_iso_r : forall (C : Cat) (X : Ob C)
+Lemma coprod_init_iso_r : forall (C : Cat) (X : Ob C)
   (hi : has_init C) (hp : has_coproducts C), coprodOb X (init C) ~ X.
 Proof.
   intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
 Qed.
 
-Theorem coprod_init_iso_r' :
+Lemma coprod_init_iso_r' :
   forall (C : Cat) (X : Ob C) (hi : has_init C) (hp : has_coproducts C),
     {f : Hom (coprodOb X (init C)) X | Iso f}.
 Proof.
@@ -81,7 +81,7 @@ Proof.
 Defined.
 
 (* TODO *)
-Theorem exp_term_dom :
+Lemma exp_term_dom :
   forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb (term C) Y ~ Y.
 Proof.
@@ -101,7 +101,7 @@ Proof.
     do 2 red in is_product. unfold ProductFunctor_fmap in is_exponential. cbn in *.
 Abort.
 
-(* TODO *) Theorem exp_term_cod :
+(* TODO *) Lemma exp_term_cod :
     forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
     expOb Y (term C) ~ term C.
 Proof.

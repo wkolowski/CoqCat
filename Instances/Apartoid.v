@@ -108,7 +108,7 @@ match goal with
 end; eauto).
 Ltac apartoid := try (apartoid'; eauto; fail).
 
-Theorem contrapositive : forall P Q : Prop, (P -> Q) -> (~Q -> ~P).
+Lemma contrapositive : forall P Q : Prop, (P -> Q) -> (~Q -> ~P).
 Proof.
   intros. intro. apply H0. apply H. apply H1.
 Qed.
@@ -440,7 +440,7 @@ Proof.
     left. intro. apply H.
 Abort.
 
-(* Theorem JMeq_cotrans : forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
+(* Lemma JMeq_cotrans : forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
     ~ JMeq x y -> ~ JMeq z x \/ ~ JMeq z y.
 Proof.
   intros. left. intro. apply H. *)

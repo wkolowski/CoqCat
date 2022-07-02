@@ -39,7 +39,7 @@ Definition big_biproduct_skolem (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
       big_product_skolem C P proj diag /\
       big_coproduct_skolem C P coproj codiag.
 
-Theorem big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
+Lemma big_product_iso_unique : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P Q : Ob C) (p : forall j : J, Hom P (A j))
     (q : forall j : J, Hom Q (A j)),
     big_product C P p -> big_product C Q q -> P ~ Q.
@@ -58,7 +58,7 @@ Proof.
       rewrite comp_assoc. rewrite <- eq1. auto.
 Qed.
 
-Theorem big_product_iso_unique2 : forall (C : Cat) (J : Set)
+Lemma big_product_iso_unique2 : forall (C : Cat) (J : Set)
     (A B : J -> Ob C) (P Q : Ob C)
     (p : forall j : J, Hom P (A j)) (q : forall j : J, Hom Q (B j)),
     (forall j : J, A j ~ B j) ->
@@ -95,13 +95,13 @@ Proof.
 Defined.
 
 (* Hard and buggy
-Theorem small_and_big_products : forall (C : Cat) (A B P : Ob C)
+Lemma small_and_big_products : forall (C : Cat) (A B P : Ob C)
     (pA : Hom P A) (pB : Hom P B), product C P pA pB <->
     exists (f : bool -> Ob C) (p : forall b : bool, Hom P (f b)),
     f true = A /\ f false = B /\ big_product C P p.
 Proof. *)
 
-Theorem nullary_prod :
+Lemma nullary_prod :
   forall (C : Cat) (A : Empty_set -> Ob C) (T : Ob C)
   (delete : forall X : Ob C, Hom X T)
   (p : forall j : Empty_set, Hom T (A j)),
@@ -111,7 +111,7 @@ Proof.
   exists (delete X). destruct (H X). cat.
 Qed.
 
-Theorem nullary_coprod :
+Lemma nullary_coprod :
   forall (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
   (create : forall X : Ob C, Hom I X)
   (p : forall j : Empty_set, Hom (A j) I),
@@ -121,20 +121,20 @@ Proof.
   exists (create X). destruct (H X). cat.
 Qed.
 
-Theorem unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
+Lemma unary_prod_exists : forall (C : Cat) (A : unit -> Ob C),
     big_product C (A tt) (fun _ : unit => id (A tt)).
 Proof.
   unfold big_product; intros. exists (f tt). cat.
 Qed.
 
-Theorem unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
+Lemma unary_coprod_exists : forall (C : Cat) (A : unit -> Ob C),
     big_coproduct C (A tt) (fun _ : unit => id (A tt)).
 Proof.
   unfold big_coproduct; intros. exists (f tt). cat.
 Qed.
 
 (* Dependent type bullshit. This is harder than I thought.
-Theorem big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C)
+Lemma big_product_comm : forall (C : Cat) (J : Set) (A : J -> Ob C)
     (P : Ob C) (f : J -> J) (p : forall j : J, Hom P (A j))
     (p' : forall j : J, Hom P (A (f j))),
     (forall j : J, p' j = p (f j)) ->
@@ -181,7 +181,7 @@ Arguments bigProdOb [C] [_] [J] _.
 Arguments bigProj [C] [_] [J] [A] _.
 Arguments tuple [C] [_] [J] [A] [X] _.
 
-Theorem tuple_bigProj :
+Lemma tuple_bigProj :
   forall (C : Cat) (hp : has_all_products C) (X : Ob C) (J : Set)
   (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
     tuple f .> bigProj j == f j.
@@ -191,7 +191,7 @@ Proof.
   rewrite <- H. reflexivity.
 Qed.
 
-Theorem tuple_pre : 
+Lemma tuple_pre : 
   forall (C : Cat) (hp : has_all_products C) (X Y : Ob C) (J : Set)
   (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
     f .> tuple g == tuple (fun j : J => f .> g j).
@@ -202,7 +202,7 @@ Proof.
     intros; cbn in *. cat. rewrite tuple_bigProj. reflexivity.
 Qed.
 
-Theorem tuple_id :
+Lemma tuple_id :
   forall (C : Cat) (hp : has_all_products C) (J : Set)
   (X : J -> Ob C),
     tuple (@bigProj C hp J X) == id (bigProdOb X).
@@ -210,7 +210,7 @@ Proof.
   intros. edestruct is_big_product. apply H0. cat.
 Qed.
 
-Theorem tuple_comp :
+Lemma tuple_comp :
   forall (C : Cat) (hp : has_all_products C) (J : Set) (X : Ob C)
   (Y Y' : J -> Ob C) (f : forall j : J, Hom X (Y j))
   (g : forall j : J, Hom (Y j) (Y' j)),
@@ -240,7 +240,7 @@ Arguments bigCoprodOb [C] [_] [J] _.
 Arguments bigCoproj [C] [_] [J] [A] _.
 Arguments cotuple [C] [_] [J] [A] [X] _.
 
-Theorem cotuple_bigCoproj :
+Lemma cotuple_bigCoproj :
   forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
   (X : J -> Ob C) (Y : Ob C) (f : forall j : J, Hom (X j) Y) (j : J),
     bigCoproj j .> cotuple f == f j.
@@ -249,7 +249,7 @@ Proof.
   rewrite <- H. reflexivity.
 Qed.
 
-Theorem cotuple_post :
+Lemma cotuple_post :
   forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
   (X : J -> Ob C) (Y Z : Ob C) (f : forall j : J, Hom (X j) Y) (g : Hom Y Z),
     cotuple f .> g == cotuple (fun j : J => f j .> g).
@@ -260,7 +260,7 @@ Proof.
     intros; cbn in *. assocl. rewrite cotuple_bigCoproj. reflexivity.
 Qed.
 
-Theorem cotuple_id :
+Lemma cotuple_id :
   forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
   (X : J -> Ob C),
     cotuple (@bigCoproj C hp J X) == id (bigCoprodOb X).
@@ -268,7 +268,7 @@ Proof.
   intros. edestruct is_big_coproduct. apply H0. cat.
 Qed.
 
-Theorem cotuple_comp :
+Lemma cotuple_comp :
   forall (C : Cat) (hp : has_all_coproducts C) (J : Set)
   (X X' : J -> Ob C) (Y : Ob C)
   (f : forall j : J, Hom (X j) (X' j))
@@ -293,7 +293,7 @@ Class has_all_biproducts (C : Cat) : Type :=
 Coercion bigProduct : has_all_biproducts >-> has_all_products.
 Coercion bigCoproduct : has_all_biproducts >-> has_all_coproducts.
 
-Theorem big_product_skolem_iso_unique :
+Lemma big_product_skolem_iso_unique :
   forall (C : Cat) (J : Set) (A : J -> Ob C)
   (P : Ob C) (p : forall j : J, Hom P (A j))
   (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)

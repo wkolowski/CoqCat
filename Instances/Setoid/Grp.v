@@ -23,7 +23,7 @@ Class Grp : Type :=
 
 Coercion mon : Grp >-> Mon.
 
-Theorem inv_involutive : forall (G : Grp) (g : G),
+Lemma inv_involutive : forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
   intros.
@@ -32,7 +32,7 @@ Proof.
     rewrite inv_l , neutr_r in H. assumption.
 Qed.
 
-Theorem neutr_unique_l : forall (G : Grp) (e : G),
+Lemma neutr_unique_l : forall (G : Grp) (e : G),
     (forall g : G, op e g == g) -> e == neutr.
 Proof.
   intros.
@@ -41,7 +41,7 @@ Proof.
   rewrite H0 in H1. assumption.
 Defined.
 
-Theorem neutr_unique_r : forall (G : Grp) (e : G),
+Lemma neutr_unique_r : forall (G : Grp) (e : G),
     (forall g : G, op g e == g) -> e == neutr.
 Proof.
   intros.
@@ -50,7 +50,7 @@ Proof.
   rewrite H0 in H1. assumption.
 Defined.
 
-Theorem inv_op : forall (G : Grp) (a b : G),
+Lemma inv_op : forall (G : Grp) (a b : G),
     inv (op a b) == op (inv b) (inv a).
 Proof.
   intros.
@@ -66,7 +66,7 @@ Proof.
   repeat (rewrite assoc, inv_l, neutr_l in H2). assumption.
 Defined.
 
-Theorem inv_neutr : forall (G : Grp), inv neutr == neutr.
+Lemma inv_neutr : forall (G : Grp), inv neutr == neutr.
 Proof.
   intros.
   assert (op (inv neutr) neutr == neutr).
@@ -131,7 +131,7 @@ match e with
   end
 end.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (X : Grp) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -194,7 +194,7 @@ match e with
 | Inv e' => rev (map inv (flatten e'))
 end.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (X : Grp) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
@@ -206,7 +206,7 @@ Proof.
     rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe. reflexivity.
 Qed.
 
-Theorem grp_reflect :
+Lemma grp_reflect :
   forall (X : Grp) (e1 e2 : exp X),
     expDenoteL (flatten (simplify e1)) ==
     expDenoteL (flatten (simplify e2)) ->
@@ -215,7 +215,7 @@ Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
 Qed.
 
-Theorem grp_reflect2 :
+Lemma grp_reflect2 :
   forall (X : Grp) (e1 e2 : exp X),
     expDenoteL (flatten (simplify (simplify e1))) ==
     expDenoteL (flatten (simplify (simplify e2))) ->

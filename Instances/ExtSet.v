@@ -23,7 +23,7 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Theorem ExtSet_mon_inj : forall (A B : Ob ExtSet) (f : A -> B),
+Lemma ExtSet_mon_inj : forall (A B : Ob ExtSet) (f : A -> B),
     Mon f <-> @injectiveS A B {| equiv := @extEq A |} {| equiv := @extEq B |} f.
 Proof.
   unfold Mon, injectiveS; cbn; split; intros.
@@ -34,7 +34,7 @@ Proof.
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 a a). auto.
 Qed.
 
-Theorem ExtSet_ret_surjective : forall (A B : Type)
+Lemma ExtSet_ret_surjective : forall (A B : Type)
     (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     @surjectiveS A B {| equiv := @extEq B |} f.
 Proof.
@@ -45,7 +45,7 @@ Proof.
     rewrite H. reflexivity.
 Qed.
 
-Theorem ExtSet_surjective_ret : forall (A B : Type) (f : Hom A B),
+Lemma ExtSet_surjective_ret : forall (A B : Type) (f : Hom A B),
     @surjectiveS A B {| equiv := @extEq B |} f ->
     {g : Hom B A | g .> f == id B}.
 Proof.

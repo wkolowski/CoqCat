@@ -68,7 +68,7 @@ Definition natural_isomorphism {C D : Cat} {F G : Functor C D}
     NatTransComp α β == NatTransId F /\
     NatTransComp β α == NatTransId G.
 
-Theorem natural_isomorphism_char :
+Lemma natural_isomorphism_char :
     forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
     natural_isomorphism α <-> forall X : Ob C, Iso (component α X).
 Proof.

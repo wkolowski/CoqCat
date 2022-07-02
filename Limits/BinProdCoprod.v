@@ -68,7 +68,7 @@ Class has_biproducts (C : Cat) : Type :=
 Coercion products : has_biproducts >-> has_products.
 Coercion coproducts : has_biproducts >-> has_coproducts.
 
-Theorem dual_product_coproduct_skolem :
+Lemma dual_product_coproduct_skolem :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
@@ -78,7 +78,7 @@ Theorem dual_product_coproduct_skolem :
       coproduct_skolem (Dual C) P p1 p2 fpair.
 Proof. cat. Defined.
 
-Theorem dual_biproduct_skolem_self :
+Lemma dual_biproduct_skolem_self :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (q1 : Hom X P) (q2 : Hom Y P)
   (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
@@ -90,7 +90,7 @@ Proof.
   unfold biproduct_skolem. cat.
 Qed.
 
-Theorem fpair_proj1 :
+Lemma fpair_proj1 :
   forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj1 == f.
 Proof.
@@ -99,7 +99,7 @@ Proof.
   rewrite <- H1. reflexivity.
 Qed.
 
-Theorem fpair_proj2 :
+Lemma fpair_proj2 :
   forall (C : Cat) (hp : has_products C) (X Y A : Ob C)
     (f : Hom A X) (g : Hom A Y), fpair f g .> proj2 == g.
 Proof.
@@ -108,7 +108,7 @@ Proof.
   rewrite <- H2. reflexivity.
 Qed.
 
-Theorem fpair_pre :
+Lemma fpair_pre :
   forall (C : Cat) (hp : has_products C) (A B X Y : Ob C)
     (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
         f .> fpair g1 g2 == fpair (f .> g1) (f .> g2).
@@ -123,7 +123,7 @@ Proof.
       rewrite comp_assoc, <- H2'. reflexivity.
 Qed.
 
-Theorem fpair_id :
+Lemma fpair_id :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     fpair proj1 proj2 == id (prodOb X Y).
 Proof.
@@ -135,7 +135,7 @@ Proof.
     split; cat.
 Qed.
 
-Theorem fpair_comp :
+Lemma fpair_comp :
   forall (C : Cat) (hp : has_products C) (A X Y X' Y' : Ob C)
     (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
       fpair (f .> h1) (g .> h2) ==
@@ -145,7 +145,7 @@ Proof.
   reflexivity.
 Qed.
 
-Theorem fpair_pre_id :
+Lemma fpair_pre_id :
   forall (C : Cat) (hp : has_products C) (A X Y : Ob C)
   (f : Hom A (prodOb X Y)),
     fpair (f .> proj1) (f .> proj2) == f.
@@ -254,7 +254,7 @@ end.
 
 End Tactic.
 
-Theorem product_skolem_uiso :
+Lemma product_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -292,7 +292,7 @@ Proof.
       edestruct H0. apply H2. cat.
 Qed.
 
-Theorem product_skolem_iso :
+Lemma product_skolem_iso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -305,7 +305,7 @@ Proof.
   intros. destruct (product_skolem_uiso H H0). cat.
 Qed.
 
-Theorem product_skolem_fpair_equiv :
+Lemma product_skolem_fpair_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
@@ -318,7 +318,7 @@ Proof.
   intros. edestruct H, H0. cat.
 Qed.
 
-Theorem product_skolem_p1_equiv :
+Lemma product_skolem_p1_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p1' : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
@@ -332,7 +332,7 @@ Proof.
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Theorem product_skolem_p2_equiv :
+Lemma product_skolem_p2_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (p2' : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
@@ -346,7 +346,7 @@ Proof.
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
-(* TODO : Dual *) Theorem iso_to_prod_skolem :
+(* TODO : Dual *) Lemma iso_to_prod_skolem :
   forall (C : Cat) (X Y : Ob C)
   (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
   (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
@@ -370,7 +370,7 @@ Proof.
         rewrite eq1. cat.
 Qed.
 
-Theorem product_skolem_comm :
+Lemma product_skolem_comm :
   forall (C : Cat) (X Y P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
       product_skolem C P p1 p2 fpair ->
@@ -383,7 +383,7 @@ Qed.
 (* TODO: TESTS *)
 (*Import Wut.*)
 
-Theorem prodOb_comm :
+Lemma prodOb_comm :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C),
     prodOb X Y ~ prodOb Y X.
 Proof.
@@ -393,7 +393,7 @@ Proof.
   fpair.
 Qed.
 
-Theorem prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
+Lemma prodOb_assoc : forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
     prodOb X (prodOb Y Z) ~ prodOb (prodOb X Y) Z.
 Proof.
   intros.
@@ -402,7 +402,7 @@ Proof.
   fpair.
 Defined.
 
-Theorem prodOb_assoc' :
+Lemma prodOb_assoc' :
   forall (C : Cat) (hp : has_products C) (X Y Z : Ob C),
     {f : Hom (prodOb (prodOb X Y) Z) (prodOb X (prodOb Y Z)) | Iso f}.
 Proof.
@@ -412,7 +412,7 @@ Proof.
   fpair.
 Defined.
 
-Theorem copair_coproj1 :
+Lemma copair_coproj1 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
     (f : Hom X A) (g : Hom Y A), coproj1 .> copair f g == f.
 Proof.
@@ -421,7 +421,7 @@ Proof.
   rewrite <- H1. reflexivity.
 Qed.
 
-Theorem copair_coproj2 :
+Lemma copair_coproj2 :
   forall (C : Cat) (hp : has_coproducts C) (X Y A : Ob C)
     (f : Hom X A) (g : Hom Y A), coproj2 .> copair f g == g.
 Proof.
@@ -430,7 +430,7 @@ Proof.
   rewrite <- H2. reflexivity.
 Qed.
 
-Theorem copair_post :
+Lemma copair_post :
   forall (C : Cat) (hp : has_coproducts C) (X Y A B : Ob C)
     (f1 : Hom X A) (f2 : Hom Y A) (g : Hom A B),
       copair f1 f2 .> g == copair (f1 .> g) (f2 .> g).
@@ -445,7 +445,7 @@ Proof.
       rewrite <- comp_assoc, <- H2. reflexivity.
 Qed.
 
-Theorem copair_id :
+Lemma copair_id :
   forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
     copair coproj1 coproj2 == id (coprodOb X Y).
 Proof.
@@ -455,7 +455,7 @@ Proof.
   apply H3. cat.
 Qed.
 
-Theorem copair_comp : 
+Lemma copair_comp : 
   forall (C : Cat) (hp : has_coproducts C) (X Y X' Y' A : Ob C)
     (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
       copair (h1 .> f) (h2 .> g) ==
@@ -482,7 +482,7 @@ repeat match goal with
 | _ => rewrite ?comp_assoc; auto
 end.
 
-Theorem coproduct_skolem_uiso :
+Lemma coproduct_skolem_uiso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
@@ -520,7 +520,7 @@ Proof.
       edestruct H. apply H2. split; [rewrite eq1 | rewrite eq2]; cat.
 Qed.
 
-Theorem coproduct_skolem_iso :
+Lemma coproduct_skolem_iso :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
@@ -533,7 +533,7 @@ Proof.
   intros. destruct (coproduct_skolem_uiso H H0). cat.
 Qed.
 
-Theorem coproduct_skolem_copair_equiv :
+Lemma coproduct_skolem_copair_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
@@ -546,7 +546,7 @@ Proof.
   intros. edestruct H, H0. apply H2. cat.
 Qed.
 
-Theorem coproduct_skolem_p1_equiv :
+Lemma coproduct_skolem_p1_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p1' : Hom X P) (p2 : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
@@ -560,7 +560,7 @@ Proof.
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Theorem coproduct_skolem_p2_equiv :
+Lemma coproduct_skolem_p2_equiv :
   forall (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P) (p2' : Hom Y P)
   (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
@@ -574,7 +574,7 @@ Proof.
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
-Theorem coproduct_skolem_comm :
+Lemma coproduct_skolem_comm :
   forall (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
       coproduct_skolem C P p1 p2 copair ->
@@ -584,7 +584,7 @@ Proof.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
 Qed.
 
-Theorem coprodOb_comm : forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
+Lemma coprodOb_comm : forall (C : Cat) (hp : has_coproducts C) (X Y : Ob C),
     coprodOb X Y ~ coprodOb Y X.
 Proof.
   intros.
@@ -593,7 +593,7 @@ Proof.
   copair.
 Qed.
 
-Theorem coprodOb_assoc :
+Lemma coprodOb_assoc :
   forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
     coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
 Proof.
@@ -603,7 +603,7 @@ Proof.
   copair.
 Qed.
 
-Theorem coprodOb_assoc' :
+Lemma coprodOb_assoc' :
   forall (C : Cat) (hp : has_coproducts C) (X Y Z : Ob C),
     {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | Iso f}.
 Proof.
@@ -669,14 +669,14 @@ Proof.
   rewrite H, H0. reflexivity.
 Qed.
 
-Theorem ProductFunctor_fmap_pres_id : forall (C : Cat)
+Lemma ProductFunctor_fmap_pres_id : forall (C : Cat)
     (hp : has_products C) (X Y : Ob C),
     ProductFunctor_fmap (id X) (id Y) == id (prodOb X Y).
 Proof.
   intros; unfold ProductFunctor_fmap. fpair.
 Defined.
 
-Theorem ProductFunctor_fmap_pres_comp : forall (C : Cat)
+Lemma ProductFunctor_fmap_pres_comp : forall (C : Cat)
     (hp : has_products C) (A1 A2 B1 B2 C1 C2 : Ob C)
     (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
     ProductFunctor_fmap (f1 .> g1) (f2 .> g2) ==
@@ -685,7 +685,7 @@ Proof.
   unfold ProductFunctor_fmap. fpair.
 Defined.
 
-Theorem ProductFunctor_fmap_pres_comp_l :
+Lemma ProductFunctor_fmap_pres_comp_l :
     forall {C : Cat} {hp : has_products C} {X Y : Ob C}
     (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
     ProductFunctor_fmap (f .> g) (id Z) == 
@@ -694,7 +694,7 @@ Proof.
   intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
 Defined.
 
-Theorem ProductFunctor_fmap_pres_comp_r :
+Lemma ProductFunctor_fmap_pres_comp_r :
     forall {C : Cat} {hp : has_products C} {X Y : Ob C}
     (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
     ProductFunctor_fmap (id Z) (f .> g) ==
@@ -734,14 +734,14 @@ Proof.
   unfold Proper, respectful, CoproductFunctor_fmap. copair.
 Qed.
 
-Theorem CoproductFunctor_fmap_pres_id : forall (C : Cat)
+Lemma CoproductFunctor_fmap_pres_id : forall (C : Cat)
     (hp : has_coproducts C) (X Y : Ob C),
     CoproductFunctor_fmap (id X) (id Y) == id (coprodOb X Y).
 Proof.
   intros; unfold CoproductFunctor_fmap. copair.
 Defined.
 
-Theorem CoproductFunctor_fmap_pres_comp : forall (C : Cat)
+Lemma CoproductFunctor_fmap_pres_comp : forall (C : Cat)
     (hp : has_coproducts C) (A1 A2 B1 B2 C1 C2 : Ob C)
     (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
     CoproductFunctor_fmap (f1 .> g1) (f2 .> g2) ==
@@ -750,7 +750,7 @@ Proof.
   unfold CoproductFunctor_fmap; intros. copair.
 Defined.
 
-Theorem CoproductFunctor_fmap_pres_comp_l :
+Lemma CoproductFunctor_fmap_pres_comp_l :
     forall {C : Cat} {hp : has_coproducts C} {X Y : Ob C}
     (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
     CoproductFunctor_fmap (f .> g) (id Z) == 
@@ -759,7 +759,7 @@ Proof.
   intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
 Defined.
 
-Theorem CoproductFunctor_fmap_pres_comp_r :
+Lemma CoproductFunctor_fmap_pres_comp_r :
     forall {C : Cat} {hp : has_coproducts C} {X Y : Ob C}
     (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
     CoproductFunctor_fmap (id Z) (f .> g) ==

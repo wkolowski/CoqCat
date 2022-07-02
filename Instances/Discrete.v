@@ -26,7 +26,7 @@ Instance Empty : Cat := Discrete Empty_set.
 #[export]
 Instance Unit : Cat := Discrete unit.
 
-Theorem Discrete_char_iso : forall (X : Set) (x x' : X)
+Lemma Discrete_char_iso : forall (X : Set) (x x' : X)
     (f : @Hom (Discrete X) x x'), Iso f.
 Proof.
   unfold Iso; cbn; intros. assert (g : x' = x).

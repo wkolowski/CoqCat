@@ -17,7 +17,7 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 }.
 
 (*
-Theorem curry_uncurry :
+Lemma curry_uncurry :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
       curry (uncurry f) == f.
@@ -28,7 +28,7 @@ Proof.
   apply H2. reflexivity.
 Qed.
 
-Theorem uncurry_curry :
+Lemma uncurry_curry :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
@@ -40,7 +40,7 @@ Qed.
 *)
 
 (*
-Theorem uncurry_id :
+Lemma uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
 Proof.

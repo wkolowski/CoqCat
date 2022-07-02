@@ -72,13 +72,13 @@ match goal with
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
-Theorem dual_initial_terminal :
+Lemma dual_initial_terminal :
   forall (C : Cat) (X : Ob C)
   (create : forall X' : Ob C, Hom X X'),
     @initial C X create <-> @terminal (Dual C) X create.
 Proof. cat. Qed.
 
-Theorem dual_zero_self :
+Lemma dual_zero_self :
   forall (C : Cat) (X : Ob C)
   (create : forall X' : Ob C, Hom X X')
   (delete : forall X' : Ob C, Hom X' X),
@@ -87,7 +87,7 @@ Proof.
   unfold zero; cat.
 Qed.
 
-Theorem initial_uiso :
+Lemma initial_uiso :
   forall (C : Cat) (A B : Ob C)
   (create : forall X : Ob C, Hom A X)
   (create' : forall X : Ob C, Hom B X),
@@ -105,7 +105,7 @@ Proof.
     rewrite <- (HB (id B)); try symmetry; auto.
 Qed.
 
-Theorem initial_iso :
+Lemma initial_iso :
   forall (C : Cat) (A B : Ob C)
   (create : forall X : Ob C, Hom A X)
   (create' : forall X : Ob C, Hom B X),
@@ -115,7 +115,7 @@ Proof.
   intros. destruct (initial_uiso H H0). cat.
 Qed.
 
-Theorem initial_create_equiv :
+Lemma initial_create_equiv :
   forall (C : Cat) (I : Ob C)
   (create : forall X : Ob C, Hom I X)
   (create' : forall X : Ob C, Hom I X),
@@ -126,7 +126,7 @@ Proof.
   intros. edestruct H. apply H2. trivial.
 Qed.
 
-Theorem terminal_uiso :
+Lemma terminal_uiso :
   forall (C : Cat) (A B : Ob C)
   (delete : forall X : Ob C, Hom X A)
   (delete' : forall X : Ob C, Hom X B),
@@ -139,7 +139,7 @@ Proof.
   eapply initial_uiso; cat.
 Qed.
 
-Theorem terminal_iso :
+Lemma terminal_iso :
   forall (C : Cat) (A B : Ob C)
   (delete : forall X : Ob C, Hom X A)
   (delete' : forall X : Ob C, Hom X B),
@@ -149,7 +149,7 @@ Proof.
   intros. destruct (terminal_uiso H H0). cat.
 Qed.
 
-Theorem terminal_delete_equiv :
+Lemma terminal_delete_equiv :
   forall (C : Cat) (T : Ob C)
   (delete : forall X : Ob C, Hom X T)
   (delete' : forall X : Ob C, Hom X T),
@@ -160,7 +160,7 @@ Proof.
   intros. edestruct H. apply H2. trivial.
 Qed.
 
-Theorem iso_to_init_is_init :
+Lemma iso_to_init_is_init :
   forall (C : Cat) (I X : Ob C)
   (create : forall I' : Ob C, Hom I I'),
     initial I create -> forall f : Hom X I, Iso f ->
@@ -172,7 +172,7 @@ Proof.
     trivial.
 Defined.
 
-Theorem iso_to_term_is_term : 
+Lemma iso_to_term_is_term : 
   forall (C : Cat) (X T : Ob C)
   (delete : forall T' : Ob C, Hom T' T),
     terminal T delete -> forall f : Hom T X, Iso f ->
@@ -184,7 +184,7 @@ Proof.
     trivial.
 Defined.
 
-Theorem mor_to_init_is_ret :
+Lemma mor_to_init_is_ret :
   forall (C : Cat) (I X : Ob C) (f : Hom X I)
   (create : forall I' : Ob C, Hom I I'),
     initial I create -> Ret f.
@@ -193,7 +193,7 @@ Proof.
   edestruct H. rewrite <- H1; cat.
 Qed.
 
-Theorem mor_from_term_is_sec :
+Lemma mor_from_term_is_sec :
   forall (C : Cat) (T X : Ob C) (f : Hom T X)
   (delete : forall T' : Ob C, Hom T' T),
     terminal T delete -> Sec f.
@@ -230,7 +230,7 @@ Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
 Proof. cat. Defined.
 
 (*
-Theorem init_Hom :
+Lemma init_Hom :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) (X : Ob C),
     initial I create <-> Hom I X ~ CoqSetoid_term.
 Proof.

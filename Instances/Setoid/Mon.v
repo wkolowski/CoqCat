@@ -70,7 +70,7 @@ match e with
   end
 end.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (X : Mon) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -118,7 +118,7 @@ match e with
 | Mor f e' => map f (flatten e')
 end.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (X : Mon) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
@@ -129,7 +129,7 @@ Proof.
     rewrite expDenoteL_hom. rewrite IHe. reflexivity.
 Qed.
 
-Theorem mon_reflect :
+Lemma mon_reflect :
   forall (X : Mon) (e1 e2 : exp X),
     expDenoteL (flatten (simplify e1)) ==
     expDenoteL (flatten (simplify e2)) ->
@@ -269,7 +269,7 @@ Proof.
 Qed.
 
 (* TODO : improve reflection *)
-Theorem flat_reflect_goal :
+Lemma flat_reflect_goal :
   forall (X : Mon) (e1 e2 : exp X),
     flatten (simplify e1) = flatten (simplify e2) ->
       expDenote e1 == expDenote e2.
@@ -277,7 +277,7 @@ Proof.
   intros. apply mon_reflect. rewrite H. reflexivity.
 Qed.
 
-Theorem flat_reflect_hyp :
+Lemma flat_reflect_hyp :
   forall (X : Mon) (e1 e2 : exp X),
     expDenote e1 == expDenote e2 ->
       flatten (simplify e1) = flatten (simplify e2).
@@ -285,7 +285,7 @@ Proof.
   induction e1. destruct e2; cbn; intros; auto.
 Admitted.
 
-Theorem flat_reflect_hyp' :
+Lemma flat_reflect_hyp' :
   forall (X : Mon) (e1 e2 : exp X),
     expDenote e1 == expDenote e2 ->
       expDenoteL (flatten (simplify e1)) == expDenoteL (flatten (simplify e2)).
@@ -300,7 +300,7 @@ match goal with
     apply flat_reflect_goal
 end.
 
-Theorem cons_nil_all :
+Lemma cons_nil_all :
   forall (A : Type) (h h' : A),
     [h] = [h'] -> forall l : list A, cons h l = cons h' l.
 Proof.
@@ -514,7 +514,7 @@ Defined.
 
 Set Nested Proofs Allowed.
 
-Theorem free_monoid_MonListUnit :
+Lemma free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.
   unfold free_monoid. intros.

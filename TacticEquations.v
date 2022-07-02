@@ -53,7 +53,7 @@ Proof.
     rewrite H, comp_assoc. reflexivity.
 Qed.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -63,7 +63,7 @@ Proof.
     rewrite expDenoteHL_comp_app, H, H0. reflexivity.
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenoteHL (flatten e1) == expDenoteHL (flatten e2) ->
       expDenote e1 == expDenote e2.

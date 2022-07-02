@@ -18,7 +18,7 @@ Class distributive (C : Cat) : Type :=
   distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
 }.
 
-(* TODO *) Theorem distr_prodOb_init :
+(* TODO *) Lemma distr_prodOb_init :
   forall (C : Cat) (d : distributive C) (X : Ob C),
     prodOb (init C) X ~ init C.
 Proof.

@@ -59,7 +59,7 @@ Arguments JMequiv_ext [A B] _ _.
 Arguments JMequiv_step [A B] _ _ _.
 Arguments JMequiv_ext' [A B] _ _ _.
 
-Theorem JMequiv_ext_Setoid' :
+Lemma JMequiv_ext_Setoid' :
   forall (A B : Setoid') (x : A) (y : B),
     JMequiv_ext x y -> A = B.
 Proof.
@@ -122,7 +122,7 @@ Class has_biequalizers (C : Cat) : Type :=
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
 Coercion bi_has_coequalizers : has_biequalizers >-> has_coequalizers.
 
-Theorem dual_equalizer_coequalizer :
+Lemma dual_equalizer_coequalizer :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X),
@@ -131,7 +131,7 @@ Theorem dual_equalizer_coequalizer :
       @coequalizer (Dual C) Y X f g E e factorize.
 Proof. cat. Qed.
 
-Theorem dual_biqualizer_self :
+Lemma dual_biqualizer_self :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e : Hom E X) (q : Hom Y E)
     (factorize : forall (E' : Ob C) (e' : Hom E' X),
@@ -144,7 +144,7 @@ Proof.
   unfold biequalizer. do 2 split; destruct H; assumption.
 Qed.
 
-Theorem equalizer_uiso :
+Lemma equalizer_uiso :
   forall {C : Cat} {X Y : Ob C} {f g : Hom X Y}
     {E E' : Ob C} {e : Hom E X} {e' : Hom E' X}
     {factorize : forall (E'' : Ob C) (e'' : Hom E'' X),
@@ -179,7 +179,7 @@ Proof.
     intros. destruct H3. apply unique2'. rewrite H4. reflexivity.
 Qed.
 
-Theorem equalizer_iso :
+Lemma equalizer_iso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X),
@@ -194,7 +194,7 @@ Proof.
   do 2 destruct H1. eauto.
 Qed.
 
-Theorem equalizer_equiv :
+Lemma equalizer_equiv :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
   (factorize : forall (E' : Ob C) (e : Hom E' X),
@@ -209,7 +209,7 @@ Proof.
     edestruct (H2 _ _ H3). rewrite H7 in H8. cat.
 Qed.
 
-Theorem equalizer_equiv_factorize :
+Lemma equalizer_equiv_factorize :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e : Hom E X)
   (factorize : forall (E' : Ob C) (e' : Hom E' X),
@@ -226,7 +226,7 @@ Proof.
   edestruct H0, H7. apply H8.
 Qed.
 
-Theorem coequalizer_uiso :
+Lemma coequalizer_uiso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
   (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''),
@@ -250,7 +250,7 @@ Proof.
       rewrite H3. reflexivity.
 Qed.
 
-Theorem coequalizer_iso :
+Lemma coequalizer_iso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
   (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''),
@@ -265,7 +265,7 @@ Proof.
   do 2 destruct H1. iso.
 Qed.
 
-Theorem coequalizer_equiv :
+Lemma coequalizer_equiv :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q : Ob C) (q1 : Hom Y Q) (q2 : Hom Y Q)
   (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'),
@@ -280,7 +280,7 @@ Proof.
     edestruct (H2 _ _ H3). rewrite H7 in H8. cat.
 Qed.
 
-Theorem coequalizer_equiv_factorize :
+Lemma coequalizer_equiv_factorize :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q : Ob C) (q : Hom Y Q)
   (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'),
@@ -297,7 +297,7 @@ Proof.
   edestruct H0, H7; apply H8.
 Qed.
 
-(* TODO : finish *) Theorem biequalizer_uiso :
+(* TODO : finish *) Lemma biequalizer_uiso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X),
@@ -344,7 +344,7 @@ Proof.
       apply unique'. *)
 Abort.
 
-Theorem equalizer_is_mono :
+Lemma equalizer_is_mono :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e : Hom E X)
   (factorize : forall (E' : Ob C) (e' : Hom E' X),
@@ -366,7 +366,7 @@ Proof.
   rewrite <- Hh, <- Hh'; try rewrite H3; reflexivity.
 Defined.
 
-Theorem equalizer_epi_is_iso
+Lemma equalizer_epi_is_iso
   : forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X),
@@ -385,7 +385,7 @@ Proof.
         edestruct H1. apply H3.
 Qed.
 
-Theorem coequalizer_is_epi :
+Lemma coequalizer_is_epi :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q : Ob C) (q : Hom Y Q)
   (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'),
@@ -398,7 +398,7 @@ Proof.
   eapply equalizer_is_mono. eauto.
 Qed.
 
-Theorem coequalizer_mono_is_iso :
+Lemma coequalizer_mono_is_iso :
   forall (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (Q : Ob C) (q : Hom Y Q)
   (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'),
@@ -413,7 +413,7 @@ Proof.
     exact H0.
 Qed.
 
-Theorem factorize_eq_mor :
+Lemma factorize_eq_mor :
   forall
     (C : Cat) (he : has_equalizers C)
     (X Y : Ob C) (f g : Hom X Y),
@@ -425,7 +425,7 @@ Proof.
 Defined.
 
 (*
-TODO Theorem factorize_comp :
+TODO Lemma factorize_comp :
   forall
     (C : Cat) (he : has_equalizers C)
     (X Y A : Ob C) (f g : Hom X Y)
@@ -440,7 +440,7 @@ Proof.
 Defined.
 *)
 
-Theorem cofactorize_eq_mor :
+Lemma cofactorize_eq_mor :
   forall (C : Cat) (he : has_coequalizers C) (X Y : Ob C) (f g : Hom X Y),
     cofactorize f g _ (coeq_mor f g) (proj1 (is_coequalizer X Y f g)) ==
     id (coeq_ob f g).

@@ -38,7 +38,7 @@ Proof.
         exact (Comp (Comp e11 e12) (Comp e21 e22)).
 Defined.
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
@@ -72,7 +72,7 @@ Inductive wf {C : Cat} : list (PackedHom C) -> Prop :=
 
 #[global] Hint Constructors wf : core.
 
-Theorem flatten_wf :
+Lemma flatten_wf :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y), wf (flatten e).
 Proof.
   induction e; cbn; auto.
@@ -94,7 +94,7 @@ Inductive wf' {C : Cat} : list (PackedHom C) -> Prop :=
 Proof.
 Abort.
 
-Theorem flatten_wf' :
+Lemma flatten_wf' :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y), wf' (flatten e).
 Proof.
   induction e; cbn; auto.
@@ -102,7 +102,7 @@ Proof.
       destruct (flatten e2); cbn in *; auto. constructor; auto.
 Abort.
 
-Theorem flatten_cons :
+Lemma flatten_cons :
   forall (C : Cat) (h : PackedHom C) (t : list (PackedHom C)),
     wf (h :: t) -> wf t.
 Proof.
@@ -110,7 +110,7 @@ Proof.
     inversion 1. subst.
 Abort.
 
-Theorem flatten_wf_inv :
+Lemma flatten_wf_inv :
   forall (C : Cat) (l l1 l2 : list (PackedHom C)),
     wf l -> l = l1 ++ l2 -> wf l1 /\ wf l2.
 Proof.
@@ -131,7 +131,7 @@ Proof.
     assocr. rewrite IHl1. reflexivity.
 Qed.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -139,7 +139,7 @@ Proof.
     rewrite <- expDenoteHL_comp_app. 
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenoteHL (flatten (simplify e1)) ==
     expDenoteHL (flatten (simplify e2)) ->
@@ -241,7 +241,7 @@ match e in (exp o o0) return (exp o o0) with
   end e1 e2
 end.
 
-Theorem simplify'_correct :
+Lemma simplify'_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify' e) == expDenote e.
 Proof.

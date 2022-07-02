@@ -247,7 +247,7 @@ Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
 
 #[global] Hint Constructors JMequiv : core.
 
-Theorem eta : forall (A B : Type) (f : A -> B),
+Lemma eta : forall (A B : Type) (f : A -> B),
     f = fun x : A => f x.
 Proof. trivial. Qed.
 

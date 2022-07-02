@@ -174,7 +174,7 @@ Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
 
 Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
 
-Theorem limit_char :
+Lemma limit_char :
   forall (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K),
     @limit J C F K del <-> forall c : Ob C, @isomorphic CoqSetoid
@@ -207,7 +207,7 @@ Proof. (*
     proper. repeat red. cbn. *)
 Abort.
 
-(*Theorem limit_char :
+(*Lemma limit_char :
   forall (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K),
     @limit J C F K del <-> exists α : NatTrans (ConstFunctor c J) F,

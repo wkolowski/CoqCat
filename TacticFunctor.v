@@ -221,7 +221,7 @@ Proof.
     rewrite pres_comp, IHl. reflexivity.
 Qed.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp C X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -230,7 +230,7 @@ Proof.
     rewrite expDenoteHL_fmap, IHe. reflexivity.
 Qed.
 
-Theorem cat_reflect :
+Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp C X Y),
     expDenoteHL (flatten (simplify e1)) ==
     expDenoteHL (flatten (simplify e2)) ->

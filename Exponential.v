@@ -42,7 +42,7 @@ Proof.
     apply ProductFunctor_fmap_Proper; [assumption | reflexivity].
 Qed.
 
-Theorem curry_uncurry :
+Lemma curry_uncurry :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
       curry (uncurry f) == f.
@@ -53,7 +53,7 @@ Proof.
   apply H2. reflexivity.
 Qed.
 
-Theorem uncurry_curry :
+Lemma uncurry_curry :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
@@ -63,7 +63,7 @@ Proof.
   exact H.
 Qed.
 
-Theorem curry_eval :
+Lemma curry_eval :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), curry eval == id (expOb X Y).
 Proof.
@@ -74,7 +74,7 @@ Proof.
   rewrite id_left. reflexivity.
 Qed.
 
-Theorem curry_comp :
+Lemma curry_comp :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z A : Ob C) (f : Hom Y Z) (g : Hom Z A),
       @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
@@ -88,7 +88,7 @@ Proof.
   rewrite H3. rewrite <- comp_assoc. rewrite H1. reflexivity.
 Qed.
 
-Theorem uncurry_id :
+Lemma uncurry_id :
   forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
 Proof.
@@ -111,7 +111,7 @@ match goal with
 | |- ?x == ?x => reflexivity
 end.
 
-Theorem exponential_skolem_uiso :
+Lemma exponential_skolem_uiso :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C)
   (E : Ob C) (eval : Hom (prodOb E X) Y)
   (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
@@ -149,7 +149,7 @@ Qed.
 
 Arguments exponential_skolem_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
 
-Theorem exponential_skolem_iso :
+Lemma exponential_skolem_iso :
   forall (C : Cat) (hp : has_products C) (X Y : Ob C)
   (E : Ob C) (eval : Hom (prodOb E X) Y)
   (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
@@ -162,7 +162,7 @@ Proof.
   intros. destruct (exponential_skolem_uiso H H0). cat.
 Qed.
 
-Theorem has_exponentials_unique :
+Lemma has_exponentials_unique :
   forall (C : Cat) (hp : has_products C)
   (he : has_exponentials C) (he' : has_exponentials C) (X Y : Ob C),
       @expOb C hp he X Y ~ @expOb C hp he' X Y.

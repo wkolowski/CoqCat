@@ -64,7 +64,7 @@ match e with
   end
 end.
 
-Theorem simplifyExp_correct :
+Lemma simplifyExp_correct :
   forall (X : ComMon) (env : nat -> X) (e : exp X),
     expDenote env (simplifyExp e) == expDenote env e.
 Proof.
@@ -99,7 +99,7 @@ match e with
 | Mor f e' => []
 end.
 
-Theorem flatten_correct :
+Lemma flatten_correct :
   forall (X : ComMon) (env : nat -> X) (e : exp X),
     expDenoteL env (flatten e) == expDenote env e.
 Proof.
@@ -121,7 +121,7 @@ Proof.
     rewrite IHPermutation1, IHPermutation2. reflexivity.
 Qed.
 
-(* TOOD: fix *) Theorem sort_correct :
+(* TOOD: fix *) Lemma sort_correct :
   forall (X : ComMon) (env : nat -> X) (l : list nat) (s : Sort le),
     expDenoteL env (s l) == expDenoteL env l.
 Proof.
@@ -137,7 +137,7 @@ Admitted.
 Definition simplify {X : ComMon} (e : exp X) : list nat :=
   insertionSort le (flatten (simplifyExp e)).
 
-Theorem simplify_correct :
+Lemma simplify_correct :
   forall (X : ComMon) (env : nat -> X) (e1 e2 : exp X),
     expDenoteL env (simplify e1) == expDenoteL env (simplify e2) ->
       expDenote env e1 == expDenote env e2.
@@ -214,7 +214,7 @@ Ltac reifyEqv X env a b :=
   let e2 := reifyTerm env b in constr:((e1, e2)).
 
 (* TODO : improve reflection *)
-Theorem flat_reflect_goal :
+Lemma flat_reflect_goal :
   forall (X : ComMon) (env : nat -> X) (e1 e2 : exp X),
     flatten (simplifyExp e1) = flatten (simplifyExp e2) ->
       expDenote env e1 == expDenote env e2.
@@ -222,7 +222,7 @@ Proof.
   intros. apply simplify_correct. unfold simplify. rewrite H. reflexivity.
 Qed.
 
-Theorem flat_reflect_hyp :
+Lemma flat_reflect_hyp :
   forall (X : ComMon) (env : nat -> X) (e1 e2 : exp X),
     expDenote env e1 == expDenote env e2 ->
       flatten (simplifyExp e1) == flatten (simplifyExp e2).
@@ -230,7 +230,7 @@ Proof.
   induction e1; destruct e2; cbn; intros; auto.
 Qed.
 
-Theorem flat_reflect_hyp' :
+Lemma flat_reflect_hyp' :
   forall (X : ComMon) (env : nat -> X) (e1 e2 : exp X) (s : Sort natle),
     expDenote env e1 == expDenote env e2 ->
       expDenoteL env (s (flatten (simplifyExp e1))) ==
@@ -259,7 +259,7 @@ match goal with
 | X : ComMon |- ?e1 == ?e2 => reify X; apply flat_reflect_goal
 end.
 
-(* Theorem cons_nil_all :
+(* Lemma cons_nil_all :
   forall (A : Type) (h h' : A),
     [h] = [h'] -> forall l : list A, cons h l = cons h' l.
 Proof.
@@ -384,7 +384,7 @@ Proof.
       apply None.
 Defined.
 
-Theorem solveFormula_spec :
+Lemma solveFormula_spec :
   forall (X : ComMon) (env : nat -> X) (f : formula X),
     (exists p : formulaDenote env f, solveFormula env f = Some p) ->
       formulaDenote env f.
@@ -613,7 +613,7 @@ Proof.
   cbn. exists (fun _ => 1). formulaer.
 Defined.
 
-Theorem free_monoid_MonListUnit :
+Lemma free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.
   unfold free_monoid. intros.
