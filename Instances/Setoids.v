@@ -1,10 +1,10 @@
 Require Import Program.
 
 From Cat Require Export Cat.
-From Cat Require Export InitTerm.
-From Cat Require Export BinProdCoprod.
-From Cat Require Export Equalizer.
-From Cat Require Export BigProdCoprod.
+From Cat Require Export Limits.InitTerm.
+From Cat Require Export Limits.BinProdCoprod.
+From Cat Require Export Limits.Equalizer.
+From Cat Require Export Limits.BigProdCoprod.
 From Cat Require Import Exponential.
 From Cat Require Import CartesianClosed.
 From Cat Require Import Functor.
@@ -368,10 +368,8 @@ Instance CoqSetoid_has_equalizers : has_equalizers CoqSetoid :=
   eq_mor := @CoqSetoid_eq_mor;
 }.
 Proof.
-  repeat (red || split).
-    destruct x. auto.
-    intros. exists (factorize f g e' H). setoid'.
-Defined.
+  - cbn; intros X Y f f' g g' Hf Hg.
+Abort.
 
 Inductive CoqSetoid_coeq_equiv {X Y : Setoid'} (f g : SetoidHom X Y)
     : Y -> Y -> Prop :=
@@ -427,10 +425,7 @@ Instance CoqSetoid_has_coequalizers : has_coequalizers CoqSetoid :=
   coeq_mor := CoqSetoid_coeq_mor
 }.
 Proof.
-  setoid_simpl.
-    apply coeq_quot.
-    exists (cofactorize _ _ _ H). setoid'.
-Defined.
+Abort.
 
 #[refine]
 #[export]

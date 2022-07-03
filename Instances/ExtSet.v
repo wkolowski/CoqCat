@@ -1,10 +1,10 @@
 Require Import Logic.IndefiniteDescription.
 
 From Cat Require Import Cat.
-From Cat Require Import InitTerm.
-From Cat Require Import BinProdCoprod.
-From Cat Require Import BigProdCoprod.
-From Cat Require Import Equalizer.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.BigProdCoprod.
+From Cat Require Import Limits.Equalizer.
 
 #[refine]
 #[export]
@@ -169,33 +169,6 @@ Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
     fun (x : {x : X | extEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
-  unfold equalizer; cbn; split; intros.
-    apply extEq_ext. intros; destruct a as [x H]; cbn.
-      assumption.
-    Definition trick {X Y E' : Type} (f g : X -> Y) (e' : E' -> X)
-      (H : extEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a)))
-        : E' -> {x : X | extEq (f x) (g x)}.
-    Proof.
-      intro x. exists (e' x).
-      apply (extEq_unext E' Y _ _ H x x (@extEq_refl _ x)).
-    Defined.
-    exists (trick f g e' H).
-    red; split; cbn; intros.
-      apply extEq_refl.
-      apply extEq_ext. intro x.
-        pose (wut := extEq_unext _ _ _ _ H0 x x (@extEq_refl _ x)).
-        assert (extEq ((fun a : E' => proj1_sig (y a)) x) (e' x)).
-          apply wut.
-        cbn in H1.
-        cbn in *. case_eq (y x). intros x' Heq1 Heq2.
-        rewrite Heq2 in H1. cbn in H1.
-        unfold trick. cut (
-          (exist (fun x0 : X => extEq (f x0) (g x0)) (e' x)
-     (extEq_unext E' Y (fun a : E' => f (e' a)) (fun a : E' => g (e' a)) H x
-        x (extEq_refl E' x)))
-          =
-          (exist (fun x0 : X => extEq (f x0) (g x0)) x' Heq1)).
-          intro. rewrite H2. constructor.
 Abort.
 
 (* Not sure if it's even true *)

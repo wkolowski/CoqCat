@@ -6,12 +6,11 @@ From Cat Require Export Cat.
 From Cat Require Export Limits.InitTerm.
 From Cat Require Import Limits.BinProdCoprod.
 From Cat Require Import Limits.BigProdCoprod.
-From Cat Require Import OldLimits.Equalizer.
-From Cat Require Import Limits.NewPullback.
+From Cat Require Import Limits.Equalizer.
+From Cat Require Import Limits.Pullback.
 From Cat Require Import Exponential.
 From Cat Require Import CartesianClosed.
 From Cat Require Import Functor.
-(* Require Import Limits.NewestEqualizer. *)
 
 #[refine]
 #[export]
@@ -55,14 +54,6 @@ Defined.
 Lemma CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
     Iso f <-> bijective f.
 Proof.
-(*
-  unfold bijective, injective, surjective, Iso; cbn; split; intros.
-    split; intros.
-      destruct H as [g [H1 H2]]. rewrite <- (H1 x), <- (H1 y).
-        rewrite H0. auto.
-      destruct H as [g [H1 H2]]. exists (g b). rewrite H2. auto.
-Restart.
-*)
   split; intros.
     red. rewrite iso_iff_mon_ret in H. destruct H. split.
       rewrite <- CoqSet_mon_inj. assumption.
@@ -91,7 +82,7 @@ Instance CoqSet_has_term : has_term CoqSet :=
 Proof. cat. Defined.
 
 Definition is_singleton (A : Set) : Prop :=
-    exists a : A, True /\ forall (x y : A), x = y.
+  exists a : A, True /\ forall (x y : A), x = y.
 
 Definition is_singleton_delete :
   forall A : Set, is_singleton A -> forall X : Set, X -> A.
@@ -110,8 +101,8 @@ Proof.
   destruct a. erewrite e. reflexivity.
 Qed.
 
-Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y)
-    : Hom A (prod X Y) := fun x : A => (f x, g x).
+Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
+  fun x : A => (f x, g x).
 
 #[refine]
 #[export]
@@ -133,12 +124,11 @@ Defined.
 #[export]
 Instance CoqSet_has_all_products : has_all_products CoqSet :=
 {
-  bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) =>
-      forall j : J, A j;
-  bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) =>
-      fun (f : forall j : J, A j) => f j;
-  tuple := fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
-      (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
+  bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
+  bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  tuple :=
+    fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+        (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
   (* Proper *) cat. extensionality j. auto.
@@ -149,8 +139,8 @@ Definition CoqSet_coprodOb := sum.
 Definition CoqSet_coproj1 := @inl.
 Definition CoqSet_coproj2 := @inr.
 
-Definition CoqSet_copair (X Y A : Set) (f : X -> A) (g : Y -> A)
-    : sum X Y -> A := fun p : X + Y =>
+Definition CoqSet_copair (X Y A : Set) (f : X -> A) (g : Y -> A) : sum X Y -> A :=
+  fun p : X + Y =>
 match p with
 | inl x => f x
 | inr y => g y
@@ -221,28 +211,30 @@ Defined.
 #[export]
 Instance CoqSet_has_equalizers : has_equalizers CoqSet :=
 {
-    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
-    eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-      fun (x : {x : X | f x = g x}) => proj1_sig x;
+  eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
+  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+    fun (x : {x : X | f x = g x}) => proj1_sig x;
 }.
 Proof.
-  unfold equalizer; cbn; split; intros.
-    destruct x; cbn. auto. intros.
-    exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
-    cat. specialize (H0 x). destruct (y x). cbn in *. subst.
-    f_equal. apply proof_irrelevance.
-Defined.
+  - cbn; intros X Y f f' g g' Hf Hg.
+    replace {x : X | f x = g x} with {x : X | f' x = g' x}.
+    + constructor. cbn. reflexivity.
+    + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
+  - cbn; intros X Y f f' g g' Hf Hg.
+    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+    + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
+    +
+Abort.
 
-(*
 #[refine]
 #[export]
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
 {
-    eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        {x : X | f x = g x};
-    eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        fun (x : {x : X | f x = g x}) => proj1_sig x;
-    factorize := @CoqSet_factorize;
+  eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+      {x : X | f x = g x};
+  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
+      fun (x : {x : X | f x = g x}) => proj1_sig x;
+  factorize := @CoqSet_factorize;
 }.
 Proof.
   intros. cbn in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
@@ -252,14 +244,7 @@ Proof.
     f_equal. extensionality x. rewrite H, H0. trivial.
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
-
-  unfold equalizer; cbn; split; intros.
-    destruct x; cbn. auto. intros.
-    exists (fun x : E' => exist (fun x : X => f x = g x) (e' x) (H x)).
-    cat. specialize (H0 x). destruct (y x). cbn in *. subst.
-    f_equal. apply proof_irrelevance.
-Defined.*)
-
+Abort.
 
 (* Not sure if it's even true *)
 (* TODO : #[export]

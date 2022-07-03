@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
-From Cat Require Export InitTerm.
-From Cat Require Export BinProdCoprod.
+From Cat Require Export Limits.InitTerm.
+From Cat Require Export Limits.BinProdCoprod.
 
 Definition exponential_skolem {C : Cat} {hp : has_products C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y)

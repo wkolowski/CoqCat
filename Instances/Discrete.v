@@ -1,8 +1,8 @@
 Require Import Bool.
 
 From Cat Require Export Cat.
-From Cat Require Import InitTerm.
-From Cat Require Import BinProdCoprod.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
 
 #[refine]
 #[export]

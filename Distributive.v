@@ -1,5 +1,5 @@
-From Cat Require Import BinProdCoprod.
-From Cat Require Import InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.InitTerm.
 
 Definition distr
   {C : Cat} {hi : has_init C} {ht : has_term C}

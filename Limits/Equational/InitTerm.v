@@ -54,7 +54,7 @@ Defined.
 
 (* Equivalence of definitions *)
 
-From Cat Require InitTerm.
+From Cat Require Limits.InitTerm.
 
 Module Equiv.
 

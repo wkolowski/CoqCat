@@ -126,7 +126,7 @@ Coercion coproducts : has_biproducts >-> has_coproducts.
 
 (* Equivalence to the old definition *)
 
-From Cat Require BinProdCoprod.
+From Cat Require Limits.BinProdCoprod.
 
 Module Equiv.
 

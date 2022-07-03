@@ -1,8 +1,8 @@
 From Cat Require Import Cat.
-From Cat Require Import InitTerm.
-From Cat Require Import BinProdCoprod.
-From Cat Require Import BigProdCoprod.
-From Cat Require Import Equalizer.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.BigProdCoprod.
+From Cat Require Import Limits.Equalizer.
 
 Class Apartoid : Type :=
 {
@@ -411,8 +411,7 @@ Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
 *)
 
 (* TODO: this shit doesn't work. *)
-Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y)
-    : Y -> Y -> Prop :=
+Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y -> Prop :=
 | coeq_step : forall y y' : Y, ~ y # y' -> Apartoid_coeq_equiv f g y y'
 | coeq_quot : forall x : X, Apartoid_coeq_equiv f g (f x) (g x)
 | coeq_sym : forall y y' : Y, Apartoid_coeq_equiv f g y y' -> Apartoid_coeq_equiv f g y' y
@@ -452,28 +451,11 @@ Proof.
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := {j : J & A j};
-  neq := fun p1 p2 : {j : J & A j} =>
-    projT1 p1 # projT1 p2 (*\/ (projT1 p1 = projT1 p2 /\
-      ~ JMeq (projT2 p1) (projT2 p2))*) (* TODO : bigCoproduct for Apartoids *)
+  neq := fun p1 p2 : {j : J & A j} => projT1 p1 # projT1 p2
 }.
 Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
-Defined. (*
-  unfold not. cat. destruct H.
-    eapply neq_irrefl. eassumption.
-    destruct H. apply H0. auto.
-  unfold not; cat. destruct H.
-    left. apply neq_sym. assumption.
-    right. cat.
-  unfold not; cat. destruct H.
-    eapply neq_cotrans in H. destruct H.
-      left. left. eassumption.
-      right. left. eassumption.
-    cat.
-Abort. 
-      left. left. eassumption.
-      right. left. eassumption.
-Defined.*)
+Defined.
 
 Definition Apartoid_bigCoproj {J : Apartoid} (A : J -> Apartoid) (j : J)
     : ApartoidHom (A j) (Apartoid_bigCoprodOb A).

@@ -1,8 +1,8 @@
 From Cat Require Export Cat.
-From Cat Require Import InitTerm.
-From Cat Require Import BinProdCoprod.
-From Cat Require Import BigProdCoprod.
-From Cat Require Import Equalizer.
+From Cat Require Import Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.BigProdCoprod.
+From Cat Require Import Limits.Equalizer.
 
 Class HApartoid : Type :=
 {

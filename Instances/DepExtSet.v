@@ -1,8 +1,8 @@
 From Cat Require Export Cat.
-From Cat Require Export InitTerm.
-From Cat Require Import BinProdCoprod.
-From Cat Require Import BigProdCoprod.
-From Cat Require Import Equalizer.
+From Cat Require Export Limits.InitTerm.
+From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.BigProdCoprod.
+From Cat Require Import Limits.Equalizer.
 
 #[refine]
 #[export]
@@ -149,18 +149,7 @@ Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
     fun (x : {x : X | depExtEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
-  unfold equalizer; cbn; split; intros.
-    apply depExtEq_ext. destruct x as [x eq]; cbn. assumption.
-    Lemma trick : forall (X Y E' : Set) (f g : X -> Y) (e' : E' -> X)
-      (H : depExtEq (fun a : E' => f (e' a)) (fun a : E' => g (e' a))),
-      E' -> {x : X | depExtEq (f x) (g x)}.
-    Proof.
-      intros. exists (e' H0). apply (depExtEq_unext _ _ H). reflexivity.
-    Defined.
-    exists (trick _ _ _ f g e' H). repeat (red || split); intros.
-      simpl. apply depExtEq_ext. auto.
-      apply depExtEq_ext. intro. destruct (y x).
-      unfold trick.
+  cbn; intros X y f f' g g' Hf Hg.
 Abort.
 
 (* TODO: looks like DepExtSet won't have coequalizers. *)
