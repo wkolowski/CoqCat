@@ -5,7 +5,7 @@ From Cat Require Export Limits.InitTerm.
 From Cat Require Export Limits.BinProdCoprod.
 From Cat Require Export Limits.Equalizer.
 From Cat Require Export Limits.BigProdCoprod.
-From Cat Require Import Exponential.
+From Cat Require Import Limits.Exponential.
 From Cat Require Import CartesianClosed.
 From Cat Require Import Functor.
 

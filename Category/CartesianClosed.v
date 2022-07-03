@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat Require Import Limits.InitTerm.
 From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Exponential.
+From Cat Require Import Limits.Exponential.
 
 Class cartesian_closed (C : Cat) : Type :=
 {

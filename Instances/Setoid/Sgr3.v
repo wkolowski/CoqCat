@@ -2,7 +2,6 @@ From Cat Require Export Cat.
 From Cat Require Import Limits.InitTerm.
 From Cat Require Import Limits.BinProdCoprod.
 From Cat Require Export Instances.Setoids.
-From Cat Require Import Nel.
 
 Set Implicit Arguments.
 
@@ -98,9 +97,9 @@ match l with
 | h ::: t => op h (expDenoteNel t)
 end.
 
-Lemma expDenoteNel_app :
+Lemma expDenoteNel_nel_app :
   forall (X : Sgr) (l1 l2 : nel X),
-    expDenoteNel (l1 +++ l2) == op (expDenoteNel l1) (expDenoteNel l2).
+    expDenoteNel (nel_app l1 l2) == op (expDenoteNel l1) (expDenoteNel l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
     reflexivity.
@@ -119,7 +118,7 @@ Qed.
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
 match e with
 | Var v => singl v
-| Op e1 e2 => flatten e1 +++ flatten e2
+| Op e1 e2 => nel_app (flatten e1) (flatten e2)
 | Mor f e' => nel_map f (flatten e')
 end.
 
@@ -129,7 +128,7 @@ Lemma flatten_correct :
 Proof.
   induction e; cbn.
     reflexivity.
-    rewrite expDenoteNel_app, IHe1, IHe2. reflexivity.
+    rewrite expDenoteNel_nel_app, IHe1, IHe2. reflexivity.
     rewrite expDenoteNel_hom, IHe. reflexivity.
 Qed.
 
@@ -539,7 +538,7 @@ Qed.
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
 Lemma app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
-    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (l1 +++ l2) (l1' +++ l2').
+    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1].
     cbn; intros. fpeq4. destruct l2.
