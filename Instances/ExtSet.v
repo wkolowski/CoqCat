@@ -1,10 +1,5 @@
-Require Import Logic.IndefiniteDescription.
-
 From Cat Require Import Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Limits.BigProdCoprod.
-From Cat Require Import Limits.Equalizer.
+From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
 
 #[refine]
 #[export]

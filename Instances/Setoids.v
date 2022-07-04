@@ -1,13 +1,7 @@
-Require Import Program.
-
 From Cat Require Export Cat.
-From Cat Require Export Limits.InitTerm.
-From Cat Require Export Limits.BinProdCoprod.
-From Cat Require Export Limits.Equalizer.
-From Cat Require Export Limits.BigProdCoprod.
-From Cat Require Import Limits.Exponential.
-From Cat Require Import CartesianClosed.
 From Cat Require Import Functor.
+From Cat Require Import Category.CartesianClosed.
+From Cat.Limits Require Export InitTerm BinProdCoprod Equalizer BigProdCoprod Exponential.
 
 Set Implicit Arguments.
 

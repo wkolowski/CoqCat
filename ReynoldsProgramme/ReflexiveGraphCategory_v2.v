@@ -3,7 +3,7 @@
 
     Mostly copy-pasted from the other file. *)
 
-From Cat Require Import Sgr.
+From Cat Require Import Instances.Setoids.
 
 Class ReflexiveGraphCategory : Type :=
 {

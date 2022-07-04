@@ -1,16 +1,7 @@
-Require Import ProofIrrelevance.
-Require Import FunctionalExtensionality.
-
-From Cat Require Import Base.
 From Cat Require Export Cat.
-From Cat Require Export Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Limits.BigProdCoprod.
-From Cat Require Import Limits.Equalizer.
-From Cat Require Import Limits.Pullback.
-From Cat Require Import Limits.Exponential.
-From Cat Require Import CartesianClosed.
 From Cat Require Import Functor.
+From Cat Require Import Category.CartesianClosed.
+From Cat.Limits Require Export InitTerm BinProdCoprod BigProdCoprod Equalizer Pullback Exponential.
 
 #[refine]
 #[export]

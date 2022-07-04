@@ -1,18 +1,7 @@
-Require Import Arith.
-Require Import Permutation.
-(*  Require Import Quote.*)
-
-Require Import List.
-Import ListNotations.
-
-(* From mathcomp Require Import ssreflect. *)
-
-From CoqAlgs Require Import Sorting.Perm.
-From CoqAlgs Require Import Sorting.InsertionSort.
+From CoqAlgs.Sorting Require Import Perm InsertionSort.
 
 From Cat Require Export Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
+From Cat.Limits Require Import InitTerm BinProdCoprod.
 From Cat Require Export Instances.Setoid.Mon.
 
 Set Implicit Arguments.

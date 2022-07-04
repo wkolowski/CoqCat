@@ -1,11 +1,5 @@
-Require Import Arith.
-
-Require Import List.
-Import ListNotations.
-
 From Cat Require Export Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
+From Cat.Limits Require Import InitTerm BinProdCoprod.
 From Cat Require Export Instances.Setoid.Sgr3.
 
 Set Implicit Arguments.

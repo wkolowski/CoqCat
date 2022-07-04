@@ -1,6 +1,3 @@
-Require Import Logic.ProofIrrelevance.
-Require Import FunctionalExtensionality.
-
 From Cat Require Export Base.
 
 Class Cat : Type :=
@@ -185,8 +182,10 @@ Instance Dual (C : Cat) : Cat :=
 {|
   Ob := Ob C;
   Hom := fun A B : Ob C => Hom B A;
-  HomSetoid := fun A B : Ob C => {| equiv := fun f g : Hom B A =>
-      @equiv (Hom B A) (@HomSetoid C B A) f g |};
+  HomSetoid := fun A B : Ob C =>
+  {|
+    equiv := fun f g : Hom B A => @equiv (Hom B A) (@HomSetoid C B A) f g
+  |};
   comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
   id := @id C
 |}.
@@ -194,7 +193,7 @@ Proof. all: cat. Defined.
 
 Axiom dual_involution_axiom : forall (C : Cat), Dual (Dual C) = C.
 
-(* Warning: the following also uses the JMeq_eq axiom *)
+(* Warning: the following also uses the [JMeq_eq] axiom *)
 
 Lemma cat_split : forall
   (Ob Ob' : Type)

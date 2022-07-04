@@ -1,12 +1,5 @@
-Require Import List.
-Import ListNotations.
-Require Import Arith.
-
-(*From mathcomp Require Import ssreflect.*)
-
 From Cat Require Export Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
+From Cat.Limits Require Import InitTerm BinProdCoprod.
 From Cat Require Export Instances.Setoid.Sgr.
 
 Set Implicit Arguments.
@@ -504,7 +497,7 @@ Instance MonListUnit : Mon :=
   neutr := 0
 }.
 Proof.
-  all: cbn; intros; ring.
+  all: cbn; intros; lia.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.

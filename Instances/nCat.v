@@ -1,5 +1,3 @@
-Require Import Arith.
-
 From Cat Require Import Cat.
 
 #[refine]

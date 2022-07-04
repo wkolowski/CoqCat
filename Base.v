@@ -1,8 +1,10 @@
-Require Export Coq.Classes.SetoidClass.
-(*Require Export Coq.Logic.ProofIrrelevance.*)
-(*Require Export Coq.Logic.FunctionalExtensionality.*)
-Require Export Coq.Logic.IndefiniteDescription.
-Require Export Coq.Logic.JMeq.
+Require Export ProofIrrelevance FunctionalExtensionality IndefiniteDescription JMeq.
+Require Export Classes.SetoidClass.
+Require Export Equality.
+Require Export Bool Arith Lia.
+
+Require Export List.
+Export ListNotations.
 
 Global Set Universe Polymorphism.
 
@@ -232,24 +234,28 @@ end.
 #[refine]
 #[export]
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
-    {| equiv := fun a a' : A => f a = f a' |}.
+{|
+  equiv := fun a a' : A => f a = f a'
+|}.
 Proof. solve_equiv. Defined.
 
 #[refine]
 #[export]
-Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B)
-    : Setoid A := {| equiv := fun a a' : A => f a == f a' |}.
+Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A :=
+{|
+  equiv := fun a a' : A => f a == f a'
+|}.
 Proof. all: solve_equiv. Defined.
 
-Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A)
-    : forall {B : Type}, B -> Prop :=
+Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A) : forall {B : Type}, B -> Prop :=
 | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
 
 #[global] Hint Constructors JMequiv : core.
 
-Lemma eta : forall (A B : Type) (f : A -> B),
+Lemma eta :
+  forall (A B : Type) (f : A -> B),
     f = fun x : A => f x.
-Proof. trivial. Qed.
+Proof. reflexivity. Qed.
 
 (* Relation classes *)
 

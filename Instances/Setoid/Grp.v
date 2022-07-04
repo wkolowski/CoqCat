@@ -1,13 +1,9 @@
-Require Import Logic.FunctionalExtensionality.
+From Cat Require Export Cat.
+From Cat.Limits Require Import InitTerm BinProdCoprod.
+From Cat.Instances Require Import Setoids Setoid.Mon.
 
 Require Import List.
 Import ListNotations.
-
-From Cat Require Export Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Instances.Setoids.
-From Cat Require Export Instances.Setoid.Mon.
 
 Set Implicit Arguments.
 

@@ -1,9 +1,7 @@
 From Cat Require Import Cat.
 From Cat Require Import Bifunctor.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import CartesianClosed.
-From Cat Require Import Monoidal.
+From Cat.Category Require Import CartesianClosed Monoidal.
+From Cat.Limits Require Import InitTerm BinProdCoprod.
 From Cat Require Import Instances.Setoids.
 
 Class Enriched (V : Monoidal) : Type :=

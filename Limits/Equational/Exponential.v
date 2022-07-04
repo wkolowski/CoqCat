@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
-From Cat Require Export Limits.InitTerm.
-From Cat Require Export Limits.Equational.BinProdCoprod.
+From Cat.Limits Require Export InitTerm.
+From Cat.Limits.Equational Require Export BinProdCoprod.
 
 (* TODO *)
 Class has_exponentials (C : Cat) {hp : has_products C} : Type :=

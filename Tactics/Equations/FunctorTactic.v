@@ -1,9 +1,9 @@
+From Equations Require Import Equations.
+
 From Cat Require Import Cat.
 From Cat Require Import Functor.
 
 Set Implicit Arguments.
-
-From Equations Require Import Equations.
 
 Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
 | Id   : forall (C : Cat) (X : Ob C), exp C X X

@@ -1,7 +1,5 @@
-From Cat Require Import Base.
-From Cat Require Import Functor.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Limits.Exponential.
+From Cat Require Export Functor.
+From Cat.Limits Require Import BinProdCoprod Exponential.
 
 Set Implicit Arguments.
 

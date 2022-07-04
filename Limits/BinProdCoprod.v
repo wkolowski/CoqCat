@@ -1,5 +1,6 @@
 From Cat Require Export Cat.
 From Cat Require Export Functor.
+From Cat Require Export Tactics.FunctorTactic.
 
 Set Implicit Arguments.
 
@@ -176,8 +177,6 @@ end.
 Ltac fpair' := autorewrite with fpair'_base.
 
 Module Wut.
-
-From Cat Require Export TacticFunctor.
 
 #[refine]
 #[export]

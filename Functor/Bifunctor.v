@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat Require Import Limits.BinProdCoprod.
+From Cat.Limits Require Import BinProdCoprod.
 
 Set Implicit Arguments.
 
@@ -30,8 +30,7 @@ Definition second
 
 #[refine]
 #[export]
-Instance ProductBifunctor {C : Cat} {hp : has_products C} :
-    Bifunctor C C C :=
+Instance ProductBifunctor {C : Cat} {hp : has_products C} : Bifunctor C C C :=
 {
   biob := fun X Y : Ob C => prodOb X Y;
   bimap := fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') =>
@@ -44,8 +43,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoproductBifunctor {C : Cat} {hp : has_coproducts C} :
-    Bifunctor C C C :=
+Instance CoproductBifunctor {C : Cat} {hp : has_coproducts C} : Bifunctor C C C :=
 {
   biob := @coprodOb C hp;
   bimap := fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') =>
@@ -58,8 +56,8 @@ Defined.
 #[refine]
 #[export]
 Instance BiComp {C C' D D' E : Cat}
-    (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
-    : Bifunctor C D E :=
+  (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
+  : Bifunctor C D E :=
 {
   biob := fun (X : Ob C) (Y : Ob D) => biob (fob F X) (fob G Y);
   bimap := fun (X Y : Ob C) (X' Y' : Ob D) (f : Hom X Y) (g : Hom X' Y') =>

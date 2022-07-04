@@ -1,4 +1,4 @@
-From Cat Require Import Cat.
+From Cat Require Export Cat.
 
 Set Implicit Arguments.
 

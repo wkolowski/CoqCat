@@ -1,8 +1,5 @@
 From Cat Require Export Cat.
-From Cat Require Export Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
-From Cat Require Import Limits.BigProdCoprod.
-From Cat Require Import Limits.Equalizer.
+From Cat.Limits Require Export InitTerm BinProdCoprod BigProdCoprod Equalizer.
 
 #[refine]
 #[export]

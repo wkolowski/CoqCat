@@ -1,8 +1,7 @@
 From Cat Require Import Cat.
-From Cat Require Import Instances.CoqSet.
-From Cat Require Import Instances.Setoids.
 From Cat Require Import Contravariant.
 From Cat Require Import NatTrans.
+From Cat.Instances Require Import CoqSet Setoids.
 
 Set Implicit Arguments.
 

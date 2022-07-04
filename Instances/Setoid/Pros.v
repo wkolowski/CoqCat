@@ -1,9 +1,5 @@
-Require Import NPeano.
-Require Import Lia.
-
 From Cat Require Export Cat.
-From Cat Require Export Limits.InitTerm.
-From Cat Require Export Limits.BinProdCoprod.
+From Cat.Limits Require Export InitTerm BinProdCoprod.
 From Cat Require Export Instances.Setoids.
 
 Set Implicit Arguments.
