@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class SymReloid : Type :=
 {
   reloid : Reloid;
-  rel_symmetric :> MySymmetric rel;
+  rel_symmetric :> Symmetric rel;
 }.
 
 Coercion reloid : SymReloid >-> Reloid.
@@ -54,7 +54,7 @@ Instance SymReloid_init : SymReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. split. sreloid. Defined.
+Proof. sreloid. Defined.
 
 #[refine]
 #[export]
@@ -80,7 +80,7 @@ Instance SymReloid_term : SymReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. split. sreloid. Defined.
+Proof. sreloid. Defined.
 
 #[refine]
 #[export]
@@ -106,9 +106,7 @@ Instance SymReloid_prodOb (X Y : SymReloid) : SymReloid :=
 {
   reloid := Reloid_prodOb X Y;
 }.
-Proof.
-  split; cbn. destruct x, y, 1; split; cbn in *; apply symmetric; auto.
-Defined.
+Proof. split; sreloid. Defined.
 
 #[refine]
 #[export]
@@ -157,9 +155,7 @@ Instance SymReloid_coprodOb (X Y : SymReloid) : SymReloid :=
 {
   reloid := Reloid_coprodOb X Y;
 }.
-Proof.
-  split; cbn. destruct x, y; cbn; intros; intuition; apply symmetric; auto.
-Defined.
+Proof. intros [] []; cbn; intuition. Defined.
 
 #[refine]
 #[export]

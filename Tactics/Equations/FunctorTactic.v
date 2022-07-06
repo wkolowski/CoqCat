@@ -1,7 +1,6 @@
 From Equations Require Import Equations.
 
 From Cat Require Import Cat.
-From Cat Require Import Functor.
 
 Set Implicit Arguments.
 

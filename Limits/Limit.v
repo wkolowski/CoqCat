@@ -1,6 +1,4 @@
 From Cat Require Import Cat.
-From Cat Require Import Functor.
-From Cat Require Import NatTrans.
 From Cat Require Import Limits.InitTerm.
 From Cat Require Import Instances.Setoids.
 

@@ -1,5 +1,4 @@
 From Cat Require Export Cat.
-From Cat Require Import Functor.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Limits Require Export InitTerm BinProdCoprod Equalizer BigProdCoprod Exponential.
 

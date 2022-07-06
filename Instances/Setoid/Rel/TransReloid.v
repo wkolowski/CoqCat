@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class TransReloid : Type :=
 {
   reloid : Reloid;
-  rel_transitive :> MyTransitive rel;
+  rel_transitive :> Transitive rel;
 }.
 
 Coercion reloid : TransReloid >-> Reloid.
@@ -54,7 +54,7 @@ Instance TransReloid_init : TransReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. split. treloid. Defined.
+Proof. treloid. Defined.
 
 #[refine]
 #[export]
@@ -80,7 +80,7 @@ Instance TransReloid_term : TransReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. split. treloid. Defined.
+Proof. treloid. Defined.
 
 #[refine]
 #[export]
@@ -106,10 +106,7 @@ Instance TransReloid_prodOb (X Y : TransReloid) : TransReloid :=
 {
   reloid := Reloid_prodOb X Y;
 }.
-Proof.
-  split; cbn. destruct x, y, z, 1, 1; split; cbn in *;
-  eapply transitive; eauto.
-Defined.
+Proof. split; cbn; treloid. Defined.
 
 #[refine]
 #[export]
@@ -158,10 +155,7 @@ Instance TransReloid_coprodOb (X Y : TransReloid) : TransReloid :=
 {
   reloid := Reloid_coprodOb X Y;
 }.
-Proof.
-  split; cbn. destruct x, y, z; cbn; intros; intuition;
-  eapply transitive; eauto.
-Defined.
+Proof. intros [] [] []; cbn; treloid. Defined.
 
 #[refine]
 #[export]

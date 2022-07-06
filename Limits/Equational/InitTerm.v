@@ -1,5 +1,4 @@
 From Cat Require Export Cat.
-From Cat Require Export Functor.
 
 Set Implicit Arguments.
 

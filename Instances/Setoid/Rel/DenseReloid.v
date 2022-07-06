@@ -4,6 +4,11 @@ From Cat Require Export Instances.Setoid.Rel.Reloid.
 
 Set Implicit Arguments.
 
+Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
+{
+    dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
+}.
+
 Class DenseReloid : Type :=
 {
   reloid : Reloid;

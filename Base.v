@@ -6,147 +6,21 @@ Require Export Bool Arith Lia.
 Require Export List.
 Export ListNotations.
 
-Global Set Universe Polymorphism.
+#[global] Set Universe Polymorphism.
 
-Inductive extEq : forall A : Type, A -> A -> Prop :=
-| extEq_refl : forall (A : Type) (x : A), extEq A x x
-| extEq_sym : forall (A : Type) (x y : A), extEq A x y -> extEq A y x
-| extEq_trans : forall (A : Type) (x y z : A), extEq A x y -> extEq A y z -> extEq A x z
-| extEq_ext :
-  forall (A B : Type) (f g : A -> B),
-    (forall a : A, extEq B (f a) (g a)) -> extEq (A -> B) f g
-| extEq_unext :
-  forall (A B : Type) (f g : A -> B),
-    extEq (A -> B) f g -> forall x y : A, extEq A x y -> extEq B (f x) (g y).
+(** Uniqueness up to a custom equivalence relation, using setoids. *)
 
-Arguments extEq [A] _ _.
-
-#[global] Hint Constructors extEq : core.
-
-#[export]
-Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
-Proof. split; eauto. Defined.
-
-#[export]
-Instance extEq_Proper : forall (A B : Type) (f : A -> B),
-    Proper (@extEq A ==> @extEq B) f.
-Proof.
-  repeat red; intros. induction H; subst.
-    auto.
-    eapply extEq_trans; eauto.
-    eapply extEq_trans; eauto.
-    apply extEq_unext; auto.
-    apply extEq_unext; auto.
-Defined.
-
-#[export]
-Instance extEq_Proper' : forall (A B : Type) (f : A -> B),
-    Proper (@extEq A --> @extEq B) f.
-Proof.
-  repeat red; intros. induction H; subst.
-    auto.
-    eapply extEq_trans; eauto.
-    eapply extEq_trans; eauto.
-    apply extEq_unext; auto.
-    apply extEq_unext; auto.
-Defined.
-
-#[export]
-Instance extEq_Proper'' : forall (A : Type),
-    Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
-Proof.
-  repeat red. intros. eapply extEq_trans. eauto. eauto.
-Defined.
-
-Inductive depExtEq : forall A B : Type, A -> B -> Prop :=
-| depExtEq_eq : forall (A : Type) (x y : A), x = y -> depExtEq A A x y
-| depExtEq_sym :
-  forall (A B : Type) (x : A) (y : B),
-    depExtEq A B x y -> depExtEq B A y x
-| depExtEq_trans :
-  forall (A B C : Type) (x : A) (y : B) (z : C),
-    depExtEq A B x y -> depExtEq B C y z -> depExtEq A C x z
-| depExtEq_ext :
-  forall (A : Type) (B C : A -> Type)
-    (f : forall x : A, B x) (g : forall x : A, C x),
-    (forall x : A, depExtEq (B x) (C x) (f x) (g x)) ->
-      depExtEq (forall x : A, B x) (forall x : A, C x) f g
-| depExtEq_unext :
-  forall
-    (A1 A2 : Type) (B1 : A1 -> Type) (B2 : A2 -> Type)
-    (f : forall x : A1, B1 x) (g : forall x : A2, B2 x),
-      depExtEq (forall x : A1, B1 x) (forall x : A2, B2 x) f g ->
-      forall (x : A1) (y : A2), depExtEq A1 A2 x y ->
-        depExtEq (B1 x) (B2 y) (f x) (g y).
-
-Arguments depExtEq [A B] _ _.
-Arguments depExtEq_eq [A x y] _.
-Arguments depExtEq_ext [A B C] _ _ _.
-Arguments depExtEq_unext [A1 A2 B1 B2] _ _ _ _ _ _.
-
-#[global] Hint Constructors depExtEq : core.
-
-#[export]
-Instance depExtEq_Equivalence (A : Type) : Equivalence (@depExtEq A A).
-Proof.
-  split; red; cbn; intros; eauto.
-Defined.
-
-Ltac solve_depExtEq := repeat
-match goal with
-| |- depExtEq (fun _ => _) _ => apply depExtEq_ext; intro
-| |- depExtEq _ (fun _ => _) => apply depExtEq_ext; intro
-end; auto;
-repeat (auto; match goal with
-| |- depExtEq (fun _ => _) (fun _ => _) => apply depExtEq_ext; intro
-| H : depExtEq ?f ?g |- depExtEq (?f _ _ _) (?g _ _ _) =>
-  apply (depExtEq_unext (f _ _) (g _ _))
-| H : depExtEq ?f ?g |- depExtEq (?f _ _) (?g _ _) =>
-  apply (depExtEq_unext (f _) (g _))
-| H : depExtEq ?f ?g |- depExtEq (?f _) (?g _) => 
-  apply (depExtEq_unext f g)
-| |- depExtEq (?f _ _) (?f _ _) => apply (depExtEq_unext (f _) (f _))
-| |- depExtEq (?f _) (?f _) => apply (depExtEq_unext f f)
-| |- depExtEq (_, _) ?x => rewrite (surjective_pairing x)
-end); auto.
-
-#[export]
-Instance depExtEq_Proper : forall (A B : Type) (f : A -> B),
-    Proper (@depExtEq A A ==> @depExtEq B B) f.
-Proof.
-  unfold Proper, respectful; intros. solve_depExtEq.
-Qed.
-
-#[export]
-Instance depExtEq_Proper' : forall (A : Type),
-    Proper (@depExtEq A A ==> @depExtEq A A ==>
-      (Basics.flip Basics.impl)) (@depExtEq A A).
-Proof.
-  repeat red. intros. eapply depExtEq_trans; eauto.
-Defined.
-
-Inductive sumprod (X Y : Set) : Set :=
-| inl' : X -> sumprod X Y
-| inr' : Y -> sumprod X Y
-| pair' : X -> Y -> sumprod X Y.
-
-Arguments inl' [X] [Y] _.
-Arguments inr' [X] [Y] _.
-Arguments pair' [X] [Y] _ _.
-
-#[global] Hint Constructors sumprod : core.
-
-(* Moved here so that tactics work *)
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A) : Prop :=
   P x /\ (forall y : A, P y -> x == y).
 
 Set Warnings "-deprecated-ident-entry".
 Notation "'exists' !! x : A , P" :=
-    (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
+  (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
 Set Warnings "+deprecated-ident-entry".
 
-(* Kinds of ordinary functions. The suffix "S" at the end of some
-   of these stands for "Setoid". *)
+(** Kinds of ordinary functions. The suffix "S" at the end of some
+    of these stands for "Setoid". *)
+
 Definition injective {A B : Type} (f : A -> B) : Prop :=
     forall x y : A, f x = f y -> x = y.
 
@@ -165,10 +39,9 @@ Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
 Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
     (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
 
-#[global] Hint Unfold
-    injective surjective bijective
-    injectiveS surjectiveS bijectiveS
-  : core.
+#[global] Hint Unfold injective surjective bijective injectiveS surjectiveS bijectiveS : core.
+
+(** Useful automation tactics. *)
 
 Ltac proper :=
 match goal with
@@ -231,6 +104,8 @@ match goal with
 | _ => my_simpl; eauto
 end.
 
+(** Some setoid instances. *)
+
 #[refine]
 #[export]
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
@@ -247,49 +122,27 @@ Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A
 |}.
 Proof. all: solve_equiv. Defined.
 
+(** Extension of an equivalence relation to a heterogenous equivalence relation.  *)
+
 Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A) : forall {B : Type}, B -> Prop :=
 | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
 
 #[global] Hint Constructors JMequiv : core.
 
-Lemma eta :
-  forall (A B : Type) (f : A -> B),
-    f = fun x : A => f x.
-Proof. reflexivity. Qed.
+(** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
 
-(* Relation classes *)
+Inductive sumprod (X Y : Set) : Set :=
+| inl' : X -> sumprod X Y
+| inr' : Y -> sumprod X Y
+| pair' : X -> Y -> sumprod X Y.
 
-Class MyReflexive {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    reflexive : forall x : A, R x x;
-}.
+Arguments inl' [X] [Y] _.
+Arguments inr' [X] [Y] _.
+Arguments pair' [X] [Y] _ _.
 
-Class MySymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    symmetric : forall x y : A, R x y -> R y x;
-}.
+#[global] Hint Constructors sumprod : core.
 
-Class MyTransitive {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    transitive : forall x y z : A, R x y -> R y z -> R x z;
-}.
-
-Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
-}.
-
-Class Antireflexive {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    irreflexive : forall x : A, ~ R x x;
-}.
-
-Class MyAntisymmetric {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-    antisymmetric : forall x y : A, R x y -> ~ R y x;
-}.
-
-(* Non-empty lists *)
+(** Non-empty lists *)
 
 Inductive nel (A : Type) : Type :=
 | singl : A -> nel A

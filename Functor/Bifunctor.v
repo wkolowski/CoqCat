@@ -1,9 +1,8 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import BinProdCoprod.
 
 Set Implicit Arguments.
 
-Class Bifunctor (C D E: Cat) : Type :=
+Class Bifunctor (C D E : Cat) : Type :=
 {
   biob : Ob C -> Ob D -> Ob E;
   bimap : forall {X Y : Ob C} {X' Y' : Ob D},
@@ -27,31 +26,6 @@ Definition first
 Definition second
   {C D E : Cat} {F : Bifunctor C D E} {A : Ob C} {X Y : Ob D} (f : Hom X Y)
   : Hom (biob A X) (biob A Y) := bimap (id A) f.
-
-#[refine]
-#[export]
-Instance ProductBifunctor {C : Cat} {hp : has_products C} : Bifunctor C C C :=
-{
-  biob := fun X Y : Ob C => prodOb X Y;
-  bimap := fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') =>
-    fpair (proj1 .> f) (proj2 .> g);
-
-}.
-Proof.
-  unfold Proper, respectful. all: fpair.
-Defined.
-
-#[refine]
-#[export]
-Instance CoproductBifunctor {C : Cat} {hp : has_coproducts C} : Bifunctor C C C :=
-{
-  biob := @coprodOb C hp;
-  bimap := fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') =>
-    copair (f .> coproj1) (g .> coproj2)
-}.
-Proof.
-  unfold Proper, respectful. all: copair.
-Defined.
 
 #[refine]
 #[export]

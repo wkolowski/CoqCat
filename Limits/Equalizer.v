@@ -238,7 +238,7 @@ Lemma coequalizer_uiso :
         exists !! f : Hom Q' Q, Iso f /\
           q' .> f == q.
 Proof.
-  intro. rewrite <- (dual_involution_axiom C). intros. cbn in *.
+  intro. rewrite <- (Dual_Dual C). intros. cbn in *.
   rewrite <- dual_equalizer_coequalizer in H.
   rewrite <- dual_equalizer_coequalizer in H0.
   destruct (equalizer_uiso H H0).
@@ -392,7 +392,7 @@ Lemma coequalizer_is_epi :
     f .> q' == g .> q' -> Hom Q Q'),
       coequalizer C f g Q q cofactorize -> Epi q.
 Proof.
-  intro C. rewrite <- (dual_involution_axiom C); cbn; intros.
+  intro C. rewrite <- (Dual_Dual C); cbn; intros.
   rewrite <- dual_mon_epi.
   rewrite <- dual_equalizer_coequalizer in *.
   eapply equalizer_is_mono. eauto.
@@ -405,7 +405,7 @@ Lemma coequalizer_mono_is_iso :
     f .> q' == g .> q' -> Hom Q Q'),
       coequalizer C f g Q q cofactorize -> Mon q -> Iso q.
 Proof.
-  intro C. rewrite <- (dual_involution_axiom C); cbn; intros.
+  intro C. rewrite <- (Dual_Dual C); cbn; intros.
   rewrite dual_mon_epi in H0.
   rewrite <- dual_iso_self.
   apply (@equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).

@@ -1,6 +1,56 @@
 From Cat Require Import Cat.
 From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
 
+Inductive extEq : forall A : Type, A -> A -> Prop :=
+| extEq_refl : forall (A : Type) (x : A), extEq A x x
+| extEq_sym : forall (A : Type) (x y : A), extEq A x y -> extEq A y x
+| extEq_trans : forall (A : Type) (x y z : A), extEq A x y -> extEq A y z -> extEq A x z
+| extEq_ext :
+  forall (A B : Type) (f g : A -> B),
+    (forall a : A, extEq B (f a) (g a)) -> extEq (A -> B) f g
+| extEq_unext :
+  forall (A B : Type) (f g : A -> B),
+    extEq (A -> B) f g -> forall x y : A, extEq A x y -> extEq B (f x) (g y).
+
+Arguments extEq [A] _ _.
+
+#[global] Hint Constructors extEq : core.
+
+#[export]
+Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
+Proof. split; eauto. Defined.
+
+#[export]
+Instance extEq_Proper : forall (A B : Type) (f : A -> B),
+    Proper (@extEq A ==> @extEq B) f.
+Proof.
+  repeat red; intros. induction H; subst.
+    auto.
+    eapply extEq_trans; eauto.
+    eapply extEq_trans; eauto.
+    apply extEq_unext; auto.
+    apply extEq_unext; auto.
+Defined.
+
+#[export]
+Instance extEq_Proper' : forall (A B : Type) (f : A -> B),
+    Proper (@extEq A --> @extEq B) f.
+Proof.
+  repeat red; intros. induction H; subst.
+    auto.
+    eapply extEq_trans; eauto.
+    eapply extEq_trans; eauto.
+    apply extEq_unext; auto.
+    apply extEq_unext; auto.
+Defined.
+
+#[export]
+Instance extEq_Proper'' : forall (A : Type),
+    Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
+Proof.
+  repeat red. intros. eapply extEq_trans. eauto. eauto.
+Defined.
+
 #[refine]
 #[export]
 Instance ExtSet : Cat :=

@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class ReflexiveReloid : Type :=
 {
   reloid : Reloid;
-  rel_reflexive :> MyReflexive rel;
+  rel_reflexive :> Reflexive rel;
 }.
 
 Coercion reloid : ReflexiveReloid >-> Reloid.
@@ -54,7 +54,7 @@ Instance ReflexiveReloid_init : ReflexiveReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. split. rreloid. Defined.
+Proof. rreloid. Defined.
 
 #[refine]
 #[export]
@@ -80,7 +80,7 @@ Instance ReflexiveReloid_term : ReflexiveReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. split. rreloid. Defined.
+Proof. rreloid. Defined.
 
 #[refine]
 #[export]
@@ -107,7 +107,7 @@ Instance ReflexiveReloid_prodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
   reloid := Reloid_prodOb X Y;
 }.
 Proof.
-  split; cbn. destruct x; cbn. split; apply reflexive.
+  split; cbn; reflexivity.
 Defined.
 
 #[refine]
@@ -157,9 +157,7 @@ Instance ReflexiveReloid_coprodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
 {
   reloid := Reloid_coprodOb X Y;
 }.
-Proof.
-  split; cbn. destruct x; apply reflexive.
-Defined.
+Proof. intros []; cbn; reflexivity. Defined.
 
 #[refine]
 #[export]

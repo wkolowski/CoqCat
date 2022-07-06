@@ -133,7 +133,7 @@ Lemma pushout_uiso :
     exists!! f : Hom Q P, Iso f /\
       p1 == q1 .> f /\ p2 == q2 .> f.
 Proof.
-  intro. rewrite <- (dual_involution_axiom C). intros.
+  intro. rewrite <- (Dual_Dual C). intros.
   rewrite <- dual_pullback_pushout in H.
   rewrite <- dual_pullback_pushout in H0.
   destruct (pullback_uiso H H0). cbn in *.
