@@ -11,8 +11,9 @@ Instance CAT : Cat :=
   Ob := Cat;
   Hom := Functor;
   HomSetoid := fun C D : Cat =>
-    {| equiv := fun T S : Functor C D =>
-      depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S) |};
+  {|
+    equiv := fun T S : Functor C D => depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S)
+  |};
   comp := @FunctorComp;
   id := FunctorId
 }.
@@ -91,8 +92,8 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_fpair (X Y A : Cat) (F : Functor A X) (G : Functor A Y)
-  : Functor A (CAT_prodOb X Y) :=
+Instance CAT_fpair
+  (X Y A : Cat) (F : Functor A X) (G : Functor A Y) : Functor A (CAT_prodOb X Y) :=
 {
   fob := fun X : Ob A => (fob F X, fob G X);
   fmap := fun _ _ f => (fmap F f, fmap G f)

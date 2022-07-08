@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
 {
-    dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
+  dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
 }.
 
 Class DenseReloid : Type :=
@@ -92,8 +92,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_delete (X : DenseReloid)
-  : ReloidHom X DenseReloid_term :=
+Instance DenseReloid_delete (X : DenseReloid) : ReloidHom X DenseReloid_term :=
 {
   func := Reloid_delete X
 }.
@@ -124,8 +123,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_proj1 (X Y : DenseReloid)
-  : ReloidHom (DenseReloid_prodOb X Y) X :=
+Instance DenseReloid_proj1 (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) X :=
 {
   func := Reloid_proj1 X Y
 }.
@@ -133,8 +131,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_proj2 (X Y : DenseReloid)
-  : ReloidHom (DenseReloid_prodOb X Y) Y :=
+Instance DenseReloid_proj2 (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) Y :=
 {
   func := Reloid_proj2 X Y
 }.
@@ -142,8 +139,8 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_fpair (X Y A : DenseReloid)
-  (f : ReloidHom A X) (g : ReloidHom A Y)
+Instance DenseReloid_fpair
+  (X Y A : DenseReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (DenseReloid_prodOb X Y) :=
 {
   func := Reloid_fpair f g
@@ -178,8 +175,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_coproj1 (X Y : DenseReloid)
-  : ReloidHom X (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_coproj1 (X Y : DenseReloid) : ReloidHom X (DenseReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj1 X Y
 }.
@@ -187,8 +183,7 @@ Proof. dreloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_coproj2 (X Y : DenseReloid)
-  : ReloidHom Y (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_coproj2 (X Y : DenseReloid) : ReloidHom Y (DenseReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj2 X  Y
 }.
@@ -196,8 +191,8 @@ Proof. dreloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_copair (X Y A : DenseReloid)
-  (f : ReloidHom X A) (g : ReloidHom Y A)
+Instance DenseReloid_copair
+  (X Y A : DenseReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (DenseReloid_coprodOb X Y) A :=
 {
   func := Reloid_copair f g

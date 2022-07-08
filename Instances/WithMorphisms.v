@@ -6,8 +6,7 @@ Instance WithMon (C : Cat) : Cat :=
 {
   Ob := Ob C;
   Hom := fun X Y : Ob C => {f : Hom X Y | Mon f};
-  HomSetoid := fun X Y : Ob C =>
-    Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) Mon)
+  HomSetoid := fun X Y : Ob C => Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) Mon)
 }.
 Proof.
   destruct 1 as [f f_mon], 1 as [g g_mon].

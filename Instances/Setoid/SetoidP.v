@@ -61,8 +61,8 @@ match p with
 | _ => None
 end.
 
-Definition SetP_fpair (A B X : Set) (f : Hom X A) (g : Hom X B)
-    : Hom X (sumprod A B) := fun x : X =>
+Definition SetP_fpair
+  (A B X : Set) (f : Hom X A) (g : Hom X B) : Hom X (sumprod A B) := fun x : X =>
 match f x, g x with
 | None, None => None
 | Some a, None => Some (inl' a)
@@ -87,8 +87,8 @@ Proof.
     rewrite H, H0; destruct (y x); try destruct s; auto.
 Defined.
 
-Definition SetP_copair (A B X : Ob SetP) (f : Hom A X) (g : Hom B X)
-    : Hom (sum A B) X := fun p : A + B =>
+Definition SetP_copair
+  (A B X : Ob SetP) (f : Hom A X) (g : Hom B X) : Hom (sum A B) X := fun p : A + B =>
 match p with
 | inl a => f a
 | inr b => g b

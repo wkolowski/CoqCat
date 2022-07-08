@@ -58,8 +58,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_create (X : SymReloid)
-  : ReloidHom SymReloid_init X :=
+Instance SymReloid_create (X : SymReloid) : ReloidHom SymReloid_init X :=
 {
   func := Reloid_create X
 }.
@@ -84,8 +83,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_delete (X : SymReloid)
-  : ReloidHom X SymReloid_term :=
+Instance SymReloid_delete (X : SymReloid) : ReloidHom X SymReloid_term :=
 {
   func := Reloid_delete X
 }.
@@ -110,8 +108,7 @@ Proof. split; sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_proj1 (X Y : SymReloid)
-  : ReloidHom (SymReloid_prodOb X Y) X :=
+Instance SymReloid_proj1 (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) X :=
 {
   func := Reloid_proj1 X Y
 }.
@@ -119,8 +116,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_proj2 (X Y : SymReloid)
-  : ReloidHom (SymReloid_prodOb X Y) Y :=
+Instance SymReloid_proj2 (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) Y :=
 {
   func := Reloid_proj2 X Y
 }.
@@ -128,8 +124,8 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_fpair (X Y A : SymReloid)
-  (f : ReloidHom A X) (g : ReloidHom A Y)
+Instance SymReloid_fpair
+  (X Y A : SymReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (SymReloid_prodOb X Y) :=
 {
   func := Reloid_fpair f g
@@ -159,8 +155,7 @@ Proof. intros [] []; cbn; intuition. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_coproj1 (X Y : SymReloid)
-  : ReloidHom X (SymReloid_coprodOb X Y) :=
+Instance SymReloid_coproj1 (X Y : SymReloid) : ReloidHom X (SymReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj1 X Y;
 }.
@@ -168,8 +163,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_coproj2 (X Y : SymReloid)
-  : ReloidHom Y (SymReloid_coprodOb X Y) :=
+Instance SymReloid_coproj2 (X Y : SymReloid) : ReloidHom Y (SymReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj2 X Y;
 }.
@@ -177,8 +171,8 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_copair (X Y A : SymReloid)
-  (f : ReloidHom X A) (g : ReloidHom Y A)
+Instance SymReloid_copair
+  (X Y A : SymReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (SymReloid_coprodOb X Y) A :=
 {
   func := Reloid_copair f g

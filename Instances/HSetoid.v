@@ -16,10 +16,9 @@ Notation "x === y" := (hequiv x y) (at level 40).
 #[global] Hint Resolve hequiv_refl hequiv_sym hequiv_trans : core.
 
 Definition HSetoidHom (X Y : HSetoid) : Type :=
-    {f : X -> Y | forall x x' : X, x === x' -> f x === f x'}.
+  {f : X -> Y | forall x x' : X, x === x' -> f x === f x'}.
 
-Definition HSetoidHom_Fun (X Y : HSetoid) (f : HSetoidHom X Y)
-    : X -> Y := proj1_sig f.
+Definition HSetoidHom_Fun (X Y : HSetoid) (f : HSetoidHom X Y) : X -> Y := proj1_sig f.
 Coercion HSetoidHom_Fun : HSetoidHom >-> Funclass.
 
 #[refine]
@@ -30,8 +29,8 @@ Instance HSetoidHomSetoid (X Y : HSetoid) : Setoid (HSetoidHom X Y) :=
 }.
 Proof. split; red; intros; eauto. Defined.
 
-Definition HSetoidComp (X Y Z : HSetoid)
-    (f : HSetoidHom X Y) (g : HSetoidHom Y Z) : HSetoidHom X Z.
+Definition HSetoidComp
+  (X Y Z : HSetoid) (f : HSetoidHom X Y) (g : HSetoidHom Y Z) : HSetoidHom X Z.
 Proof.
   red. exists (fun x : X => g (f x)). intros.
   destruct f, g. simpl. apply h0. apply h. assumption.

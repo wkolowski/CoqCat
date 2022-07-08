@@ -19,7 +19,8 @@ Class Grp : Type :=
 
 Coercion mon : Grp >-> Mon.
 
-Lemma inv_involutive : forall (G : Grp) (g : G),
+Lemma inv_involutive :
+  forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
   intros.
@@ -28,7 +29,8 @@ Proof.
     rewrite inv_l , neutr_r in H. assumption.
 Qed.
 
-Lemma neutr_unique_l : forall (G : Grp) (e : G),
+Lemma neutr_unique_l :
+  forall (G : Grp) (e : G),
     (forall g : G, op e g == g) -> e == neutr.
 Proof.
   intros.
@@ -37,7 +39,8 @@ Proof.
   rewrite H0 in H1. assumption.
 Defined.
 
-Lemma neutr_unique_r : forall (G : Grp) (e : G),
+Lemma neutr_unique_r :
+  forall (G : Grp) (e : G),
     (forall g : G, op g e == g) -> e == neutr.
 Proof.
   intros.
@@ -46,7 +49,8 @@ Proof.
   rewrite H0 in H1. assumption.
 Defined.
 
-Lemma inv_op : forall (G : Grp) (a b : G),
+Lemma inv_op :
+  forall (G : Grp) (a b : G),
     inv (op a b) == op (inv b) (inv a).
 Proof.
   intros.
@@ -62,7 +66,9 @@ Proof.
   repeat (rewrite assoc, inv_l, neutr_l in H2). assumption.
 Defined.
 
-Lemma inv_neutr : forall (G : Grp), inv neutr == neutr.
+Lemma inv_neutr :
+  forall G : Grp,
+    inv neutr == neutr.
 Proof.
   intros.
   assert (op (inv neutr) neutr == neutr).
@@ -239,8 +245,7 @@ Proof. reflexivity. Defined.
 
 #[refine]
 #[export]
-Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b)
-    : Reify (@op X a b) | 0 :=
+Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op X a b) | 0 :=
 {
   reify := Op (reify a) (reify b)
 }.
@@ -250,8 +255,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x)
-    : Reify (f x) | 0 :=
+Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
 {
   reify := Mor f (reify x)
 }.
@@ -397,8 +401,7 @@ Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
-Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z)
-    : GrpHom X Z.
+Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z) : GrpHom X Z.
 Proof.
   exists (MonComp f g). grp.
 Defined.
@@ -475,8 +478,7 @@ Instance Grp_has_zero : has_zero GrpCat :=
 }.
 Proof. grp. Defined.
 
-Definition Grp_prodOb_inv (X Y : Grp)
-  : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
+Definition Grp_prodOb_inv (X Y : Grp) : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
 Proof.
   exists (fun p : X * Y => (inv (fst p), inv (snd p))).
   proper. destruct H. rewrite H, H0. split; reflexivity.
@@ -501,8 +503,7 @@ Proof.
   grp_simpl. exists (Mon_proj2 X Y). grp.
 Defined.
 
-Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B)
-    : Hom X (Grp_prodOb A B).
+Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_prodOb A B).
 Proof.
   grp_simpl. exists (Mon_fpair f g). split; grp.
 Defined.
@@ -523,31 +524,31 @@ Defined.
 
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
 
-Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X)
-    : Type := {f : Hom X X | Iso f}.
+Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | Iso f}.
 
-Definition AutHom_Fun {C : Cat} {X : Ob C} (A B : AutOb C X)
-    (f : AutHom A B) : Hom X X := proj1_sig f.
+Definition AutHom_Fun
+  {C : Cat} {X : Ob C} (A B : AutOb C X) (f : AutHom A B)
+  : Hom X X := proj1_sig f.
 
 Coercion AutHom_Fun : AutHom >-> Hom.
 
 #[refine]
 #[export]
-Instance AutHomSetoid (C : Cat) (X : Ob C)
-    : forall A B : AutOb C X, Setoid (AutHom A B) :=
+Instance AutHomSetoid
+  (C : Cat) (X : Ob C)
+  : forall A B : AutOb C X, Setoid (AutHom A B) :=
 {
   equiv := fun f g : AutHom A B => @equiv _ (@HomSetoid C X X) f g
 }.
 Proof. grp. Defined.
 
-Definition AutComp (C : Cat) (A : Ob C) (X Y Z : AutOb C A)
-    (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
+Definition AutComp
+  (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
 Proof.
   red. exists (f .> g). destruct f, g; cbn. apply iso_comp; auto.
 Defined.
 
-Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A)
-    : AutHom X X.
+Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.
 Proof.
   red. exists (id A). apply id_is_aut.
 Defined.
@@ -563,34 +564,3 @@ Instance AutCat (C : Cat) (X : Ob C) : Cat :=
   id := @AutId C X;
 }.
 Proof. all: grp. Defined.
-
-(* TODO : finish #[export]
-Instance Cayley_Sgr (G : Grp) : Sgr :=
-{
-  carrier := {f : G -> G & {g : G | f = op g}};
-  op := fun f g => fun x : G => g (f x)
-}.
-Proof.
-  destruct 1 as [f1 [g1 H1]], 1 as [f2 [g2 H2]].
-    exists (fun x => op g1 (op g2 x)). exists (op g1 g2).
-    extensionality x. rewrite assoc. trivial.
-  cat. grp'. rewrite !assoc.
-Abort.*)
-
-(*#[export]
-Instance Cayley_Mon (G : Grp) : Mon :=
-{
-  sgr := Cayley_Sgr G;
-  neutr := fun x : G => x
-}.
-Proof. 
-  all: intro; cbn; extensionality x; trivial.
-Defined.
-
-#[refine]
-#[export]
-Instance Cayley_Grp (G : Grp) : Grp :=
-{
-  mon := Cayley_Mon G;
-}.
-*)

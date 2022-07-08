@@ -8,8 +8,7 @@ Instance DeloopMon (M : Mon) : Cat :=
 {
   Ob := unit;
   Hom := fun _ _ => @carrier M;
-  HomSetoid := fun _ _ =>
-    {| equiv := equiv |};
+  HomSetoid := fun _ _ => {| equiv := equiv |};
   comp := fun _ _ _ => @op M;
   id := fun _ => @neutr M
 }.

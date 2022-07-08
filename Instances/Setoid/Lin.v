@@ -131,7 +131,8 @@ Abort.
 
 (* TODO : products of linear orders suck because of constructivity *)
 
-(*Definition Lin_proj1 (X Y : Lin) : ProsHom (Lin_prod X Y) X.
+(*
+Definition Lin_proj1 (X Y : Lin) : ProsHom (Lin_prod X Y) X.
 Proof.
   red. exists fst. destruct 1, H; try rewrite H; lin.
 Defined.
@@ -139,10 +140,13 @@ Defined.
 Definition Lin_proj2 (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
 Proof.
   red. exists snd. lin'. destruct a, a', H, H; cbn in *.
-Abort. *)
+Abort.
+*)
 
-(* TODO #[export]
-Instance Lin_has_products : has_products LinCat :=
+(*
+#[refine]
+#[export]
+TODO: Instance Lin_has_products : has_products LinCat :=
 {
   prodOb := Lin_prod;
   proj1 := Pros_proj1;
@@ -151,8 +155,8 @@ Instance Lin_has_products : has_products LinCat :=
 }.
 Proof.
   all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.
-Defined.*)
-
+Defined.
+*)
 
 Ltac proper_lin := proper; repeat
 match goal with
@@ -182,7 +186,7 @@ Proof.
   proper_lin.
   all: cbn; intros; repeat
   match goal with
-| p : _ + _ |- _ => destruct p
+  | p : _ + _ |- _ => destruct p
   end; lin.
 Defined.
 
@@ -190,20 +194,20 @@ Defined.
 #[export]
 Instance Lin_coprodOb (X Y : Lin) : Lin :=
 {
-    pos :=
+  pos :=
+  {|
+    pros :=
     {|
-      pros :=
-      {|
-        carrier := CoqSetoid_coprodOb X Y;
-        leq := fun p1 p2 : X + Y =>
-          match p1, p2 with
-          | inl x, inl x' => leq x x'
-          | inr y, inr y' => leq y y'
-          | inl _, inr _ => True
-          | inr _, inl _ => False
-          end
-      |}
+      carrier := CoqSetoid_coprodOb X Y;
+      leq := fun p1 p2 : X + Y =>
+        match p1, p2 with
+        | inl x, inl x' => leq x x'
+        | inr y, inr y' => leq y y'
+        | inl _, inr _ => True
+        | inr _, inl _ => False
+        end
     |}
+  |}
 }.
 Proof.
   proper_lin.
@@ -223,8 +227,8 @@ Proof.
   red. exists (CoqSetoid_coproj2 X Y). lin.
 Defined.
 
-Definition Lin_copair (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X)
-    : ProsHom (Lin_coprodOb A B) X.
+Definition Lin_copair
+  (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coprodOb A B) X.
 Proof.
   exists (CoqSetoid_copair f g). cbn. destruct f, g.
   destruct a, a'; intros; cbn.

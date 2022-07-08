@@ -42,10 +42,9 @@ Ltac prosobs := prosobs_template prosob.
 Ltac prosobs' := prosobs_template prosob'.
 
 Definition ProsHom (A B : Pros) : Type :=
-    {f : SetoidHom A B| forall a a', a ≤ a' -> f a ≤ f a'}.
+  {f : SetoidHom A B| forall a a', a ≤ a' -> f a ≤ f a'}.
 
-Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B)
-    : SetoidHom A B := proj1_sig f.
+Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B) : SetoidHom A B := proj1_sig f.
 Coercion ProsHom_Fun : ProsHom >-> SetoidHom.
 
 Ltac proshom f := try intros until f;
@@ -69,8 +68,7 @@ Ltac proshoms' := proshoms_template proshom'.
 Ltac pros' := repeat (pros_simpl || proshoms || prosobs || setoid' || lia).
 Ltac pros := try (pros'; fail).
 
-Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C)
-    : ProsHom A C.
+Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C) : ProsHom A C.
 Proof.
   red. exists (SetoidComp f g). pros.
 Defined.
@@ -87,9 +85,9 @@ Instance ProsCat : Cat :=
   Ob := Pros;
   Hom := ProsHom;
   HomSetoid := fun A B : Pros =>
-    {| equiv := fun f g : ProsHom A B =>
-        forall x : A, @equiv _ B (f x) (g x)
-|};
+  {|
+    equiv := fun f g : ProsHom A B => forall x : A, @equiv _ B (f x) (g x)
+  |};
   comp := ProsComp;
   id := ProsId
 }.
@@ -99,26 +97,23 @@ Proof.
   (* Category laws *) all: pros.
 Defined.
 
-(*Lemma Pros_mon_inj : forall (X Y : Pros) (f : ProsHom X Y),
+Lemma Pros_mon_inj :
+  forall (X Y : Pros) (f : ProsHom X Y),
     Mon f <-> injectiveS f.
 Proof.
   unfold Mon, injective; split; red; intros.
-    cbn in H. 
-    specialize (H NatLe (const _ _ x) (const _ _ y)).
-      proshoms. apply H; auto. exact 0.
-    simpl. intro. apply H. proshoms. auto.
-Defined.
+    cbn in H.
+Abort.
 
-Lemma Pros_epi_sur : forall (X Y : Pros) (f : ProsHom X Y),
+Lemma Pros_epi_sur :
+  forall (X Y : Pros) (f : ProsHom X Y),
     Epi f <-> surjective f.
 Proof.
   unfold Epi, surjective; split; intros.
-    specialize (H Y (@id ProsCat Y) (const _ _ b)).
-    proshoms.
-    proshoms. intro. destruct (H x). rewrite <- H1. auto.
 Abort.
 
-Lemma Pros_sec_inj : forall (X Y : Pros) (f : ProsHom X Y),
+Lemma Pros_sec_inj :
+  forall (X Y : Pros) (f : ProsHom X Y),
     Sec f <-> injective f.
 Proof.
   unfold Sec, injective; split; intros.
@@ -126,7 +121,7 @@ Proof.
       replace x with (g (f x)); auto.
       replace y with (g (f y)); auto.
       rewrite H0. auto.
-Abort.*)
+Abort.
 
 #[refine]
 #[export]
@@ -188,14 +183,16 @@ Defined.
 
 Definition Pros_proj1 (X Y : Pros) : ProsHom (Pros_prodOb X Y) X.
 Proof.
-  red. exists (CoqSetoid_proj1 X Y). pros. Defined.
+  red. exists (CoqSetoid_proj1 X Y). pros.
+Defined.
 
 Definition Pros_proj2 (X Y : Pros) : ProsHom (Pros_prodOb X Y) Y.
 Proof.
-  red. exists (CoqSetoid_proj2 X Y). pros. Defined.
+  red. exists (CoqSetoid_proj2 X Y). pros.
+Defined.
 
-Definition Pros_fpair {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B)
-    : ProsHom X (Pros_prodOb A B).
+Definition Pros_fpair
+  {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B) : ProsHom X (Pros_prodOb A B).
 Proof.
   red. exists (CoqSetoid_fpair f g). pros.
 Defined.
@@ -215,7 +212,7 @@ Proof.
 Defined.
 
 Definition thin (C : Cat) : Prop :=
-    forall (X Y : Ob C) (f g : Hom X Y), f == g.
+  forall (X Y : Ob C) (f g : Hom X Y), f == g.
 
 #[refine]
 #[export]
@@ -236,20 +233,18 @@ Proof.
   destruct a, b; destruct c1; pros.
 Defined.
 
-Definition Pros_coproj1 (X Y : Pros) :
-    ProsHom X (Pros_coprodOb X Y).
+Definition Pros_coproj1 (X Y : Pros) : ProsHom X (Pros_coprodOb X Y).
 Proof.
   red. exists (CoqSetoid_coproj1 X Y). pros.
 Defined.
 
-Definition Pros_coproj2 (X Y : Pros) :
-    ProsHom Y (Pros_coprodOb X Y).
+Definition Pros_coproj2 (X Y : Pros) : ProsHom Y (Pros_coprodOb X Y).
 Proof.
   red. exists (CoqSetoid_coproj2 X Y). pros.
 Defined.
 
-Definition Pros_copair (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X)
-    : ProsHom (Pros_coprodOb A B) X.
+Definition Pros_copair
+  (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pros_coprodOb A B) X.
 Proof.
   red. exists (CoqSetoid_copair f g). destruct a, a'; pros.
 Defined.

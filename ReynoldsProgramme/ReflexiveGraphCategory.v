@@ -1,3 +1,5 @@
+Require Import JMeq ProofIrrelevance.
+
 (** TODO: work it out.
     Remember: in a reflexive graph category, morphisms need NOT preserve
     all relations. We just have to specify which morphisms preserve
@@ -6,8 +8,6 @@
     Based on:
     https://www.cs.bham.ac.uk/~udr/papers/logical-relations-and-parametricity.pdf
 *)
-
-Require Import JMeq ProofIrrelevance.
 
 Lemma transport :
   forall {A : Type} (P : A -> Type) {x y : A} (p : x = y),
@@ -157,10 +157,6 @@ Class ReflexiveGraphCategory' : Type :=
   src    : Functor Ge Gv;
   tgt    : Functor Ge Gv;
   II     : Functor Gv Ge;
-(*
-  src_II : FunctorComp II src = FunctorId Gv;
-  tgt_II : FunctorComp II src = FunctorId Gv;
-*)
 }.
 
 #[refine]

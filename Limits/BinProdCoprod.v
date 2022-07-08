@@ -261,7 +261,7 @@ Lemma product_skolem_uiso :
   (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
     product_skolem C P p1 p2 fpair ->
     product_skolem C Q q1 q2 fpair' ->
-    exists !! f : Hom P Q, Iso f /\
+    exists!! f : Hom P Q, Iso f /\
       p1 == f .> q1 /\
       p2 == f .> q2.
 Proof.
@@ -489,7 +489,7 @@ Lemma coproduct_skolem_uiso :
   (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
     coproduct_skolem C P p1 p2 copair ->
     coproduct_skolem C Q q1 q2 copair' ->
-    exists !! f : Hom P Q, Iso f /\
+    exists!! f : Hom P Q, Iso f /\
       p1 .> f == q1 /\
       p2 .> f == q2.
 Proof.

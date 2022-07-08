@@ -8,8 +8,7 @@ Instance CoqSet : Cat :=
 {|
   Ob := Set;
   Hom := fun A B : Set => A -> B;
-  HomSetoid := fun A B : Set =>
-      {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
+  HomSetoid := fun A B : Set => {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
   comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
   id := fun (A : Set) (a : A) => a
 |}.
@@ -19,7 +18,8 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Lemma CoqSet_mon_inj : forall (A B : Ob CoqSet) (f : A -> B),
+Lemma CoqSet_mon_inj :
+  forall (A B : Ob CoqSet) (f : A -> B),
     Mon f <-> injective f.
 Proof.
   unfold Mon, injective; cbn; split; intros.
@@ -28,7 +28,8 @@ Proof.
     apply H. apply H0.
 Defined.
 
-Lemma CoqSet_ret_sur : forall (X Y : Set) (f : Hom X Y),
+Lemma CoqSet_ret_sur :
+  forall (X Y : Set) (f : Hom X Y),
     Ret f <-> surjective f.
 Proof.
   unfold Ret, surjective; cbn; split; intros.
@@ -41,7 +42,8 @@ Defined.
 
 (* TODO : characterize epimorphisms and sections *)
 
-Lemma CoqSet_iso_bij : forall (A B : Set) (f : Hom A B),
+Lemma CoqSet_iso_bij :
+  forall (A B : Set) (f : Hom A B),
     Iso f <-> bijective f.
 Proof.
   split; intros.
@@ -129,12 +131,12 @@ Definition CoqSet_coprodOb := sum.
 Definition CoqSet_coproj1 := @inl.
 Definition CoqSet_coproj2 := @inr.
 
-Definition CoqSet_copair (X Y A : Set) (f : X -> A) (g : Y -> A) : sum X Y -> A :=
+Definition CoqSet_copair (X Y A : Set) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
   fun p : X + Y =>
-match p with
-| inl x => f x
-| inr y => g y
-end.
+  match p with
+  | inl x => f x
+  | inr y => g y
+  end.
 
 #[refine]
 #[export]
@@ -166,8 +168,8 @@ Proof.
 Defined.
 
 Lemma CoqSet_counterexample1 :
-    exists (A B C : Set) (f : Hom A B) (g : Hom B C),
-    injective (f .> g) /\ ~ (injective g).
+  exists (A B C : Set) (f : Hom A B) (g : Hom B C),
+    injective (f .> g) /\ ~ injective g.
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold injective, not; cbn; split; intros.
@@ -175,8 +177,9 @@ Proof.
     specialize (H true false eq_refl). discriminate H.
 Qed.
 
-Lemma CoqSet_counterexample2 : exists (A B C : Set) (f : Hom A B)
-    (g : Hom B C), surjective (f .> g) /\ ~ (surjective f).
+Lemma CoqSet_counterexample2 :
+  exists (A B C : Set) (f : Hom A B) (g : Hom B C),
+    surjective (f .> g) /\ ~ surjective f.
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold surjective, not; cbn; split; intros.
@@ -185,14 +188,15 @@ Proof.
 Qed.
 
 Definition CoqSet_eq_ob {X Y : Set} (f g : X -> Y) : Set :=
-    {x : X | f x = g x}.
+  {x : X | f x = g x}.
 
 Definition CoqSet_eq_mor {X Y : Set} (f g : X -> Y)
-    (p : {x : X | f x = g x}) : X := proj1_sig p.
+  (p : {x : X | f x = g x}) : X := proj1_sig p.
 
-Definition CoqSet_factorize (X Y : Set) (f g : X -> Y)
-    (E' : Set ) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
-    : E' -> {x : X | f x = g x}.
+Definition CoqSet_factorize
+  (X Y : Set) (f g : X -> Y)
+  (E' : Set ) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
+  : E' -> {x : X | f x = g x}.
 Proof.
  intro x. exists (e' x). apply H.
 Defined.
@@ -220,10 +224,8 @@ Abort.
 #[export]
 Instance CoqSet_has_equalizers' : has_equalizers CoqSet :=
 {
-  eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-      {x : X | f x = g x};
-  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-      fun (x : {x : X | f x = g x}) => proj1_sig x;
+  eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
+  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
   factorize := @CoqSet_factorize;
 }.
 Proof.
@@ -236,19 +238,11 @@ Proof.
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
 Abort.
 
-(* Not sure if it's even true *)
-(* TODO : #[export]
-Instance CoqSet_has_coequalizers : has_coequalizers CoqSet :=
-{
-    coeq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-        {T : Set & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
-    (*coeq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>*)
-        
-}.
+#[refine]
+#[export]
+Instance CoqSet_has_coequalizers : has_coequalizers CoqSet := {}.
 Proof.
-  cbn; intros X Y f g y. exists {A : {y : Y | 
-  unfold coequalizer; cbn; intros. cat. f_equal.
-*)
+Abort.
 
 #[refine]
 #[export]
@@ -273,20 +267,22 @@ Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
   ccc_exp := CoqSet_has_exponentials;
 }.
 
-Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A)
-    : Set := {p : X * Y | f (fst p) = g (snd p)}.
+Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A) : Set :=
+  {p : X * Y | f (fst p) = g (snd p)}.
 
-Definition CoqSet_pull1 {X Y A : Set} (f : X -> A) (g : Y -> A)
- (p : CoqSet_pullbackOb f g) : X := fst (proj1_sig p).
+Definition CoqSet_pull1
+  {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullbackOb f g)
+  : X := fst (proj1_sig p).
 
-Definition CoqSet_pull2 {X Y A : Set} (f : X -> A) (g : Y -> A)
- (p : CoqSet_pullbackOb f g) : Y := snd (proj1_sig p).
+Definition CoqSet_pull2
+  {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullbackOb f g)
+  : Y := snd (proj1_sig p).
 
-Definition CoqSet_factor {X Y A : Set} (f : X -> A) (g : Y -> A)
-    (P : Set) (p1 : P -> X) (p2 : P -> Y) : P -> CoqSet_pullbackOb f g.
+Definition CoqSet_factor
+  {X Y A : Set} (f : X -> A) (g : Y -> A) (P : Set) (p1 : P -> X) (p2 : P -> Y)
+  : P -> CoqSet_pullbackOb f g.
 Proof.
   intro x. red. exists (p1 x, p2 x).
-  simpl.
 Abort.
 
 #[refine]
@@ -298,13 +294,4 @@ Instance CoqSet_has_pullbacks : has_pullbacks CoqSet :=
   pull2 := @CoqSet_pull2;
 }.
 Proof.
-(*
-  Focus 2. intros. unfold CoqSet_pull1.
-  assert (CoqSet_pullbackOb f g = CoqSet_pullbackOb f' g').
-    unfold CoqSet_pullbackOb. cbn in *.
-    f_equal. extensionality p. rewrite H, H0. trivial.
-*)
-  (*replace (fun p : CoqSet_pullbackOb f' g' => fst (proj1_sig p))
-    with (fun p : CoqSet_pullbackOb f g => fst (proj1_sig p)).
-  intros. simpl. unfold CoqSet_pullbackOb.*)
 Abort.

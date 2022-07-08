@@ -153,7 +153,7 @@ Lemma equalizer_uiso :
       e'' .> f == e'' .> g -> Hom E'' E'},
       equalizer C f g E e factorize ->
       equalizer C f g E' e' factorize' ->
-      exists !! f : Hom E E', Iso f /\
+      exists!! f : Hom E E', Iso f /\
         e == f .> e'.
 Proof.
   unfold equalizer; intros. destruct H, H0.
@@ -235,7 +235,7 @@ Lemma coequalizer_uiso :
     f .> q'' == g .> q'' -> Hom Q' Q''),
       coequalizer C f g Q q cofactorize ->
       coequalizer C f g Q' q' cofactorize' ->
-        exists !! f : Hom Q' Q, Iso f /\
+        exists!! f : Hom Q' Q, Iso f /\
           q' .> f == q.
 Proof.
   intro. rewrite <- (Dual_Dual C). intros. cbn in *.
@@ -311,7 +311,7 @@ Qed.
       f .> q'' == g .> q'' -> Hom E' Q''),
       biequalizer C f g E e q factorize cofactorize ->
       biequalizer C f g E' e' q' factorize' cofactorize' ->
-      exists !! f : Hom E E', Iso f /\
+      exists!! f : Hom E E', Iso f /\
         e == f .> e' /\ q .> f == q'.
 Proof.
   unfold biequalizer; intros.

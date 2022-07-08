@@ -124,8 +124,7 @@ Qed.
 
 Lemma mon_reflect :
   forall (X : Mon) (e1 e2 : exp X),
-    expDenoteL (flatten (simplify e1)) ==
-    expDenoteL (flatten (simplify e2)) ->
+    expDenoteL (flatten (simplify e1)) == expDenoteL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
   intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
@@ -150,8 +149,7 @@ Proof. reflexivity. Defined.
 
 #[refine]
 #[export]
-Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
-    : Reify (@op X a b) | 0 :=
+Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op X a b) | 0 :=
 {
   reify := Op (reify a) (reify b)
 }.
@@ -161,8 +159,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x)
-    : Reify (f x) | 0 :=
+Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
 {
   reify := Mor f (reify x)
 }.
@@ -236,27 +233,30 @@ match goal with
 | _ => mon_simpl || monobs' || monhoms' || cat
 end.
 
-Goal forall (X : Mon) (a b c : X),
-  op a (op b c) == op (op a b) c.
+Goal
+  forall (X : Mon) (a b c : X),
+    op a (op b c) == op (op a b) c.
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X : Mon) (f : MonHom X X) (a b : X),
-  f (op a b) == op (f a) (f b).
+Goal
+  forall (X : Mon) (f : MonHom X X) (a b : X),
+    f (op a b) == op (f a) (f b).
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X : Mon) (f : MonHom X X) (a b c : X),
-  op (f (f neutr)) (op (f a) (f (op b c))) ==
-  op (f a) (op (f b) (f c)).
+Goal
+  forall (X : Mon) (f : MonHom X X) (a b c : X),
+    op (f (f neutr)) (op (f a) (f (op b c))) == op (f a) (op (f b) (f c)).
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
-  g (f neutr) == neutr.
+Goal
+  forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
+    g (f neutr) == neutr.
 Proof.
   reflect_mon. reflexivity.
 Qed.
@@ -300,8 +300,9 @@ Proof.
   inversion 1. subst. auto.
 Qed.
 
-Goal forall (X : Mon) (a b b' c : X),
-  b == b' -> op a (op b c) == op (op a b') c.
+Goal
+  forall (X : Mon) (a b b' c : X),
+    b == b' -> op a (op b c) == op (op a b') c.
 Proof.
   intros. reflect_goal. cbn.
   match goal with
@@ -323,8 +324,7 @@ Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
-Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
-    : MonHom X Z.
+Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z) : MonHom X Z.
 Proof.
   exists (SgrComp f g). mon.
 Defined.
@@ -440,8 +440,7 @@ Proof.
   mon_simpl. exists (Sgr_proj2 X Y). mon.
 Defined.
 
-Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
-    : MonHom X (Mon_prodOb A B).
+Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_prodOb A B).
 Proof.
   exists (Sgr_fpair f g). mon.
 Defined.

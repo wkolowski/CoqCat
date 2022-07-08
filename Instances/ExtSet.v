@@ -2,9 +2,15 @@ From Cat Require Import Cat.
 From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
 
 Inductive extEq : forall A : Type, A -> A -> Prop :=
-| extEq_refl : forall (A : Type) (x : A), extEq A x x
-| extEq_sym : forall (A : Type) (x y : A), extEq A x y -> extEq A y x
-| extEq_trans : forall (A : Type) (x y z : A), extEq A x y -> extEq A y z -> extEq A x z
+| extEq_refl :
+  forall (A : Type) (x : A),
+    extEq A x x
+| extEq_sym :
+  forall (A : Type) (x y : A),
+    extEq A x y -> extEq A y x
+| extEq_trans :
+  forall (A : Type) (x y z : A),
+    extEq A x y -> extEq A y z -> extEq A x z
 | extEq_ext :
   forall (A B : Type) (f g : A -> B),
     (forall a : A, extEq B (f a) (g a)) -> extEq (A -> B) f g
@@ -21,7 +27,8 @@ Instance extEq_Equivalence (A : Type) : Equivalence (@extEq A).
 Proof. split; eauto. Defined.
 
 #[export]
-Instance extEq_Proper : forall (A B : Type) (f : A -> B),
+Instance extEq_Proper :
+  forall (A B : Type) (f : A -> B),
     Proper (@extEq A ==> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -33,7 +40,8 @@ Proof.
 Defined.
 
 #[export]
-Instance extEq_Proper' : forall (A B : Type) (f : A -> B),
+Instance extEq_Proper' :
+  forall (A B : Type) (f : A -> B),
     Proper (@extEq A --> @extEq B) f.
 Proof.
   repeat red; intros. induction H; subst.
@@ -45,7 +53,8 @@ Proof.
 Defined.
 
 #[export]
-Instance extEq_Proper'' : forall (A : Type),
+Instance extEq_Proper'' :
+  forall (A : Type),
     Proper (@extEq A ==> @extEq A ==> (Basics.flip Basics.impl)) (@extEq A).
 Proof.
   repeat red. intros. eapply extEq_trans. eauto. eauto.
@@ -57,8 +66,7 @@ Instance ExtSet : Cat :=
 {|
   Ob := Type;
   Hom := fun A B : Type => A -> B;
-  HomSetoid := fun A B : Type =>
-      {| equiv := fun f g : A -> B => extEq f g |};
+  HomSetoid := fun A B : Type => {| equiv := fun f g : A -> B => extEq f g |};
   comp := fun (A B C : Type) (f : A -> B) (g : B -> C) (a : A) => g (f a);
   id := fun (A : Type) (a : A) => a
 |}.
@@ -68,7 +76,8 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Lemma ExtSet_mon_inj : forall (A B : Ob ExtSet) (f : A -> B),
+Lemma ExtSet_mon_inj :
+  forall (A B : Ob ExtSet) (f : A -> B),
     Mon f <-> @injectiveS A B {| equiv := @extEq A |} {| equiv := @extEq B |} f.
 Proof.
   unfold Mon, injectiveS; cbn; split; intros.
@@ -79,8 +88,8 @@ Proof.
         (fun a : X => f (g a)) (fun a : X => f (h a)) H0 a a). auto.
 Qed.
 
-Lemma ExtSet_ret_surjective : forall (A B : Type)
-    (f : Hom A B), {g : Hom B A | g .> f = id B} ->
+Lemma ExtSet_ret_surjective :
+  forall (A B : Type) (f : Hom A B), {g : Hom B A | g .> f = id B} ->
     @surjectiveS A B {| equiv := @extEq B |} f.
 Proof.
   intros until f; intro H. red.
@@ -90,9 +99,10 @@ Proof.
     rewrite H. reflexivity.
 Qed.
 
-Lemma ExtSet_surjective_ret : forall (A B : Type) (f : Hom A B),
+Lemma ExtSet_surjective_ret :
+  forall (A B : Type) (f : Hom A B),
     @surjectiveS A B {| equiv := @extEq B |} f ->
-    {g : Hom B A | g .> f == id B}.
+      {g : Hom B A | g .> f == id B}.
 Proof.
   intros. red in H.
   exists (fun b => proj1_sig (constructive_indefinite_description _ (H b))).
@@ -180,10 +190,8 @@ Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
     end
 }.
 Proof.
-  (* copair is proper *) proper. apply extEq_ext; intros.
-    destruct a; cat.
-  (* Coproduct law *) red; cat. apply extEq_ext; intros.
-    destruct a; cat.
+  (* copair is proper *) proper. apply extEq_ext; intros. destruct a; cat.
+  (* Coproduct law *) red; cat. apply extEq_ext; intros. destruct a; cat.
 Defined.
 
 #[refine]
@@ -210,21 +218,9 @@ Set Nested Proofs Allowed.
 Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
 {
   eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) => {x : X | extEq (f x) (g x)};
-  eq_mor := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
-    fun (x : {x : X | extEq (f x) (g x)}) => proj1_sig x
+  eq_mor :=
+    fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
+      fun (x : {x : X | extEq (f x) (g x)}) => proj1_sig x
 }.
 Proof.
 Abort.
-
-(* Not sure if it's even true *)
-(* TODO : #[export]
-Instance ExtSet_has_coequalizers : has_coequalizers ExtSet :=
-{
-  coeq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>
-      {T : Type & {y : Y | T = {y' : Y | exists x : X, f x = y /\ g x = y /\ y = y'}}}
-  (*coeq_mor := fun (X Y : Ob ExtSet) (f g : Hom X Y) =>*)
-}.
-Proof.
-  cbn; intros X Y f g y. exists {A : {y : Y | 
-  unfold coequalizer; cbn; intros. cat. f_equal.
-*)

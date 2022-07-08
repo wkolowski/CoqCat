@@ -29,8 +29,8 @@ Definition second
 
 #[refine]
 #[export]
-Instance BiComp {C C' D D' E : Cat}
-  (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
+Instance BiComp
+  {C C' D D' E : Cat} (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
   : Bifunctor C D E :=
 {
   biob := fun (X : Ob C) (Y : Ob D) => biob (fob F X) (fob G Y);
@@ -45,8 +45,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Const {E : Cat} (X : Ob E) (C D : Cat)
-    : Bifunctor C D E :=
+Instance Const {E : Cat} (X : Ob E) (C D : Cat) : Bifunctor C D E :=
 {
   biob := fun _ _ => X;
   bimap := fun _ _ _ _ _ _ => id X

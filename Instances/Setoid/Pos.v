@@ -32,7 +32,7 @@ end.
 Ltac posobs := posobs_template posob.
 Ltac posobs' := posobs_template posob'.
 
-Notation "'PosHom' X Y" := (ProsHom X Y) (at level 40). (*, only parsing).*)
+Notation "'PosHom' X Y" := (ProsHom X Y) (at level 40).
 
 Ltac pos' := repeat (pos_simpl || proshoms || posobs || pros').
 Ltac pos := try (pos'; fail).
@@ -118,20 +118,18 @@ Proof.
   destruct x, y; pos.
 Defined.
 
-Definition Pos_coproj1 (X Y : Pos) :
-    ProsHom X (Pos_coprodOb X Y).
+Definition Pos_coproj1 (X Y : Pos) : ProsHom X (Pos_coprodOb X Y).
 Proof.
   red. exists (Pros_coproj1 X Y). pos.
 Defined.
 
-Definition Pos_coproj2 (X Y : Pos) :
-    ProsHom Y (Pos_coprodOb X Y).
+Definition Pos_coproj2 (X Y : Pos) : ProsHom Y (Pos_coprodOb X Y).
 Proof.
   red. exists (Pros_coproj2 X Y). pos.
 Defined.
 
-Definition Pos_copair (A B X : Pos) (f : ProsHom A X) (g : ProsHom B X)
-    : ProsHom (Pos_coprodOb A B) X.
+Definition Pos_copair
+  (A B X : Pos) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pos_coprodOb A B) X.
 Proof.
   red. exists (Pros_copair f g). destruct a, a'; pos.
 Defined.

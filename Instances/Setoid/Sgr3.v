@@ -49,8 +49,8 @@ Arguments simplify {X} _ {Simplify}.
 
 #[refine]
 #[export]
-Instance SimplifyOp {X : Sgr} {e1 e2 : exp X}
-  (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
+Instance SimplifyOp
+  {X : Sgr} {e1 e2 : exp X} (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Op e1 e2) | 10 :=
 {
   simplify := Op (simplify e1) (simplify e2)
 }.
@@ -60,7 +60,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
+Instance SimplifyMor
+  {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
   (S : Simplify e) : Simplify (Mor f e) | 10 :=
 {
   simplify :=
@@ -72,12 +73,6 @@ Instance SimplifyMor {X Y : Sgr} (f : SgrHom X Y) (e : exp X)
 Proof.
   destruct S, f, func0; cbn in *. destruct simplify0; cbn in *;
   rewrite <- simplify_spec0, ?pres_op0; reflexivity.
-(*Restart.
-  case_eq (simplify e); intros.
-    rewrite <- H. cbn. rewrite simplify_spec. reflexivity.
-    cbn. cbn in H. rewrite <- H. cbn. rewrite simplify_spec. reflexivity.
-    
-    cbn. destruct S. cbn in *. rewrite simplify_spec0.*)
 Defined.
 
 #[refine]
@@ -159,8 +154,7 @@ Proof. reflexivity. Defined.
 
 #[refine]
 #[export]
-Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b)
-    : Reify (@op X a b) | 0 :=
+Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op X a b) | 0 :=
 {
   reify := Op (reify a) (reify b)
 }.
@@ -225,14 +219,16 @@ match goal with
 | _ => sgr_simpl || sgrobs || sgrhoms || cat
 end.
 
-Goal forall (X : Sgr) (a b c : X),
-  op a (op b c) == op (op a b) c.
+Goal
+  forall (X : Sgr) (a b c : X),
+    op a (op b c) == op (op a b) c.
 Proof.
   reflect_sgr. reflexivity.
 Qed.
 
-Goal forall (X : Sgr) (f : SgrHom X X) (a b : X),
-  f (op a b) == op (f a) (f b).
+Goal
+  forall (X : Sgr) (f : SgrHom X X) (a b : X),
+    f (op a b) == op (f a) (f b).
 Proof.
   reflect_sgr. reflexivity.
 Qed.
@@ -245,8 +241,7 @@ Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 }.
 Proof. sgr. Defined.
 
-Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C)
-    : SgrHom A C.
+Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C) : SgrHom A C.
 Proof.
   exists (SetoidComp f g). sgr.
 Defined.
@@ -336,8 +331,7 @@ Proof.
   exists (CoqSetoid_proj2 X Y). sgr.
 Defined.
 
-Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
-    : SgrHom X (Sgr_prodOb A B).
+Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B) : SgrHom X (Sgr_prodOb A B).
 Proof.
   exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
@@ -361,12 +355,6 @@ Instance Sgr_sum (X Y : Sgr) : Sgr :=
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
-  (*
-    left. exact (op x x').
-    left. exact x.
-    left. exact x'.
-    right. exact (op y y').
-  *)
   proper. repeat
   match goal with
   | H : match ?x with _ => _ end |- _ => destruct x
@@ -383,20 +371,23 @@ match l1, l2 with
 | _, _ => False
 end.
 
-Lemma equiv_nel_refl : forall (X : Setoid') (l : nel X),
+Lemma equiv_nel_refl :
+  forall (X : Setoid') (l : nel X),
     equiv_nel l l.
 Proof.
   induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
 Qed.
 
-Lemma equiv_nel_sym : forall (X : Setoid') (l1 l2 : nel X),
+Lemma equiv_nel_sym :
+  forall (X : Setoid') (l1 l2 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l1.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
   intros; solve_equiv.
 Qed.
 
-Lemma equiv_nel_trans : forall (X : Setoid') (l1 l2 l3 : nel X),
+Lemma equiv_nel_trans :
+  forall (X : Setoid') (l1 l2 l3 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
 Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
@@ -442,14 +433,14 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
     (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
 }.
 
-Definition Sgr_freeprod_setoid_coproj1 (X Y : Sgr)
-    : SetoidHom X (Sgr_freeprod_setoid X Y).
+Definition Sgr_freeprod_setoid_coproj1
+  (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
   exists (fun x : X => singl (inl x)). sgr.
 Defined.
 
-Definition Sgr_freeprod_setoid_coproj2 (X Y : Sgr)
-    : SetoidHom Y (Sgr_freeprod_setoid X Y).
+Definition Sgr_freeprod_setoid_coproj2
+  (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
   exists (fun y : Y => singl (inr y)). sgr.
 Defined.
@@ -485,19 +476,22 @@ match goal with
 | _ => eauto
 end.
 
-Lemma fp_equiv_refl : forall (X Y : Setoid') (l : nel (X + Y)),
+Lemma fp_equiv_refl :
+  forall (X Y : Setoid') (l : nel (X + Y)),
     fp_equiv l l.
 Proof.
   induction l as [| h t]; fp_equiv.
 Qed.
 
-Lemma fp_equiv_sym : forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
+Lemma fp_equiv_sym :
+  forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l1.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
 Qed.
 
-Lemma fp_equiv_trans : forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
+Lemma fp_equiv_trans :
+  forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
 Proof.
   induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
@@ -506,7 +500,7 @@ Qed.
 #[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
 
 Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
-    fp_equiv (normalize l1) (normalize l2).
+  fp_equiv (normalize l1) (normalize l2).
 
 Ltac fpeq4 := unfold fpeq4; repeat
 match goal with
@@ -516,19 +510,22 @@ match goal with
 | _ => solve_equiv
 end.
 
-Lemma fpeq4_refl : forall (X Y : Sgr) (l : nel (X + Y)),
+Lemma fpeq4_refl :
+  forall (X Y : Sgr) (l : nel (X + Y)),
     fpeq4 l l.
 Proof.
   unfold fpeq4. induction l as [| h [| h' t]]; fpeq4.
 Qed.
 
-Lemma fpeq4_sym : forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+Lemma fpeq4_sym :
+  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l1.
 Proof.
   unfold fpeq4. induction l1 as [| h [| h' t]]; fpeq4.
 Qed.
 
-Lemma fpeq4_trans : forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
+Lemma fpeq4_trans :
+  forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1]; fpeq4.
@@ -536,7 +533,8 @@ Qed.
 
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
-Lemma app_nel_Proper : forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
+Lemma app_nel_Proper :
+  forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
   unfold fpeq4. induction l1 as [| h1 t1].
@@ -558,22 +556,19 @@ Proof.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 
-Definition Sgr_coproj1 (X Y : Sgr)
-    : SgrHom X (Sgr_freeprod X Y).
+Definition Sgr_coproj1 (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_coproj1 X Y).
   simpl. unfold fpeq4; cbn. reflexivity.
 Defined.
 
-Definition Sgr_coproj2 (X Y : Sgr)
-    : SgrHom Y (Sgr_freeprod X Y).
+Definition Sgr_coproj2 (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_coproj2 X Y).
   cbn; unfold fpeq4; cbn. reflexivity.
 Defined.
 
-Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A)
-    (l : nel (X + Y)) : nel A :=
+Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A) (l : nel (X + Y)) : nel A :=
 match l with
 | singl (inl x) => singl (f x)
 | singl (inr y) => singl (g y)
@@ -588,7 +583,8 @@ match l with
 | a ::: t => op a (fold t)
 end.
 
-Lemma fold_Proper : forall (A : Sgr) (l1 l2 : nel A),
+Lemma fold_Proper :
+  forall (A : Sgr) (l1 l2 : nel A),
     equiv_nel l1 l2 -> fold l1 == fold l2.
 Proof.
   induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.
@@ -596,8 +592,8 @@ Proof.
     rewrite H, H0.
 Abort.
 
-Definition Sgr_setoid_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
-    : SetoidHom (Sgr_freeprod X Y) A.
+Definition Sgr_setoid_copair
+  (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A) : SetoidHom (Sgr_freeprod X Y) A.
 Proof.
   red. exists (fun l => fold (freemap f g l)). proper. fpeq4.
   do 2 red; cbn. unfold fpeq4.
@@ -607,8 +603,8 @@ Proof.
       fpeq4; sgr.
       intros. cbn in H.
 
-Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
-    : SgrHom (Sgr_freeprod X Y) A.
+Definition Sgr_copair
+  (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A) : SgrHom (Sgr_freeprod X Y) A.
 Proof.
   red.
 Abort.
@@ -651,22 +647,22 @@ Ltac reflect_sgr3 := intros; repeat progress
   (do 2 (rewrite <- reify_spec, <- simplify_spec at 1; symmetry); cbn);
   reflect_sgr.
 
-Goal forall (X : SgrWut) (a b c : X),
-  op a (op b c) == op (op a b) c.
+Goal
+  forall (X : SgrWut) (a b c : X),
+    op a (op b c) == op (op a b) c.
 Proof.
   reflect_sgr2. reflexivity.
 Qed.
 
-Goal forall (X : SgrWut) (a b c : X),
-  op a (op wut wut) == op a wut.
+Goal
+  forall (X : SgrWut) (a b c : X),
+    op a (op wut wut) == op a wut.
 Proof.
   intros.
   reflect_sgr.
   reflect_sgr2.
   reflect_sgr3.
   rewrite <- reify_spec. rewrite <- simplify_spec. cbn.
-  (* instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).*)
-  (* TODO: zdechło *)
   cbn.
 Abort.
 
@@ -677,8 +673,9 @@ Proof.
   destruct S; cbn; intros. assumption.
 Defined.
 
-Goal forall (X : SgrWut) (a b c : X),
-  op a (op wut wut) == op a wut.
+Goal
+  forall (X : SgrWut) (a b c : X),
+    op a (op wut wut) == op a wut.
 Proof.
   intros.
   reflect_sgr.
@@ -701,8 +698,9 @@ Proof.
   cbn. rewrite troll. reflexivity.
 Defined.
 
-Goal forall (X : Sgr) (a b c : X),
-  op a (op b b) == op a b.
+Goal
+  forall (X : Sgr) (a b c : X),
+    op a (op b b) == op a b.
 Proof.
   intros.
   reflect_sgr.
@@ -711,8 +709,9 @@ Proof.
 Qed.
 
 (* Does it work recursively? *)
-Goal forall (X : Sgr) (x : X),
-  op (op x x) (op x x) == x.
+Goal
+  forall (X : Sgr) (x : X),
+    op (op x x) (op x x) == x.
 Proof.
   reflect_sgr3. reflexivity.
 Qed.
@@ -720,8 +719,9 @@ Qed.
 (* TODO: Note to self: class-based Simplify could work, but the instance
    Simplify_wut_eq for some reason can't be found by the resolution engine. *)
 
-Goal forall (X : SgrWut) (a b c : X),
-  op (op a wut) (op wut b) == op a (op wut b).
+Goal
+  forall (X : SgrWut) (a b c : X),
+    op (op a wut) (op wut b) == op a (op wut b).
 Proof.
   reflect_sgr3.
 Abort.

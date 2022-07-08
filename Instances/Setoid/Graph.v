@@ -69,7 +69,8 @@ Ltac graph := try (graph'; fail).
 Instance GraphHomSetoid (X Y : Graph) : Setoid (GraphHom X Y) :=
 {
   equiv := fun f g : GraphHom X Y =>
-    (forall v : vertices X, fver f v == fver g v) /\
+    (forall v : vertices X, fver f v == fver g v)
+      /\
     (forall e : edges X, fed f e == fed g e)
 }.
 Proof.
@@ -78,8 +79,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance GraphComp (X Y Z : Graph)
-    (f : GraphHom X Y) (g : GraphHom Y Z) : GraphHom X Z :=
+Instance GraphComp (X Y Z : Graph) (f : GraphHom X Y) (g : GraphHom Y Z) : GraphHom X Z :=
 {
   fver := SetoidComp (fver f) (fver g);
   fed := SetoidComp (fed f) (fed g);

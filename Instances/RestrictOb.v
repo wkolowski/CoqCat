@@ -12,8 +12,3 @@ Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
   id := fun X => @id C (proj1_sig X)
 }.
 Proof. all: cat. Defined.
-
-(*#[export]
-Instance SubcatOb_has_init (C : Cat) (P : Ob C -> Prop) (hi : has_init C)
-  : has_init (SubcatOb C P).*)
-

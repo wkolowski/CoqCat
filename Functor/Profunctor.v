@@ -32,8 +32,7 @@ end.
 #[export]
 Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
 {
-  diob := fun X Y : Ob C =>
-    {| carrier := Hom X Y; setoid := HomSetoid X Y |};
+  diob := fun X Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |};
 }.
 Proof.
   intros ? ? ? ? f g.
@@ -43,8 +42,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Const {E : Cat} (X : Ob E) (C D : Cat)
-    : Profunctor C D E :=
+Instance Const {E : Cat} (X : Ob E) (C D : Cat) : Profunctor C D E :=
 {
   diob := fun _ _ => X;
   dimap := fun _ _ _ _ _ _ => id X
@@ -53,9 +51,9 @@ Proof. all: profunctor. Defined.
 
 #[refine]
 #[export]
-Instance ProComp {C C' D D' E : Cat}
-    (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
-    : Profunctor C D E :=
+Instance ProComp
+  {C C' D D' E : Cat} (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
+  : Profunctor C D E :=
 {
   diob := fun (X : Ob C) (Y : Ob D) => diob (fob F X) (fob G Y)
 }.
@@ -66,8 +64,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HomFunctor (C : Cat) (X : Ob C)
-    : Functor C CoqSetoid :=
+Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
 {
   fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
 }.
@@ -78,8 +75,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HomContravariant (C : Cat) (X : Ob C)
-    : Contravariant C CoqSetoid :=
+Instance HomContravariant (C : Cat) (X : Ob C) : Contravariant C CoqSetoid :=
 {
   coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
 }.
@@ -89,11 +85,7 @@ Proof.
 Defined.
 
 Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
-  exists (X : Ob C) (α : NatTrans F (HomFunctor C X)),
-    natural_isomorphism α.
+  exists (X : Ob C) (α : NatTrans F (HomFunctor C X)), natural_isomorphism α.
 
 Definition corepresentable {C : Cat} (F : Functor (Dual C) CoqSetoid) : Prop :=
-  exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)),
-    natural_isomorphism α.
-
-(* TODO : meditate on the definitions of (co)representability. *)
+  exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)), natural_isomorphism α.

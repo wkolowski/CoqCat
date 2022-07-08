@@ -32,7 +32,8 @@ match goal with
 | X : Ob _ |- _ => apartoidob X
 end.
 
-(*#[export]
+#[refine]
+#[export]
 Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
 {
     equiv := fun x y : A => ~ neq x y
@@ -40,14 +41,12 @@ Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
 Proof.
   split; red; intros; intro; eauto.
     eapply neq_irrefl; eauto.
-    destruct (weird x z y H1); auto.
-Defined.*)
+Abort.
 
 Definition ApartoidHom (X Y : Apartoid) : Type :=
-    {f : X -> Y | forall x x' : X, ~ neq x x' -> ~ neq (f x) (f x')}.
+  {f : X -> Y | forall x x' : X, ~ neq x x' -> ~ neq (f x) (f x')}.
 
-Definition ApartoidHom_Fun {X Y : Apartoid} (f : ApartoidHom X Y) : X -> Y
-    := proj1_sig f.
+Definition ApartoidHom_Fun {X Y : Apartoid} (f : ApartoidHom X Y) : X -> Y := proj1_sig f.
 Coercion ApartoidHom_Fun : ApartoidHom >-> Funclass.
 
 Ltac apartoidhom f := try intros until f;
@@ -63,8 +62,8 @@ match goal with
 | f : Hom _ _ |- _ => apartoidhom f
 end.
 
-Definition ApartoidComp (X Y Z : Apartoid) (f : ApartoidHom X Y)
-    (g : ApartoidHom Y Z) : ApartoidHom X Z.
+Definition ApartoidComp
+  (X Y Z : Apartoid) (f : ApartoidHom X Y) (g : ApartoidHom Y Z) : ApartoidHom X Z.
 Proof.
   red; destruct f as [f Hf], g as [g Hg].
   exists (fun x : X => g (f x)). auto.
@@ -105,11 +104,6 @@ match goal with
 end; eauto).
 Ltac apartoid := try (apartoid'; eauto; fail).
 
-Lemma contrapositive : forall P Q : Prop, (P -> Q) -> (~Q -> ~P).
-Proof.
-  intros. intro. apply H0. apply H. apply H1.
-Qed.
-
 #[refine]
 #[export]
 Instance ApartoidCat : Cat :=
@@ -117,8 +111,9 @@ Instance ApartoidCat : Cat :=
   Ob := Apartoid;
   Hom := ApartoidHom;
   HomSetoid := fun X Y : Apartoid =>
-    {| equiv := fun f g : ApartoidHom X Y =>
-      forall x : X, ~ f x # g x |};
+  {|
+    equiv := fun f g : ApartoidHom X Y => forall x : X, ~ f x # g x
+  |};
   comp := ApartoidComp;
   id := ApartoidId
 }.
@@ -209,21 +204,19 @@ Proof.
     destruct (neq_cotrans _ _ c4 H); auto.
 Defined.
 
-Definition Apartoid_proj1 (X Y : Apartoid)
-    : ApartoidHom (Apartoid_prodOb X Y) X.
+Definition Apartoid_proj1 (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) X.
 Proof.
   red. exists fst. apartoid.
 Defined.
 
-Definition Apartoid_proj2 (X Y : Apartoid)
-    : ApartoidHom (Apartoid_prodOb X Y) Y.
+Definition Apartoid_proj2 (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) Y.
 Proof.
   red. exists snd. apartoid.
 Defined.
 
-Definition Apartoid_fpair (A B X : Apartoid)
-    (f : ApartoidHom X A) (g : ApartoidHom X B)
-    : ApartoidHom X (Apartoid_prodOb A B).
+Definition Apartoid_fpair
+  (A B X : Apartoid) (f : ApartoidHom X A) (g : ApartoidHom X B)
+  : ApartoidHom X (Apartoid_prodOb A B).
 Proof.
   red. exists (fun x : X => (f x, g x)). apartoid.
 Defined.
@@ -262,21 +255,21 @@ Proof.
   end.
 Defined.
 
-Definition Apartoid_coproj1 (X Y : Apartoid)
-    : ApartoidHom X (Apartoid_coprodOb X Y).
+Definition Apartoid_coproj1
+  (X Y : Apartoid) : ApartoidHom X (Apartoid_coprodOb X Y).
 Proof.
   red. exists inl. apartoid.
 Defined.
 
-Definition Apartoid_coproj2 (X Y : Apartoid)
-    : ApartoidHom Y (Apartoid_coprodOb X Y).
+Definition Apartoid_coproj2
+  (X Y : Apartoid) : ApartoidHom Y (Apartoid_coprodOb X Y).
 Proof.
   red. exists inr. apartoid.
 Defined.
 
-Definition Apartoid_copair (A B X : Apartoid)
-    (f : ApartoidHom A X) (g : ApartoidHom B X)
-    : ApartoidHom (Apartoid_coprodOb A B) X.
+Definition Apartoid_copair
+  (A B X : Apartoid) (f : ApartoidHom A X) (g : ApartoidHom B X)
+  : ApartoidHom (Apartoid_coprodOb A B) X.
 Proof.
   red. exists (fun p : A + B =>
     match p with
@@ -305,8 +298,7 @@ Defined.
 Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := forall j : J, A j;
-  neq := fun (f g : forall j : J, A j) =>
-    exists j : J, f j # g j
+  neq := fun f g : forall j : J, A j => exists j : J, f j # g j
 }.
 Proof.
   intros; intro. destruct H as [j H]. apply (neq_irrefl (x j)). assumption.
@@ -316,16 +308,17 @@ Proof.
     right. exists j. assumption.
 Defined.
 
-Definition Apartoid_bigProj {J : Set} (A : J -> Apartoid) (j : J)
-    : ApartoidHom (Apartoid_bigProdOb A) (A j).
+Definition Apartoid_bigProj
+  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_bigProdOb A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
   intro. apply H. simpl. exists j. assumption.
 Defined.
 
-Definition Apartoid_tuple {J : Set} {A : J -> Apartoid} {X : Apartoid}
-    (f : forall j : J, ApartoidHom X (A j))
-    : ApartoidHom X (Apartoid_bigProdOb A).
+Definition Apartoid_tuple
+  {J : Set} {A : J -> Apartoid} {X : Apartoid}
+  (f : forall j : J, ApartoidHom X (A j))
+  : ApartoidHom X (Apartoid_bigProdOb A).
 Proof.
   red. exists (fun (x : X) (j : J) => f j x). cbn; intros.
   intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; cbn in *.
@@ -351,8 +344,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
-    : Apartoid :=
+Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 {
   carrier := {x : X | ~ (f x) # (g x)};
   neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
@@ -360,43 +352,41 @@ Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
 }.
 Proof. all: apartoid. Defined.
 
-Definition Apartoid_eq_mor {X Y : Apartoid} (f g : ApartoidHom X Y)
-    : ApartoidHom (Apartoid_eq_ob f g) X.
+Definition Apartoid_eq_mor
+  {X Y : Apartoid} (f g : ApartoidHom X Y) : ApartoidHom (Apartoid_eq_ob f g) X.
 Proof.
   red; cbn. exists (@proj1_sig _ _). apartoid.
 Defined.
 
-Lemma trick (X Y E' : Apartoid) (f g : Hom X Y)
-    (e' : Hom E' X) (H : e' .> f == e' .> g)
-    : E' -> Apartoid_eq_ob f g.
+Lemma trick
+  (X Y E' : Apartoid) (f g : Hom X Y)
+  (e' : Hom E' X) (H : e' .> f == e' .> g)
+  : E' -> Apartoid_eq_ob f g.
 Proof.
   intro arg. red; cbn in *. exists (e' arg). apartoid.
 Defined.
 
-Lemma trick2 (X Y E' : Apartoid) (f g : Hom X Y)
+Lemma trick2
+  (X Y E' : Apartoid) (f g : Hom X Y)
   (e' : Hom E' X) (H : e' .> f == e' .> g)
   : ApartoidHom E' (Apartoid_eq_ob f g).
 Proof.
   exists (trick X Y E' f g e' H). apartoid.
 Defined.
 
-(* This run for about ~10 secs. *)
-(* TODO : make faster #[export]
+(* This runs for about ~10 secs. *)
+#[refine]
+#[export]
 Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
 {
   eq_ob := @Apartoid_eq_ob;
   eq_mor := @Apartoid_eq_mor;
 }.
 Proof.
-  red; split; intros.
-    (* Equalizer law *) apartoid.
-    (* Uniqueness *) exists (trick2 X Y E' f g e' H). apartoid'.
-      apply (H0 x). apply X_neq_sym. assumption.
-Defined.*)
+Abort.
 
 (* TODO: likely this can't be done at all.
-Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y)
-    : Y -> Y -> Prop :=
+Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y -> Prop :=
 | coeq_step : forall y y' : Y, y # y' -> CoqSetoid_coeq_neq f g y y'
 | coeq_quot : forall x x' : X, x # x' -> CoqSetoid_coeq_neq f g (f x) (g x')
 | coeq_sym : forall y y' : Y, Apartoid_coeq_neq f g y y' -> Apartoid_coeq_neq f g y' y
@@ -421,8 +411,7 @@ Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y 
 (* TODO: finish *)
 #[refine]
 #[export]
-Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y)
-    : Apartoid :=
+Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 {
   carrier := Y;
   neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
@@ -436,13 +425,14 @@ Proof.
     left. intro. apply H.
 Abort.
 
-(* Lemma JMeq_cotrans : forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
+Lemma JMeq_cotrans :
+  forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
     ~ JMeq x y -> ~ JMeq z x \/ ~ JMeq z y.
 Proof.
-  intros. left. intro. apply H. *)
+  intros. left. intro. apply H.
+Abort.
 
-(* TODO: make this more dependent (change JMeq to some lifted heterogenous
-   apartness... *)
+(* TODO: make this more dependent (change JMeq to some lifted heterogenous apartness... *)
 #[refine]
 #[export]
 Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
@@ -454,16 +444,17 @@ Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
 Defined.
 
-Definition Apartoid_bigCoproj {J : Apartoid} (A : J -> Apartoid) (j : J)
-    : ApartoidHom (A j) (Apartoid_bigCoprodOb A).
+Definition Apartoid_bigCoproj
+  {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_bigCoprodOb A).
 Proof.
   red; cbn in *. exists (fun a : A j => existT _ j a); cbn.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
-Definition Apartoid_bigCopair {J : Apartoid} {A : J -> Apartoid}
-    {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
-    : ApartoidHom (Apartoid_bigCoprodOb A) X.
+Definition Apartoid_bigCopair
+  {J : Apartoid} {A : J -> Apartoid}
+  {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
+  : ApartoidHom (Apartoid_bigCoprodOb A) X.
 Proof.
   red; cbn. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
   destruct x as [j a], x' as [j' a']; cbn; do 2 intro.

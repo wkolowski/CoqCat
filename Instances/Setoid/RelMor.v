@@ -53,8 +53,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance SetoidRelComp (X Y Z : Setoid')
-    (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z :=
+Instance SetoidRelComp
+  (X Y Z : Setoid') (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z :=
 {
   rel := fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z
 }.
@@ -124,8 +124,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_proj1 (X Y : Setoid')
-    : SetoidRel (SetoidRel_prodOb X Y) X :=
+Instance SetoidRel_proj1 (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) X :=
 {
   rel := fun (p : X + Y) (x : X) =>
     match p with
@@ -137,8 +136,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_proj2 (X Y : Setoid')
-    : SetoidRel (SetoidRel_prodOb X Y) Y :=
+Instance SetoidRel_proj2 (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) Y :=
 {
   rel := fun (p : X + Y) (y : Y) =>
     match p with
@@ -150,9 +148,8 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_fpair (A B X : Setoid')
-    (R : SetoidRel X A) (S : SetoidRel X B)
-    : SetoidRel X (SetoidRel_prodOb A B) :=
+Instance SetoidRel_fpair
+  (A B X : Setoid') (R : SetoidRel X A) (S : SetoidRel X B) : SetoidRel X (SetoidRel_prodOb A B) :=
 {
   rel := fun (x : X) (p : A + B) =>
     match p with
@@ -196,8 +193,7 @@ Definition SetoidRel_coprodOb := SetoidRel_prodOb.
 
 #[refine]
 #[export]
-Instance SetoidRel_coproj1 (X Y : Setoid')
-    : SetoidRel X (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_coproj1 (X Y : Setoid') : SetoidRel X (SetoidRel_coprodOb X Y) :=
 {
   rel := fun (x : X) (p : X + Y) =>
     match p with
@@ -209,8 +205,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_coproj2 (X Y : Setoid')
-    : SetoidRel Y (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_coproj2 (X Y : Setoid') : SetoidRel Y (SetoidRel_coprodOb X Y) :=
 {
   rel := fun (y : Y) (p : X + Y) =>
     match p with
@@ -222,9 +217,9 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_copair (A B X : Setoid')
-    (R : SetoidRel A X) (S : SetoidRel B X)
-    : SetoidRel (SetoidRel_coprodOb A B) X :=
+Instance SetoidRel_copair
+  (A B X : Setoid') (R : SetoidRel A X) (S : SetoidRel B X)
+  : SetoidRel (SetoidRel_coprodOb A B) X :=
 {
   rel := fun (p : A + B) (x : X) =>
     match p with

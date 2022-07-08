@@ -43,8 +43,8 @@ Equations Happ
 Infix "+++" := (Happ) (at level 40).
 
 Equations Hfmap
-  {C D : Cat} (F : Functor C D)
-  {X Y : Ob C} (l : HomList X Y) : HomList (fob F X) (fob F Y) :=
+  {C D : Cat} (F : Functor C D) {X Y : Ob C} (l : HomList X Y)
+  : HomList (fob F X) (fob F Y) :=
 | F, HomNil _    => HomNil _
 | F, HomCons h t => HomCons (fmap F h) (Hfmap F t).
 

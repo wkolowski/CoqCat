@@ -66,8 +66,7 @@ Proof. solve_equiv. Defined.
 
 #[refine]
 #[export]
-Instance ReloidComp {X Y Z : Reloid} (f : ReloidHom X Y) (g : ReloidHom Y Z)
-  : ReloidHom X Z :=
+Instance ReloidComp {X Y Z : Reloid} (f : ReloidHom X Y) (g : ReloidHom Y Z) : ReloidHom X Z :=
 {
   func := SetoidComp f g
 }.
@@ -212,8 +211,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_coproj1 (X Y : Reloid)
-  : ReloidHom X (Reloid_coprodOb X Y) :=
+Instance Reloid_coproj1 (X Y : Reloid) : ReloidHom X (Reloid_coprodOb X Y) :=
 {
   func := CoqSetoid_coproj1 X Y;
 }.
@@ -221,8 +219,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_coproj2 (X Y : Reloid)
-  : ReloidHom Y (Reloid_coprodOb X Y) :=
+Instance Reloid_coproj2 (X Y : Reloid) : ReloidHom Y (Reloid_coprodOb X Y) :=
 {
   func := CoqSetoid_coproj2 X Y;
 }.
@@ -230,8 +227,8 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_copair (X Y A : Reloid)
-  (f : ReloidHom X A) (g : ReloidHom Y A)
+Instance Reloid_copair
+  (X Y A : Reloid) (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (Reloid_coprodOb X Y) A :=
 {
   func := CoqSetoid_copair f g

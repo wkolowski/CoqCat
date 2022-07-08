@@ -150,8 +150,7 @@ Proof. reflexivity. Defined.
 
 #[refine]
 #[export]
-Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b)
-    : Reify (@op X a b) | 0 :=
+Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op X a b) | 0 :=
 {
   reify := Op (reify a) (reify b)
 }.
@@ -236,27 +235,30 @@ match goal with
 | _ => mon_simpl || monobs' || monhoms' || cat
 end.
 
-Goal forall (X : Mon) (a b c : X),
-  op a (op b c) == op (op a b) c.
+Goal
+  forall (X : Mon) (a b c : X),
+    op a (op b c) == op (op a b) c.
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X : Mon) (f : MonHom X X) (a b : X),
-  f (op a b) == op (f a) (f b).
+Goal
+  forall (X : Mon) (f : MonHom X X) (a b : X),
+    f (op a b) == op (f a) (f b).
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X : Mon) (f : MonHom X X) (a b c : X),
-  op (f (f neutr)) (op (f a) (f (op b c))) ==
-  op (f a) (op (f b) (f c)).
+Goal
+  forall (X : Mon) (f : MonHom X X) (a b c : X),
+    op (f (f neutr)) (op (f a) (f (op b c))) == op (f a) (op (f b) (f c)).
 Proof.
   reflect_mon. reflexivity.
 Qed.
 
-Goal forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
-  g (f neutr) == neutr.
+Goal
+  forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
+    g (f neutr) == neutr.
 Proof.
   reflect_mon. reflexivity.
 Qed.
@@ -269,8 +271,7 @@ Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 }.
 Proof. apply Setoid_kernel_equiv. Defined.
 
-Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
-    : MonHom X Z.
+Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z) : MonHom X Z.
 Proof.
   exists (SgrComp f g). mon.
 Defined.
@@ -386,8 +387,7 @@ Proof.
   mon_simpl. exists (Sgr_proj2 X Y). mon.
 Defined.
 
-Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
-    : MonHom X (Mon_prodOb A B).
+Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_prodOb A B).
 Proof.
   exists (Sgr_fpair f g). mon.
 Defined.

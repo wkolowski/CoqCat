@@ -43,8 +43,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyComp (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z)
-    (R1 : Reify f) (R2 : Reify g) : Reify (f .> g) | 0 :=
+Instance ReifyComp
+  (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z)
+  (R1 : Reify f) (R2 : Reify g) : Reify (f .> g) | 0 :=
 {
   reify := Comp (reify f) (reify g)
 }.
@@ -54,8 +55,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyFmap (C D : Cat) (X Y : Ob C) (F : Functor C D) (f : Hom X Y)
-    (R : Reify f) : @Reify D (fob F X) (fob F Y) (fmap F f) | 0 :=
+Instance ReifyFmap
+  (C D : Cat) (X Y : Ob C) (F : Functor C D) (f : Hom X Y)
+  (R : Reify f) : @Reify D (fob F X) (fob F Y) (fmap F f) | 0 :=
 {
   reify := Fmap F (reify f)
 }.
@@ -65,8 +67,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyVar (C : Cat) (X Y : Ob C) (f : Hom X Y)
-    : Reify f | 1 :=
+Instance ReifyVar (C : Cat) (X Y : Ob C) (f : Hom X Y) : Reify f | 1 :=
 {
   reify := Var f
 }.
@@ -92,7 +93,8 @@ Proof. reflexivity. Defined.
 
 #[refine]
 #[export]
-Instance SimplifyCompIdL (C : Cat) (X Y : Ob C) (e : exp C X Y)
+Instance SimplifyCompIdL
+  (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp (Id X) e) | 1 :=
 {
   simplify := simplify e
@@ -103,7 +105,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance SimplifyCompIdR (C : Cat) (X Y : Ob C) (e : exp C X Y)
+Instance SimplifyCompIdR
+  (C : Cat) (X Y : Ob C) (e : exp C X Y)
   (S : Simplify e) : Simplify (Comp e (Id Y)) | 1 :=
 {
   simplify := simplify e
@@ -114,9 +117,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance SimplifyCompRec (C : Cat) (X Y Z : Ob C)
-  (e1 : exp C X Y) (e2 : exp C Y Z) (S1 : Simplify e1) (S2 : Simplify e2)
-  : Simplify (Comp e1 e2) | 50 :=
+Instance SimplifyCompRec
+  (C : Cat) (X Y Z : Ob C) (e1 : exp C X Y) (e2 : exp C Y Z)
+  (S1 : Simplify e1) (S2 : Simplify e2) : Simplify (Comp e1 e2) | 50 :=
 {
   simplify := Comp (simplify e1) (simplify e2)
 }.
@@ -126,8 +129,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D)
-  : Simplify (Fmap F (Id X)) :=
+Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D) : Simplify (Fmap F (Id X)) :=
 {
   simplify := Id (fob F X)
 }.
@@ -157,8 +159,7 @@ end.
 Infix "+++" := (Happ) (at level 40).
 
 Fixpoint Hmap
-  {C D : Cat} {X Y : Ob C}
-  (F : Functor C D) (l : HomList X Y)
+  {C D : Cat} {X Y : Ob C} (F : Functor C D) (l : HomList X Y)
   : HomList (fob F X) (fob F Y) :=
 match l with
 | HomNil X    => HomNil (fob F X)
@@ -166,10 +167,8 @@ match l with
 end.
 
 Lemma expDenoteHL_Hmap_Happ :
-  forall (C D : Cat) (X Y Z : Ob C) (F : Functor C D) (l1 : HomList X Y)
-  (l2 : HomList Y Z),
-    expDenoteHL (Hmap F (l1 +++ l2)) ==
-    expDenoteHL (Hmap F l1 +++ Hmap F l2).
+  forall (C D : Cat) (X Y Z : Ob C) (F : Functor C D) (l1 : HomList X Y) (l2 : HomList Y Z),
+    expDenoteHL (Hmap F (l1 +++ l2)) == expDenoteHL (Hmap F l1 +++ Hmap F l2).
 Proof.
   induction l1; cbn; intros.
     reflexivity.

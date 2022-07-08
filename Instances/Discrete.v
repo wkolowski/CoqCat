@@ -8,8 +8,7 @@ Instance Discrete (X : Set) : Cat :=
 {
   Ob := X;
   Hom := fun x x' : X => x = x';
-  HomSetoid := fun (x x' : X) =>
-    {| equiv := fun H H' : x = x' => True |}; (* Proof irrelevance *)
+  HomSetoid := fun (x x' : X) => {| equiv := fun H H' : x = x' => True |};
   comp := @eq_trans X;
   id := @eq_refl X
 }.
@@ -19,13 +18,12 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-#[export]
-Instance Empty : Cat := Discrete Empty_set.
-#[export]
-Instance Unit : Cat := Discrete unit.
+#[export] Instance Empty : Cat := Discrete Empty_set.
+#[export] Instance Unit : Cat := Discrete unit.
 
-Lemma Discrete_char_iso : forall (X : Set) (x x' : X)
-    (f : @Hom (Discrete X) x x'), Iso f.
+Lemma Discrete_char_iso :
+  forall (X : Set) (x x' : X) (f : @Hom (Discrete X) x x'),
+    Iso f.
 Proof.
   unfold Iso; cbn; intros. assert (g : x' = x).
     rewrite f. trivial.
@@ -38,8 +36,7 @@ Instance Two : Cat :=
 {
   Ob := bool;
   Hom := fun b b' : bool => if eqb b b' then True else False;
-  HomSetoid := fun b b' : bool =>
-    {| equiv := fun _ _ => True |}
+  HomSetoid := fun b b' : bool => {| equiv := fun _ _ => True |}
 }.
 Proof.
   (* Equivalence *) solve_equiv.

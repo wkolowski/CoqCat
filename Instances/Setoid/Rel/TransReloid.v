@@ -58,8 +58,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_create (X : TransReloid)
-  : ReloidHom TransReloid_init X :=
+Instance TransReloid_create (X : TransReloid) : ReloidHom TransReloid_init X :=
 {
   func := Reloid_create X
 }.
@@ -84,8 +83,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_delete (X : TransReloid)
-  : ReloidHom X TransReloid_term :=
+Instance TransReloid_delete (X : TransReloid) : ReloidHom X TransReloid_term :=
 {
   func := Reloid_delete X
 }.
@@ -110,8 +108,7 @@ Proof. split; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_proj1 (X Y : TransReloid)
-  : ReloidHom (TransReloid_prodOb X Y) X :=
+Instance TransReloid_proj1 (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) X :=
 {
   func := Reloid_proj1 X Y
 }.
@@ -119,8 +116,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_proj2 (X Y : TransReloid)
-  : ReloidHom (TransReloid_prodOb X Y) Y :=
+Instance TransReloid_proj2 (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) Y :=
 {
   func := Reloid_proj2 X Y
 }.
@@ -128,8 +124,8 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_fpair (X Y A : TransReloid)
-  (f : ReloidHom A X) (g : ReloidHom A Y)
+Instance TransReloid_fpair
+  (X Y A : TransReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (TransReloid_prodOb X Y) :=
 {
   func := Reloid_fpair f g
@@ -159,8 +155,7 @@ Proof. intros [] [] []; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_coproj1 (X Y : TransReloid)
-  : ReloidHom X (TransReloid_coprodOb X Y) :=
+Instance TransReloid_coproj1 (X Y : TransReloid) : ReloidHom X (TransReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj1 X Y;
 }.
@@ -168,8 +163,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_coproj2 (X Y : TransReloid)
-  : ReloidHom Y (TransReloid_coprodOb X Y) :=
+Instance TransReloid_coproj2 (X Y : TransReloid) : ReloidHom Y (TransReloid_coprodOb X Y) :=
 {
   func := Reloid_coproj2 X Y;
 }.
@@ -177,8 +171,8 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_copair (X Y A : TransReloid)
-  (f : ReloidHom X A) (g : ReloidHom Y A)
+Instance TransReloid_copair
+  (X Y A : TransReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (TransReloid_coprodOb X Y) A :=
 {
   func := Reloid_copair f g

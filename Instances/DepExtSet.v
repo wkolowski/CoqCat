@@ -2,7 +2,9 @@ From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm BinProdCoprod BigProdCoprod Equalizer.
 
 Inductive depExtEq : forall A B : Type, A -> B -> Prop :=
-| depExtEq_eq : forall (A : Type) (x y : A), x = y -> depExtEq A A x y
+| depExtEq_eq :
+  forall (A : Type) (x y : A),
+    x = y -> depExtEq A A x y
 | depExtEq_sym :
   forall (A B : Type) (x : A) (y : B),
     depExtEq A B x y -> depExtEq B A y x
@@ -54,16 +56,17 @@ repeat (auto; match goal with
 end); auto.
 
 #[export]
-Instance depExtEq_Proper : forall (A B : Type) (f : A -> B),
+Instance depExtEq_Proper :
+  forall (A B : Type) (f : A -> B),
     Proper (@depExtEq A A ==> @depExtEq B B) f.
 Proof.
   unfold Proper, respectful; intros. solve_depExtEq.
 Qed.
 
 #[export]
-Instance depExtEq_Proper' : forall (A : Type),
-    Proper (@depExtEq A A ==> @depExtEq A A ==>
-      (Basics.flip Basics.impl)) (@depExtEq A A).
+Instance depExtEq_Proper' :
+  forall A : Type,
+    Proper (@depExtEq A A ==> @depExtEq A A ==> (Basics.flip Basics.impl)) (@depExtEq A A).
 Proof.
   repeat red. intros. eapply depExtEq_trans; eauto.
 Defined.
@@ -84,9 +87,9 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Lemma DepExtSet_mon_inj : forall (A B : Ob DepExtSet) (f : A -> B),
-    Mon f <-> @injectiveS A B
-      {| equiv := @depExtEq A A |} {| equiv := @depExtEq B B |} f.
+Lemma DepExtSet_mon_inj :
+  forall (A B : Ob DepExtSet) (f : A -> B),
+    Mon f <-> @injectiveS A B {| equiv := @depExtEq A A |} {| equiv := @depExtEq B B |} f.
 Proof.
   unfold Mon, injectiveS; cbn; split; intros.
     change (depExtEq a a') with (depExtEq ((fun _ => a) a) ((fun _ => a') a)).

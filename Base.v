@@ -22,22 +22,22 @@ Set Warnings "+deprecated-ident-entry".
     of these stands for "Setoid". *)
 
 Definition injective {A B : Type} (f : A -> B) : Prop :=
-    forall x y : A, f x = f y -> x = y.
+  forall x y : A, f x = f y -> x = y.
 
 Definition surjective {A B : Type} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a = b.
+  forall b : B, exists a : A, f a = b.
 
 Definition bijective {A B : Type} (f : A -> B) : Prop :=
-    injective f /\ surjective f.
+  injective f /\ surjective f.
 
-Definition injectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
-    (f : A -> B) : Prop := forall a a' : A, f a == f a' -> a == a'.
+Definition injectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
+    forall a a' : A, f a == f a' -> a == a'.
 
 Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
-    forall b : B, exists a : A, f a == b.
+  forall b : B, exists a : A, f a == b.
 
-Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B}
-    (f : A -> B) : Prop := injectiveS f /\ surjectiveS f.
+Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
+  injectiveS f /\ surjectiveS f.
 
 #[global] Hint Unfold injective surjective bijective injectiveS surjectiveS bijectiveS : core.
 
@@ -132,8 +132,8 @@ Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A) : forall {B : Type},
 (** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
 
 Inductive sumprod (X Y : Set) : Set :=
-| inl' : X -> sumprod X Y
-| inr' : Y -> sumprod X Y
+| inl'  : X -> sumprod X Y
+| inr'  : Y -> sumprod X Y
 | pair' : X -> Y -> sumprod X Y.
 
 Arguments inl' [X] [Y] _.

@@ -1,9 +1,9 @@
+From Cat Require Import Instances.Setoids.
+
 (** Alternative formalization using SProp, the universe of definitionally
     irrelevant propositions.
 
     Mostly copy-pasted from the other file. *)
-
-From Cat Require Import Instances.Setoids.
 
 Class ReflexiveGraphCategory : Type :=
 {

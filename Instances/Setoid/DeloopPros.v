@@ -8,8 +8,7 @@ Instance DeloopPros (P : Pros) : Cat :=
 {
   Ob := carrier;
   Hom := leq;
-  HomSetoid := fun (X Y : carrier) =>
-    {| equiv := fun f g : X ≤ Y => True |}; (* Proof irrelevance *)
+  HomSetoid := fun (X Y : carrier) => {| equiv := fun f g : X ≤ Y => True |};
   comp := leq_trans;
 }.
 Proof. all: pros. Defined.

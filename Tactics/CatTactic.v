@@ -135,7 +135,6 @@ Proof.
   reflect_cat. try reflexivity.
 Qed.
 
-
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
