@@ -132,9 +132,15 @@ Class has_biequalizers (C : Cat) : Type :=
 Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
 Coercion bi_has_coequalizers : has_biequalizers >-> has_coequalizers.
 
+Section equalizer_coequalizer_lemmas.
+
+Context
+  [C : Cat]
+  [X Y : Ob C]
+  [f g : Hom X Y].
+
 Lemma dual_equalizer_coequalizer :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
       @equalizer C X Y f g E e factorize
@@ -144,7 +150,6 @@ Proof. cat. Qed.
 
 Lemma dual_biqualizer_self :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E)
     (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom E Q'),
@@ -157,7 +162,6 @@ Qed.
 
 Lemma equalizer_uiso :
   forall
-    {C : Cat} {X Y : Ob C} {f g : Hom X Y}
     {E : Ob C} {e : Hom E X}
     {factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E}
     {E' : Ob C} {e' : Hom E' X}
@@ -190,7 +194,6 @@ Qed.
 
 Lemma equalizer_iso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E)
     (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .>g -> Hom E'' E'),
@@ -202,7 +205,6 @@ Qed.
 
 Lemma equalizer_equiv :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
     (factorize : forall (E' : Ob C) (e : Hom E' X), e .> f == e .> g -> Hom E' E),
       equalizer C f g E e1 factorize -> equalizer C f g E e2 factorize -> e1 == e2.
@@ -215,7 +217,6 @@ Qed.
 
 Lemma equalizer_equiv_factorize :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E)
     (factorize' : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
@@ -228,9 +229,11 @@ Proof.
   edestruct H0, H7. apply H8.
 Qed.
 
+End equalizer_coequalizer_lemmas.
+
 Lemma coequalizer_uiso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    [C : Cat] [X Y : Ob C] [f g : Hom X Y]
     (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
     (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom Q Q'')
     (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom Q' Q''),
@@ -249,9 +252,15 @@ Proof.
       rewrite H3. reflexivity.
 Qed.
 
+Section equalizer_coequalizer_lemmas.
+
+Context
+  [C : Cat]
+  [X Y : Ob C]
+  [f g : Hom X Y].
+
 Lemma coequalizer_iso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q Q' : Ob C) (q : Hom Y Q) (q' : Hom Y Q')
     (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom Q Q'')
     (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom Q' Q''),
@@ -263,7 +272,6 @@ Qed.
 
 Lemma coequalizer_equiv :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q : Ob C) (q1 : Hom Y Q) (q2 : Hom Y Q)
     (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q'),
       coequalizer C f g Q q1 cofactorize -> coequalizer C f g Q q2 cofactorize -> q1 == q2.
@@ -276,7 +284,6 @@ Qed.
 
 Lemma coequalizer_equiv_factorize :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (Q : Ob C) (q : Hom Y Q)
     (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q')
     (cofactorize' : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q'),
@@ -291,7 +298,6 @@ Qed.
 
 (* TODO : finish *) Lemma biequalizer_uiso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X) (q : Hom Y E)
     (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E)
     (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom E Q'')
@@ -334,7 +340,6 @@ Abort.
 
 Lemma equalizer_is_mono :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
       equalizer C f g E e factorize -> Mon e.
@@ -356,7 +361,6 @@ Defined.
 
 Lemma equalizer_epi_is_iso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
       equalizer C f g E e factorize -> Epi e -> Iso e.
@@ -373,9 +377,11 @@ Proof.
         edestruct H1. apply H3.
 Qed.
 
+End equalizer_coequalizer_lemmas.
+
 Lemma coequalizer_is_epi :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    [C : Cat] [X Y : Ob C] [f g : Hom X Y]
     (Q : Ob C) (q : Hom Y Q)
     (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q'),
       coequalizer C f g Q q cofactorize -> Epi q.
@@ -388,7 +394,7 @@ Qed.
 
 Lemma coequalizer_mono_is_iso :
   forall
-    (C : Cat) (X Y : Ob C) (f g : Hom X Y)
+    [C : Cat] [X Y : Ob C] [f g : Hom X Y]
     (Q : Ob C) (q : Hom Y Q)
     (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q'),
       coequalizer C f g Q q cofactorize -> Mon q -> Iso q.
@@ -402,7 +408,7 @@ Proof.
 Qed.
 
 Lemma factorize_eq_mor :
-  forall (C : Cat) (he : has_equalizers C) (X Y : Ob C) (f g : Hom X Y),
+  forall [C : Cat] (he : has_equalizers C) [X Y : Ob C] (f g : Hom X Y),
     factorize f g _ (eq_mor f g) (proj1 (is_equalizer X Y f g)) == id (eq_ob f g).
 Proof.
   intros. destruct he; cbn in *.
@@ -450,8 +456,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C)
-    : has_equalizers (Dual C) :=
+Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C) : has_equalizers (Dual C) :=
 {
   eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
   eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
@@ -466,8 +471,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C)
-    : has_biequalizers (Dual C) :=
+Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C) : has_biequalizers (Dual C) :=
 {
   bi_has_equalizers := Dual_has_equalizers he;
   bi_has_coequalizers := Dual_has_coequalizers he;

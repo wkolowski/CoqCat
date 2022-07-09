@@ -95,7 +95,6 @@ Proof.
       rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
       rewrite iso2. cat.
 Defined.
-Print has_products.
 
 (* Hard and buggy *)
 (*
@@ -257,9 +256,14 @@ Arguments bigCoprodOb [C _ J] _.
 Arguments bigCoproj   [C _ J A] _.
 Arguments cotuple     [C _ J A] [X] _.
 
+Section has_all_coproducts.
+
+Context
+  [C : Cat]
+  [hp : has_all_coproducts C].
+
 Lemma cotuple_bigCoproj :
   forall
-    (C : Cat) (hp : has_all_coproducts C)
     (J : Set) (X : J -> Ob C) (Y : Ob C) (f : forall j : J, Hom (X j) Y) (j : J),
       bigCoproj j .> cotuple f == f j.
 Proof.
@@ -269,7 +273,6 @@ Qed.
 
 Lemma cotuple_post :
   forall
-    (C : Cat) (hp : has_all_coproducts C)
     (J : Set) (X : J -> Ob C) (Y Z : Ob C) (f : forall j : J, Hom (X j) Y) (g : Hom Y Z),
       cotuple f .> g == cotuple (fun j : J => f j .> g).
 Proof.
@@ -280,7 +283,7 @@ Proof.
 Qed.
 
 Lemma cotuple_id :
-  forall (C : Cat) (hp : has_all_coproducts C) (J : Set) (X : J -> Ob C),
+  forall (J : Set) (X : J -> Ob C),
     cotuple (@bigCoproj C hp J X) == id (bigCoprodOb X).
 Proof.
   intros. edestruct is_big_coproduct. apply H0. cat.
@@ -288,17 +291,17 @@ Qed.
 
 Lemma cotuple_comp :
   forall
-    (C : Cat) (hp : has_all_coproducts C)
     (J : Set) (X X' : J -> Ob C) (Y : Ob C)
     (f : forall j : J, Hom (X j) (X' j))
     (g : forall j : J, Hom (X' j) Y),
       cotuple (fun j : J => f j .> g j) == cotuple (fun j : J => f j .> bigCoproj j) .> cotuple g.
 Proof.
   intros. edestruct is_big_coproduct. apply H0. intros.
-  rewrite <- comp_assoc. rewrite cotuple_bigCoproj.
-  rewrite -> comp_assoc. rewrite cotuple_bigCoproj.
+  rewrite <- comp_assoc, cotuple_bigCoproj, -> comp_assoc, cotuple_bigCoproj.
   reflexivity.
 Qed.
+
+End has_all_coproducts.
 
 Class has_all_biproducts (C : Cat) : Type :=
 {

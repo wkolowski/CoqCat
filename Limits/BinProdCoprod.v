@@ -13,8 +13,8 @@ Definition product_skolem
       setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
 
 Definition coproduct_skolem
-  (C : Cat) {A B : Ob C} (P : Ob C)
-  (p1 : Hom A P) (p2 : Hom B P)
+  (C : Cat) {A B : Ob C}
+  (P : Ob C) (p1 : Hom A P) (p2 : Hom B P)
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
   : Prop :=
     forall (X : Ob C) (f : Hom A X) (g : Hom B X),

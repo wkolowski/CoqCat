@@ -598,8 +598,8 @@ Class Functor (C : Cat) (D : Cat) : Type :=
   pres_id : forall A : Ob C, fmap (id A) == id (fob A)
 }.
 
-Arguments fob [C] [D] _ _.
-Arguments fmap [C] [D] _ [A] [B] _.
+Arguments fob  [C D] _ _.
+Arguments fmap [C D] _ [A B] _.
 
 Ltac functor_rw := rewrite pres_comp || rewrite pres_id.
 Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
@@ -720,7 +720,7 @@ Class Contravariant (C : Cat) (D : Cat) : Type :=
   comap_id : forall A : Ob C, comap (id A) == id (coob A)
 }.
 
-Arguments coob [C D] _ _.
+Arguments coob  [C D] _ _.
 Arguments comap [C D] _ [X Y] _.
 
 #[refine]
@@ -738,7 +738,7 @@ Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
 {
   component : forall X : Ob C, Hom (fob T X) (fob S X);
   coherence :
-    forall (X Y : Ob C) (f : Hom X Y),
+    forall [X Y : Ob C] (f : Hom X Y),
       component X .> fmap S f == fmap T f .> component Y
 }.
 

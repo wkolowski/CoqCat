@@ -23,33 +23,36 @@ Arguments expOb {C hp has_exponentials} _ _.
 Arguments eval  {C hp has_exponentials X Y}.
 Arguments curry {C hp has_exponentials X Y Z} _.
 
-Definition uncurry
-  {C : Cat} {hp : has_products C} {he : has_exponentials C}
-  {X Y Z : Ob C} (f : Hom Z (expOb X Y))
-  : Hom (prodOb Z X) Y := f ×' (id X) .> eval.
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : has_products C]
+  [he : has_exponentials C]
+  [X Y Z : Ob C].
+
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
-Instance uncurry_Proper :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C) (X Y Z : Ob C),
-    Proper (equiv ==> equiv) (@uncurry C hp he X Y Z).
+Instance uncurry_Proper : Proper (equiv ==> equiv) uncurry.
 Proof.
   unfold Proper, respectful, uncurry. intros.
-  cut (x ×' id X == y ×' id X).
+  cut (x ×' id Y == y ×' id Y).
     intro H'. rewrite H'. reflexivity.
     apply ProductFunctor_fmap_Proper; [assumption | reflexivity].
 Qed.
 
 Lemma curry_uncurry :
-  forall
-    {C : Cat} {hp : has_products C} (he : has_exponentials C)
-    (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
-      curry (uncurry f) == f.
+  forall f : Hom X (expOb Y Z),
+    curry (uncurry f) == f.
 Proof.
   unfold uncurry; destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 Y Z X (f ×' id Y .> (eval0 _ _))) as [H1 H2].
   apply H2. reflexivity.
 Qed.
+
+End Exponential.
 
 Lemma uncurry_curry :
   forall
@@ -62,9 +65,16 @@ Proof.
   exact H.
 Qed.
 
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : has_products C]
+  [he : has_exponentials C]
+  [X Y Z : Ob C].
+
 Lemma curry_eval :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C) (X Y : Ob C),
-    curry eval == id (expOb X Y).
+  curry eval == id (expOb X Y).
 Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
@@ -74,10 +84,8 @@ Proof.
 Qed.
 
 Lemma curry_comp :
-  forall
-    (C : Cat) (hp : has_products C) (he : has_exponentials C)
-    (X Y Z A : Ob C) (f : Hom Y Z) (g : Hom Z A),
-      @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+  forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
+    @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
   intros. destruct he; cbn in *.
   destruct (is_exponential0 _ _ _ ((eval0 X Y .> f) .> g)).
@@ -89,15 +97,15 @@ Proof.
 Qed.
 
 Lemma uncurry_id :
-  forall
-    (C : Cat) (hp : has_products C) (he : has_exponentials C) (X Y : Ob C),
-      uncurry (id (expOb X Y)) == eval.
+  uncurry (id (expOb X Y)) == eval.
 Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
   unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
 Qed.
+
+End Exponential.
 
 Ltac curry := intros; repeat
 match goal with
