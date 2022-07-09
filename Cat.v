@@ -10,10 +10,10 @@ Class Cat : Type :=
   Hom : Ob -> Ob -> Type;
   HomSetoid :> forall A B : Ob, Setoid (Hom A B);
   comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
-  comp_Proper :> forall A B C : Ob,
-      Proper (equiv ==> equiv ==> equiv) (@comp A B C);
-  comp_assoc : forall {A B C D : Ob} (f : Hom A B) (g : Hom B C)
-      (h : Hom C D), comp (comp f g) h == comp f (comp g h);
+  comp_Proper :> forall A B C : Ob, Proper (equiv ==> equiv ==> equiv) (@comp A B C);
+  comp_assoc :
+    forall {A B C D : Ob} (f : Hom A B) (g : Hom B C) (h : Hom C D),
+      comp (comp f g) h == comp f (comp g h);
   id : forall A : Ob, Hom A A;
   id_left : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
   id_right : forall (A B : Ob) (f : Hom A B), comp f (id B) == f
@@ -38,8 +38,8 @@ Arguments Comp [C X Y Z] _ _.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp X Y) : Hom X Y :=
 match e with
-| Id X => id X
-| Var f => f
+| Id X       => id X
+| Var f      => f
 | Comp e1 e2 => expDenote e1 .> expDenote e2
 end.
 
@@ -105,7 +105,7 @@ Proof.
     rewrite comp_assoc, IHl1. reflexivity.
 Qed.
 
-Lemma flatten_correct :
+Lemma expDenoteHL_flatten :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
@@ -120,7 +120,7 @@ Lemma cat_reflect :
     expDenoteHL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  intros. rewrite !expDenoteHL_flatten, !simplify_correct in H. assumption.
 Qed.
 
 Lemma cat_expand :
@@ -129,7 +129,7 @@ Lemma cat_expand :
       expDenoteHL (flatten (simplify e1)) ==
       expDenoteHL (flatten (simplify e2)).
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct. assumption.
+  intros. rewrite !expDenoteHL_flatten, !simplify_correct. assumption.
 Qed.
 
 Ltac reify mor :=
@@ -195,7 +195,7 @@ Instance Dual (C : Cat) : Cat :=
 |}.
 Proof. all: cat. Defined.
 
-(* Warning: the following also uses the [JMeq_eq] axiom *)
+(* The following uses the [JMeq_eq] axiom. *)
 Lemma cat_split : forall
   (Ob Ob' : Type)
   (Hom : Ob -> Ob -> Type)
@@ -245,7 +245,9 @@ Proof.
 Qed.
 
 (*
-Lemma Dual_Dual : forall (C : Cat), Dual (Dual C) = C.
+Lemma Dual_Dual :
+  forall C : Cat,
+    Dual (Dual C) = C.
 Proof.
   destruct C. unfold Dual. apply cat_split; cbn; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).

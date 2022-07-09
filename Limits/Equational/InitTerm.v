@@ -6,8 +6,7 @@ Class has_init (C : Cat) : Type :=
 {
   init : Ob C;
   create : forall X : Ob C, Hom init X;
-  create_unique :
-    forall (X : Ob C) (f : Hom init X), f == create X;
+  create_unique : forall (X : Ob C) (f : Hom init X), f == create X;
 }.
 
 Arguments init _ {has_init}.
@@ -25,8 +24,7 @@ Class has_term (C : Cat) : Type :=
 {
   term : Ob C;
   delete : forall X : Ob C, Hom X term;
-  delete_unique :
-    forall (X : Ob C) (f : Hom X term), f == delete X;
+  delete_unique : forall (X : Ob C) (f : Hom X term), f == delete X;
 }.
 
 Arguments term _ {has_term}.
@@ -42,8 +40,7 @@ Coercion zero_is_initial : has_zero >-> has_init.
 Coercion zero_is_terminal : has_zero >-> has_term.
 
 Definition zero_ob (C : Cat) {hz : has_zero C} : Ob C := init C.
-Definition zero_mor
-  {C : Cat} {hz : has_zero C} (X Y : Ob C) : Hom X Y.
+Definition zero_mor {C : Cat} {hz : has_zero C} (X Y : Ob C) : Hom X Y.
 Proof.
   pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
@@ -127,9 +124,8 @@ Proof. cat. Defined.
 (* Lemmas ported from InitTerm.v *)
 
 Lemma has_init_uiso :
-  forall
-    (C : Cat) (hi1 hi2 : has_init C),
-      @init C hi1 ~~ @init C hi2.
+  forall (C : Cat) (hi1 hi2 : has_init C),
+    @init C hi1 ~~ @init C hi2.
 Proof.
   intros.
   red. exists (create (init C)). red. split.
@@ -140,17 +136,9 @@ Proof.
       cbn. reflexivity.
 Qed.
 
-(*
-Lemma initial_create_equiv :
-  forall
-    (C : Cat) (hi1 hi2 : has_init C),
-      @create C hi1 == @create C hi2.
-*)
-
 Lemma has_term_uiso :
-  forall
-    (C : Cat) (ht1 ht2 : has_term C),
-      @term C ht1 ~~ @term C ht2.
+  forall (C : Cat) (ht1 ht2 : has_term C),
+    @term C ht1 ~~ @term C ht2.
 Proof.
   intros.
   red. exists (delete (term C)). red. split.
@@ -162,16 +150,8 @@ Proof.
 Qed.
 
 (*
-Lemma terminal_delete_equiv :
-  forall
-    (C : Cat) (ht1 ht2 : has_term C),
-      @delete C ht1 == @delete C ht2.
-*)
-
-(*
 Lemma iso_to_init_is_init :
-  forall (C : Cat) (I X : Ob C)
-  (create : forall I' : Ob C, Hom I I'),
+  forall (C : Cat) (I X : Ob C) (create : forall I' : Ob C, Hom I I'),
     initial I create -> forall f : Hom X I, Iso f ->
       initial X (fun X' : Ob C => f .> create X').
 Proof.
@@ -182,8 +162,7 @@ Proof.
 Defined.
 
 Lemma iso_to_term_is_term : 
-  forall (C : Cat) (X T : Ob C)
-  (delete : forall T' : Ob C, Hom T' T),
+  forall (C : Cat) (X T : Ob C) (delete : forall T' : Ob C, Hom T' T),
     terminal T delete -> forall f : Hom T X, Iso f ->
       terminal X (fun X' : Ob C => delete X' .> f).
 Proof.
@@ -195,9 +174,8 @@ Defined.
 *)
 
 Lemma mor_to_init_is_ret :
-  forall
-    (C : Cat) (hi : has_init C) (X : Ob C) (f : Hom X (init C)),
-      Ret f.
+  forall (C : Cat) (hi : has_init C) (X : Ob C) (f : Hom X (init C)),
+    Ret f.
 Proof.
   intros. red. exists (create X).
   rewrite !create_unique.
@@ -205,22 +183,10 @@ Proof.
 Qed.
 
 Lemma mor_from_term_is_sec :
-  forall
-    (C : Cat) (ht : has_term C) (X : Ob C) (f : Hom (term C) X),
-      Sec f.
+  forall (C : Cat) (ht : has_term C) (X : Ob C) (f : Hom (term C) X),
+    Sec f.
 Proof.
   intros. red. exists (delete X).
   rewrite !delete_unique.
   destruct ht. rewrite <- delete_unique0. reflexivity.
 Qed.
-
-(*
-Lemma mor_from_term_is_sec :
-  forall (C : Cat) (T X : Ob C) (f : Hom T X)
-  (delete : forall T' : Ob C, Hom T' T),
-    terminal T delete -> Sec f.
-Proof.
-  intros. red. exists (delete0 X).
-  edestruct H. rewrite <- H1; cat.
-Qed.
-*)

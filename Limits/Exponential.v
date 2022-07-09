@@ -4,7 +4,8 @@ From Cat.Limits Require Export InitTerm BinProdCoprod.
 Definition exponential_skolem
   {C : Cat} {hp : has_products C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y)
-  (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E) : Prop :=
+  (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E)
+  : Prop :=
     forall (E' : Ob C) (eval' : Hom (prodOb E' X) Y),
       setoid_unique (fun u : Hom E' E =>
         ProductFunctor_fmap u (id X) .> eval == eval') (curry E' eval').
@@ -12,14 +13,10 @@ Definition exponential_skolem
 Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall X Y : Ob C,
-    Hom (prodOb (expOb X Y) X) Y;
-  curry : forall {X Y Z : Ob C},
-    Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
-  curry_Proper :> forall X Y Z : Ob C,
-    Proper (equiv ==> equiv) (@curry X Y Z);
-  is_exponential : forall (X Y : Ob C),
-    exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
+  eval : forall X Y : Ob C, Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  curry_Proper :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
+  is_exponential : forall (X Y : Ob C), exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
 Arguments expOb {C hp has_exponentials} _ _.
@@ -33,8 +30,8 @@ Definition uncurry
 
 #[export]
 Instance uncurry_Proper :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C)
-    (X Y Z : Ob C), Proper (equiv ==> equiv) (@uncurry C hp he X Y Z).
+  forall {C : Cat} {hp : has_products C} (he : has_exponentials C) (X Y Z : Ob C),
+    Proper (equiv ==> equiv) (@uncurry C hp he X Y Z).
 Proof.
   unfold Proper, respectful, uncurry. intros.
   cut (x ×' id X == y ×' id X).
@@ -43,7 +40,8 @@ Proof.
 Qed.
 
 Lemma curry_uncurry :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C)
+  forall
+    {C : Cat} {hp : has_products C} (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
       curry (uncurry f) == f.
 Proof.
@@ -54,7 +52,8 @@ Proof.
 Qed.
 
 Lemma uncurry_curry :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C)
+  forall
+    {C : Cat} {hp : has_products C} (he : has_exponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
 Proof.
@@ -64,8 +63,8 @@ Proof.
 Qed.
 
 Lemma curry_eval :
-  forall {C : Cat} {hp : has_products C} (he : has_exponentials C)
-    (X Y : Ob C), curry eval == id (expOb X Y).
+  forall {C : Cat} {hp : has_products C} (he : has_exponentials C) (X Y : Ob C),
+    curry eval == id (expOb X Y).
 Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
@@ -75,7 +74,8 @@ Proof.
 Qed.
 
 Lemma curry_comp :
-  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
+  forall
+    (C : Cat) (hp : has_products C) (he : has_exponentials C)
     (X Y Z A : Ob C) (f : Hom Y Z) (g : Hom Z A),
       @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
@@ -89,8 +89,9 @@ Proof.
 Qed.
 
 Lemma uncurry_id :
-  forall (C : Cat) (hp : has_products C) (he : has_exponentials C)
-    (X Y : Ob C), uncurry (id (expOb X Y)) == eval.
+  forall
+    (C : Cat) (hp : has_products C) (he : has_exponentials C) (X Y : Ob C),
+      uncurry (id (expOb X Y)) == eval.
 Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
@@ -156,9 +157,7 @@ Lemma exponential_skolem_iso :
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential_skolem X Y E eval curry ->
-      exponential_skolem X Y E' eval' curry' ->
-        E ~ E'.
+      exponential_skolem X Y E eval curry -> exponential_skolem X Y E' eval' curry' -> E ~ E'.
 Proof.
   intros. destruct (exponential_skolem_uiso H H0). cat.
 Qed.
