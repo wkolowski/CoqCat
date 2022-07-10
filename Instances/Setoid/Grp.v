@@ -448,7 +448,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Grp_has_init : has_init GrpCat :=
+Instance Grp_HasInit : HasInit GrpCat :=
 {
     init := Grp_zero;
     create := Grp_create
@@ -462,7 +462,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Grp_has_term : has_term GrpCat :=
+Instance Grp_HasTerm : HasTerm GrpCat :=
 {
   term := Grp_zero;
   delete := Grp_delete
@@ -471,10 +471,10 @@ Proof. grp. Defined.
 
 #[refine]
 #[export]
-Instance Grp_has_zero : has_zero GrpCat :=
+Instance Grp_HasZero : HasZero GrpCat :=
 {
-  zero_is_initial := Grp_has_init;
-  zero_is_terminal := Grp_has_term
+  zero_is_initial := Grp_HasInit;
+  zero_is_terminal := Grp_HasTerm
 }.
 Proof. grp. Defined.
 
@@ -510,7 +510,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Grp_has_products : has_products GrpCat :=
+Instance Grp_HasProducts : HasProducts GrpCat :=
 {
   prodOb := Grp_prodOb;
   proj1 := Grp_proj1;

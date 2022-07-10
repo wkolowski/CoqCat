@@ -73,7 +73,7 @@ Proof. proper. destruct x. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_has_init : has_init DenseReloidCat :=
+Instance DenseReloid_HasInit : HasInit DenseReloidCat :=
 {
   init := DenseReloid_init;
   create := DenseReloid_create
@@ -100,7 +100,7 @@ Proof. proper. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_has_term : has_term DenseReloidCat :=
+Instance DenseReloid_HasTerm : HasTerm DenseReloidCat :=
 {
   term := DenseReloid_term;
   delete := DenseReloid_delete;
@@ -149,7 +149,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_has_products : has_products DenseReloidCat :=
+Instance DenseReloid_HasProducts : HasProducts DenseReloidCat :=
 {
   prodOb := DenseReloid_prodOb;
   proj1 := DenseReloid_proj1;
@@ -203,7 +203,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_has_coproducts : has_coproducts DenseReloidCat :=
+Instance DenseReloid_HasCoproducts : HasCoproducts DenseReloidCat :=
 {
   coprodOb := DenseReloid_coprodOb;
   coproj1 := DenseReloid_coproj1;

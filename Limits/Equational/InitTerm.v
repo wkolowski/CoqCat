@@ -2,14 +2,14 @@ From Cat Require Export Cat.
 
 Set Implicit Arguments.
 
-Class has_init (C : Cat) : Type :=
+Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;
   create : forall X : Ob C, Hom init X;
   create_unique : forall (X : Ob C) (f : Hom init X), f == create X;
 }.
 
-Arguments init _ {has_init}.
+Arguments init _ {HasInit}.
 
 Ltac init := intros; repeat
 match goal with
@@ -20,27 +20,27 @@ match goal with
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
 
-Class has_term (C : Cat) : Type :=
+Class HasTerm (C : Cat) : Type :=
 {
   term : Ob C;
   delete : forall X : Ob C, Hom X term;
   delete_unique : forall (X : Ob C) (f : Hom X term), f == delete X;
 }.
 
-Arguments term _ {has_term}.
+Arguments term _ {HasTerm}.
 
-Class has_zero (C : Cat) : Type :=
+Class HasZero (C : Cat) : Type :=
 {
-  zero_is_initial :> has_init C;
-  zero_is_terminal :> has_term C;
+  zero_is_initial :> HasInit C;
+  zero_is_terminal :> HasTerm C;
   initial_is_terminal : init C = term C
 }.
 
-Coercion zero_is_initial : has_zero >-> has_init.
-Coercion zero_is_terminal : has_zero >-> has_term.
+Coercion zero_is_initial : HasZero >-> HasInit.
+Coercion zero_is_terminal : HasZero >-> HasTerm.
 
-Definition zero_ob (C : Cat) {hz : has_zero C} : Ob C := init C.
-Definition zero_mor {C : Cat} {hz : has_zero C} (X Y : Ob C) : Hom X Y.
+Definition zero_ob (C : Cat) {hz : HasZero C} : Ob C := init C.
+Definition zero_mor {C : Cat} {hz : HasZero C} (X Y : Ob C) : Hom X Y.
 Proof.
   pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
@@ -56,7 +56,7 @@ Module Equiv.
 
 #[refine]
 #[export]
-Instance hi_hieq (C : Cat) (hi : InitTerm.has_init C) : has_init C :=
+Instance hi_hieq (C : Cat) (hi : InitTerm.HasInit C) : HasInit C :=
 {
   init := @InitTerm.init C hi;
   create := @InitTerm.create C hi;
@@ -65,7 +65,7 @@ Proof. InitTerm.init. Defined.
 
 #[refine]
 #[export]
-Instance hieq_hi (C : Cat) (hieq : has_init C) : InitTerm.has_init C :=
+Instance hieq_hi (C : Cat) (hieq : HasInit C) : InitTerm.HasInit C :=
 {
   InitTerm.init := @init C hieq;
   InitTerm.create := @create C hieq
@@ -74,7 +74,7 @@ Proof. init. Defined.
 
 #[refine]
 #[export]
-Instance ht_hteq (C : Cat) (ht : InitTerm.has_term C) : has_term C :=
+Instance ht_hteq (C : Cat) (ht : InitTerm.HasTerm C) : HasTerm C :=
 {
   term := @InitTerm.term C ht;
   delete := @InitTerm.delete C ht;
@@ -83,7 +83,7 @@ Proof. InitTerm.term. Defined.
 
 #[refine]
 #[export]
-Instance hteq_ht (C : Cat) (hteq : has_term C) : InitTerm.has_term C :=
+Instance hteq_ht (C : Cat) (hteq : HasTerm C) : InitTerm.HasTerm C :=
 {
   InitTerm.term := @term C hteq;
   InitTerm.delete := @delete C hteq;
@@ -96,7 +96,7 @@ End Equiv.
 
 #[refine]
 #[export]
-Instance Dual_init_term (C : Cat) (hi : has_init C) : has_term (Dual C) :=
+Instance Dual_init_term (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
 {
   term := init C;
   delete := @create C hi
@@ -105,7 +105,7 @@ Proof. init. init. cat. apply create_unique. Defined.
 
 #[refine]
 #[export]
-Instance Dual_term_init (C : Cat) (ht : has_term C) : has_init (Dual C) :=
+Instance Dual_term_init (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 {
   init := term C;
   create := @delete C ht
@@ -114,7 +114,7 @@ Proof. cat. apply delete_unique. Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_zero (C : Cat) (hz : has_zero C) : has_zero (Dual C) :=
+Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 {
   zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
   zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);
@@ -123,8 +123,8 @@ Proof. cat. Defined.
 
 (* Lemmas ported from InitTerm.v *)
 
-Lemma has_init_uiso :
-  forall (C : Cat) (hi1 hi2 : has_init C),
+Lemma HasInit_uiso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
     @init C hi1 ~~ @init C hi2.
 Proof.
   intros.
@@ -136,8 +136,8 @@ Proof.
       cbn. reflexivity.
 Qed.
 
-Lemma has_term_uiso :
-  forall (C : Cat) (ht1 ht2 : has_term C),
+Lemma HasTerm_uiso :
+  forall (C : Cat) (ht1 ht2 : HasTerm C),
     @term C ht1 ~~ @term C ht2.
 Proof.
   intros.
@@ -174,7 +174,7 @@ Defined.
 *)
 
 Lemma mor_to_init_is_ret :
-  forall (C : Cat) (hi : has_init C) (X : Ob C) (f : Hom X (init C)),
+  forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
     Ret f.
 Proof.
   intros. red. exists (create X).
@@ -183,7 +183,7 @@ Proof.
 Qed.
 
 Lemma mor_from_term_is_sec :
-  forall (C : Cat) (ht : has_term C) (X : Ob C) (f : Hom (term C) X),
+  forall (C : Cat) (ht : HasTerm C) (X : Ob C) (f : Hom (term C) X),
     Sec f.
 Proof.
   intros. red. exists (delete X).

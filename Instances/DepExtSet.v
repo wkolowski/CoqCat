@@ -103,7 +103,7 @@ Qed.
 
 #[refine]
 #[export]
-Instance DepExtSet_has_init : has_init DepExtSet :=
+Instance DepExtSet_HasInit : HasInit DepExtSet :=
 {
   init := Empty_set;
   create := fun (X : Set) (e : Empty_set) => match e with end
@@ -112,7 +112,7 @@ Proof. cbn; intros. apply depExtEq_ext. destruct x. Defined.
 
 #[refine]
 #[export]
-Instance DepExtSet_has_term : has_term DepExtSet :=
+Instance DepExtSet_HasTerm : HasTerm DepExtSet :=
 {
   term := unit;
   delete := fun (X : Set) (x : X) => tt
@@ -123,7 +123,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DepExtSet_has_products : has_products DepExtSet :=
+Instance DepExtSet_HasProducts : HasProducts DepExtSet :=
 {
   prodOb := prod;
   proj1 := @fst;
@@ -142,7 +142,7 @@ Defined.
 (* TODO *)
 #[refine]
 #[export]
-Instance DepExtSet_has_all_products : has_all_products DepExtSet :=
+Instance DepExtSet_HasAllProducts : HasAllProducts DepExtSet :=
 {
   bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) => forall j : J, A j;
   bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
@@ -162,7 +162,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance DepExtSet_has_coproducts : has_coproducts DepExtSet :=
+Instance DepExtSet_HasCoproducts : HasCoproducts DepExtSet :=
 {
   coprodOb := sum;
   coproj1 := @inl;
@@ -185,7 +185,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DepExtSet_has_all_coproducts : has_all_coproducts DepExtSet :=
+Instance DepExtSet_HasAllCoproducts : HasAllCoproducts DepExtSet :=
 {
   bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) => {j : J & A j};
   bigCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (x : A j) => existT A j x;
@@ -208,7 +208,7 @@ Set Nested Proofs Allowed.
 (* TODO *)
 #[refine]
 #[export]
-Instance DepExtSet_has_equalizers : has_equalizers DepExtSet :=
+Instance DepExtSet_HasEqualizers : HasEqualizers DepExtSet :=
 {
   eq_ob := fun (X Y : Ob DepExtSet) (f g : Hom X Y) =>
     {x : X | depExtEq (f x) (g x)};

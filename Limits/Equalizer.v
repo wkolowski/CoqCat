@@ -71,7 +71,7 @@ Definition eq_ob_Proper_T
 Proof.
 Abort.
 
-Class has_equalizers (C : Cat) : Type :=
+Class HasEqualizers (C : Cat) : Type :=
 {
   eq_ob :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
@@ -97,7 +97,7 @@ Class has_equalizers (C : Cat) : Type :=
       equalizer C f g (eq_ob f g) (eq_mor f g) (factorize f g)
 }.
 
-Class has_coequalizers (C : Cat) : Type :=
+Class HasCoequalizers (C : Cat) : Type :=
 {
   coeq_ob :
     forall {X Y : Ob C} (f g : Hom X Y), Ob C;
@@ -122,15 +122,15 @@ Class has_coequalizers (C : Cat) : Type :=
       coequalizer C f g (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
 }.
 
-Class has_biequalizers (C : Cat) : Type :=
+Class HasBiequalizers (C : Cat) : Type :=
 {
-  bi_has_equalizers :> has_equalizers C;
-  bi_has_coequalizers :> has_coequalizers C;
+  bi_HasEqualizers :> HasEqualizers C;
+  bi_HasCoequalizers :> HasCoequalizers C;
   equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y), eq_ob f g = coeq_ob f g
 }.
 
-Coercion bi_has_equalizers : has_biequalizers >-> has_equalizers.
-Coercion bi_has_coequalizers : has_biequalizers >-> has_coequalizers.
+Coercion bi_HasEqualizers : HasBiequalizers >-> HasEqualizers.
+Coercion bi_HasCoequalizers : HasBiequalizers >-> HasCoequalizers.
 
 Section equalizer_coequalizer_lemmas.
 
@@ -408,7 +408,7 @@ Proof.
 Qed.
 
 Lemma factorize_eq_mor :
-  forall [C : Cat] (he : has_equalizers C) [X Y : Ob C] (f g : Hom X Y),
+  forall [C : Cat] (he : HasEqualizers C) [X Y : Ob C] (f g : Hom X Y),
     factorize f g _ (eq_mor f g) (proj1 (is_equalizer X Y f g)) == id (eq_ob f g).
 Proof.
   intros. destruct he; cbn in *.
@@ -418,7 +418,7 @@ Defined.
 (*
 TODO Lemma factorize_comp :
   forall
-    (C : Cat) (he : has_equalizers C)
+    (C : Cat) (he : HasEqualizers C)
     (X Y A : Ob C) (f g : Hom X Y)
     (h1 : Hom (eq_ob f g) A) (h2 : Hom A X)
     (H : h1 .> h2 .> f == h1 .> h2 .> g),
@@ -432,7 +432,7 @@ Defined.
 *)
 
 Lemma cofactorize_eq_mor :
-  forall (C : Cat) (he : has_coequalizers C) (X Y : Ob C) (f g : Hom X Y),
+  forall (C : Cat) (he : HasCoequalizers C) (X Y : Ob C) (f g : Hom X Y),
     cofactorize f g _ (coeq_mor f g) (proj1 (is_coequalizer X Y f g)) == id (coeq_ob f g).
 Proof.
   intros. destruct he; cbn in *.
@@ -441,7 +441,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_coequalizers (C : Cat) (he : has_equalizers C) : has_coequalizers (Dual C) :=
+Instance Dual_HasCoequalizers (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
 {
   coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
   coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
@@ -456,7 +456,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_equalizers (C : Cat) (he : has_coequalizers C) : has_equalizers (Dual C) :=
+Instance Dual_HasEqualizers (C : Cat) (he : HasCoequalizers C) : HasEqualizers (Dual C) :=
 {
   eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
   eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
@@ -471,10 +471,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_has_biequalizers (C : Cat) (he : has_biequalizers C) : has_biequalizers (Dual C) :=
+Instance Dual_HasBiequalizers (C : Cat) (he : HasBiequalizers C) : HasBiequalizers (Dual C) :=
 {
-  bi_has_equalizers := Dual_has_equalizers he;
-  bi_has_coequalizers := Dual_has_coequalizers he;
+  bi_HasEqualizers := Dual_HasEqualizers he;
+  bi_HasCoequalizers := Dual_HasCoequalizers he;
 }.
 Proof.
   simpl. intros. rewrite equalizer_is_coequalizer. trivial.

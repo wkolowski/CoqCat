@@ -3,17 +3,17 @@ From Cat.Limits Require Import InitTerm BinProdCoprod Exponential.
 
 Class cartesian_closed (C : Cat) : Type :=
 {
-  ccc_term :> has_term C;
-  ccc_prod :> has_products C;
-  ccc_exp :> has_exponentials C
+  ccc_term :> HasTerm C;
+  ccc_prod :> HasProducts C;
+  ccc_exp :> HasExponentials C
 }.
 
-Coercion ccc_term : cartesian_closed >-> has_term.
-Coercion ccc_prod : cartesian_closed >-> has_products.
-Coercion ccc_exp  : cartesian_closed >-> has_exponentials.
+Coercion ccc_term : cartesian_closed >-> HasTerm.
+Coercion ccc_prod : cartesian_closed >-> HasProducts.
+Coercion ccc_exp  : cartesian_closed >-> HasExponentials.
 
 Lemma prod_term_iso_l :
-  forall (C : Cat) (ht : has_term C) (hp : has_products C) (X : Ob C),
+  forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     prodOb (term C) X ~ X.
 Proof.
   symmetry.
@@ -23,7 +23,7 @@ Proof.
 Defined.
 
 Lemma prod_term_iso_l' :
-  forall (C : Cat) (ht : has_term C) (hp : has_products C) (X : Ob C),
+  forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     {f : Hom (prodOb (term C) X) X | Iso f}.
 Proof.
   intros. exists proj2.
@@ -31,14 +31,14 @@ Proof.
 Defined.
 
 Lemma prod_term_iso_r :
-  forall (C : Cat) (ht : has_term C) (hp : has_products C) (X : Ob C),
+  forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     prodOb X (term C) ~ X.
 Proof.
   intros. rewrite prodOb_comm. apply prod_term_iso_l.
 Defined.
 
 Lemma prod_term_iso_r' :
-  forall (C : Cat) (X : Ob C) (ht : has_term C) (hp : has_products C),
+  forall (C : Cat) (X : Ob C) (ht : HasTerm C) (hp : HasProducts C),
     {f : Hom (prodOb X (term C)) X | Iso f}.
 Proof.
   intros. exists proj1.
@@ -46,7 +46,7 @@ Proof.
 Defined.
 
 Lemma coprod_init_iso_l :
-  forall (C : Cat) (hi : has_init C) (hp : has_coproducts C) (X : Ob C),
+  forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     coprodOb (init C) X ~ X.
 Proof.
   intros.
@@ -56,7 +56,7 @@ Proof.
 Defined.
 
 Lemma coprod_init_iso_l' :
-  forall (C : Cat) (hi : has_init C) (hp : has_coproducts C) (X : Ob C),
+  forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     {f : Hom (coprodOb (init C) X) X | Iso f}.
 Proof.
   intros.
@@ -66,14 +66,14 @@ Proof.
 Defined.
 
 Lemma coprod_init_iso_r :
-  forall (C : Cat) (hi : has_init C) (hp : has_coproducts C) (X : Ob C),
+  forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     coprodOb X (init C) ~ X.
 Proof.
   intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
 Qed.
 
 Lemma coprod_init_iso_r' :
-  forall (C : Cat) (hi : has_init C) (hp : has_coproducts C) (X : Ob C),
+  forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     {f : Hom (coprodOb X (init C)) X | Iso f}.
 Proof.
   intros.

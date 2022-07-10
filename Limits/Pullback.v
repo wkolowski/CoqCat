@@ -23,7 +23,7 @@ Definition pushout
     forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2),
       setoid_unique (fun u : Hom P Q => p1 .> u == q1 /\ p2 .> u == q2) (cofactor q1 q2 H).
 
-Class has_pullbacks (C : Cat) : Type :=
+Class HasPullbacks (C : Cat) : Type :=
 {
   pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
   pullbackObProper :
@@ -45,7 +45,7 @@ Class has_pullbacks (C : Cat) : Type :=
       pullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g) (@factor X Y A f g)
 }.
 
-Class has_pushouts (C : Cat) : Type :=
+Class HasPushouts (C : Cat) : Type :=
 {
   pushoutOb : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
   pushoutObProper :
@@ -153,7 +153,7 @@ Qed.
 
 Lemma pullback_product :
   forall
-    (C : Cat) (ht : has_term C) (X Y : Ob C)
+    (C : Cat) (ht : HasTerm C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
       pullback C (delete X) (delete Y) P p1 p2
@@ -171,7 +171,7 @@ Qed.
 
 Lemma product_pullback :
   forall
-    (C : Cat) (ht : has_term C) (X Y : Ob C)
+    (C : Cat) (ht : HasTerm C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
       product_skolem C P p1 p2 fpair ->
@@ -201,7 +201,7 @@ Proof.
 Qed.
 
 (* TODO : finish *) (*Lemma equalizer_pullback :
-  forall (C : Cat) (hp : has_products C) (X Y : Ob C) (f g : Hom X Y)
+  forall (C : Cat) (hp : HasProducts C) (X Y : Ob C) (f g : Hom X Y)
   (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
   (factorize : forall (E' : Ob C) (e : Hom E' X),
     e .> f == e .> g -> Hom E' E),
@@ -224,7 +224,7 @@ Zhen Lin *)
 
 Lemma pushout_coproduct :
   forall
-    (C : Cat) (ht : has_init C) (X Y : Ob C)
+    (C : Cat) (ht : HasInit C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
       pushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g) ->
@@ -240,7 +240,7 @@ Qed.
 
 Lemma coproduct_pushout :
   forall
-    (C : Cat) (ht : has_init C) (X Y : Ob C)
+    (C : Cat) (ht : HasInit C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
       coproduct_skolem C P p1 p2 copair ->
@@ -271,7 +271,7 @@ Qed.
 
 (** Category of spans *)
 
-Class SpanHom (C : Cat) (hp : has_pullbacks C) (A B : Ob C) : Type :=
+Class SpanHom (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Type :=
 {
   center : Ob C;
   left : Hom center A;
@@ -284,7 +284,7 @@ Proof.
 Defined.
 
 #[export]
-Instance SpanHomSetoid (C : Cat) (hp : has_pullbacks C) (A B : Ob C) : Setoid (SpanHom hp A B).
+Instance SpanHomSetoid (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Setoid (SpanHom hp A B).
 Proof.
   esplit. Unshelve. 2:
   {
@@ -302,7 +302,7 @@ Proof.
 Defined.
 
 #[export]
-Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
+Instance SpanId (C : Cat) (hp : HasPullbacks C) (A : Ob C) : SpanHom hp A A :=
 {
   center := A;
   left := id A;
@@ -311,7 +311,7 @@ Instance SpanId (C : Cat) (hp : has_pullbacks C) (A : Ob C) : SpanHom hp A A :=
 
 #[refine]
 #[export]
-Instance Span (C' : Cat) (hp : has_pullbacks C') : Cat :=
+Instance Span (C' : Cat) (hp : HasPullbacks C') : Cat :=
 {
   Ob := Ob C';
   Hom := SpanHom hp;

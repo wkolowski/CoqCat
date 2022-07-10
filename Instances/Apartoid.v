@@ -146,7 +146,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_has_init : has_init ApartoidCat :=
+Instance Apartoid_HasInit : HasInit ApartoidCat :=
 {
   init := Apartoid_init;
   create := Apartoid_create
@@ -156,7 +156,7 @@ Proof. apartoid. Defined.
 (* Things can be done this way too. *)
 #[refine]
 #[export]
-Instance Apartoid_has_init' : has_init ApartoidCat := {}.
+Instance Apartoid_HasInit' : HasInit ApartoidCat := {}.
 Proof.
   refine
   {|
@@ -182,7 +182,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_has_term : has_term ApartoidCat :=
+Instance Apartoid_HasTerm : HasTerm ApartoidCat :=
 {
   term := Apartoid_term;
   delete := Apartoid_delete
@@ -223,7 +223,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_has_products : has_products ApartoidCat :=
+Instance Apartoid_HasProducts : HasProducts ApartoidCat :=
 {
   prodOb := Apartoid_prodOb;
   proj1 := Apartoid_proj1;
@@ -281,7 +281,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_has_coproducts : has_coproducts ApartoidCat :=
+Instance Apartoid_HasCoproducts : HasCoproducts ApartoidCat :=
 {
   coprodOb := Apartoid_coprodOb;
   coproj1 := Apartoid_coproj1;
@@ -327,7 +327,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_has_all_products : has_all_products ApartoidCat :=
+Instance Apartoid_HasAllProducts : HasAllProducts ApartoidCat :=
 {
   bigProdOb := @Apartoid_bigProdOb;
   bigProj := @Apartoid_bigProj;
@@ -377,7 +377,7 @@ Defined.
 (* This runs for about ~10 secs. *)
 #[refine]
 #[export]
-Instance Apartoid_has_equalizers : has_equalizers ApartoidCat :=
+Instance Apartoid_HasEqualizers : HasEqualizers ApartoidCat :=
 {
   eq_ob := @Apartoid_eq_ob;
   eq_mor := @Apartoid_eq_mor;

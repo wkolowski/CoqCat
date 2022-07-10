@@ -165,7 +165,7 @@ Proof.
   destruct h as [h eq].
 Abort.
 
-Class has_all_products (C : Cat) : Type :=
+Class HasAllProducts (C : Cat) : Type :=
 {
   bigProdOb :
     forall J : Set, (J -> Ob C) -> Ob C;
@@ -191,7 +191,7 @@ Arguments tuple     [C _ J A X] _.
 
 Lemma tuple_bigProj :
   forall
-    (C : Cat) (hp : has_all_products C)
+    (C : Cat) (hp : HasAllProducts C)
     (X : Ob C) (J : Set) (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
       tuple f .> bigProj j == f j.
 Proof.
@@ -202,7 +202,7 @@ Qed.
 
 Lemma tuple_pre :
   forall
-    (C : Cat) (hp : has_all_products C)
+    (C : Cat) (hp : HasAllProducts C)
     (X Y : Ob C) (J : Set) (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
       f .> tuple g == tuple (fun j : J => f .> g j).
 Proof.
@@ -213,7 +213,7 @@ Proof.
 Qed.
 
 Lemma tuple_id :
-  forall (C : Cat) (hp : has_all_products C) (J : Set) (X : J -> Ob C),
+  forall (C : Cat) (hp : HasAllProducts C) (J : Set) (X : J -> Ob C),
     tuple (@bigProj C hp J X) == id (bigProdOb X).
 Proof.
   intros. edestruct is_big_product. apply H0. cat.
@@ -221,7 +221,7 @@ Qed.
 
 Lemma tuple_comp :
   forall
-    (C : Cat) (hp : has_all_products C) (J : Set)
+    (C : Cat) (hp : HasAllProducts C) (J : Set)
     (X : Ob C) (Y Y' : J -> Ob C)
     (f : forall j : J, Hom X (Y j)) (g : forall j : J, Hom (Y j) (Y' j)),
       tuple (fun j : J => f j .> g j) == tuple f .> tuple (fun j : J => bigProj j .> g j).
@@ -232,7 +232,7 @@ Proof.
   reflexivity.
 Qed.
 
-Class has_all_coproducts (C : Cat) : Type :=
+Class HasAllCoproducts (C : Cat) : Type :=
 {
   bigCoprodOb :
     forall J : Set, (J -> Ob C) -> Ob C;
@@ -256,11 +256,11 @@ Arguments bigCoprodOb [C _ J] _.
 Arguments bigCoproj   [C _ J A] _.
 Arguments cotuple     [C _ J A] [X] _.
 
-Section has_all_coproducts.
+Section HasAllCoproducts.
 
 Context
   [C : Cat]
-  [hp : has_all_coproducts C].
+  [hp : HasAllCoproducts C].
 
 Lemma cotuple_bigCoproj :
   forall
@@ -301,19 +301,19 @@ Proof.
   reflexivity.
 Qed.
 
-End has_all_coproducts.
+End HasAllCoproducts.
 
-Class has_all_biproducts (C : Cat) : Type :=
+Class HasAllBiproducts (C : Cat) : Type :=
 {
-  bigProduct :> has_all_products C;
-  bigCoproduct :> has_all_coproducts C;
+  bigProduct :> HasAllProducts C;
+  bigCoproduct :> HasAllCoproducts C;
   product_is_coproduct :
     forall (J : Set) (A : J -> Ob C),
       @bigProdOb C bigProduct J A = @bigCoprodOb C bigCoproduct J A
 }.
 
-Coercion bigProduct : has_all_biproducts >-> has_all_products.
-Coercion bigCoproduct : has_all_biproducts >-> has_all_coproducts.
+Coercion bigProduct : HasAllBiproducts >-> HasAllProducts.
+Coercion bigCoproduct : HasAllBiproducts >-> HasAllCoproducts.
 
 Lemma big_product_skolem_iso_unique :
   forall
@@ -343,8 +343,8 @@ Proof.
 Qed.
 
 #[export]
-Instance Dual_has_all_products
-  (C : Cat) (hp : has_all_coproducts C) : has_all_products (Dual C) :=
+Instance Dual_HasAllProducts
+  (C : Cat) (hp : HasAllCoproducts C) : HasAllProducts (Dual C) :=
 {
   bigProdOb := @bigCoprodOb C hp;
   bigProj := @bigCoproj C hp;
@@ -354,8 +354,8 @@ Instance Dual_has_all_products
 }.
 
 #[export]
-Instance Dual_has_all_coproducts
-  (C : Cat) (hp : has_all_products C) : has_all_coproducts (Dual C) :=
+Instance Dual_HasAllCoproducts
+  (C : Cat) (hp : HasAllProducts C) : HasAllCoproducts (Dual C) :=
 {
   bigCoprodOb := @bigProdOb C hp;
   bigCoproj := @bigProj C hp;
@@ -366,11 +366,11 @@ Instance Dual_has_all_coproducts
 
 #[refine]
 #[export]
-Instance Dual_has_all_biproducts
-  (C : Cat) (hp : has_all_biproducts C) : has_all_biproducts (Dual C) :=
+Instance Dual_HasAllBiproducts
+  (C : Cat) (hp : HasAllBiproducts C) : HasAllBiproducts (Dual C) :=
 {
-  bigProduct := Dual_has_all_products C hp;
-  bigCoproduct := Dual_has_all_coproducts C hp;
+  bigProduct := Dual_HasAllProducts C hp;
+  bigCoproduct := Dual_HasAllCoproducts C hp;
 }.
 Proof.
   intros. simpl. rewrite product_is_coproduct. trivial.

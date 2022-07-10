@@ -29,8 +29,8 @@ Coercion cat : Monoidal >-> Cat.
 
 #[refine]
 #[export]
-Instance Monoidal_has_terminal_and_products
-  (C : Cat) (ht : has_term C) (hp : has_products C) : Monoidal :=
+Instance Monoidal_HasTerminal_and_products
+  (C : Cat) (ht : HasTerm C) (hp : HasProducts C) : Monoidal :=
 {
   cat := C;
   tensor := @ProductBifunctor C hp;
@@ -50,8 +50,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance Monoidal_has_initial_and_coproducts
-  (C : Cat) (hi : has_init C) (hp : has_coproducts C) : Monoidal :=
+Instance Monoidal_HasInitial_and_coproducts
+  (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) : Monoidal :=
 {
   cat := C;
   tensor := @CoproductBifunctor C hp;

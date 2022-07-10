@@ -113,7 +113,7 @@ Qed.
 
 #[refine]
 #[export]
-Instance ExtSet_has_init : has_init ExtSet :=
+Instance ExtSet_HasInit : HasInit ExtSet :=
 {
   init := Empty_set;
   create := fun (X : Type) (e : Empty_set) => match e with end
@@ -122,7 +122,7 @@ Proof. cbn; intros. apply extEq_ext. destruct a. Defined.
 
 #[refine]
 #[export]
-Instance ExtSet_has_term : has_term ExtSet :=
+Instance ExtSet_HasTerm : HasTerm ExtSet :=
 {
   term := unit;
   delete := fun (X : Type) (x : X) => tt
@@ -133,7 +133,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ExtSet_has_products : has_products ExtSet :=
+Instance ExtSet_HasProducts : HasProducts ExtSet :=
 {
   prodOb := prod;
   proj1 := @fst;
@@ -157,7 +157,7 @@ Defined.
 (* TODO *)
 #[refine]
 #[export]
-Instance ExtSet_has_all_products : has_all_products ExtSet :=
+Instance ExtSet_HasAllProducts : HasAllProducts ExtSet :=
 {
   bigProdOb := fun (J : Type) (A : J -> Ob ExtSet) => forall j : J, A j;
   bigProj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
@@ -177,7 +177,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance ExtSet_has_coproducts : has_coproducts ExtSet :=
+Instance ExtSet_HasCoproducts : HasCoproducts ExtSet :=
 {
   coprodOb := sum;
   coproj1 := @inl;
@@ -196,7 +196,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ExtSet_has_all_coproducts : has_all_coproducts ExtSet :=
+Instance ExtSet_HasAllCoproducts : HasAllCoproducts ExtSet :=
 {
   bigCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) => {j : J & A j};
   bigCoproj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (x : A j) => existT A j x;
@@ -215,7 +215,7 @@ Set Nested Proofs Allowed.
 (* TODO *)
 #[refine]
 #[export]
-Instance ExtSet_has_equalizers : has_equalizers ExtSet :=
+Instance ExtSet_HasEqualizers : HasEqualizers ExtSet :=
 {
   eq_ob := fun (X Y : Ob ExtSet) (f g : Hom X Y) => {x : X | extEq (f x) (g x)};
   eq_mor :=

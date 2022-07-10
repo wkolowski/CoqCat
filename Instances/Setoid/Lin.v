@@ -58,7 +58,7 @@ Proof. lin. Defined.
 
 #[refine]
 #[export]
-Instance Lin_has_init : has_init LinCat :=
+Instance Lin_HasInit : HasInit LinCat :=
 {
   init := Lin_init;
   create := Pros_create
@@ -75,7 +75,7 @@ Proof. lin. Defined.
 
 #[refine]
 #[export]
-Instance Lin_has_term : has_term LinCat :=
+Instance Lin_HasTerm : HasTerm LinCat :=
 {
   term := Lin_term;
   delete := Pros_delete
@@ -146,7 +146,7 @@ Abort.
 (*
 #[refine]
 #[export]
-TODO: Instance Lin_has_products : has_products LinCat :=
+TODO: Instance Lin_HasProducts : HasProducts LinCat :=
 {
   prodOb := Lin_prod;
   proj1 := Pros_proj1;

@@ -2,7 +2,7 @@ From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm BinProdCoprod.
 
 Definition exponential_skolem
-  {C : Cat} {hp : has_products C}
+  {C : Cat} {hp : HasProducts C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y)
   (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E)
   : Prop :=
@@ -10,7 +10,7 @@ Definition exponential_skolem
       setoid_unique (fun u : Hom E' E =>
         ProductFunctor_fmap u (id X) .> eval == eval') (curry E' eval').
 
-Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
+Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
   eval : forall X Y : Ob C, Hom (prodOb (expOb X Y) X) Y;
@@ -19,16 +19,16 @@ Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
   is_exponential : forall (X Y : Ob C), exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
-Arguments expOb {C hp has_exponentials} _ _.
-Arguments eval  {C hp has_exponentials X Y}.
-Arguments curry {C hp has_exponentials X Y Z} _.
+Arguments expOb {C hp HasExponentials} _ _.
+Arguments eval  {C hp HasExponentials X Y}.
+Arguments curry {C hp HasExponentials X Y Z} _.
 
 Section Exponential.
 
 Context
   [C : Cat]
-  [hp : has_products C]
-  [he : has_exponentials C]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
   [X Y Z : Ob C].
 
 Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
@@ -56,7 +56,7 @@ End Exponential.
 
 Lemma uncurry_curry :
   forall
-    {C : Cat} {hp : has_products C} (he : has_exponentials C)
+    {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
 Proof.
@@ -69,8 +69,8 @@ Section Exponential.
 
 Context
   [C : Cat]
-  [hp : has_products C]
-  [he : has_exponentials C]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
   [X Y Z : Ob C].
 
 Lemma curry_eval :
@@ -122,7 +122,7 @@ end.
 
 Lemma exponential_skolem_uiso :
   forall
-    (C : Cat) (hp : has_products C) (X Y : Ob C)
+    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
@@ -160,7 +160,7 @@ Arguments exponential_skolem_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
 
 Lemma exponential_skolem_iso :
   forall
-    (C : Cat) (hp : has_products C) (X Y : Ob C)
+    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
@@ -170,10 +170,10 @@ Proof.
   intros. destruct (exponential_skolem_uiso H H0). cat.
 Qed.
 
-Lemma has_exponentials_unique :
+Lemma HasExponentials_unique :
   forall
-    {C : Cat} {hp : has_products C}
-    (he : has_exponentials C) (he' : has_exponentials C) (X Y : Ob C),
+    {C : Cat} {hp : HasProducts C}
+    (he : HasExponentials C) (he' : HasExponentials C) (X Y : Ob C),
       @expOb C hp he X Y ~ @expOb C hp he' X Y.
 Proof.
   intros. destruct he, he'. cbn in *.
@@ -184,7 +184,7 @@ Qed.
 #[refine]
 #[export]
 Instance ExponentialFunctor
-  {C : Cat} {hp : has_products C} {he : has_exponentials C} (X : Ob C) : Functor C C :=
+  {C : Cat} {hp : HasProducts C} {he : HasExponentials C} (X : Ob C) : Functor C C :=
 {
   fob := fun Y : Ob C => expOb X Y;
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
@@ -196,7 +196,7 @@ Proof. all: curry. Defined.
 #[refine]
 #[export]
 Instance FunCat_expOb
-  {C D : Cat} {hp : has_products D} {he : has_exponentials D}
+  {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
   (F G : Functor C D) : Functor C D :=
 {
   fob := fun X : Ob C => expOb (fob F X) (fob G X)
@@ -207,8 +207,8 @@ Abort.
 (* TODO : transfer of exponentials. Do they even transfer? *)
 #[refine]
 #[export]
-Instance FunCat_has_exponentials
-  {C D : Cat} {hp : has_products D} {he : has_exponentials D}
-  : has_exponentials (FunCat C D) := {}.
+Instance FunCat_HasExponentials
+  {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
+  : HasExponentials (FunCat C D) := {}.
 Proof.
 Abort.

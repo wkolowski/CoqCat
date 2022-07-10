@@ -2,7 +2,7 @@ From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm.
 From Cat.Limits.Equational Require Export BinProdCoprod.
 
-(* TODO *) Class has_exponentials (C : Cat) {hp : has_products C} : Type :=
+(* TODO *) Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
   eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
@@ -14,7 +14,7 @@ From Cat.Limits.Equational Require Export BinProdCoprod.
 (*
 Lemma curry_uncurry :
   forall
-    (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (C : Cat) (hp : HasProducts C) (he : HasExponentials C)
     (X Y Z : Ob C) (f : Hom X (expOb Y Z)),
       curry (uncurry f) == f.
 Proof.
@@ -26,7 +26,7 @@ Qed.
 
 Lemma uncurry_curry :
   forall
-    (C : Cat) (hp : has_products C) (he : has_exponentials C)
+    (C : Cat) (hp : HasProducts C) (he : HasExponentials C)
     (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
       uncurry (curry f) == f.
 Proof.
@@ -38,7 +38,7 @@ Qed.
 
 (*
 Lemma uncurry_id :
-  forall (C : Cat) (hp : has_products C) (he : has_exponentials C) (X Y : Ob C),
+  forall (C : Cat) (hp : HasProducts C) (he : HasExponentials C) (X Y : Ob C),
     uncurry (id (expOb X Y)) == eval.
 Proof.
   destruct he; cbn; intros.

@@ -37,7 +37,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_has_init : has_init CAT :=
+Instance CAT_HasInit : HasInit CAT :=
 {
   init := CAT_init;
   create := CAT_create
@@ -61,7 +61,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_has_term : has_term CAT :=
+Instance CAT_HasTerm : HasTerm CAT :=
 {
   term := CAT_term;
   delete := CAT_delete;
@@ -102,7 +102,7 @@ Proof. all: cat; functor. Defined.
 
 #[refine]
 #[export]
-Instance CAT_has_products : has_products CAT :=
+Instance CAT_HasProducts : HasProducts CAT :=
 {
   prodOb := CAT_prodOb;
   proj1 := CAT_proj1;

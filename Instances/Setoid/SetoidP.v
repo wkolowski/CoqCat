@@ -26,7 +26,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance SetP_has_init : has_init SetP :=
+Instance SetP_HasInit : HasInit SetP :=
 {
   init := Empty_set;
   create := fun (X : Ob SetP) (e : Empty_set) => match e with end
@@ -35,7 +35,7 @@ Proof. cat. Defined.
 
 #[refine]
 #[export]
-Instance SetP_has_term : has_term SetP :=
+Instance SetP_HasTerm : HasTerm SetP :=
 {
   term := Empty_set;
   delete := fun (X : Ob SetP) (x : X) => None
@@ -44,7 +44,7 @@ Proof. cat; destruct (f x); cat. Defined.
 
 #[refine]
 #[export]
-Instance SetP_has_zero : has_zero SetP := {}.
+Instance SetP_HasZero : HasZero SetP := {}.
 Proof. cat. Defined.
 
 Definition SetP_proj1 (X Y : Set) (p : sumprod X Y) : option X :=
@@ -72,7 +72,7 @@ end.
 
 #[refine]
 #[export]
-Instance SetP_has_products : has_products SetP :=
+Instance SetP_HasProducts : HasProducts SetP :=
 {
   prodOb := sumprod;
   proj1 := SetP_proj1;
@@ -96,7 +96,7 @@ end.
 
 #[refine]
 #[export]
-Instance SetP_has_coproducts : has_coproducts SetP :=
+Instance SetP_HasCoproducts : HasCoproducts SetP :=
 {
   coprodOb := sum;
   coproj1 := fun (A B : Set) (a : A) => Some (inl a);

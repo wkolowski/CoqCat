@@ -62,7 +62,7 @@ Proof. pos. Defined.
 
 #[refine]
 #[export]
-Instance Pos_has_init : has_init PosCat :=
+Instance Pos_HasInit : HasInit PosCat :=
 {
   init := Pos_init;
   create := Pros_create
@@ -79,7 +79,7 @@ Proof. pos. Defined.
 
 #[refine]
 #[export]
-Instance Pos_has_term : has_term PosCat :=
+Instance Pos_HasTerm : HasTerm PosCat :=
 {
   term := Pos_term;
   delete := Pros_delete
@@ -96,7 +96,7 @@ Proof. pos. Defined.
 
 #[refine]
 #[export]
-Instance Pos_has_products : has_products PosCat :=
+Instance Pos_HasProducts : HasProducts PosCat :=
 {
   prodOb := Pos_prodOb;
   proj1 := Pros_proj1;
@@ -136,7 +136,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pos_has_coproducts : has_coproducts PosCat :=
+Instance Pos_HasCoproducts : HasCoproducts PosCat :=
 {
   coprodOb := Pos_coprodOb;
   coproj1 := Pos_coproj1;

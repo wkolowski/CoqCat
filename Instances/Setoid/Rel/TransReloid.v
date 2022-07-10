@@ -66,7 +66,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_has_init : has_init TransReloidCat :=
+Instance TransReloid_HasInit : HasInit TransReloidCat :=
 {
   init := TransReloid_init;
   create := TransReloid_create
@@ -91,7 +91,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_has_term : has_term TransReloidCat :=
+Instance TransReloid_HasTerm : HasTerm TransReloidCat :=
 {
   term := TransReloid_term;
   delete := TransReloid_delete;
@@ -134,7 +134,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_has_products : has_products TransReloidCat :=
+Instance TransReloid_HasProducts : HasProducts TransReloidCat :=
 {
   prodOb := TransReloid_prodOb;
   proj1 := TransReloid_proj1;
@@ -183,7 +183,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_has_coproducts : has_coproducts TransReloidCat :=
+Instance TransReloid_HasCoproducts : HasCoproducts TransReloidCat :=
 {
   coprodOb := TransReloid_coprodOb;
   coproj1 := TransReloid_coproj1;
