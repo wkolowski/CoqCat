@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export InitTerm BinProdCoprod BigProdCoprod Equalizer Pullback Exponential.
+From Cat.Limits Require Export InitTerm ProdCoprod IndexedProdCoprod Equalizer Pullback Exponential.
 
 #[refine]
 #[export]
@@ -114,10 +114,10 @@ Defined.
 (* Beware! Requires functional extensionality. *)
 #[refine]
 #[export]
-Instance CoqSet_HasAllProducts : HasAllProducts CoqSet :=
+Instance CoqSet_HasIndexedProducts : HasIndexedProducts CoqSet :=
 {
-  bigProdOb := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
-  bigProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  indexedProdOb := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
+  indexedProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
@@ -154,10 +154,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSet_HasAllCoproducts : HasAllCoproducts CoqSet :=
+Instance CoqSet_HasIndexedCoproducts : HasIndexedCoproducts CoqSet :=
 {
-  bigCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
-  bigCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  indexedCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
+  indexedCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>

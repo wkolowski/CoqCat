@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod.
+From Cat.Limits Require Import InitTerm ProdCoprod.
 
 Definition FAlg {C : Cat} (F : Functor C C) : Type :=
   {X : Ob C & @Hom C (fob F X) X}.

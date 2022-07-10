@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
+From Cat.Limits Require Import InitTerm ProdCoprod IndexedProdCoprod Equalizer.
 
 Class HApartoid : Type :=
 {

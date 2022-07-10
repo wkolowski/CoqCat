@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod.
+From Cat.Limits Require Import InitTerm ProdCoprod.
 From Cat Require Export Instances.Setoid.Sgr.
 
 Set Implicit Arguments.

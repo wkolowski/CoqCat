@@ -121,24 +121,24 @@ Coercion coproducts : HasBiproducts >-> HasCoproducts.
 
 (* Equivalence to the old definition *)
 
-From Cat Require Limits.BinProdCoprod.
+From Cat Require Limits.ProdCoprod.
 
 Module Equiv.
 
 #[refine]
 #[export]
-Instance hp_hpeq (C : Cat) (hp : BinProdCoprod.HasProducts C) : HasProducts C :=
+Instance hp_hpeq (C : Cat) (hp : ProdCoprod.HasProducts C) : HasProducts C :=
 {
-  prodOb := @BinProdCoprod.prodOb C hp;
-  proj1 := @BinProdCoprod.proj1 C hp;
-  proj2 := @BinProdCoprod.proj2 C hp;
-  fpair := @BinProdCoprod.fpair C hp;
+  prodOb := @ProdCoprod.prodOb C hp;
+  proj1 := @ProdCoprod.proj1 C hp;
+  proj2 := @ProdCoprod.proj2 C hp;
+  fpair := @ProdCoprod.fpair C hp;
 }.
-Proof. all: BinProdCoprod.fpair. Defined.
+Proof. all: ProdCoprod.fpair. Defined.
 
 #[refine]
 #[export]
-Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : BinProdCoprod.HasProducts C :=
+Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : ProdCoprod.HasProducts C :=
 {
   prodOb := @prodOb C hp_eq;
   proj1 := @proj1 C hp_eq;
@@ -146,7 +146,7 @@ Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : BinProdCoprod.HasProducts C
   fpair := @fpair C hp_eq;
 }.
 Proof.
-  unfold BinProdCoprod.product_skolem, setoid_unique. cat.
+  unfold ProdCoprod.product_skolem, setoid_unique. cat.
     rewrite fpair_proj1. reflexivity.
     rewrite fpair_proj2. reflexivity.
     rewrite H, H0. rewrite fpair_pre, fpair_id, id_right. reflexivity.
@@ -154,18 +154,18 @@ Defined.
 
 #[refine]
 #[export]
-Instance hp_hpeq' (C : Cat) (hp : BinProdCoprod.HasCoproducts C) : HasCoproducts C :=
+Instance hp_hpeq' (C : Cat) (hp : ProdCoprod.HasCoproducts C) : HasCoproducts C :=
 {
-  coprodOb := @BinProdCoprod.coprodOb C hp;
-  coproj1 := @BinProdCoprod.coproj1 C hp;
-  coproj2 := @BinProdCoprod.coproj2 C hp;
-  copair := @BinProdCoprod.copair C hp;
+  coprodOb := @ProdCoprod.coprodOb C hp;
+  coproj1 := @ProdCoprod.coproj1 C hp;
+  coproj2 := @ProdCoprod.coproj2 C hp;
+  copair := @ProdCoprod.copair C hp;
 }.
-Proof. all: BinProdCoprod.copair. Defined.
+Proof. all: ProdCoprod.copair. Defined.
 
 #[refine]
 #[export]
-Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : BinProdCoprod.HasCoproducts C :=
+Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : ProdCoprod.HasCoproducts C :=
 {
   coprodOb := @coprodOb C hp_eq;
   coproj1 := @coproj1 C hp_eq;
@@ -173,7 +173,7 @@ Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : BinProdCoprod.HasCoprodu
   copair := @copair C hp_eq;
 }.
 Proof.
-  unfold BinProdCoprod.coproduct_skolem, setoid_unique. cat.
+  unfold ProdCoprod.coproduct_skolem, setoid_unique. cat.
     rewrite copair_coproj1. reflexivity.
     rewrite copair_coproj2. reflexivity.
     rewrite H, H0. rewrite copair_post, copair_id, id_left. reflexivity.
@@ -181,10 +181,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance hb_hbeq (C : Cat) (hb : BinProdCoprod.HasBiproducts C) : HasBiproducts C :=
+Instance hb_hbeq (C : Cat) (hb : ProdCoprod.HasBiproducts C) : HasBiproducts C :=
 {
-  products := @hp_hpeq C (@BinProdCoprod.products C hb);
-  coproducts := @hp_hpeq' C (@BinProdCoprod.coproducts C hb);
+  products := @hp_hpeq C (@ProdCoprod.products C hb);
+  coproducts := @hp_hpeq' C (@ProdCoprod.coproducts C hb);
 }.
 Proof.
   intros. destruct hb. cbn. apply product_is_coproduct0.
@@ -192,10 +192,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance hbeq_hb (C : Cat) (hb : HasBiproducts C) : BinProdCoprod.HasBiproducts C :=
+Instance hbeq_hb (C : Cat) (hb : HasBiproducts C) : ProdCoprod.HasBiproducts C :=
 {
-  BinProdCoprod.products := @hpeq_hp C (@products C hb);
-  BinProdCoprod.coproducts := @hpeq_hp' C (@coproducts C hb);
+  ProdCoprod.products := @hpeq_hp C (@products C hb);
+  ProdCoprod.coproducts := @hpeq_hp' C (@coproducts C hb);
 }.
 Proof.
   intros. destruct hb. cbn. apply product_is_coproduct0.
@@ -203,7 +203,7 @@ Defined.
 
 End Equiv.
 
-(* Lemmas ported from BinProdCoprod.v *)
+(* Lemmas ported from ProdCoprod.v *)
 
 #[refine]
 #[export]

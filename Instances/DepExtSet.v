@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Export InitTerm BinProdCoprod BigProdCoprod Equalizer.
+From Cat.Limits Require Export InitTerm ProdCoprod IndexedProdCoprod Equalizer.
 
 Inductive depExtEq : forall A B : Type, A -> B -> Prop :=
 | depExtEq_eq :
@@ -142,10 +142,10 @@ Defined.
 (* TODO *)
 #[refine]
 #[export]
-Instance DepExtSet_HasAllProducts : HasAllProducts DepExtSet :=
+Instance DepExtSet_HasIndexedProducts : HasIndexedProducts DepExtSet :=
 {
-  bigProdOb := fun (J : Set) (A : J -> Ob DepExtSet) => forall j : J, A j;
-  bigProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  indexedProdOb := fun (J : Set) (A : J -> Ob DepExtSet) => forall j : J, A j;
+  indexedProj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
     fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
@@ -154,7 +154,7 @@ Proof.
   (* Proper *) repeat red; cbn; intros. apply depExtEq_ext. intro.
     change (fun j : J => f j x) with (fun j : J => (fun a : X => f j a) x).
     change (fun j : J => g j x) with (fun j : J => (fun a : X => g j a) x). admit.
-  (* Universal property *) unfold big_product_skolem; cbn; intros.
+  (* Universal property *) unfold indexed_product_skolem; cbn; intros.
     repeat (red || split).
       intro. apply depExtEq_ext. intro. auto.
       intros. apply depExtEq_ext. intro. admit.
@@ -185,10 +185,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance DepExtSet_HasAllCoproducts : HasAllCoproducts DepExtSet :=
+Instance DepExtSet_HasIndexedCoproducts : HasIndexedCoproducts DepExtSet :=
 {
-  bigCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) => {j : J & A j};
-  bigCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (x : A j) => existT A j x;
+  indexedCoprodOb := fun (J : Set) (A : J -> Ob DepExtSet) => {j : J & A j};
+  indexedCoproj := fun (J : Set) (A : J -> Ob DepExtSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
     fun (J : Set) (A : J -> Ob DepExtSet) (X : Ob DepExtSet)
         (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>

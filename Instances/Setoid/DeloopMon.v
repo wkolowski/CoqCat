@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod.
+From Cat.Limits Require Import InitTerm ProdCoprod.
 From Cat Require Import Instances.Setoid.Mon.
 
 #[refine]

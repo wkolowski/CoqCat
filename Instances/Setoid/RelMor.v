@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod.
+From Cat.Limits Require Import InitTerm ProdCoprod IndexedProdCoprod.
 From Cat Require Export Instances.Setoids.
 
 Class SetoidRel (X Y : Setoid') : Type :=

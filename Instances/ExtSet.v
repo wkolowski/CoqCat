@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
+From Cat.Limits Require Import InitTerm ProdCoprod IndexedProdCoprod Equalizer.
 
 Inductive extEq : forall A : Type, A -> A -> Prop :=
 | extEq_refl :
@@ -157,10 +157,10 @@ Defined.
 (* TODO *)
 #[refine]
 #[export]
-Instance ExtSet_HasAllProducts : HasAllProducts ExtSet :=
+Instance ExtSet_HasIndexedProducts : HasIndexedProducts ExtSet :=
 {
-  bigProdOb := fun (J : Type) (A : J -> Ob ExtSet) => forall j : J, A j;
-  bigProj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  indexedProdOb := fun (J : Type) (A : J -> Ob ExtSet) => forall j : J, A j;
+  indexedProj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
     fun (J : Type) (A : J -> Ob ExtSet) (X : Ob ExtSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
@@ -168,7 +168,7 @@ Instance ExtSet_HasAllProducts : HasAllProducts ExtSet :=
 Proof.
   (* Proper *) repeat red; cbn; intros. apply extEq_ext. intro.
   (* extEq *) admit.
-  (* Universal property *) unfold big_product_skolem; cbn; intros.
+  (* Universal property *) unfold indexed_product_skolem; cbn; intros.
     repeat (red || split).
       intro. apply extEq_ext. intro. auto.
       intros. apply extEq_ext. intro. cbn in *.
@@ -196,10 +196,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance ExtSet_HasAllCoproducts : HasAllCoproducts ExtSet :=
+Instance ExtSet_HasIndexedCoproducts : HasIndexedCoproducts ExtSet :=
 {
-  bigCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) => {j : J & A j};
-  bigCoproj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (x : A j) => existT A j x;
+  indexedCoprodOb := fun (J : Type) (A : J -> Ob ExtSet) => {j : J & A j};
+  indexedCoproj := fun (J : Type) (A : J -> Ob ExtSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
     fun (J : Type) (A : J -> Ob ExtSet) (X : Ob ExtSet)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>

@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm.
-From Cat.Limits.Equational Require Export BinProdCoprod.
+From Cat.Limits.Equational Require Export ProdCoprod.
 
 (* TODO *) Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {

@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod BigProdCoprod Equalizer.
+From Cat.Limits Require Import InitTerm ProdCoprod IndexedProdCoprod Equalizer.
 
 Class Apartoid : Type :=
 {
@@ -295,7 +295,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_bigProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
+Instance Apartoid_indexedProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := forall j : J, A j;
   neq := fun f g : forall j : J, A j => exists j : J, f j # g j
@@ -308,8 +308,8 @@ Proof.
     right. exists j. assumption.
 Defined.
 
-Definition Apartoid_bigProj
-  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_bigProdOb A) (A j).
+Definition Apartoid_indexedProj
+  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProdOb A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
   intro. apply H. simpl. exists j. assumption.
@@ -318,7 +318,7 @@ Defined.
 Definition Apartoid_tuple
   {J : Set} {A : J -> Apartoid} {X : Apartoid}
   (f : forall j : J, ApartoidHom X (A j))
-  : ApartoidHom X (Apartoid_bigProdOb A).
+  : ApartoidHom X (Apartoid_indexedProdOb A).
 Proof.
   red. exists (fun (x : X) (j : J) => f j x). cbn; intros.
   intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; cbn in *.
@@ -327,16 +327,16 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_HasAllProducts : HasAllProducts ApartoidCat :=
+Instance Apartoid_HasIndexedProducts : HasIndexedProducts ApartoidCat :=
 {
-  bigProdOb := @Apartoid_bigProdOb;
-  bigProj := @Apartoid_bigProj;
+  indexedProdOb := @Apartoid_indexedProdOb;
+  indexedProj := @Apartoid_indexedProj;
   tuple := @Apartoid_tuple;
 }.
 Proof.
   (* tuple is proper *) cbn; intros. destruct 1 as [j H'].
     eapply H. eassumption.
-  (* Product law *) unfold big_product_skolem; red; split;
+  (* Product law *) unfold indexed_product_skolem; red; split;
   cbn in *; intros; eauto. destruct 1 as [j H'].
   red in y. destruct y as [y Hy]; cbn in *.
   eapply H; eauto.
@@ -435,7 +435,7 @@ Abort.
 (* TODO: make this more dependent (change JMeq to some lifted heterogenous apartness... *)
 #[refine]
 #[export]
-Instance Apartoid_bigCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
+Instance Apartoid_indexedCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := {j : J & A j};
   neq := fun p1 p2 : {j : J & A j} => projT1 p1 # projT1 p2
@@ -444,17 +444,17 @@ Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
 Defined.
 
-Definition Apartoid_bigCoproj
-  {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_bigCoprodOb A).
+Definition Apartoid_indexedCoproj
+  {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoprodOb A).
 Proof.
   red; cbn in *. exists (fun a : A j => existT _ j a); cbn.
   intros; intro. eapply neq_irrefl. eauto.
 Defined.
 
-Definition Apartoid_bigCopair
+Definition Apartoid_indexedCopair
   {J : Apartoid} {A : J -> Apartoid}
   {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
-  : ApartoidHom (Apartoid_bigCoprodOb A) X.
+  : ApartoidHom (Apartoid_indexedCoprodOb A) X.
 Proof.
   red; cbn. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
   destruct x as [j a], x' as [j' a']; cbn; do 2 intro.

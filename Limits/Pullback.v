@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod Equalizer.
+From Cat.Limits Require Import InitTerm ProdCoprod Equalizer.
 
 Set Implicit Arguments.
 

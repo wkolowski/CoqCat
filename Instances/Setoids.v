@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export InitTerm BinProdCoprod Equalizer BigProdCoprod Exponential.
+From Cat.Limits Require Export InitTerm ProdCoprod Equalizer IndexedProdCoprod Exponential.
 
 Set Implicit Arguments.
 
@@ -420,7 +420,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance CoqSetoid_bigProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
+Instance CoqSetoid_indexedProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
   carrier := forall j : J, A j;
   setoid :=
@@ -433,8 +433,8 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_bigProj
-  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_bigProdOb A) (A j).
+Instance CoqSetoid_indexedProj
+  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_indexedProdOb A) (A j).
 Proof.
   split with (fun (f : forall j : J, A j) => f j). proper.
 Defined.
@@ -443,22 +443,22 @@ Defined.
 Instance CoqSetoid_tuple
   {J : Set} {A : J -> Setoid'} {X : Setoid'}
   (f : forall j : J, SetoidHom X (A j))
-  : SetoidHom X (CoqSetoid_bigProdOb A).
+  : SetoidHom X (CoqSetoid_indexedProdOb A).
 Proof.
   split with (fun x : X => (fun j : J => f j x)). proper.
 Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasAllProducts : HasAllProducts CoqSetoid :=
+Instance CoqSetoid_HasIndexedProducts : HasIndexedProducts CoqSetoid :=
 {
-  bigProdOb := @CoqSetoid_bigProdOb;
-  bigProj := @CoqSetoid_bigProj;
+  indexedProdOb := @CoqSetoid_indexedProdOb;
+  indexedProj := @CoqSetoid_indexedProj;
   tuple := @CoqSetoid_tuple
 }.
 Proof.
   cbn; intros; eauto.
-  unfold big_product_skolem; red; cbn; split; intros;
+  unfold indexed_product_skolem; red; cbn; split; intros;
   try reflexivity; eauto.
 Defined.
 
@@ -481,7 +481,7 @@ Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
 
 #[refine]
 #[export]
-Instance CoqSetoid_bigCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
+Instance CoqSetoid_indexedCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 {
   carrier := {j : J & A j};
   setoid :=
@@ -504,8 +504,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_bigCoproj
-  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_bigCoprodOb A) :=
+Instance CoqSetoid_indexedCoproj
+  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_indexedCoprodOb A) :=
 {
   func := fun x : A j => existT _ j x
 }.
@@ -516,7 +516,7 @@ Proof. proper. Defined.
 Instance CoqSetoid_cotuple
   {J : Set} {A : J -> Setoid'} {X : Setoid'}
   (f : forall j : J, SetoidHom (A j) X)
-  : SetoidHom (CoqSetoid_bigCoprodOb A) X :=
+  : SetoidHom (CoqSetoid_indexedCoprodOb A) X :=
 {
   func := fun x => f (projT1 x) (projT2 x)
 }.
@@ -528,10 +528,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasAllCoproducts : HasAllCoproducts CoqSetoid :=
+Instance CoqSetoid_HasIndexedCoproducts : HasIndexedCoproducts CoqSetoid :=
 {
-  bigCoprodOb := @CoqSetoid_bigCoprodOb;
-  bigCoproj := @CoqSetoid_bigCoproj;
+  indexedCoprodOb := @CoqSetoid_indexedCoprodOb;
+  indexedCoproj := @CoqSetoid_indexedCoproj;
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.

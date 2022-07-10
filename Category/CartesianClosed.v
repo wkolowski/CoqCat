@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod Exponential.
+From Cat.Limits Require Import InitTerm ProdCoprod Exponential.
 
 Class cartesian_closed (C : Cat) : Type :=
 {

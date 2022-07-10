@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat Require Import Limits.InitTerm.
-From Cat Require Import Limits.BinProdCoprod.
+From Cat Require Import Limits.ProdCoprod.
 
 #[refine]
 #[export]

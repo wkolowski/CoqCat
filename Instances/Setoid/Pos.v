@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Export InitTerm BinProdCoprod.
+From Cat.Limits Require Export InitTerm ProdCoprod.
 From Cat Require Export Instances.Setoid.Pros.
 
 Class Pos : Type :=

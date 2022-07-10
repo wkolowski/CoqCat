@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm BinProdCoprod.
+From Cat.Limits Require Import InitTerm ProdCoprod.
 From Cat.Instances Require Import Discrete DepExtSet.
 
 Set Implicit Arguments.
