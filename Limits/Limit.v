@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
-From Cat Require Import Limits.InitTerm.
-From Cat Require Import Instances.Setoids.
+From Cat.Limits Require Import InitTerm.
+From Cat.Instances Require Import Setoids FunCat.
 
 Set Implicit Arguments.
 

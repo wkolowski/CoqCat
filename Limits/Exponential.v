@@ -190,25 +190,3 @@ Instance ExponentialFunctor
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
 Proof. all: curry. Defined.
-
-(** TODO: moved from NatTrans.v *)
-
-#[refine]
-#[export]
-Instance FunCat_expOb
-  {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
-  (F G : Functor C D) : Functor C D :=
-{
-  fob := fun X : Ob C => expOb (fob F X) (fob G X)
-}.
-Proof.
-Abort.
-
-(* TODO : transfer of exponentials. Do they even transfer? *)
-#[refine]
-#[export]
-Instance FunCat_HasExponentials
-  {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
-  : HasExponentials (FunCat C D) := {}.
-Proof.
-Abort.

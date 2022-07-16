@@ -777,21 +777,6 @@ Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 }.
 Proof. cat. Defined.
 
-#[refine]
-#[export]
-Instance FunCat (C D : Cat) : Cat :=
-{
-  Ob := Functor C D;
-  Hom := @NatTrans C D;
-  HomSetoid := NatTransSetoid;
-  comp := @NatTransComp C D;
-  id := NatTransId
-}.
-Proof.
-  (* Proper *) do 3 red; cbn; intros. rewrite H, H0. reflexivity.
-  (* Category laws *) all: cat.
-Defined.
-
 Definition natural_isomorphism
   {C D : Cat} {F G : Functor C D} (α : NatTrans F G) : Prop :=
     exists β : NatTrans G F,
