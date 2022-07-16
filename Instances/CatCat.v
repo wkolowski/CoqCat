@@ -4,25 +4,6 @@ From Cat.Instances Require Import Discrete DepExtSet.
 
 Set Implicit Arguments.
 
-#[refine]
-#[export]
-Instance CAT : Cat :=
-{
-  Ob := Cat;
-  Hom := Functor;
-  HomSetoid := fun C D : Cat =>
-  {|
-    equiv := fun T S : Functor C D => depExtEq (fob T) (fob S) /\ depExtEq (fmap T) (fmap S)
-  |};
-  comp := @FunctorComp;
-  id := FunctorId
-}.
-Proof.
-  (* Equivalence *) solve_equiv.
-  (* Proper *) proper. my_simpl; solve_depExtEq.
-  (* Category laws *) all: cat.
-Defined.
-
 #[export]
 Instance CAT_init : Cat := Discrete Empty_set.
 
@@ -43,9 +24,9 @@ Instance CAT_HasInit : HasInit CAT :=
   create := CAT_create
 }.
 Proof.
-  cbn. split.
-    apply depExtEq_ext. destruct x.
-    apply depExtEq_ext. destruct x.
+  cbn; intros X F.
+  exists (fun e : Empty_set => match e with end).
+  destruct A.
 Defined.
 
 #[export]
@@ -67,9 +48,12 @@ Instance CAT_HasTerm : HasTerm CAT :=
   delete := CAT_delete;
 }.
 Proof.
-  cbn. split; solve_depExtEq.
-    destruct (fob f x). reflexivity.
-    destruct (fmap f x1). cat.
+  cbn; intros X F.
+  esplit. Unshelve. all: cycle 1.
+  - intros A. destruct (fob F A). reflexivity.
+  - cbn; intros A B f.
+    setoid_rewrite Eqdep_dec.UIP_refl_unit.
+    reflexivity.
 Defined.
 
 #[refine]
@@ -110,14 +94,23 @@ Instance CAT_HasProducts : HasProducts CAT :=
   fpair := CAT_fpair
 }.
 Proof.
-  proper. destruct H, H0. split.
-    solve_depExtEq.
-    do 3 (apply depExtEq_ext; intro).
-      apply (depExtEq_unext (pair _) (pair _)).
-        apply (depExtEq_unext pair pair).
-          solve_depExtEq.
-        solve_depExtEq.
-      solve_depExtEq.
-  unfold product_skolem. repeat split; solve_depExtEq.
-  all: cbn in *; my_simpl.
+  - cbn; intros C D E F G [p q] H I [r s].
+    esplit. Unshelve. all: cycle 1.
+    + intros A. cbn. destruct (p A), (r A). reflexivity.
+    + cbn; intros A B f.
+      rewrite <- q, <- s; clear q s.
+      destruct (p A), (p B), (r A), (r B); cbn.
+      reflexivity.
+  - intros C D X F G; repeat split; cbn.
+    + exists (fun _ => eq_refl); cbn. reflexivity.
+    + exists (fun _ => eq_refl); cbn. reflexivity.
+    + intros FG [[p q] [r s]].
+      esplit. Unshelve. all: cycle 1.
+(*       * intros A. destruct (eq_sym (p A)), (eq_sym (r A)). symmetry. apply surjective_pairing. *)
+      * intros A. rewrite p, r. symmetry. apply surjective_pairing.
+      * cbn; intros A B f.
+        specialize (q _ _ f); specialize (s _ _ f).
+        destruct (fmap FG f). cbn in *.
+        rewrite <- q, <- s; clear q s. unfold eq_ind_r. cbn.
+
 Abort.

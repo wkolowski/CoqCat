@@ -601,44 +601,6 @@ Proof.
   copair.
 Defined.
 
-Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
-  prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
-
-#[refine]
-#[export]
-Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D) : Setoid (ProdCatHom X Y) :=
-{
-  equiv := fun f g : ProdCatHom X Y =>
-    @equiv (@Hom C (fst X) (fst Y)) (@HomSetoid C (fst X) (fst Y))
-    (fst f) (fst g) /\
-    @equiv (@Hom D (snd X) (snd Y)) (@HomSetoid D (snd X) (snd Y))
-    (snd f) (snd g)
-}.
-Proof.
-  split; red; intros; split; try destruct H; try destruct H0;
-  try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity. 
-Defined.
-
-#[refine]
-#[export]
-Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
-{
-  Ob := Ob C * Ob D;
-  Hom := ProdCatHom;
-  HomSetoid := ProdCatSetoid;
-  comp := fun (X Y Z : Ob C * Ob D)
-      (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
-      (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
-      (fst f .> fst g, snd f .> snd g);
-  id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
-}.
-Proof.
-  (* Proper *) proper; my_simpl.
-    rewrite H, H0. reflexivity.
-    rewrite H1, H2. reflexivity.
-  (* Category laws *) all: cat.
-Defined.
-
 Definition ProductFunctor_fmap
   {C : Cat} {hp : HasProducts C}
   {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')

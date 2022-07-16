@@ -732,6 +732,106 @@ Instance Const {D : Cat} (X : Ob D) (C : Cat) : Contravariant C D :=
 }.
 Proof. proper. all: cat. Defined.
 
+(** * The category of categories and functors *)
+
+Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y :=
+match p with
+| eq_refl => u
+end.
+
+Lemma transport_transport :
+  forall {A : Type} (P : A -> Type) {x y z : A} (p : x = y) (q : y = z) (u : P x),
+    transport P q (transport P p u) = transport P (eq_trans p q) u.
+Proof.
+  intros A P x y z [] [] u; cbn; reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance CATHomSetoid {C D : Cat} : Setoid (Functor C D) :=
+{|
+  equiv T S :=
+    exists p : forall A : Ob C, fob T A = fob S A,
+     forall (A B : Ob C) (f : Hom A B),
+      transport (fun cod : Ob D => Hom (fob S A) cod) (p B)
+        (transport (fun dom : Ob D => Hom dom (fob T B)) (p A) (fmap T f))
+        =
+      fmap S f
+|}.
+Proof.
+  split; red.
+  - intros F. exists (fun _ => eq_refl); cbn. reflexivity.
+  - intros F G [p q]. exists (fun A => eq_sym (p A)).
+    intros A B f. rewrite <- q; clear q. destruct (p A), (p B); cbn. reflexivity.
+  - intros F G H [p1 q1] [p2 q2]. exists (fun X => eq_trans (p1 X) (p2 X)).
+    intros A B f. rewrite <- q2, <- q1; clear q1 q2.
+    destruct (p2 B), (p1 B), (p2 A), (p1 A); cbn. reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance CAT : Cat :=
+{
+  Ob := Cat;
+  Hom := Functor;
+  HomSetoid := @CATHomSetoid;
+  comp := @FunctorComp;
+  id := FunctorId
+}.
+Proof.
+  - cbn; intros A B C F G [p q] H I [r s].
+    unfold FunctorComp; cbn.
+    esplit. Unshelve. all: cycle 1.
+    + intros X. clear q s. destruct (p X), (r (fob F X)). reflexivity.
+    + intros X Y f. cbn.
+      rewrite <- q, <- s; clear q s.
+      destruct (p X), (p Y), (r (fob F X)), (r (fob F Y)); cbn.
+      reflexivity.
+  - cbn; intros A B C D F G H.
+    exists (fun X => eq_refl).
+    cbn; reflexivity.
+  - intros A B F. exists (fun _ => eq_refl). cbn. reflexivity.
+  - intros A B F. exists (fun _ => eq_refl). cbn. reflexivity.
+Defined.
+
+(** We also need to define the product of two categories, as this is needed
+    in many places to define two-argument functors. *)
+
+Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
+  prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
+
+#[refine]
+#[export]
+Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D) : Setoid (ProdCatHom X Y) :=
+{
+  equiv := fun f g : ProdCatHom X Y => fst f == fst g /\ snd f == snd g
+}.
+Proof.
+  split; red; intros; split; try destruct H; try destruct H0;
+  try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
+{
+  Ob := Ob C * Ob D;
+  Hom := ProdCatHom;
+  HomSetoid := ProdCatSetoid;
+  comp := fun
+    (X Y Z : Ob C * Ob D)
+    (f : Hom (fst X) (fst Y) * Hom (snd X) (snd Y))
+    (g : Hom (fst Y) (fst Z) * Hom (snd Y) (snd Z)) =>
+      (fst f .> fst g, snd f .> snd g);
+  id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
+}.
+Proof.
+  (* Proper *) proper; my_simpl.
+    rewrite H, H0. reflexivity.
+    rewrite H1, H2. reflexivity.
+  (* Category laws *) all: cat.
+Defined.
+
 (** * Natural transformations *)
 
 Class NatTrans {C D : Cat} (T S : Functor C D) : Type :=
