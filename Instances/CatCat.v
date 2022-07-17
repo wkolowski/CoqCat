@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Limits Require Import InitTerm ProdCoprod Exponential.
-From Cat.Instances Require Import Discrete DepExtSet FunCat.
+From Cat.Instances Require Import Discrete FunCat.
 
 Set Implicit Arguments.
 
