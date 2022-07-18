@@ -4,6 +4,8 @@ Set Implicit Arguments.
 
 (** * Categories *)
 
+(** ** Definitions *)
+
 Class Cat : Type :=
 {
   Ob : Type;
@@ -24,6 +26,8 @@ Arguments Ob _ : clear implicits.
 Notation "f .> g" := (comp f g) (at level 50).
 
 #[global] Hint Resolve comp_assoc id_left id_right : core.
+
+(** ** Reflective tactic for categories *)
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
 | Id   : forall X : Ob C, exp X X
@@ -180,6 +184,8 @@ match goal with
 | _ => cbn in *
 end; eauto).
 
+(** ** Duality and equality *)
+
 #[refine]
 #[export]
 Instance Dual (C : Cat) : Cat :=
@@ -263,6 +269,8 @@ Lemma duality_principle :
   forall P : Cat -> Prop,
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
 Proof. trivial. Qed.
+
+(** ** Kinds of morphisms and their properties *)
 
 Definition End {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
   A = B.
@@ -587,7 +595,117 @@ Proof.
     exists (f .> g). apply iso_comp; assumption.
 Defined.
 
+(** ** The category of setoids *)
+
+(** [CoqSetoid] corresponds to what most category theory textbooks call Set,
+    the category of sets and functions.
+
+    We need to use setoids instead of sets, because our categories have a
+    setoid of morphisms instead of a set/type. *)
+
+Class Setoid' : Type :=
+{
+  carrier : Type;
+  setoid :> Setoid carrier
+}.
+
+Coercion carrier : Setoid' >-> Sortclass.
+Coercion setoid : Setoid' >-> Setoid.
+
+Ltac setoidob S := try intros until S;
+match type of S with
+| Setoid =>
+  let a := fresh S "_equiv" in
+  let b := fresh S "_equiv_refl" in
+  let c := fresh S "_equiv_sym" in
+  let d := fresh S "_equiv_trans" in destruct S as [a [b c d]];
+    red in a; red in b; red in c; red in d
+| Setoid' =>
+  let a := fresh S "_equiv" in
+  let b := fresh S "_equiv_refl" in
+  let c := fresh S "_equiv_sym" in
+  let d := fresh S "_equiv_trans" in destruct S as [S [a [b c d]]];
+    red in a; red in b; red in c; red in d
+| Ob _ => progress cbn in S; setoidob S
+end.
+
+Ltac setoidobs := intros; repeat
+match goal with
+| S : Setoid |- _ => setoidob S
+| S : Setoid' |- _ => setoidob S
+| S : Ob _ |- _ => setoidob S
+end.
+
+Class SetoidHom (X Y : Setoid') : Type :=
+{
+  func : X -> Y;
+  func_Proper :> Proper (@equiv _ X ==> @equiv _ Y) func
+}.
+
+Arguments func [X Y] _.
+Arguments func_Proper [X Y] _.
+
+Coercion func : SetoidHom >-> Funclass.
+
+Ltac setoidhom f := try intros until f;
+match type of f with
+| SetoidHom _ _ =>
+  let a := fresh f "_pres_equiv" in destruct f as [f a]; repeat red in a
+| Hom _ _ => progress cbn in f; setoidhom f
+end.
+
+Ltac setoidhoms := intros; repeat
+match goal with
+| f : SetoidHom _ _ |- _ => setoidhom f
+| f : Hom _ _ |- _ => setoidhom f
+end.
+
+Ltac setoid_simpl := repeat (red || split || cbn in * || intros).
+Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
+
+Ltac setoid' := repeat
+match goal with
+| |- Proper _ _ => proper
+| |- Equivalence _ _ => solve_equiv
+| _ => setoid_simpl || cat || setoidhoms || setoidobs
+end.
+
+Ltac setoid := try (setoid'; fail).
+
+#[refine]
+#[export]
+Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y) (g : SetoidHom Y Z) : SetoidHom X Z :=
+{
+  func := fun x : X => g (f x)
+}.
+Proof. setoid. Defined.
+
+#[refine]
+#[export]
+Instance SetoidId (X : Setoid') : SetoidHom X X :=
+{
+  func := fun x : X => x
+}.
+Proof. setoid. Defined.
+
+#[refine]
+#[global]
+Instance CoqSetoid : Cat :=
+{|
+  Ob := Setoid';
+  Hom := SetoidHom;
+  HomSetoid := fun X Y : Setoid' =>
+  {|
+    equiv := fun f g : SetoidHom X Y => forall x : X, @equiv _ (@setoid Y) (f x) (g x)
+  |};
+  comp := SetoidComp;
+  id := SetoidId
+|}.
+Proof. all: setoid. Defined.
+
 (** * Functors *)
+
+(** ** Covariant functor definitions *)
 
 Class Functor (C : Cat) (D : Cat) : Type :=
 {
@@ -606,6 +724,8 @@ Ltac functor_rw' := rewrite <- pres_comp || rewrite <- pres_id.
 Ltac functor_simpl := repeat functor_rw.
 Ltac functor_simpl' := repeat functor_rw'.
 Ltac functor := repeat (split || intros || functor_simpl || cat).
+
+(** ** Kinds of functors and their properties *)
 
 Definition full {C D : Cat} (T : Functor C D) : Prop :=
   forall (A B : Ob C) (g : Hom (fob T A) (fob T B)),
@@ -675,6 +795,8 @@ Proof.
     (* TODO : cat should work here *)
 Defined.
 
+(** ** Identity, composition, constant and Hom functors *)
+
 #[refine]
 #[export]
 Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E) : Functor C E :=
@@ -701,13 +823,23 @@ Defined.
 
 #[refine]
 #[export]
-Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat)
-    : Functor C D :=
+Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat) : Functor C D :=
 {
   fob := fun _ => X;
   fmap := fun _ _ _ => id X
 }.
 Proof. proper. all: functor. Defined.
+
+#[refine]
+#[export]
+Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
+{
+  fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
+}.
+Proof.
+  intros A B f. exists (fun g => g .> f). proper.
+  proper. all: cat.
+Defined.
 
 (** ** Contravariant functors *)
 
@@ -725,12 +857,145 @@ Arguments comap [C D] _ [X Y] _.
 
 #[refine]
 #[export]
-Instance Const {D : Cat} (X : Ob D) (C : Cat) : Contravariant C D :=
+Instance ConstContravariant {D : Cat} (X : Ob D) (C : Cat) : Contravariant C D :=
 {
   coob := fun _ => X;
   comap := fun _ _ _ => id X
 }.
 Proof. proper. all: cat. Defined.
+
+#[refine]
+#[export]
+Instance HomContravariant (C : Cat) (X : Ob C) : Contravariant C CoqSetoid :=
+{
+  coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
+}.
+Proof.
+  intros Y Z f. exists (fun g => f .> g). proper.
+  proper. all: cat.
+Defined.
+
+(** ** Bifunctors *)
+
+Class Bifunctor (C D E : Cat) : Type :=
+{
+  biob : Ob C -> Ob D -> Ob E;
+  bimap :
+    forall {X Y : Ob C} {X' Y' : Ob D},
+      Hom X Y -> Hom X' Y' -> Hom (biob X X') (biob Y Y');
+  bimap_Proper :>
+    forall (X Y : Ob C) (X' Y' : Ob D),
+      Proper (equiv ==> equiv ==> equiv) (@bimap X Y X' Y');
+  bimap_pres_comp :
+    forall
+      (X Y Z : Ob C) (X' Y' Z' : Ob D)
+      (f : Hom X Y) (g : Hom Y Z) (f' : Hom X' Y') (g' : Hom Y' Z'),
+        bimap (f .> g) (f' .> g') == bimap f f' .> bimap g g';
+  bimap_pres_id :
+    forall (X : Ob C) (Y : Ob D),
+      bimap (id X) (id Y) == id (biob X Y);
+}.
+
+Arguments biob  [C D E Bifunctor] _ _.
+Arguments bimap [C D E Bifunctor X Y X' Y'] _ _.
+
+Definition first
+  {C D E : Cat} {F : Bifunctor C D E} {X Y : Ob C} {A : Ob D} (f : Hom X Y)
+  : Hom (biob X A) (biob Y A) := bimap f (id A).
+
+Definition second
+  {C D E : Cat} {F : Bifunctor C D E} {A : Ob C} {X Y : Ob D} (f : Hom X Y)
+  : Hom (biob A X) (biob A Y) := bimap (id A) f.
+
+#[refine]
+#[export]
+Instance BiComp
+  {C C' D D' E : Cat} (B : Bifunctor C' D' E) (F : Functor C C') (G : Functor D D')
+  : Bifunctor C D E :=
+{
+  biob := fun (X : Ob C) (Y : Ob D) => biob (fob F X) (fob G Y);
+  bimap := fun (X Y : Ob C) (X' Y' : Ob D) (f : Hom X Y) (g : Hom X' Y') =>
+    bimap (fmap F f) (fmap G g)
+}.
+Proof.
+  proper.
+  intros. rewrite !pres_comp, !bimap_pres_comp. reflexivity.
+  intros. rewrite 2 pres_id, bimap_pres_id. reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance ConstBifunctor {E : Cat} (X : Ob E) (C D : Cat) : Bifunctor C D E :=
+{
+  biob := fun _ _ => X;
+  bimap := fun _ _ _ _ _ _ => id X
+}.
+Proof. proper. all: cat. Defined.
+
+(** ** Profunctors *)
+
+Class Profunctor (C D E: Cat) : Type :=
+{
+  diob : Ob C -> Ob D -> Ob E;
+  dimap :
+    forall {X Y : Ob C} {X' Y' : Ob D},
+      Hom X Y -> Hom X' Y' -> Hom (diob Y X') (diob X Y');
+  dimap_Proper :>
+    forall (X Y : Ob C) (X' Y' : Ob D),
+      Proper (equiv ==> equiv ==> equiv) (@dimap X Y X' Y');
+  dimap_comp :
+    forall
+      (X Y Z : Ob C) (X' Y' Z' : Ob D)
+      (f : Hom X Y) (g : Hom Y Z) (f' : Hom X' Y') (g' : Hom Y' Z'),
+        dimap (f .> g) (f' .> g') == dimap g f' .> dimap f g';
+  dimap_id :
+    forall (X : Ob C) (Y : Ob D),
+      dimap (id X) (id Y) == id (diob X Y);
+}.
+
+Arguments diob  [C D E Profunctor] _ _.
+Arguments dimap [C D E Profunctor X Y X' Y'] _ _.
+
+Ltac profunctor_simpl := repeat (rewrite dimap_comp || rewrite dimap_id).
+
+Ltac profunctor := repeat
+match goal with
+| |- context [Proper] => proper
+| _ => cat; try functor_simpl; profunctor_simpl; cat
+end.
+
+#[refine]
+#[export]
+Instance ConstProfunctor {E : Cat} (X : Ob E) (C D : Cat) : Profunctor C D E :=
+{
+  diob := fun _ _ => X;
+  dimap := fun _ _ _ _ _ _ => id X
+}.
+Proof. all: profunctor. Defined.
+
+#[refine]
+#[export]
+Instance ProComp
+  {C C' D D' E : Cat} (P : Profunctor C' D' E) (F : Functor C C') (G : Functor D D')
+  : Profunctor C D E :=
+{
+  diob := fun (X : Ob C) (Y : Ob D) => diob (fob F X) (fob G Y)
+}.
+Proof.
+  intros ? ? ? ? f g. exact (dimap (fmap F f) (fmap G g)).
+  all: profunctor.
+Defined.
+
+#[refine]
+#[export]
+Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
+{
+  diob := fun X Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |};
+}.
+Proof.
+  intros ? ? ? ? f g. exists (fun h : Hom Y X' => f .> h .> g). proper.
+  all: profunctor.
+Defined.
 
 (** * The category of categories and functors *)
 
@@ -877,6 +1142,8 @@ Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 }.
 Proof. cat. Defined.
 
+(** ** Natural isomorphisms and representable functors *)
+
 Definition natural_isomorphism
   {C D : Cat} {F G : Functor C D} (α : NatTrans F G) : Prop :=
     exists β : NatTrans G F,
@@ -912,3 +1179,9 @@ Proof.
     eexists {| component := component_β; coherence := coherence_β |}.
     cat; apply inverse_α_β.
 Defined.
+
+Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
+  exists (X : Ob C) (α : NatTrans F (HomFunctor C X)), natural_isomorphism α.
+
+Definition corepresentable {C : Cat} (F : Functor (Dual C) CoqSetoid) : Prop :=
+  exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)), natural_isomorphism α.

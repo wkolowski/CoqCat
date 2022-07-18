@@ -1,5 +1,4 @@
 From Cat Require Export Cat.
-From Cat Require Export Bifunctor.
 From Cat Require Export Tactics.FunctorTactic.
 
 Set Implicit Arguments.

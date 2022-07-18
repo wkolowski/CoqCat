@@ -1,5 +1,4 @@
 From Cat Require Import Cat.
-From Cat Require Import Bifunctor.
 From Cat.Category Require Import CartesianClosed.
 From Cat.Limits Require Import InitTerm ProdCoprod.
 

@@ -4,106 +4,6 @@ From Cat.Limits Require Export InitTerm ProdCoprod Equalizer IndexedProdCoprod E
 
 Set Implicit Arguments.
 
-Class Setoid' : Type :=
-{
-  carrier : Type;
-  setoid :> Setoid carrier
-}.
-
-Coercion carrier : Setoid' >-> Sortclass.
-Coercion setoid : Setoid' >-> Setoid.
-
-Ltac setoidob S := try intros until S;
-match type of S with
-| Setoid =>
-  let a := fresh S "_equiv" in
-  let b := fresh S "_equiv_refl" in
-  let c := fresh S "_equiv_sym" in
-  let d := fresh S "_equiv_trans" in destruct S as [a [b c d]];
-    red in a; red in b; red in c; red in d
-| Setoid' =>
-  let a := fresh S "_equiv" in
-  let b := fresh S "_equiv_refl" in
-  let c := fresh S "_equiv_sym" in
-  let d := fresh S "_equiv_trans" in destruct S as [S [a [b c d]]];
-    red in a; red in b; red in c; red in d
-| Ob _ => progress cbn in S; setoidob S
-end.
-
-Ltac setoidobs := intros; repeat
-match goal with
-| S : Setoid |- _ => setoidob S
-| S : Setoid' |- _ => setoidob S
-| S : Ob _ |- _ => setoidob S
-end.
-
-Class SetoidHom (X Y : Setoid') : Type :=
-{
-  func : X -> Y;
-  func_Proper :> Proper (@equiv _ X ==> @equiv _ Y) func
-}.
-
-Arguments func [X Y] _.
-Arguments func_Proper [X Y] _.
-
-Coercion func : SetoidHom >-> Funclass.
-
-Ltac setoidhom f := try intros until f;
-match type of f with
-| SetoidHom _ _ =>
-  let a := fresh f "_pres_equiv" in destruct f as [f a]; repeat red in a
-| Hom _ _ => progress cbn in f; setoidhom f
-end.
-
-Ltac setoidhoms := intros; repeat
-match goal with
-| f : SetoidHom _ _ |- _ => setoidhom f
-| f : Hom _ _ |- _ => setoidhom f
-end.
-
-Ltac setoid_simpl := repeat (red || split || cbn in * || intros).
-Ltac setoid_simpl' := repeat (setoid_simpl || setoidhoms || setoidobs).
-
-Ltac setoid' := repeat
-match goal with
-| |- Proper _ _ => proper
-| |- Equivalence _ _ => solve_equiv
-| _ => setoid_simpl || cat || setoidhoms || setoidobs
-end.
-
-Ltac setoid := try (setoid'; fail).
-
-#[refine]
-#[export]
-Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y) (g : SetoidHom Y Z) : SetoidHom X Z :=
-{
-  func := fun x : X => g (f x)
-}.
-Proof. setoid. Defined.
-
-#[refine]
-#[export]
-Instance SetoidId (X : Setoid') : SetoidHom X X :=
-{
-  func := fun x : X => x
-}.
-Proof. setoid. Defined.
-
-#[refine]
-#[export]
-Instance CoqSetoid : Cat :=
-{|
-  Ob := Setoid';
-  Hom := SetoidHom;
-  HomSetoid := fun X Y : Setoid' =>
-  {|
-    equiv := fun f g : SetoidHom X Y => forall x : X, @equiv _ (@setoid Y) (f x) (g x)
-  |};
-  comp := SetoidComp;
-  id := SetoidId
-|}.
-Proof. all: setoid. Defined.
-
 #[refine]
 #[export]
 Instance const (X Y : Setoid') (y : Y) : SetoidHom X Y :=
@@ -115,7 +15,7 @@ Proof. setoid. Defined.
 Arguments const _ [Y] _.
 
 Lemma CoqSetoid_mon_char :
-  forall (X Y : Setoid') (f : SetoidHom X Y),
+  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     Mon f <-> injectiveS f.
 Proof.
   unfold Mon, injectiveS; split; intros.
@@ -125,7 +25,7 @@ Proof.
 Defined.
 
 Lemma CoqSetoid_sur_is_epi :
-  forall (X Y : Setoid') (f : SetoidHom X Y),
+  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     surjectiveS f -> Epi f.
 Proof.
   unfold Epi, surjectiveS; intros. cbn in *. intro.
@@ -136,7 +36,7 @@ Proof.
 Defined.
 
 Lemma CoqSetoid_sec_is_inj :
-  forall (X Y : Setoid') (f : SetoidHom X Y),
+  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     Sec f -> injectiveS f.
 Proof.
   unfold Sec, injectiveS; intros.
@@ -151,7 +51,7 @@ Definition surjectiveS_skolem
       Proper (equiv ==> equiv) g /\ forall b : B, f (g b) == b.
 
 Lemma CoqSetoid_ret_char :
-  forall (X Y : Setoid') (f : SetoidHom X Y),
+  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     Ret f <-> surjectiveS_skolem f.
 Proof.
   unfold Ret, surjectiveS; split; cbn; intros.
@@ -364,15 +264,14 @@ Proof.
 Abort.
 
 Inductive CoqSetoid_coeq_equiv {X Y : Setoid'} (f g : SetoidHom X Y) : Y -> Y -> Prop :=
-| coeq_step : forall y y' : Y, y == y' -> CoqSetoid_coeq_equiv f g y y'
+| coeq_step :forall y y' : Y, y == y' -> CoqSetoid_coeq_equiv f g y y'
 | coeq_quot : forall x : X, CoqSetoid_coeq_equiv f g (f x) (g x)
 | coeq_sym :
   forall y y' : Y, CoqSetoid_coeq_equiv f g y y' -> CoqSetoid_coeq_equiv f g y' y
 | coeq_trans :
   forall y1 y2 y3 : Y,
-    CoqSetoid_coeq_equiv f g y1 y2 ->
-    CoqSetoid_coeq_equiv f g y2 y3 ->
-    CoqSetoid_coeq_equiv f g y1 y3.
+    CoqSetoid_coeq_equiv f g y1 y2 -> CoqSetoid_coeq_equiv f g y2 y3 ->
+      CoqSetoid_coeq_equiv f g y1 y3.
 
 #[refine]
 #[export]
@@ -462,23 +361,6 @@ Proof.
   try reflexivity; eauto.
 Defined.
 
-Inductive equiv_hetero {A : Type} (S : Setoid A) : forall (B : Type), A -> B -> Prop :=
-| equiv_hetero_step : forall x y : A, x == y -> equiv_hetero S x y.
-
-#[global] Hint Constructors equiv_hetero : core.
-
-Lemma equiv_hetero_trans :
-  forall (A B C : Type) (SA : Setoid A) (SB : Setoid B) (x : A) (y : B) (z : C),
-    A = B -> JMeq SA SB -> equiv_hetero SA x y -> equiv_hetero SB y z -> equiv_hetero SA x z.
-Proof.
-  intros. subst.
-  dependent destruction H1.
-  dependent destruction H2.
-  constructor. rewrite H. assumption.
-Qed.
-
-Arguments equiv_hetero_trans [A B C SA SB x y z] _ _ _ _.
-
 #[refine]
 #[export]
 Instance CoqSetoid_indexedCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
@@ -487,7 +369,7 @@ Instance CoqSetoid_indexedCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
   setoid :=
   {|
     equiv := fun x y : {j : J & A j} =>
-      projT1 x = projT1 y /\ equiv_hetero (A (projT1 x)) (projT2 x) (projT2 y)
+      projT1 x = projT1 y /\ @JMequiv _ (A (projT1 x)) (projT2 x) (A (projT1 y)) (projT2 y)
   |}
 }.
 Proof.
@@ -499,7 +381,7 @@ Proof.
       rewrite H1, <- H. reflexivity.
     destruct H, H0; split.
       rewrite H, H0. auto.
-      subst. eapply (equiv_hetero_trans (eq_refl) (JMeq_refl) H1 H2).
+      subst. eapply (JMequiv_trans (eq_refl) (JMeq_refl) H1 H2).
 Defined.
 
 #[refine]

@@ -8,6 +8,8 @@ Export ListNotations.
 
 #[global] Set Universe Polymorphism.
 
+(** * Setoids *)
+
 (** Uniqueness up to a custom equivalence relation, using setoids. *)
 
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A) : Prop :=
@@ -124,10 +126,23 @@ Proof. all: solve_equiv. Defined.
 
 (** Extension of an equivalence relation to a heterogenous equivalence relation.  *)
 
-Inductive JMequiv {A : Type} {is_setoid : Setoid A} (x : A) : forall {B : Type}, B -> Prop :=
+Inductive JMequiv {A : Type} {S : Setoid A} (x : A) : forall {B : Type}, B -> Prop :=
 | JMequiv_refl : forall y : A, x == y -> JMequiv x y.
 
 #[global] Hint Constructors JMequiv : core.
+
+Lemma JMequiv_trans :
+  forall (A B C : Type) (SA : Setoid A) (SB : Setoid B) (x : A) (y : B) (z : C),
+    A = B -> JMeq SA SB -> JMequiv (S := SA) x y -> JMequiv (S := SB) y z ->
+      JMequiv (S := SA) x z.
+Proof.
+  intros. subst.
+  dependent destruction H1.
+  dependent destruction H2.
+  constructor. rewrite H. assumption.
+Qed.
+
+Arguments JMequiv_trans [A B C SA SB x y z] _ _ _ _.
 
 (** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
 
