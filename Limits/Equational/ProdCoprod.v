@@ -29,6 +29,11 @@ Class HasProducts (C : Cat) : Type :=
       fpair (f .> g1) (f .> g2) == f .> fpair g1 g2
 }.
 
+Arguments prodOb {C HasProducts} _ _.
+Arguments proj1  {C HasProducts A B}.
+Arguments proj2  {C HasProducts A B}.
+Arguments fpair  {C HasProducts A B X} _ _.
+
 Ltac prod := intros; try split;
 repeat match goal with
 | |- context [fpair (_ .> proj1) (_ .> proj2)] => rewrite fpair_pre, fpair_id
@@ -85,6 +90,11 @@ Class HasCoproducts (C : Cat) : Type :=
       copair (f1 .> g) (f2 .> g) == copair f1 f2 .> g
 }.
 
+Arguments coprodOb {C HasCoproducts} _ _.
+Arguments coproj1  {C HasCoproducts A B}.
+Arguments coproj2  {C HasCoproducts A B}.
+Arguments copair   {C HasCoproducts A B X} _ _.
+
 Ltac coprod := intros; try split;
 repeat match goal with
 | |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] => rewrite copair_post, copair_id
@@ -119,7 +129,42 @@ Class HasBiproducts (C : Cat) : Type :=
 Coercion products : HasBiproducts >-> HasProducts.
 Coercion coproducts : HasBiproducts >-> HasCoproducts.
 
-(* Equivalence to the old definition *)
+(** * Duality *)
+
+#[refine]
+#[export]
+Instance HasProducts_Dual {C : Cat} (hp : HasCoproducts C) : HasProducts (Dual C) :=
+{
+  prodOb := @coprodOb C hp;
+  fpair := @copair C hp;
+  proj1 := @coproj1 C hp;
+  proj2 := @coproj2 C hp;
+}.
+Proof. all: cat; coprod. Defined.
+
+#[refine]
+#[export]
+Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
+{
+  coprodOb := @prodOb C hp;
+  copair := @fpair C hp;
+  coproj1 := @proj1 C hp;
+  coproj2 := @proj2 C hp;
+}.
+Proof. all: cat; prod. Defined.
+
+#[refine]
+#[export]
+Instance HasBiproducts_Dual (C : Cat) (hb : HasBiproducts C) : HasBiproducts (Dual C) :=
+{
+  products := HasProducts_Dual (@coproducts C hb);
+  coproducts := HasCoproducts_Dual (@products C hb);
+}.
+Proof.
+  intros. destruct hb. cbn in *. rewrite product_is_coproduct0. reflexivity.
+Defined.
+
+(** * Equivalence of equational and traditional definitions *)
 
 From Cat Require Limits.ProdCoprod.
 
@@ -203,40 +248,7 @@ Defined.
 
 End Equiv.
 
-(* Lemmas ported from ProdCoprod.v *)
-
-#[refine]
-#[export]
-Instance Dual_prod_coprod (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
-{
-  coprodOb := @prodOb C hp;
-  copair := @fpair C hp;
-  coproj1 := @proj1 C hp;
-  coproj2 := @proj2 C hp;
-}.
-Proof. all: cat; prod. Defined.
-
-#[refine]
-#[export]
-Instance Dual_coprod_prod {C : Cat} (hp : HasCoproducts C) : HasProducts (Dual C) :=
-{
-  prodOb := @coprodOb C hp;
-  fpair := @copair C hp;
-  proj1 := @coproj1 C hp;
-  proj2 := @coproj2 C hp;
-}.
-Proof. all: cat; coprod. Defined.
-
-#[refine]
-#[export]
-Instance Dual_biprod (C : Cat) (hb : HasBiproducts C) : HasBiproducts (Dual C) :=
-{
-  products := Dual_coprod_prod (@coproducts C hb);
-  coproducts := Dual_prod_coprod (@products C hb);
-}.
-Proof.
-  intros. destruct hb. cbn in *. rewrite product_is_coproduct0. reflexivity.
-Defined.
+(** * Lemmas ported from ProdCoprod.v *)
 
 (*
 Lemma iso_to_prod_skolem :
@@ -337,6 +349,8 @@ Proof.
   coprod.
 Defined.
 
+(** * Product and coproduct functors *)
+
 Definition ProductFunctor_fmap
   {C : Cat} {hp : HasProducts C} {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
   : Hom (prodOb X X') (prodOb Y Y')
@@ -408,6 +422,9 @@ Proof.
   intros. apply ProductFunctor_fmap_pres_id.
 Defined.
 
+Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
+Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
+
 Definition CoproductFunctor_fmap
   {C : Cat} {hp : HasCoproducts C} {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
   : Hom (coprodOb X X') (coprodOb Y Y')
@@ -478,7 +495,5 @@ Proof.
   intros. apply CoproductFunctor_fmap_pres_id.
 Defined.
 
-Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
-Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
 Notation "A + B" := (fob CoproductFunctor (A, B)).
 Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).

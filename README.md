@@ -65,7 +65,6 @@
 * Characterize morphisms and universal constructions of setoids/apartoids etc.
 * Find a general boilerplate for a file with concrete category — apply it to all instances.
 * Define heterogenous apartoids.
-* Refactor the directory structure.
 
 ## Tips for future me
 * If Coq doesn't see that some morphism is `Proper`, put the corresponding theorem in context using `pose`, eg. `pose (P := fpair_Proper)`. This likely has something to do with registering morphisms as `Proper`. I should read the docs...

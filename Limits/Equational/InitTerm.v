@@ -48,6 +48,33 @@ Defined.
 
 #[global] Hint Resolve initial_is_terminal unique_iso_is_iso : core.
 
+#[refine]
+#[export]
+Instance Dual_init_term (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+{
+  term := init C;
+  delete := @create C hi
+}.
+Proof. init. init. cat. apply create_unique. Defined.
+
+#[refine]
+#[export]
+Instance Dual_term_init (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
+{
+  init := term C;
+  create := @delete C ht
+}.
+Proof. cat. apply delete_unique. Defined.
+
+#[refine]
+#[export]
+Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+{
+  zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
+  zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);
+}.
+Proof. cat. Defined.
+
 (* Equivalence of definitions *)
 
 From Cat Require Limits.InitTerm.
@@ -91,35 +118,6 @@ Instance hteq_ht (C : Cat) (hteq : HasTerm C) : InitTerm.HasTerm C :=
 Proof. intros. apply delete_unique. Defined.
 
 End Equiv.
-
-(* Duals *)
-
-#[refine]
-#[export]
-Instance Dual_init_term (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
-{
-  term := init C;
-  delete := @create C hi
-}.
-Proof. init. init. cat. apply create_unique. Defined.
-
-#[refine]
-#[export]
-Instance Dual_term_init (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
-{
-  init := term C;
-  create := @delete C ht
-}.
-Proof. cat. apply delete_unique. Defined.
-
-#[refine]
-#[export]
-Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
-{
-  zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
-  zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);
-}.
-Proof. cat. Defined.
 
 (* Lemmas ported from InitTerm.v *)
 

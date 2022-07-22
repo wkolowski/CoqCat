@@ -23,8 +23,8 @@ Class HasInit (C : Cat) : Type :=
   is_initial : forall (X : Ob C) (f : Hom init X), f == create X
 }.
 
-Arguments init _ {HasInit}.
-Arguments create {C HasInit}_.
+Arguments init   _ {_}.
+Arguments create {C _ } _.
 
 Class HasTerm (C : Cat) : Type :=
 {
@@ -33,8 +33,8 @@ Class HasTerm (C : Cat) : Type :=
   is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
 }.
 
-Arguments term _ {HasTerm}.
-Arguments delete {C HasTerm} _.
+Arguments term   _ {_}.
+Arguments delete {C _} _.
 
 Class HasZero (C : Cat) : Type :=
 {
@@ -46,14 +46,41 @@ Class HasZero (C : Cat) : Type :=
 Coercion zero_is_initial : HasZero >-> HasInit.
 Coercion zero_is_terminal : HasZero >-> HasTerm.
 
+#[global] Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso : core.
+
+#[refine]
+#[export]
+Instance Dual_HasTerm (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+{
+  term := init C;
+  delete := @create C hi
+}.
+Proof. cat. Defined.
+
+#[refine]
+#[export]
+Instance Dual_HasInit (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
+{
+  init := term C;
+  create := @delete C ht
+}.
+Proof. cat. Defined.
+
+#[refine]
+#[export]
+Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+{
+  zero_is_initial := Dual_HasInit hz;
+  zero_is_terminal := Dual_HasTerm hz
+}.
+Proof. cat. Defined.
+
 Definition zero_ob (C : Cat) {hz : HasZero C} : Ob C := init C.
 Definition zero_mor (C : Cat) {hz : HasZero C} (X Y : Ob C) : Hom X Y.
 Proof.
   pose (f := delete X). pose (g := create Y).
   rewrite initial_is_terminal in g. exact (f .> g).
 Defined.
-
-#[global] Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso : core.
 
 Ltac init := intros; repeat
 match goal with
@@ -195,30 +222,3 @@ Proof.
   intros. red. exists (delete0 X).
   edestruct H. rewrite <- H1; cat.
 Qed.
-
-#[refine]
-#[export]
-Instance Dual_HasTerm (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
-{
-  term := init C;
-  delete := @create C hi
-}.
-Proof. cat. Defined.
-
-#[refine]
-#[export]
-Instance Dual_HasInit (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
-{
-  init := term C;
-  create := @delete C ht
-}.
-Proof. cat. Defined.
-
-#[refine]
-#[export]
-Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
-{
-  zero_is_initial := Dual_HasInit hz;
-  zero_is_terminal := Dual_HasTerm hz
-}.
-Proof. cat. Defined.

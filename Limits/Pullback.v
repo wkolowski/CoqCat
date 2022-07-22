@@ -45,6 +45,11 @@ Class HasPullbacks (C : Cat) : Type :=
       pullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g) (@factor X Y A f g)
 }.
 
+Arguments pullbackOb [C _ X Y A] _ _.
+Arguments pull1      [C _ X Y A] _ _.
+Arguments pull2      [C _ X Y A] _ _.
+Arguments factor     [C _ X Y A f g P p1 p2] _.
+
 Class HasPushouts (C : Cat) : Type :=
 {
   pushoutOb : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
@@ -66,6 +71,11 @@ Class HasPushouts (C : Cat) : Type :=
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
       pushout C f g (pushoutOb f g) (push1 f g) (push2 f g) (@cofactor X Y A f g)
 }.
+
+Arguments pushoutOb [C _ X Y A] _ _.
+Arguments push1     [C _ X Y A] _ _.
+Arguments push2     [C _ X Y A] _ _.
+Arguments cofactor  [C _ X Y A f g P p1 p2] _.
 
 Lemma dual_pullback_pushout :
   forall
@@ -268,55 +278,3 @@ Proof.
     edestruct H, (H2 _ _ _ H0), H3. assumption.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
-
-(** Category of spans *)
-
-Class SpanHom (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Type :=
-{
-  center : Ob C;
-  left : Hom center A;
-  right : Hom center B;
-}.
-
-Definition transport {A : Type} {P : A -> Type} {x y : A} (p : x = y) : P x -> P y.
-Proof.
-  destruct p. exact (fun a : P x => a).
-Defined.
-
-#[export]
-Instance SpanHomSetoid (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Setoid (SpanHom hp A B).
-Proof.
-  esplit. Unshelve. 2:
-  {
-    red. intros [X f g] [Y f' g'].
-    exact (exists p : X = Y,
-      @transport _ (fun X => Hom X A) _ _ p f == f' /\
-      @transport _ (fun X => Hom X B) _ _ p g == g').
-  }
-  split; red; destruct x; try destruct y; try destruct z.
-    exists eq_refl. cbn. split; reflexivity.
-    intros [-> [H1 H2]]. exists eq_refl. cbn in *.
-      split; symmetry; assumption.
-    intros [-> [Hl1 Hr1]] [-> [Hl2 Hr2]]. exists eq_refl. cbn in *.
-      split; rewrite ?Hl1, ?Hr1; assumption.
-Defined.
-
-#[export]
-Instance SpanId (C : Cat) (hp : HasPullbacks C) (A : Ob C) : SpanHom hp A A :=
-{
-  center := A;
-  left := id A;
-  right := id A;
-}.
-
-#[refine]
-#[export]
-Instance Span (C' : Cat) (hp : HasPullbacks C') : Cat :=
-{
-  Ob := Ob C';
-  Hom := SpanHom hp;
-  HomSetoid := SpanHomSetoid hp;
-  id := SpanId hp;
-}.
-Proof.
-Abort.

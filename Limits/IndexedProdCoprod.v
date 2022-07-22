@@ -40,6 +40,191 @@ Definition indexed_biproduct_skolem
   : Prop :=
     indexed_product_skolem C P proj diag /\ indexed_coproduct_skolem C P coproj codiag.
 
+Class HasIndexedProducts (C : Cat) : Type :=
+{
+  indexedProdOb :
+    forall J : Set, (J -> Ob C) -> Ob C;
+  indexedProj :
+    forall (J : Set) (A : J -> Ob C) (j : J),
+      Hom (indexedProdOb J A) (A j);
+  tuple :
+    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom X (A j)),
+      Hom X (indexedProdOb J A);
+  tuple_Proper :
+    forall
+      (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
+        (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
+  is_indexed_product :
+    forall (J : Set) (A : J -> Ob C),
+      indexed_product_skolem C (indexedProdOb J A) (indexedProj J A) (tuple J A)
+}.
+
+Arguments indexedProdOb [C _ J] _.
+Arguments indexedProj   [C _ J A] _.
+Arguments tuple         [C _ J A X] _.
+
+Class HasIndexedCoproducts (C : Cat) : Type :=
+{
+  indexedCoprodOb :
+    forall J : Set, (J -> Ob C) -> Ob C;
+  indexedCoproj :
+    forall (J : Set) (A : J -> Ob C) (j : J),
+      Hom (A j) (indexedCoprodOb J A);
+  cotuple :
+    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
+      Hom (indexedCoprodOb J A) X;
+  cotuple_Proper :
+    forall
+      (J : Set) (A : J -> Ob C) (X : Ob C)
+      (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
+        (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
+  is_indexed_coproduct :
+    forall (J : Set) (A : J -> Ob C),
+      indexed_coproduct_skolem C (indexedCoprodOb J A) (indexedCoproj J A) (cotuple J A)
+}.
+
+Arguments indexedCoprodOb [C _ J] _.
+Arguments indexedCoproj   [C _ J A] _.
+Arguments cotuple         [C _ J A X] _.
+
+Class HasIndexedBiproducts (C : Cat) : Type :=
+{
+  indexedProduct :> HasIndexedProducts C;
+  indexedCoproduct :> HasIndexedCoproducts C;
+  product_is_coproduct :
+    forall (J : Set) (A : J -> Ob C),
+      @indexedProdOb C indexedProduct J A = @indexedCoprodOb C indexedCoproduct J A
+}.
+
+Coercion indexedProduct : HasIndexedBiproducts >-> HasIndexedProducts.
+Coercion indexedCoproduct : HasIndexedBiproducts >-> HasIndexedCoproducts.
+
+#[export]
+Instance Dual_HasIndexedProducts
+  (C : Cat) (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
+{
+  indexedProdOb := @indexedCoprodOb C hp;
+  indexedProj := @indexedCoproj C hp;
+  tuple := @cotuple C hp;
+  tuple_Proper := @cotuple_Proper C hp;
+  is_indexed_product := @is_indexed_coproduct C hp
+}.
+
+#[export]
+Instance Dual_HasIndexedCoproducts
+  (C : Cat) (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
+{
+  indexedCoprodOb := @indexedProdOb C hp;
+  indexedCoproj := @indexedProj C hp;
+  cotuple := @tuple C hp;
+  cotuple_Proper := @tuple_Proper C hp;
+  is_indexed_coproduct := @is_indexed_product C hp
+}.
+
+#[refine]
+#[export]
+Instance Dual_HasIndexedBiproducts
+  (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
+{
+  indexedProduct := Dual_HasIndexedProducts C hp;
+  indexedCoproduct := Dual_HasIndexedCoproducts C hp;
+}.
+Proof.
+  intros. simpl. rewrite product_is_coproduct. trivial.
+Defined.
+
+Section HasIndexedProducts.
+
+Context
+  [C : Cat]
+  [hp : HasIndexedProducts C].
+
+Lemma tuple_indexedProj :
+  forall (X : Ob C) (J : Set) (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
+    tuple f .> indexedProj j == f j.
+Proof.
+  intros. destruct hp; cbn.
+  edestruct is_indexed_product0.
+  rewrite <- H. reflexivity.
+Qed.
+
+Lemma tuple_pre :
+  forall (X Y : Ob C) (J : Set) (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
+    f .> tuple g == tuple (fun j : J => f .> g j).
+Proof.
+  intros. edestruct is_indexed_product.
+  rewrite <- H0.
+    reflexivity.
+    intros; cbn in *. cat. rewrite tuple_indexedProj. reflexivity.
+Qed.
+
+Lemma tuple_id :
+  forall (J : Set) (X : J -> Ob C),
+    tuple (@indexedProj C hp J X) == id (indexedProdOb X).
+Proof.
+  intros. edestruct is_indexed_product. apply H0. cat.
+Qed.
+
+Lemma tuple_comp :
+  forall
+    (J : Set) (X : Ob C) (Y Y' : J -> Ob C)
+    (f : forall j : J, Hom X (Y j)) (g : forall j : J, Hom (Y j) (Y' j)),
+      tuple (fun j : J => f j .> g j) == tuple f .> tuple (fun j : J => indexedProj j .> g j).
+Proof.
+  intros. edestruct is_indexed_product. apply H0. intros.
+  rewrite -> comp_assoc. rewrite tuple_indexedProj.
+  rewrite <- comp_assoc. rewrite tuple_indexedProj.
+  reflexivity.
+Qed.
+
+End HasIndexedProducts.
+
+Section HasIndexedCoproducts.
+
+Context
+  [C : Cat]
+  [hp : HasIndexedCoproducts C].
+
+Lemma cotuple_indexedCoproj :
+  forall (J : Set) (X : J -> Ob C) (Y : Ob C) (f : forall j : J, Hom (X j) Y) (j : J),
+    indexedCoproj j .> cotuple f == f j.
+Proof.
+  intros. edestruct is_indexed_coproduct.
+  rewrite <- H. reflexivity.
+Qed.
+
+Lemma cotuple_post :
+  forall (J : Set) (X : J -> Ob C) (Y Z : Ob C) (f : forall j : J, Hom (X j) Y) (g : Hom Y Z),
+    cotuple f .> g == cotuple (fun j : J => f j .> g).
+Proof.
+  intros. edestruct is_indexed_coproduct.
+  rewrite <- H0.
+    reflexivity.
+    intros; cbn in *. assocl. rewrite cotuple_indexedCoproj. reflexivity.
+Qed.
+
+Lemma cotuple_id :
+  forall (J : Set) (X : J -> Ob C),
+    cotuple (@indexedCoproj C hp J X) == id (indexedCoprodOb X).
+Proof.
+  intros. edestruct is_indexed_coproduct. apply H0. cat.
+Qed.
+
+Lemma cotuple_comp :
+  forall
+    (J : Set) (X X' : J -> Ob C) (Y : Ob C)
+    (f : forall j : J, Hom (X j) (X' j))
+    (g : forall j : J, Hom (X' j) Y),
+      cotuple (fun j : J => f j .> g j) == cotuple (fun j : J => f j .> indexedCoproj j) .> cotuple g.
+Proof.
+  intros. edestruct is_indexed_coproduct. apply H0. intros.
+  rewrite <- comp_assoc, cotuple_indexedCoproj, -> comp_assoc, cotuple_indexedCoproj.
+  reflexivity.
+Qed.
+
+End HasIndexedCoproducts.
+
 Lemma indexed_product_iso_unique :
   forall
     (C : Cat) (J : Set) (A : J -> Ob C)
@@ -98,7 +283,7 @@ Defined.
 
 (* Hard and buggy *)
 (*
-Lemma small_and_indexed_products :
+TODO: Lemma small_and_indexed_products :
   forall (C : Cat) (A B P : Ob C)(pA : Hom P A) (pB : Hom P B),
     product_skolem C P pA pB.
       <->
@@ -167,156 +352,6 @@ Proof.
   destruct h as [h eq].
 Abort.
 
-Class HasIndexedProducts (C : Cat) : Type :=
-{
-  indexedProdOb :
-    forall J : Set, (J -> Ob C) -> Ob C;
-  indexedProj :
-    forall (J : Set) (A : J -> Ob C) (j : J),
-      Hom (indexedProdOb J A) (A j);
-  tuple :
-    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom X (A j)),
-      Hom X (indexedProdOb J A);
-  tuple_Proper :
-    forall
-      (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
-        (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
-  is_indexed_product :
-    forall (J : Set) (A : J -> Ob C),
-      indexed_product_skolem C (indexedProdOb J A) (indexedProj J A) (tuple J A)
-}.
-
-Arguments indexedProdOb [C _ J] _.
-Arguments indexedProj   [C _ J A] _.
-Arguments tuple     [C _ J A X] _.
-
-Lemma tuple_indexedProj :
-  forall
-    (C : Cat) (hp : HasIndexedProducts C)
-    (X : Ob C) (J : Set) (Y : J -> Ob C) (f : forall j : J, Hom X (Y j)) (j : J),
-      tuple f .> indexedProj j == f j.
-Proof.
-  intros. destruct hp; cbn.
-  edestruct is_indexed_product0.
-  rewrite <- H. reflexivity.
-Qed.
-
-Lemma tuple_pre :
-  forall
-    (C : Cat) (hp : HasIndexedProducts C)
-    (X Y : Ob C) (J : Set) (Z : J -> Ob C) (f : Hom X Y) (g : forall j : J, Hom Y (Z j)),
-      f .> tuple g == tuple (fun j : J => f .> g j).
-Proof.
-  intros. edestruct is_indexed_product.
-  rewrite <- H0.
-    reflexivity.
-    intros; cbn in *. cat. rewrite tuple_indexedProj. reflexivity.
-Qed.
-
-Lemma tuple_id :
-  forall (C : Cat) (hp : HasIndexedProducts C) (J : Set) (X : J -> Ob C),
-    tuple (@indexedProj C hp J X) == id (indexedProdOb X).
-Proof.
-  intros. edestruct is_indexed_product. apply H0. cat.
-Qed.
-
-Lemma tuple_comp :
-  forall
-    (C : Cat) (hp : HasIndexedProducts C) (J : Set)
-    (X : Ob C) (Y Y' : J -> Ob C)
-    (f : forall j : J, Hom X (Y j)) (g : forall j : J, Hom (Y j) (Y' j)),
-      tuple (fun j : J => f j .> g j) == tuple f .> tuple (fun j : J => indexedProj j .> g j).
-Proof.
-  intros. edestruct is_indexed_product. apply H0. intros.
-  rewrite -> comp_assoc. rewrite tuple_indexedProj.
-  rewrite <- comp_assoc. rewrite tuple_indexedProj.
-  reflexivity.
-Qed.
-
-Class HasIndexedCoproducts (C : Cat) : Type :=
-{
-  indexedCoprodOb :
-    forall J : Set, (J -> Ob C) -> Ob C;
-  indexedCoproj :
-    forall (J : Set) (A : J -> Ob C) (j : J),
-      Hom (A j) (indexedCoprodOb J A);
-  cotuple :
-    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
-      Hom (indexedCoprodOb J A) X;
-  cotuple_Proper :
-    forall
-      (J : Set) (A : J -> Ob C) (X : Ob C)
-      (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
-        (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
-  is_indexed_coproduct :
-    forall (J : Set) (A : J -> Ob C),
-      indexed_coproduct_skolem C (indexedCoprodOb J A) (indexedCoproj J A) (cotuple J A)
-}.
-
-Arguments indexedCoprodOb [C _ J] _.
-Arguments indexedCoproj   [C _ J A] _.
-Arguments cotuple     [C _ J A] [X] _.
-
-Section HasIndexedCoproducts.
-
-Context
-  [C : Cat]
-  [hp : HasIndexedCoproducts C].
-
-Lemma cotuple_indexedCoproj :
-  forall
-    (J : Set) (X : J -> Ob C) (Y : Ob C) (f : forall j : J, Hom (X j) Y) (j : J),
-      indexedCoproj j .> cotuple f == f j.
-Proof.
-  intros. edestruct is_indexed_coproduct.
-  rewrite <- H. reflexivity.
-Qed.
-
-Lemma cotuple_post :
-  forall
-    (J : Set) (X : J -> Ob C) (Y Z : Ob C) (f : forall j : J, Hom (X j) Y) (g : Hom Y Z),
-      cotuple f .> g == cotuple (fun j : J => f j .> g).
-Proof.
-  intros. edestruct is_indexed_coproduct.
-  rewrite <- H0.
-    reflexivity.
-    intros; cbn in *. assocl. rewrite cotuple_indexedCoproj. reflexivity.
-Qed.
-
-Lemma cotuple_id :
-  forall (J : Set) (X : J -> Ob C),
-    cotuple (@indexedCoproj C hp J X) == id (indexedCoprodOb X).
-Proof.
-  intros. edestruct is_indexed_coproduct. apply H0. cat.
-Qed.
-
-Lemma cotuple_comp :
-  forall
-    (J : Set) (X X' : J -> Ob C) (Y : Ob C)
-    (f : forall j : J, Hom (X j) (X' j))
-    (g : forall j : J, Hom (X' j) Y),
-      cotuple (fun j : J => f j .> g j) == cotuple (fun j : J => f j .> indexedCoproj j) .> cotuple g.
-Proof.
-  intros. edestruct is_indexed_coproduct. apply H0. intros.
-  rewrite <- comp_assoc, cotuple_indexedCoproj, -> comp_assoc, cotuple_indexedCoproj.
-  reflexivity.
-Qed.
-
-End HasIndexedCoproducts.
-
-Class HasAllBiproducts (C : Cat) : Type :=
-{
-  indexedProduct :> HasIndexedProducts C;
-  indexedCoproduct :> HasIndexedCoproducts C;
-  product_is_coproduct :
-    forall (J : Set) (A : J -> Ob C),
-      @indexedProdOb C indexedProduct J A = @indexedCoprodOb C indexedCoproduct J A
-}.
-
-Coercion indexedProduct : HasAllBiproducts >-> HasIndexedProducts.
-Coercion indexedCoproduct : HasAllBiproducts >-> HasIndexedCoproducts.
-
 Lemma indexed_product_skolem_iso_unique :
   forall
     (C : Cat) (J : Set) (A : J -> Ob C)
@@ -342,38 +377,4 @@ Proof.
     rewrite <- (HQ2' (tuple0 Q q .> tuple' P p)).
       apply HQ2'. cat.
       intros. cat. rewrite <- HP1'. rewrite <- HQ1. reflexivity.
-Qed.
-
-#[export]
-Instance Dual_HasIndexedProducts
-  (C : Cat) (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
-{
-  indexedProdOb := @indexedCoprodOb C hp;
-  indexedProj := @indexedCoproj C hp;
-  tuple := @cotuple C hp;
-  tuple_Proper := @cotuple_Proper C hp;
-  is_indexed_product := @is_indexed_coproduct C hp
-}.
-
-#[export]
-Instance Dual_HasIndexedCoproducts
-  (C : Cat) (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
-{
-  indexedCoprodOb := @indexedProdOb C hp;
-  indexedCoproj := @indexedProj C hp;
-  cotuple := @tuple C hp;
-  cotuple_Proper := @tuple_Proper C hp;
-  is_indexed_coproduct := @is_indexed_product C hp
-}.
-
-#[refine]
-#[export]
-Instance Dual_HasAllBiproducts
-  (C : Cat) (hp : HasAllBiproducts C) : HasAllBiproducts (Dual C) :=
-{
-  indexedProduct := Dual_HasIndexedProducts C hp;
-  indexedCoproduct := Dual_HasIndexedCoproducts C hp;
-}.
-Proof.
-  intros. simpl. rewrite product_is_coproduct. trivial.
 Qed.

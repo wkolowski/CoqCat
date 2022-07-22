@@ -68,6 +68,39 @@ Class HasBiproducts (C : Cat) : Type :=
 Coercion products : HasBiproducts >-> HasProducts.
 Coercion coproducts : HasBiproducts >-> HasCoproducts.
 
+#[export]
+Instance Dual_HasCoproducts (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
+{
+  coprodOb := @prodOb C hp;
+  coproj1 := @proj1 C hp;
+  coproj2 := @proj2 C hp;
+  copair := @fpair C hp;
+  copair_Proper := @fpair_Proper C hp;
+  is_coproduct := @is_product C hp
+}.
+
+#[export]
+Instance Dual_HasProducts (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
+{
+  prodOb := @coprodOb C hp;
+  proj1 := @coproj1 C hp;
+  proj2 := @coproj2 C hp;
+  fpair := @copair C hp;
+  fpair_Proper := @copair_Proper C hp;
+  is_product := @is_coproduct C hp
+}.
+
+#[refine]
+#[export]
+Instance Dual_HasBiproducts (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
+{
+  products := Dual_HasProducts hp;
+  coproducts := Dual_HasCoproducts hp;
+}.
+Proof.
+  simpl. intros. rewrite product_is_coproduct. trivial.
+Defined.
+
 Lemma dual_product_coproduct_skolem :
   forall
     (C : Cat) (X Y : Ob C)
@@ -747,41 +780,6 @@ Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
 Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
 Notation "A + B" := (fob CoproductFunctor (A, B)).
 Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
-
-#[export]
-Instance Dual_HasCoproducts (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
-{
-  coprodOb := @prodOb C hp;
-  coproj1 := @proj1 C hp;
-  coproj2 := @proj2 C hp;
-  copair := @fpair C hp;
-  copair_Proper := @fpair_Proper C hp;
-  is_coproduct := @is_product C hp
-}.
-
-#[export]
-Instance Dual_HasProducts (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
-{
-  prodOb := @coprodOb C hp;
-  proj1 := @coproj1 C hp;
-  proj2 := @coproj2 C hp;
-  fpair := @copair C hp;
-  fpair_Proper := @copair_Proper C hp;
-  is_product := @is_coproduct C hp
-}.
-
-#[refine]
-#[export]
-Instance Dual_HasBiproducts (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
-{
-  products := Dual_HasProducts hp;
-  coproducts := Dual_HasCoproducts hp;
-}.
-Proof.
-  simpl. intros. rewrite product_is_coproduct. trivial.
-Defined.
-
-(** TODO: moved from Bifunctor.v *)
 
 #[refine]
 #[export]

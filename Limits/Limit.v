@@ -4,6 +4,8 @@ From Cat.Instances Require Import Setoids FunCat.
 
 Set Implicit Arguments.
 
+(* TODO: HasLimits, HasColimits *)
+
 Class Cone {J C : Cat} (F : Functor J C) : Type :=
 {
   apex : Ob C;
