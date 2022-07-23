@@ -85,7 +85,7 @@ Qed.
 
 Lemma curry_comp :
   forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
-    @curry C hp he X A _ (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+    curry (X := X) (eval .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
   intros. destruct he; cbn in *.
   destruct (is_exponential0 _ _ _ ((eval0 X Y .> f) .> g)).

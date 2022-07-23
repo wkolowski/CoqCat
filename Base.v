@@ -1,5 +1,5 @@
 Require Export ProofIrrelevance FunctionalExtensionality IndefiniteDescription JMeq.
-Require Export Classes.SetoidClass.
+Require Export Setoid Classes.SetoidClass.
 Require Export Equality.
 Require Export Bool Arith Lia.
 
