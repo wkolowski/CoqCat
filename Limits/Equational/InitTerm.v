@@ -6,7 +6,7 @@ Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;
   create : forall X : Ob C, Hom init X;
-  create_unique : forall (X : Ob C) (f : Hom init X), f == create X;
+  create_unique : forall {X : Ob C} (f : Hom init X), f == create X;
 }.
 
 Arguments init _ {HasInit}.
@@ -15,7 +15,7 @@ Ltac init := intros; repeat
 match goal with
 | |- context [?f] =>
   match type of f with
-  | Hom (init _) _ => rewrite (create_unique _ f)
+  | Hom (init _) _ => rewrite (create_unique f)
   end
 | |- ?x == ?x => reflexivity
 end; try (cat; fail).
@@ -128,7 +128,7 @@ Proof.
   intros.
   red. exists (create (init C)). red. split.
     red. exists (create (init C)). split;
-      rewrite create_unique, (create_unique (init C) (id (init C)));
+      rewrite create_unique, (create_unique (id (init C)));
         reflexivity.
     destruct hi1, hi2. intros. cbn. rewrite (create_unique0 _ y).
       cbn. reflexivity.

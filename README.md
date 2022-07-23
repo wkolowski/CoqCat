@@ -53,8 +53,8 @@
 * Port all properties of universal constructions to skolemized definitions.
 * Use more duality.
 * Prove more properties of universal constructions (like these for equalizers).
-* Revise equalities and equivalences and write a few more (like JMequiv_dep).
 * Possibly reimplement the `fpair` and `copair` tactics using reification.
+* Reimplement tactics for products and coproducts using the new equational definitions.
 * Check if it's possible to do "continuous reification".
 * Stop using dependent types for doing reification of `Cat`.
 * Implement morphisms of various categories using classes instead of sigma types.

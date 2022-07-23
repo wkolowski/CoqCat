@@ -30,8 +30,8 @@ Notation "f .> g" := (comp f g) (at level 50).
 (** ** Reflective tactic for categories *)
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
-| Id   : forall X : Ob C, exp X X
-| Var  : forall X Y : Ob C, Hom X Y -> exp X Y
+| Id   : forall X     : Ob C, exp X X
+| Var  : forall X Y   : Ob C, Hom X Y -> exp X Y
 | Comp : forall X Y Z : Ob C, exp X Y -> exp Y Z -> exp X Z.
 
 Arguments Id [C] _.
