@@ -4,8 +4,6 @@ From Cat.Instances Require Import Setoids FunCat.
 
 Set Implicit Arguments.
 
-(* TODO: HasLimits, HasColimits *)
-
 Class Cone {J C : Cat} (F : Functor J C) : Type :=
 {
   apex : Ob C;
@@ -65,13 +63,40 @@ Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
 }.
 Proof. proper. all: cat. Defined.
 
-Definition limit
+Definition particular_limit
   {J C : Cat} {F : Functor J C}
-  (K : Cone F) (del : forall K' : Cone F, ConeHom K' K)
-  : Prop := @terminal (ConeCat F) K del.
+  (limitOb : Cone F)
+  (limitMor : forall K : Cone F, ConeHom K limitOb)
+  : Prop := @terminal (ConeCat F) limitOb limitMor.
 
-Definition limit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
+Definition shaped_limit
+  {J C : Cat}
+  (limitOb : forall F : Functor J C, Cone F)
+  (limitMor : forall {F : Functor J C} (K : Cone F), ConeHom K (limitOb F))
+  : Prop :=
+    forall F : Functor J C, @particular_limit J C F (limitOb F) (@limitMor F).
+
+Definition particular_limit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
   forall K' : Cone F, exists!! _ : ConeHom K' K, True.
+
+Definition limit
+  {C : Cat}
+  (limitOb  : forall {J : Cat} (F : Functor J C), Cone F)
+  (limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F))
+  : Prop :=
+    forall (J : Cat) (F : Functor J C),
+      @shaped_limit J C (@limitOb J) (@limitMor J).
+
+Class HasLimits (C : Cat) : Type :=
+{
+  limitOb  : forall {J : Cat} (F : Functor J C), Cone F;
+  limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F);
+  (* Proper? *)
+  isLimit : limit (@limitOb) (@limitMor);
+}.
+
+Arguments limitOb  [C _ J] _.
+Arguments limitMor [C _ J F] _.
 
 Class Cocone {J C : Cat} (F : Functor J C) : Type :=
 {
@@ -133,13 +158,40 @@ Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
 }.
 Proof. proper. all: cat. Defined.
 
-Definition colimit
-  {J C : Cat} {F : Functor J C}
-  (K : Cocone F) (create : forall K' : Cocone F, CoconeHom K K')
-  : Prop := @initial (CoconeCat F) K create.
-
-Definition colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
+Definition particular_colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
   forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
+
+Definition particular_colimit
+  {J C : Cat} {F : Functor J C}
+  (colimitOb : Cocone F)
+  (colimitMor : forall K : Cocone F, CoconeHom colimitOb K)
+  : Prop := @initial (CoconeCat F) colimitOb colimitMor.
+
+Definition shaped_colimit
+  {J C : Cat}
+  (colimitOb : forall (F : Functor J C), Cocone F)
+  (colimitMor : forall {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
+  : Prop :=
+    forall F : Functor J C, @particular_colimit J C F (colimitOb F) (@colimitMor F).
+
+Definition colimit
+  {C : Cat}
+  (colimitOb : forall {J : Cat} (F : Functor J C), Cocone F)
+  (colimitMor : forall {J : Cat} {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
+  : Prop :=
+    forall (J : Cat) (F : Functor J C),
+      @shaped_colimit J C (@colimitOb J) (@colimitMor J).
+
+Class HasColimits (C : Cat) : Type :=
+{
+  colimitOb  : forall {J : Cat} (F : Functor J C), Cocone F;
+  colimitMor : forall {J : Cat} (F : Functor J C) (K : Cocone F), CoconeHom (colimitOb F) K;
+  (* Proper? *)
+  isColimit : colimit (@colimitOb) (@colimitMor);
+}.
+
+Arguments colimitOb  [C _ J] _.
+Arguments colimitMor [C _ J F] _.
 
 (* TODO : coherence conditions for (co)limits *)
 
@@ -159,7 +211,7 @@ Defined.
 
 Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
-    limit' K -> limit' (ConeImage F K).
+    particular_limit' K -> particular_limit' (ConeImage F K).
 
 #[export]
 Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
@@ -173,7 +225,7 @@ Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
 Lemma limit_char
   (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K) :
-    @limit J C F K del
+    @particular_limit J C F K del
       <->
     forall c : Ob C,
       @isomorphic CoqSetoid (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).

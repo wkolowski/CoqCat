@@ -2,51 +2,55 @@ From Cat Require Export Cat.
 
 Set Implicit Arguments.
 
-Definition initial
-  {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
-    forall X : Ob C, setoid_unique (fun _ => True) (create X).
-
-Definition terminal
-  {C : Cat} (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop :=
-    forall X : Ob C, setoid_unique (fun _ => True) (delete X).
-
-Definition zero
-  {C : Cat} (Z : Ob C)
-  (create : forall X : Ob C, Hom Z X)
-  (delete : forall X : Ob C, Hom X Z)
-  : Prop := initial Z create /\ terminal Z delete.
-
 Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;
   create : forall X : Ob C, Hom init X;
-  is_initial : forall (X : Ob C) (f : Hom init X), f == create X
+  create_unique : forall [X : Ob C] (f : Hom init X), f == create X;
 }.
 
 Arguments init   _ {_}.
 Arguments create {C _ } _.
 
+Ltac init := intros; repeat
+match goal with
+| |- context [?f] =>
+  match type of f with
+  | Hom (init _) _ => rewrite (create_unique f)
+  end
+| |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
 Class HasTerm (C : Cat) : Type :=
 {
   term : Ob C;
   delete : forall X : Ob C, Hom X term;
-  is_terminal : forall (X : Ob C) (f : Hom X term), f == delete X
+  delete_unique : forall [X : Ob C] (f : Hom X term), f == delete X;
 }.
 
 Arguments term   _ {_}.
 Arguments delete {C _} _.
 
+Ltac term := intros; repeat
+match goal with
+| |- context [?f] =>
+  match type of f with
+  | Hom _ (term _) => rewrite (delete_unique f)
+  end
+| |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
 Class HasZero (C : Cat) : Type :=
 {
-  zero_is_initial :> HasInit C;
-  zero_is_terminal :> HasTerm C;
+  HasZero_HasInit :> HasInit C;
+  HasZero_HasTerm :> HasTerm C;
   initial_is_terminal : init C = term C
 }.
 
-Coercion zero_is_initial : HasZero >-> HasInit.
-Coercion zero_is_terminal : HasZero >-> HasTerm.
+Coercion HasZero_HasInit : HasZero >-> HasInit.
+Coercion HasZero_HasTerm : HasZero >-> HasTerm.
 
-#[global] Hint Resolve is_initial is_terminal initial_is_terminal unique_iso_is_iso : core.
+#[global] Hint Resolve create_unique delete_unique initial_is_terminal : core.
 
 #[refine]
 #[export]
@@ -70,35 +74,98 @@ Proof. cat. Defined.
 #[export]
 Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 {
-  zero_is_initial := HasInit_Dual hz;
-  zero_is_terminal := HasTerm_Dual hz
+  HasZero_HasInit := HasInit_Dual hz;
+  HasZero_HasTerm := HasTerm_Dual hz;
 }.
 Proof. cat. Defined.
 
-Definition zero_ob (C : Cat) {hz : HasZero C} : Ob C := init C.
-Definition zero_mor (C : Cat) {hz : HasZero C} (X Y : Ob C) : Hom X Y.
+Module Equational.
+
+(* Lemmas ported from InitTerm.v *)
+
+Lemma HasInit_uiso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 ~~ @init C hi2.
 Proof.
-  pose (f := delete X). pose (g := create Y).
-  rewrite initial_is_terminal in g. exact (f .> g).
+  intros.
+  red. exists (create (init C)). red. split.
+    red. exists (create (init C)). split;
+      rewrite create_unique, (create_unique (id (init C)));
+        reflexivity.
+    destruct hi1, hi2. intros. cbn. rewrite (create_unique0 _ y).
+      cbn. reflexivity.
+Qed.
+
+Lemma HasTerm_uiso :
+  forall (C : Cat) (ht1 ht2 : HasTerm C),
+    @term C ht1 ~~ @term C ht2.
+Proof.
+  intros.
+  red. exists (delete (term C)). red. split.
+    red. exists (delete (term C)). split;
+      rewrite delete_unique, (delete_unique (id (term C)));
+        reflexivity.
+    destruct ht1, ht2. intros. cbn. rewrite (delete_unique1 _ y).
+      cbn. reflexivity.
+Qed.
+
+(*
+Lemma iso_to_init_is_init :
+  forall (C : Cat) (I X : Ob C) (create : forall I' : Ob C, Hom I I'),
+    initial I create -> forall f : Hom X I, Iso f ->
+      initial X (fun X' : Ob C => f .> create X').
+Proof.
+  repeat split; intros. iso.
+  edestruct H. rewrite (H1 (f_inv .> y)). cat.
+    assocl. rewrite f_inv_eq1. cat.
+    trivial.
 Defined.
 
-Ltac init := intros; repeat
-match goal with
-| |- context [?f] =>
-  match type of f with
-  | Hom (init _) _ => rewrite (is_initial _ f)
-  end
-| |- ?x == ?x => reflexivity
-end; try (cat; fail).
+Lemma iso_to_term_is_term : 
+  forall (C : Cat) (X T : Ob C) (delete : forall T' : Ob C, Hom T' T),
+    terminal T delete -> forall f : Hom T X, Iso f ->
+      terminal X (fun X' : Ob C => delete X' .> f).
+Proof.
+  repeat split; intros. iso.
+  edestruct H. rewrite (H1 (y .> f_inv)).
+    assocr. rewrite f_inv_eq2. cat.
+    trivial.
+Defined.
+*)
 
-Ltac term := intros; repeat
-match goal with
-| |- context [?f] =>
-  match type of f with
-  | Hom _ (term _) => rewrite (is_terminal _ f)
-  end
-| |- ?x == ?x => reflexivity
-end; try (cat; fail).
+Lemma mor_to_init_is_ret :
+  forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
+    Ret f.
+Proof.
+  intros. red. exists (create X).
+  rewrite !create_unique.
+  destruct hi. rewrite <- create_unique0. reflexivity.
+Qed.
+
+Lemma mor_from_term_is_sec :
+  forall (C : Cat) (ht : HasTerm C) (X : Ob C) (f : Hom (term C) X),
+    Sec f.
+Proof.
+  intros. red. exists (delete X).
+  rewrite !delete_unique.
+  destruct ht. rewrite <- delete_unique0. reflexivity.
+Qed.
+
+End Equational.
+
+Definition initial
+  {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
+    forall X : Ob C, setoid_unique (fun _ => True) (create X).
+
+Definition terminal
+  {C : Cat} (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop :=
+    forall X : Ob C, setoid_unique (fun _ => True) (delete X).
+
+Definition isZero
+  {C : Cat} (Z : Ob C)
+  (create : forall X : Ob C, Hom Z X)
+  (delete : forall X : Ob C, Hom X Z)
+  : Prop := initial Z create /\ terminal Z delete.
 
 Lemma dual_initial_terminal :
   forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
@@ -110,9 +177,9 @@ Lemma dual_zero_self :
     (C : Cat) (X : Ob C)
     (create : forall X' : Ob C, Hom X X')
     (delete : forall X' : Ob C, Hom X' X),
-      @zero C X create delete <-> @zero (Dual C) X delete create.
+      @isZero C X create delete <-> @isZero (Dual C) X delete create.
 Proof.
-  unfold zero; cat.
+  unfold isZero; cat.
 Qed.
 
 Lemma initial_uiso :

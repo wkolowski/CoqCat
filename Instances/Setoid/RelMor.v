@@ -100,8 +100,8 @@ Next Obligation. rel. Defined.
 #[export]
 Instance HasZero_SetoidRel : HasZero SetoidRelCat :=
 {
-  zero_is_initial := HasInit_SetoidRel;
-  zero_is_terminal := HasTerm_SetoidRel
+  HasZero_HasInit := HasInit_SetoidRel;
+  HasZero_HasTerm := HasTerm_SetoidRel
 }.
 Proof. rel. Defined.
 

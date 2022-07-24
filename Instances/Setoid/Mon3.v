@@ -363,8 +363,8 @@ Proof. mon. Defined.
 #[export]
 Instance HasZero_Mon : HasZero MonCat :=
 {
-  zero_is_initial := HasInit_Mon;
-  zero_is_terminal := HasTerm_Mon
+  HasZero_HasInit := HasInit_Mon;
+  HasZero_HasTerm := HasTerm_Mon
 }.
 Proof. mon. Defined.
 

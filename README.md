@@ -60,7 +60,7 @@
 
 ### Instances
 * Solve the dependent type problems with setoid coproducts.
-* Implement big (co)products and coequalizers of Apartoids.
+* Implement indexed (co)products and coequalizers of Apartoids.
 * Characterize morphisms and universal constructions of setoids/apartoids etc.
 * Find a general boilerplate for a file with concrete category — apply it to all instances.
 * Define heterogenous apartoids.
