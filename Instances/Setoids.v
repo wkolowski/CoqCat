@@ -357,7 +357,7 @@ Instance CoqSetoid_HasIndexedProducts : HasIndexedProducts CoqSetoid :=
 }.
 Proof.
   cbn; intros; eauto.
-  unfold indexed_product_skolem; red; cbn; split; intros;
+  unfold indexed_product; red; cbn; split; intros;
   try reflexivity; eauto.
 Defined.
 
