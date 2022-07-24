@@ -45,14 +45,9 @@ Proof.
     setoid.
 Defined.
 
-Definition surjectiveS_skolem
-  {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
-    exists g : B -> A,
-      Proper (equiv ==> equiv) g /\ forall b : B, f (g b) == b.
-
 Lemma CoqSetoid_ret_char :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    Ret f <-> surjectiveS_skolem f.
+    Ret f <-> surjectiveS' f.
 Proof.
   unfold Ret, surjectiveS; split; cbn; intros.
     destruct H as [g H]. red. exists g. setoid'.

@@ -169,7 +169,7 @@ Lemma pullback_product :
       pullback C (delete X) (delete Y) P p1 p2
         (fun (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y)
              (H : p1' .> delete X == p2' .> delete Y) => fpair P' p1' p2') ->
-        product_skolem C P p1 p2 fpair.
+        product C P p1 p2 fpair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     term.
@@ -184,7 +184,7 @@ Lemma product_pullback :
     (C : Cat) (ht : HasTerm C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
-      product_skolem C P p1 p2 fpair ->
+      product C P p1 p2 fpair ->
         pullback C
           (delete X) (delete Y) P p1 p2 (fun (P' : Ob C)
           (p1' : Hom P' X) (p2' : Hom P' Y) _ => fpair P' p1' p2').
@@ -221,7 +221,7 @@ Qed.
       (fun (E' : Ob C) (e1 : Hom E' X) (e2 : Hom E' X) _ =>
         fpair (factorize E' e1) (factorize E' e2)).
 Proof.
-  intros. pose (eq := equalizer_skolem_equiv H H0).
+  intros. pose (eq := equalizer_equiv H H0).
   repeat split.
     rewrite eq. edestruct H0. assocr'. rewrite e.
       f_equiv. destruct hp. cbn in *. do 2 red in is_product.
@@ -238,7 +238,7 @@ Lemma pushout_coproduct :
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
       pushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g) ->
-        coproduct_skolem C P p1 p2 copair.
+        coproduct C P p1 p2 copair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     init.
@@ -253,7 +253,7 @@ Lemma coproduct_pushout :
     (C : Cat) (ht : HasInit C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      coproduct_skolem C P p1 p2 copair ->
+      coproduct C P p1 p2 copair ->
         pushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g).
 Proof.
   red; intros. repeat split.

@@ -41,6 +41,11 @@ Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
 Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
   injectiveS f /\ surjectiveS f.
 
+Definition surjectiveS'
+  {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
+    exists g : B -> A,
+      Proper (equiv ==> equiv) g /\ forall b : B, f (g b) == b.
+
 #[global] Hint Unfold injective surjective bijective injectiveS surjectiveS bijectiveS : core.
 
 (** Useful automation tactics. *)

@@ -142,7 +142,7 @@ Instance TransReloid_HasProducts : HasProducts TransReloidCat :=
   fpair := TransReloid_fpair;
 }.
 Proof.
-  all: unfold product_skolem; reloid.
+  all: unfold product; reloid.
 Defined.
 
 #[refine]
@@ -192,5 +192,5 @@ Instance TransReloid_HasCoproducts : HasCoproducts TransReloidCat :=
 }.
 Proof.
   proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold coproduct_skolem. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  unfold coproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
 Defined.

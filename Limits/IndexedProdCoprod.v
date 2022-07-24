@@ -296,7 +296,7 @@ Lemma small_and_indexed_products :
     {C : Cat} {A B : Ob C}
     (P : Ob C) (pA : Hom P A) (pB : Hom P B)
     (t : forall X : Ob C, Hom X A -> Hom X B -> Hom X P),
-      product_skolem C P pA pB t
+      product C P pA pB t
         <->
       exists
         (f := fun b : bool => if b then A else B)
@@ -307,12 +307,12 @@ Lemma small_and_indexed_products :
           f true = A /\ f false = B /\ indexed_product C P p tuple.
 Proof.
   split.
-  - unfold product_skolem, indexed_product, setoid_unique; cat.
+  - unfold product, indexed_product, setoid_unique; cat.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       destruct j; cbn; assumption.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       apply uniq. rewrite !H0. cat.
-  - unfold product_skolem, indexed_product, setoid_unique.
+  - unfold product, indexed_product, setoid_unique.
     intros (_ & _ & H) X f g.
     pose
     (

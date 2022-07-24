@@ -296,7 +296,7 @@ Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : ProdCoprod.HasProducts C :=
   fpair := @fpair C hp_eq;
 }.
 Proof.
-  unfold ProdCoprod.product_skolem, setoid_unique. prod'.
+  unfold ProdCoprod.product, setoid_unique. prod'.
 Defined.
 
 #[refine]

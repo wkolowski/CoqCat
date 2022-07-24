@@ -191,7 +191,7 @@ Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : ProdCoprod.HasProducts C :=
   fpair := @fpair C hp_eq;
 }.
 Proof.
-  unfold ProdCoprod.product_skolem, setoid_unique. cat.
+  unfold ProdCoprod.product, setoid_unique. cat.
     rewrite fpair_proj1. reflexivity.
     rewrite fpair_proj2. reflexivity.
     rewrite H, H0. rewrite fpair_pre, fpair_id, id_right. reflexivity.
@@ -218,7 +218,7 @@ Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : ProdCoprod.HasCoproducts
   copair := @copair C hp_eq;
 }.
 Proof.
-  unfold ProdCoprod.coproduct_skolem, setoid_unique. cat.
+  unfold ProdCoprod.coproduct, setoid_unique. cat.
     rewrite copair_coproj1. reflexivity.
     rewrite copair_coproj2. reflexivity.
     rewrite H, H0. rewrite copair_post, copair_id, id_left. reflexivity.
@@ -251,14 +251,14 @@ End Equiv.
 (** * Lemmas ported from ProdCoprod.v *)
 
 (*
-Lemma iso_to_prod_skolem :
+Lemma iso_to_prod :
   forall
     (C : Cat) (X Y : Ob C)
     (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
-      product_skolem C P p1 p2 fpair ->
+      product C P p1 p2 fpair ->
       forall (f : Hom Q P) (H : Iso f),
-      product_skolem C Q (f .> p1) (f .> p2)
+      product C Q (f .> p1) (f .> p2)
         (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
           match constructive_indefinite_description _ H with
           | exist _ g _ => fpair A p1' p2' .> g
@@ -296,23 +296,23 @@ Proof.
 Defined.
 
 (*
-Lemma coproduct_skolem_uiso :
+Lemma coproduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
     (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
-      coproduct_skolem C P p1 p2 copair -> coproduct_skolem C Q q1 q2 copair' ->
+      coproduct C P p1 p2 copair -> coproduct C Q q1 q2 copair' ->
         exists !! f : Hom P Q, Iso f /\ p1 .> f == q1 /\ p2 .> f == q2.
 
-Lemma coproduct_skolem_copair_equiv :
+Lemma coproduct_copair_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      coproduct_skolem C P p1 p2 copair -> coproduct_skolem C P p1 p2 copair' ->
+      coproduct C P p1 p2 copair -> coproduct C P p1 p2 copair' ->
         forall (A : Ob C) (f : Hom X A) (g : Hom Y A), copair A f g == copair' A f g.
 Proof.
   intros. edestruct H, H0. apply H2. cat.

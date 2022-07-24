@@ -142,7 +142,7 @@ Instance SymReloid_HasProducts : HasProducts SymReloidCat :=
   fpair := SymReloid_fpair;
 }.
 Proof.
-  all: unfold product_skolem; reloid.
+  all: unfold product; reloid.
 Defined.
 
 #[refine]
@@ -192,5 +192,5 @@ Instance SymReloid_HasCoproducts : HasCoproducts SymReloidCat :=
 }.
 Proof.
   proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold coproduct_skolem. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  unfold coproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
 Defined.

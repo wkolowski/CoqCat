@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm ProdCoprod.
 
-Definition exponential_skolem
+Definition exponential
   {C : Cat} {hp : HasProducts C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y)
   (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E)
@@ -16,7 +16,7 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   eval : forall X Y : Ob C, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
   curry_Proper :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
-  is_exponential : forall (X Y : Ob C), exponential_skolem X Y (expOb X Y) (eval X Y) (@curry X Y)
+  is_exponential : forall (X Y : Ob C), exponential X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
 Arguments expOb {C hp HasExponentials} _ _.
@@ -120,15 +120,15 @@ match goal with
 | |- ?x == ?x => reflexivity
 end.
 
-Lemma exponential_skolem_uiso :
+Lemma exponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential_skolem X Y E eval curry ->
-      exponential_skolem X Y E' eval' curry' ->
+      exponential X Y E eval curry ->
+      exponential X Y E' eval' curry' ->
         exists !! f : Hom E E', Iso f /\ f ×' id X .> eval' == eval.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
@@ -156,18 +156,18 @@ Proof.
       apply ProductFunctor_fmap_Proper; cat. rewrite H3; cat.
 Qed.
 
-Arguments exponential_skolem_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
+Arguments exponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
 
-Lemma exponential_skolem_iso :
+Lemma exponential_iso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential_skolem X Y E eval curry -> exponential_skolem X Y E' eval' curry' -> E ~ E'.
+      exponential X Y E eval curry -> exponential X Y E' eval' curry' -> E ~ E'.
 Proof.
-  intros. destruct (exponential_skolem_uiso H H0). cat.
+  intros. destruct (exponential_uiso H H0). cat.
 Qed.
 
 Lemma HasExponentials_unique :
@@ -177,7 +177,7 @@ Lemma HasExponentials_unique :
       @expOb C hp he X Y ~ @expOb C hp he' X Y.
 Proof.
   intros. destruct he, he'. cbn in *.
-  destruct (exponential_skolem_uiso (is_exponential0 X Y) (is_exponential1 X Y)).
+  destruct (exponential_uiso (is_exponential0 X Y) (is_exponential1 X Y)).
   cat.
 Qed.
 

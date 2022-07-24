@@ -157,7 +157,7 @@ Instance DenseReloid_HasProducts : HasProducts DenseReloidCat :=
   fpair := DenseReloid_fpair;
 }.
 Proof.
-  all: unfold product_skolem; dreloid.
+  all: unfold product; dreloid.
 Defined.
 
 #[refine]
@@ -212,5 +212,5 @@ Instance DenseReloid_HasCoproducts : HasCoproducts DenseReloidCat :=
 }.
 Proof.
   proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold coproduct_skolem. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  unfold coproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
 Defined.
