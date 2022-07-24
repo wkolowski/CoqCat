@@ -50,7 +50,7 @@ Coercion zero_is_terminal : HasZero >-> HasTerm.
 
 #[refine]
 #[export]
-Instance Dual_HasTerm (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
 {
   term := init C;
   delete := @create C hi
@@ -59,7 +59,7 @@ Proof. cat. Defined.
 
 #[refine]
 #[export]
-Instance Dual_HasInit (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
+Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 {
   init := term C;
   create := @delete C ht
@@ -68,10 +68,10 @@ Proof. cat. Defined.
 
 #[refine]
 #[export]
-Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 {
-  zero_is_initial := Dual_HasInit hz;
-  zero_is_terminal := Dual_HasTerm hz
+  zero_is_initial := HasInit_Dual hz;
+  zero_is_terminal := HasTerm_Dual hz
 }.
 Proof. cat. Defined.
 

@@ -68,7 +68,7 @@ Proof. cat. apply delete_unique. Defined.
 
 #[refine]
 #[export]
-Instance Dual_HasZero (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 {
   zero_is_initial := @Dual_term_init C (@zero_is_terminal C hz);
   zero_is_terminal := @Dual_init_term C (@zero_is_initial C hz);

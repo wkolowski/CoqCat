@@ -260,7 +260,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Sgr_HasInit : HasInit SgrCat :=
+Instance HasInit_Sgr : HasInit SgrCat :=
 {
   init := Sgr_init;
   create := Sgr_create
@@ -283,7 +283,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Sgr_HasTerm : HasTerm SgrCat :=
+Instance HasTerm_Sgr : HasTerm SgrCat :=
 {
   term := Sgr_term;
   delete := Sgr_delete
@@ -320,7 +320,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Sgr_HasProducts : HasProducts SgrCat :=
+Instance HasProducts_Sgr : HasProducts SgrCat :=
 {
   prodOb := Sgr_prodOb;
   proj1 := Sgr_proj1;

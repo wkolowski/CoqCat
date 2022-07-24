@@ -66,7 +66,7 @@ Proof. rreloid. Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_HasInit : HasInit ReflexiveReloidCat :=
+Instance HasInit_ReflexiveReloid : HasInit ReflexiveReloidCat :=
 {
   init := ReflexiveReloid_init;
   create := ReflexiveReloid_create
@@ -91,7 +91,7 @@ Proof. rreloid. Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_HasTerm : HasTerm ReflexiveReloidCat :=
+Instance HasTerm_ReflexiveReloid : HasTerm ReflexiveReloidCat :=
 {
   term := ReflexiveReloid_term;
   delete := ReflexiveReloid_delete;
@@ -138,7 +138,7 @@ Proof. rreloid. Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_HasProducts : HasProducts ReflexiveReloidCat :=
+Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
 {
   prodOb := ReflexiveReloid_prodOb;
   proj1 := ReflexiveReloid_proj1;
@@ -189,7 +189,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_HasCoproducts : HasCoproducts ReflexiveReloidCat :=
+Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
 {
   coprodOb := ReflexiveReloid_coprodOb;
   coproj1 := ReflexiveReloid_coproj1;

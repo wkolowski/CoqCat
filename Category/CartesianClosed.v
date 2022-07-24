@@ -1,16 +1,16 @@
 From Cat Require Export Cat.
 From Cat.Limits Require Import InitTerm ProdCoprod Exponential.
 
-Class cartesian_closed (C : Cat) : Type :=
+Class CartesianClosed (C : Cat) : Type :=
 {
-  ccc_term :> HasTerm C;
-  ccc_prod :> HasProducts C;
-  ccc_exp :> HasExponentials C
+  HasTerm_CartesianClosed :> HasTerm C;
+  HasProducts_CartesianClosed :> HasProducts C;
+  HasExponentials_CartesianClosed :> HasExponentials C
 }.
 
-Coercion ccc_term : cartesian_closed >-> HasTerm.
-Coercion ccc_prod : cartesian_closed >-> HasProducts.
-Coercion ccc_exp  : cartesian_closed >-> HasExponentials.
+Coercion HasTerm_CartesianClosed : CartesianClosed >-> HasTerm.
+Coercion HasProducts_CartesianClosed : CartesianClosed >-> HasProducts.
+Coercion HasExponentials_CartesianClosed  : CartesianClosed >-> HasExponentials.
 
 Lemma prod_term_iso_l :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
@@ -83,26 +83,26 @@ Proof.
 Defined.
 
 (* TODO *) Lemma exp_term_dom :
-  forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
+  forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
     expOb (term C) Y ~ Y.
 Proof.
   symmetry.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
-  split. 
+  split.
 Abort.
 
 (* TODO *) Lemma wuuut :
-  forall (C : Cat) (ccc : cartesian_closed C) (X Y A : Ob C) (f : Hom A (expOb X Y)) (g : Hom A X),
+  forall (C : Cat) (ccc : CartesianClosed C) (X Y A : Ob C) (f : Hom A (expOb X Y)) (g : Hom A X),
     fpair f g .> eval .> curry proj1 == f.
 Proof.
-  intros. destruct ccc, ccc_term0, ccc_prod0, ccc_exp0. cbn in *.
+  intros C [[] [] []].
     do 2 red in is_exponential.
     do 2 red in is_product. unfold ProductFunctor_fmap in is_exponential. cbn in *.
 Abort.
 
 (* TODO *) Lemma exp_term_cod :
-  forall (C : Cat) (ccc : cartesian_closed C) (Y : Ob C),
+  forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
     expOb Y (term C) ~ term C.
 Proof.
 Abort.

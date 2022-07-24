@@ -139,7 +139,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pros_HasInit : HasInit ProsCat :=
+Instance HasInit_Pros : HasInit ProsCat :=
 {
   init := Pros_init;
   create := Pros_create
@@ -162,7 +162,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pros_HasTerm : HasTerm ProsCat :=
+Instance HasTerm_Pros : HasTerm ProsCat :=
 {
   term := Pros_term;
   delete := Pros_delete
@@ -199,7 +199,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pros_HasProducts : HasProducts ProsCat :=
+Instance HasProducts_Pros : HasProducts ProsCat :=
 {
   prodOb := Pros_prodOb;
   proj1 := Pros_proj1;
@@ -251,7 +251,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pros_HasCoproducts : HasCoproducts ProsCat :=
+Instance HasCoproducts_Pros : HasCoproducts ProsCat :=
 {
   coprodOb := Pros_coprodOb;
   coproj1 := Pros_coproj1;

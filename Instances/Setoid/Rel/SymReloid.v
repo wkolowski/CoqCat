@@ -66,7 +66,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_HasInit : HasInit SymReloidCat :=
+Instance HasInit_SymReloid : HasInit SymReloidCat :=
 {
   init := SymReloid_init;
   create := SymReloid_create
@@ -91,7 +91,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_HasTerm : HasTerm SymReloidCat :=
+Instance HasTerm_SymReloid : HasTerm SymReloidCat :=
 {
   term := SymReloid_term;
   delete := SymReloid_delete;
@@ -134,7 +134,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_HasProducts : HasProducts SymReloidCat :=
+Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
 {
   prodOb := SymReloid_prodOb;
   proj1 := SymReloid_proj1;
@@ -183,7 +183,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_HasCoproducts : HasCoproducts SymReloidCat :=
+Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
 {
   coprodOb := SymReloid_coprodOb;
   coproj1 := SymReloid_coproj1;

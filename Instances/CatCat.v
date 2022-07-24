@@ -18,7 +18,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_HasInit : HasInit CAT :=
+Instance HasInit_CAT : HasInit CAT :=
 {
   init := CAT_init;
   create := CAT_create
@@ -42,7 +42,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_HasTerm : HasTerm CAT :=
+Instance HasTerm_CAT : HasTerm CAT :=
 {
   term := CAT_term;
   delete := CAT_delete;
@@ -100,7 +100,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_HasProducts : HasProducts CAT :=
+Instance HasProducts_CAT : HasProducts CAT :=
 {
   prodOb := CAT_prodOb;
   proj1 := CAT_proj1;
@@ -219,7 +219,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_HasCoproducts : HasCoproducts CAT :=
+Instance HasCoproducts_CAT : HasCoproducts CAT :=
 {
   coprodOb := CAT_coprodOb;
   coproj1 := CAT_coproj1;
@@ -252,7 +252,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_HasExponentials : HasExponentials CAT :=
+Instance HasExponentials_CAT : HasExponentials CAT :=
 {
   expOb := @FunCat;
 }.

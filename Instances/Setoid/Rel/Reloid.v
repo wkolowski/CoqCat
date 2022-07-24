@@ -111,7 +111,7 @@ Proof. proper. destruct x. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_HasInit : HasInit ReloidCat :=
+Instance HasInit_Reloid : HasInit ReloidCat :=
 {
   init := Reloid_init;
   create := Reloid_create
@@ -135,7 +135,7 @@ Proof. proper. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_HasTerm : HasTerm ReloidCat :=
+Instance HasTerm_Reloid : HasTerm ReloidCat :=
 {
   term := Reloid_term;
   delete := Reloid_delete;
@@ -181,7 +181,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_HasProducts : HasProducts ReloidCat :=
+Instance HasProducts_Reloid : HasProducts ReloidCat :=
 {
   prodOb := Reloid_prodOb;
   proj1 := Reloid_proj1;
@@ -239,7 +239,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_HasCoproducts : HasCoproducts ReloidCat :=
+Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
 {
   coprodOb := Reloid_coprodOb;
   coproj1 := Reloid_coproj1;

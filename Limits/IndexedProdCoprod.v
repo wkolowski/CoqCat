@@ -86,7 +86,7 @@ Coercion indexedProduct : HasIndexedBiproducts >-> HasIndexedProducts.
 Coercion indexedCoproduct : HasIndexedBiproducts >-> HasIndexedCoproducts.
 
 #[export]
-Instance Dual_HasIndexedProducts
+Instance HasIndexedProducts_Dual
   (C : Cat) (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
 {
   indexedProdOb := @indexedCoprodOb C hp;
@@ -97,7 +97,7 @@ Instance Dual_HasIndexedProducts
 }.
 
 #[export]
-Instance Dual_HasIndexedCoproducts
+Instance HasIndexedCoproducts_Dual
   (C : Cat) (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
 {
   indexedCoprodOb := @indexedProdOb C hp;
@@ -109,11 +109,11 @@ Instance Dual_HasIndexedCoproducts
 
 #[refine]
 #[export]
-Instance Dual_HasIndexedBiproducts
+Instance HasIndexedBiproducts_Dual
   (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
 {
-  indexedProduct := Dual_HasIndexedProducts C hp;
-  indexedCoproduct := Dual_HasIndexedCoproducts C hp;
+  indexedProduct := HasIndexedProducts_Dual C hp;
+  indexedCoproduct := HasIndexedCoproducts_Dual C hp;
 }.
 Proof.
   intros. simpl. rewrite product_is_coproduct. trivial.

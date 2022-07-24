@@ -79,7 +79,7 @@ Instance SetoidRelCat : Cat :=
 Proof. all: rel. Defined.
 
 #[export]
-Program Instance SetoidRel_HasInit : HasInit SetoidRelCat :=
+Program Instance HasInit_SetoidRel : HasInit SetoidRelCat :=
 {
   init := CoqSetoid_init;
   create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |}
@@ -88,7 +88,7 @@ Next Obligation. rel. Defined.
 Next Obligation. rel. Defined.
 
 #[export]
-Program Instance SetoidRel_HasTerm : HasTerm SetoidRelCat :=
+Program Instance HasTerm_SetoidRel : HasTerm SetoidRelCat :=
 {
   term := CoqSetoid_init;
   delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |}
@@ -98,10 +98,10 @@ Next Obligation. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_HasZero : HasZero SetoidRelCat :=
+Instance HasZero_SetoidRel : HasZero SetoidRelCat :=
 {
-  zero_is_initial := SetoidRel_HasInit;
-  zero_is_terminal := SetoidRel_HasTerm
+  zero_is_initial := HasInit_SetoidRel;
+  zero_is_terminal := HasTerm_SetoidRel
 }.
 Proof. rel. Defined.
 
@@ -161,7 +161,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_HasProducts : HasProducts SetoidRelCat :=
+Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
 {
   prodOb := SetoidRel_prodOb;
   proj1 := SetoidRel_proj1;
@@ -231,7 +231,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_HasCoproducts : HasCoproducts SetoidRelCat :=
+Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
 {
   coprodOb := SetoidRel_coprodOb;
   coproj1 := SetoidRel_coproj1;

@@ -68,7 +68,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_HasProducts {C D : Cat} {hp : HasProducts D} : HasProducts (FunCat C D) :=
+Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunCat C D) :=
 {
   prodOb := FunCat_prodOb;
   proj1 := @FunCat_proj1 C D hp;
@@ -133,7 +133,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_HasCoproducts
+Instance HasCoproducts_FunCat
   {C D : Cat} {hp : HasCoproducts D} : HasCoproducts (FunCat C D) :=
 {
   coprodOb := FunCat_coprodOb;
@@ -163,7 +163,7 @@ Abort.
 (* TODO : transfer of exponentials. Do they even transfer? *)
 #[refine]
 #[export]
-Instance FunCat_HasExponentials
+Instance HasExponentials_FunCat
   {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
   : HasExponentials (FunCat C D) := {}.
 Proof.

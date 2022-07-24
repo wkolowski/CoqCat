@@ -73,7 +73,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasInit : HasInit CoqSetoid :=
+Instance HasInit_CoqSetoid : HasInit CoqSetoid :=
 {
   init := CoqSetoid_init;
   create := CoqSetoid_create;
@@ -99,7 +99,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasTerm : HasTerm CoqSetoid :=
+Instance HasTerm_CoqSetoid : HasTerm CoqSetoid :=
 {
   term := CoqSetoid_term;
   delete := CoqSetoid_delete;
@@ -145,7 +145,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasProducts : HasProducts CoqSetoid :=
+Instance HasProducts_CoqSetoid : HasProducts CoqSetoid :=
 {
   prodOb := CoqSetoid_prodOb;
   proj1 := CoqSetoid_proj1;
@@ -203,7 +203,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasCoproducts : HasCoproducts CoqSetoid :=
+Instance HasCoproducts_CoqSetoid : HasCoproducts CoqSetoid :=
 {
   coprodOb := CoqSetoid_coprodOb;
   coproj1 := CoqSetoid_coproj1;
@@ -249,7 +249,7 @@ Next Obligation. proper. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasEqualizers : HasEqualizers CoqSetoid :=
+Instance HasEqualizers_CoqSetoid : HasEqualizers CoqSetoid :=
 {
   eq_ob := @CoqSetoid_eq_ob;
   eq_mor := @CoqSetoid_eq_mor;
@@ -304,7 +304,7 @@ Proof. proper. induction H0; subst; setoid'. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasCoequalizers : HasCoequalizers CoqSetoid :=
+Instance HasCoequalizers_CoqSetoid : HasCoequalizers CoqSetoid :=
 {
   coeq_ob := @CoqSetoid_coeq_ob;
   coeq_mor := CoqSetoid_coeq_mor
@@ -344,7 +344,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasIndexedProducts : HasIndexedProducts CoqSetoid :=
+Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
 {
   indexedProdOb := @CoqSetoid_indexedProdOb;
   indexedProj := @CoqSetoid_indexedProj;
@@ -405,7 +405,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasIndexedCoproducts : HasIndexedCoproducts CoqSetoid :=
+Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
 {
   indexedCoprodOb := @CoqSetoid_indexedCoprodOb;
   indexedCoproj := @CoqSetoid_indexedCoproj;
@@ -459,7 +459,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_HasExponentials : HasExponentials CoqSetoid :=
+Instance HasExponentials_CoqSetoid : HasExponentials CoqSetoid :=
 {
   expOb := CoqSetoid_expOb;
   eval := CoqSetoid_eval;
@@ -470,11 +470,11 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_cartesian_closed : cartesian_closed CoqSetoid :=
+Instance CoqSetoid_CartesianClosed : CartesianClosed CoqSetoid :=
 {
-  ccc_term := CoqSetoid_HasTerm;
-  ccc_prod := CoqSetoid_HasProducts;
-  ccc_exp := CoqSetoid_HasExponentials;
+  HasTerm_CartesianClosed := HasTerm_CoqSetoid;
+  HasProducts_CartesianClosed := HasProducts_CoqSetoid;
+  HasExponentials_CartesianClosed := HasExponentials_CoqSetoid;
 }.
 
 #[export]

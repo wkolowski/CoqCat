@@ -319,7 +319,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Mon_HasInit : HasInit MonCat :=
+Instance HasInit_Mon : HasInit MonCat :=
 {
   init := Mon_init;
   create := Mon_create
@@ -352,7 +352,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Mon_HasTerm : HasTerm MonCat :=
+Instance HasTerm_Mon : HasTerm MonCat :=
 {
   term := Mon_term;
   delete := Mon_delete
@@ -361,10 +361,10 @@ Proof. mon. Defined.
 
 #[refine]
 #[export]
-Instance Mon_HasZero : HasZero MonCat :=
+Instance HasZero_Mon : HasZero MonCat :=
 {
-  zero_is_initial := Mon_HasInit;
-  zero_is_terminal := Mon_HasTerm
+  zero_is_initial := HasInit_Mon;
+  zero_is_terminal := HasTerm_Mon
 }.
 Proof. mon. Defined.
 
@@ -394,7 +394,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Mon_HasProducts : HasProducts MonCat :=
+Instance HasProducts_Mon : HasProducts MonCat :=
 {
   prodOb := Mon_prodOb;
   proj1 := Mon_proj1;

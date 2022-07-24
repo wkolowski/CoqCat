@@ -69,7 +69,7 @@ Coercion products : HasBiproducts >-> HasProducts.
 Coercion coproducts : HasBiproducts >-> HasCoproducts.
 
 #[export]
-Instance Dual_HasCoproducts (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
+Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
 {
   coprodOb := @prodOb C hp;
   coproj1 := @proj1 C hp;
@@ -80,7 +80,7 @@ Instance Dual_HasCoproducts (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual
 }.
 
 #[export]
-Instance Dual_HasProducts (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
+Instance HasProducts_Dual (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
 {
   prodOb := @coprodOb C hp;
   proj1 := @coproj1 C hp;
@@ -92,10 +92,10 @@ Instance Dual_HasProducts (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C
 
 #[refine]
 #[export]
-Instance Dual_HasBiproducts (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
+Instance HasBiproducts_Dual (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
 {
-  products := Dual_HasProducts hp;
-  coproducts := Dual_HasCoproducts hp;
+  products := HasProducts_Dual hp;
+  coproducts := HasCoproducts_Dual hp;
 }.
 Proof.
   simpl. intros. rewrite product_is_coproduct. trivial.

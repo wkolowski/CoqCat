@@ -57,7 +57,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSet_HasInit : HasInit CoqSet :=
+Instance HasInit_CoqSet : HasInit CoqSet :=
 {
   init := Empty_set;
   create := fun (X : Set) (e : Empty_set) => match e with end
@@ -66,7 +66,7 @@ Proof. cat. Defined.
 
 #[refine]
 #[export]
-Instance CoqSet_HasTerm : HasTerm CoqSet :=
+Instance HasTerm_CoqSet : HasTerm CoqSet :=
 {
   term := unit;
   delete := fun (X : Set) (x : X) => tt
@@ -98,7 +98,7 @@ Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod 
 
 #[refine]
 #[export]
-Instance CoqSet_HasProducts : HasProducts CoqSet :=
+Instance HasProducts_CoqSet : HasProducts CoqSet :=
 {
   prodOb := prod;
   proj1 := @fst;
@@ -114,7 +114,7 @@ Defined.
 (* Beware! Requires functional extensionality. *)
 #[refine]
 #[export]
-Instance CoqSet_HasIndexedProducts : HasIndexedProducts CoqSet :=
+Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
 {
   indexedProdOb := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
   indexedProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
@@ -140,7 +140,7 @@ Definition CoqSet_copair (X Y A : Set) (f : Hom X A) (g : Hom Y A) : Hom (sum X 
 
 #[refine]
 #[export]
-Instance CoqSet_HasCoproducts : HasCoproducts CoqSet :=
+Instance HasCoproducts_CoqSet : HasCoproducts CoqSet :=
 {
   coprodOb := sum;
   coproj1 := @inl;
@@ -154,7 +154,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSet_HasIndexedCoproducts : HasIndexedCoproducts CoqSet :=
+Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
 {
   indexedCoprodOb := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
   indexedCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
@@ -203,7 +203,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSet_HasEqualizers : HasEqualizers CoqSet :=
+Instance HasEqualizers_CoqSet : HasEqualizers CoqSet :=
 {
   eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
   eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
@@ -222,7 +222,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance CoqSet_HasEqualizers' : HasEqualizers CoqSet :=
+Instance HasEqualizers_CoqSet' : HasEqualizers CoqSet :=
 {
   eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
   eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
@@ -240,13 +240,13 @@ Abort.
 
 #[refine]
 #[export]
-Instance CoqSet_HasCoequalizers : HasCoequalizers CoqSet := {}.
+Instance HasCoequalizers_CoqSet : HasCoequalizers CoqSet := {}.
 Proof.
 Abort.
 
 #[refine]
 #[export]
-Instance CoqSet_HasExponentials : HasExponentials CoqSet :=
+Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
 {
   expOb := fun X Y : Set => X -> Y;
   eval := fun (X Y : Set) (fx : prodOb (X -> Y) X) => (fst fx) (snd fx);
@@ -260,11 +260,11 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSet_cartesian_closed : cartesian_closed CoqSet :=
+Instance CoqSet_CartesianClosed : CartesianClosed CoqSet :=
 {
-  ccc_term := CoqSet_HasTerm;
-  ccc_prod := CoqSet_HasProducts;
-  ccc_exp := CoqSet_HasExponentials;
+  HasTerm_CartesianClosed := HasTerm_CoqSet;
+  HasProducts_CartesianClosed := HasProducts_CoqSet;
+  HasExponentials_CartesianClosed := HasExponentials_CoqSet;
 }.
 
 Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A) : Set :=
@@ -287,7 +287,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance CoqSet_HasPullbacks : HasPullbacks CoqSet :=
+Instance HasPullbacks_CoqSet : HasPullbacks CoqSet :=
 {
   pullbackOb := @CoqSet_pullbackOb;
   pull1 := @CoqSet_pull1;

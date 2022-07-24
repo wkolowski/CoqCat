@@ -6,17 +6,17 @@ Definition distr
   : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
   := copair (fpair proj1 (proj2 .> coproj1)) (fpair proj1 (proj2 .> coproj2)).
 
-Class distributive (C : Cat) : Type :=
+Class Distributive (C : Cat) : Type :=
 {
-  distr_HasInit :> HasInit C;
-  distr_HasTerm :> HasTerm C;
-  distr_HasProducts :> HasProducts C;
-  distr_HasCoproducts :> HasCoproducts C;
-  distr_iso : forall X Y Z : Ob C, Iso (distr X Y Z)
+  HasInit_Distributive :> HasInit C;
+  HasTerm_Distributive :> HasTerm C;
+  HasProducts_Distributive :> HasProducts C;
+  HasCoproducts_Distributive :> HasCoproducts C;
+  Iso_distr : forall X Y Z : Ob C, Iso (distr X Y Z)
 }.
 
 (* TODO *) Lemma distr_prodOb_init :
-  forall (C : Cat) (d : distributive C) (X : Ob C),
+  forall (C : Cat) (d : Distributive C) (X : Ob C),
     prodOb (init C) X ~ init C.
 Proof.
   intros. symmetry.
@@ -30,6 +30,6 @@ Proof.
           rewrite fpair_pre. apply fpair_Proper.
             assert (create (init C) == id (init C)). init.
               rewrite H. cat.
-            destruct d, distr_HasProducts. cbn in *.
+            destruct d, HasProducts_Distributive. cbn in *.
             do 2 red in is_product.
 Abort.

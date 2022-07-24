@@ -132,17 +132,17 @@ Arguments cofactorize [C _ X Y f g Q' q'] _.
 
 Class HasBiequalizers (C : Cat) : Type :=
 {
-  bi_HasEqualizers :> HasEqualizers C;
-  bi_HasCoequalizers :> HasCoequalizers C;
+  HasEqualizers_bi :> HasEqualizers C;
+  HasCoequalizers_bi :> HasCoequalizers C;
   equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y), eq_ob f g = coeq_ob f g
 }.
 
-Coercion bi_HasEqualizers : HasBiequalizers >-> HasEqualizers.
-Coercion bi_HasCoequalizers : HasBiequalizers >-> HasCoequalizers.
+Coercion HasEqualizers_bi : HasBiequalizers >-> HasEqualizers.
+Coercion HasCoequalizers_bi : HasBiequalizers >-> HasCoequalizers.
 
 #[refine]
 #[export]
-Instance Dual_HasCoequalizers (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
+Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
 {
   coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
   coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
@@ -157,7 +157,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_HasEqualizers (C : Cat) (he : HasCoequalizers C) : HasEqualizers (Dual C) :=
+Instance HasEqualizers_Dual (C : Cat) (he : HasCoequalizers C) : HasEqualizers (Dual C) :=
 {
   eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
   eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
@@ -172,10 +172,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance Dual_HasBiequalizers (C : Cat) (he : HasBiequalizers C) : HasBiequalizers (Dual C) :=
+Instance HasBiequalizers_Dual (C : Cat) (he : HasBiequalizers C) : HasBiequalizers (Dual C) :=
 {
-  bi_HasEqualizers := Dual_HasEqualizers he;
-  bi_HasCoequalizers := Dual_HasCoequalizers he;
+  HasEqualizers_bi := HasEqualizers_Dual he;
+  HasCoequalizers_bi := HasCoequalizers_Dual he;
 }.
 Proof.
   simpl. intros. rewrite equalizer_is_coequalizer. trivial.

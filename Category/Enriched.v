@@ -31,7 +31,7 @@ Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
 #[refine]
 #[export]
 Instance Enriched_CoqSetoid
-  : Enriched (Monoidal_HasTerminal_and_products CoqSetoid_HasTerm CoqSetoid_HasProducts)
+  : Enriched (Monoidal_HasTerm_HasProducts HasTerm_CoqSetoid HasProducts_CoqSetoid)
   := {}.
 Proof.
   exact (Ob CoqSetoid).

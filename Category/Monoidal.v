@@ -28,7 +28,7 @@ Coercion cat : Monoidal >-> Cat.
 
 #[refine]
 #[export]
-Instance Monoidal_HasTerminal_and_products
+Instance Monoidal_HasTerm_HasProducts
   (C : Cat) (ht : HasTerm C) (hp : HasProducts C) : Monoidal :=
 {
   cat := C;
@@ -49,7 +49,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Monoidal_HasInitial_and_coproducts
+Instance Monoidal_HasInit_HasCoproducts
   (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) : Monoidal :=
 {
   cat := C;
