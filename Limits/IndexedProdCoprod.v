@@ -336,9 +336,9 @@ Lemma nullary_prod :
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
       terminal T delete -> indexed_product C T p tuple.
 Proof.
-  red; cat.
-  destruct (H X).
-  rewrite <- H2, <- (H2 y); auto.
+  unfold terminal; red; cat.
+  rewrite H, (H _ y).
+  reflexivity.
 Qed.
 
 Lemma nullary_coprod :
@@ -349,9 +349,9 @@ Lemma nullary_coprod :
     (cotuple : forall (X : Ob C) (f : forall j : Empty_set, Hom (A j) X), Hom I X),
      initial I create -> indexed_coproduct C I p cotuple.
 Proof.
-  red; cat.
-  destruct (H X).
-  rewrite <- H2, <- (H2 y); auto.
+  unfold initial; red; cat.
+  rewrite H, (H _ y).
+  reflexivity.
 Qed.
 
 Lemma unary_prod_exists :

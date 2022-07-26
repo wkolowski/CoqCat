@@ -79,87 +79,13 @@ Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 }.
 Proof. cat. Defined.
 
-Module Equational.
-
-(* Lemmas ported from InitTerm.v *)
-
-Lemma HasInit_uiso :
-  forall (C : Cat) (hi1 hi2 : HasInit C),
-    @init C hi1 ~~ @init C hi2.
-Proof.
-  intros.
-  red. exists (create (init C)). red. split.
-    red. exists (create (init C)). split;
-      rewrite create_unique, (create_unique (id (init C)));
-        reflexivity.
-    destruct hi1, hi2. intros. cbn. rewrite (create_unique0 _ y).
-      cbn. reflexivity.
-Qed.
-
-Lemma HasTerm_uiso :
-  forall (C : Cat) (ht1 ht2 : HasTerm C),
-    @term C ht1 ~~ @term C ht2.
-Proof.
-  intros.
-  red. exists (delete (term C)). red. split.
-    red. exists (delete (term C)). split;
-      rewrite delete_unique, (delete_unique (id (term C)));
-        reflexivity.
-    destruct ht1, ht2. intros. cbn. rewrite (delete_unique1 _ y).
-      cbn. reflexivity.
-Qed.
-
-(*
-Lemma iso_to_init_is_init :
-  forall (C : Cat) (I X : Ob C) (create : forall I' : Ob C, Hom I I'),
-    initial I create -> forall f : Hom X I, Iso f ->
-      initial X (fun X' : Ob C => f .> create X').
-Proof.
-  repeat split; intros. iso.
-  edestruct H. rewrite (H1 (f_inv .> y)). cat.
-    assocl. rewrite f_inv_eq1. cat.
-    trivial.
-Defined.
-
-Lemma iso_to_term_is_term : 
-  forall (C : Cat) (X T : Ob C) (delete : forall T' : Ob C, Hom T' T),
-    terminal T delete -> forall f : Hom T X, Iso f ->
-      terminal X (fun X' : Ob C => delete X' .> f).
-Proof.
-  repeat split; intros. iso.
-  edestruct H. rewrite (H1 (y .> f_inv)).
-    assocr. rewrite f_inv_eq2. cat.
-    trivial.
-Defined.
-*)
-
-Lemma mor_to_init_is_ret :
-  forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
-    Ret f.
-Proof.
-  intros. red. exists (create X).
-  rewrite !create_unique.
-  destruct hi. rewrite <- create_unique0. reflexivity.
-Qed.
-
-Lemma mor_from_term_is_sec :
-  forall (C : Cat) (ht : HasTerm C) (X : Ob C) (f : Hom (term C) X),
-    Sec f.
-Proof.
-  intros. red. exists (delete X).
-  rewrite !delete_unique.
-  destruct ht. rewrite <- delete_unique0. reflexivity.
-Qed.
-
-End Equational.
-
 Definition initial
   {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
-    forall X : Ob C, setoid_unique (fun _ => True) (create X).
+    forall (X : Ob C) (f : Hom I X), f == create X.
 
 Definition terminal
   {C : Cat} (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop :=
-    forall X : Ob C, setoid_unique (fun _ => True) (delete X).
+    forall (X : Ob C) (f : Hom X T), f == delete X.
 
 Definition isZero
   {C : Cat} (Z : Ob C)
@@ -182,27 +108,32 @@ Proof.
   unfold isZero; cat.
 Qed.
 
+Module Traditional.
+
 Lemma initial_uiso :
   forall
     (C : Cat) (A B : Ob C)
-    (create : forall X : Ob C, Hom A X)
-    (create' : forall X : Ob C, Hom B X),
-      initial A create -> initial B create' -> A ~~ B.
+    (createA : forall X : Ob C, Hom A X)
+    (createB : forall X : Ob C, Hom B X),
+      initial A createA -> initial B createB -> A ~~ B.
 Proof.
-  unfold uniquely_isomorphic, isomorphic; intros.
-  red in H. red in H0.
-  destruct (H B) as [_ Hf], (H0 A) as [_ Hg], (H A) as [_ HA], (H0 B) as [_ HB].
-  exists (create0 B); red. split; auto. exists (create' A); split.
-    rewrite <- (HA (id A)); try symmetry; auto.
-    rewrite <- (HB (id B)); try symmetry; auto.
+  unfold initial, uniquely_isomorphic, isomorphic.
+  intros C A B createA createB createA_unique createB_unique.
+  exists (createA B).
+  split.
+  - unfold Iso.
+    exists (createB A).
+    rewrite (createA_unique _ (id A)), (createB_unique _ (id B)), !createA_unique, !createB_unique.
+    split; reflexivity.
+  - intros. rewrite (createA_unique _ y). reflexivity.
 Qed.
 
 Lemma initial_iso :
   forall
     (C : Cat) (A B : Ob C)
-    (create : forall X : Ob C, Hom A X)
-    (create' : forall X : Ob C, Hom B X),
-      initial A create -> initial B create' -> A ~ B.
+    (createA : forall X : Ob C, Hom A X)
+    (createB : forall X : Ob C, Hom B X),
+      initial A createA -> initial B createB -> A ~ B.
 Proof.
   intros. destruct (initial_uiso H H0). cat.
 Qed.
@@ -215,17 +146,21 @@ Lemma initial_create_equiv :
       initial I create -> initial I create' ->
         forall X : Ob C, create X == create' X.
 Proof.
-  intros. edestruct H. apply H2. trivial.
+  unfold initial.
+  intros C I c1 c2 H1 H2 X.
+  rewrite (H1 _ (c2 X)).
+  reflexivity.
 Qed.
 
 Lemma terminal_uiso :
   forall
     (C : Cat) (A B : Ob C)
-    (delete : forall X : Ob C, Hom X A)
-    (delete' : forall X : Ob C, Hom X B),
-      terminal A delete -> terminal B delete' -> A ~~ B.
+    (deleteA : forall X : Ob C, Hom X A)
+    (deleteB : forall X : Ob C, Hom X B),
+      terminal A deleteA -> terminal B deleteB -> A ~~ B.
 Proof.
-  intro C. rewrite <- (Dual_Dual C); cbn; intros.
+  intro C.
+  rewrite <- (Dual_Dual C); cbn; intros.
   rewrite <- dual_initial_terminal in *.
   rewrite dual_unique_iso_self.
   eapply initial_uiso; cat.
@@ -234,9 +169,9 @@ Qed.
 Lemma terminal_iso :
   forall
     (C : Cat) (A B : Ob C)
-    (delete : forall X : Ob C, Hom X A)
-    (delete' : forall X : Ob C, Hom X B),
-      terminal A delete -> terminal B delete' -> A ~ B.
+    (deleteA : forall X : Ob C, Hom X A)
+    (deleteB : forall X : Ob C, Hom X B),
+      terminal A deleteA -> terminal B deleteB -> A ~ B.
 Proof.
   intros. destruct (terminal_uiso H H0). cat.
 Qed.
@@ -249,43 +184,168 @@ Lemma terminal_delete_equiv :
       terminal T delete -> terminal T delete' ->
         forall X : Ob C, delete X == delete' X.
 Proof.
-  intros. edestruct H. apply H2. trivial.
+  unfold terminal.
+  intros C T d1 d2 H1 H2 X.
+  rewrite (H1 _ (d2 X)).
+  reflexivity.
 Qed.
 
 Lemma iso_to_init_is_init :
-  forall (C : Cat) (I X : Ob C) (create : forall I' : Ob C, Hom I I'),
-    initial I create -> forall f : Hom X I, Iso f ->
-      initial X (fun X' : Ob C => f .> create X').
+  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
+    initial I create ->
+      forall {X : Ob C} (f : Hom X I), Iso f ->
+        initial X (fun Y : Ob C => f .> create Y).
 Proof.
-  repeat split; intros. iso.
-  edestruct H. rewrite (H1 (f_inv .> y)). cat.
-    assocl. rewrite f_inv_eq1. cat.
-    trivial.
+  unfold initial.
+  intros C I c H X f (f' & Heq1 & Heq2) Y g.
+  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, id_left.
+  reflexivity.
 Defined.
 
-Lemma iso_to_term_is_term : 
-  forall (C : Cat) (X T : Ob C) (delete : forall T' : Ob C, Hom T' T),
-    terminal T delete -> forall f : Hom T X, Iso f ->
-      terminal X (fun X' : Ob C => delete X' .> f).
+Lemma iso_to_term_is_term :
+  forall (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T),
+    terminal T delete ->
+      forall {X : Ob C} (f : Hom T X), Iso f ->
+        terminal X (fun Y : Ob C => delete Y .> f).
 Proof.
-  repeat split; intros. iso.
-  edestruct H. rewrite (H1 (y .> f_inv)).
-    assocr. rewrite f_inv_eq2. cat.
-    trivial.
+  unfold terminal.
+  intros C T d H X f (f' & Heq1 & Heq2) Y g.
+  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, id_right.
+  reflexivity.
 Defined.
 
 Lemma mor_to_init_is_ret :
-  forall (C : Cat) (I X : Ob C) (f : Hom X I) (create : forall I' : Ob C, Hom I I'),
-    initial I create -> Ret f.
+  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
+    initial I create ->
+      forall {X : Ob C} (f : Hom X I), Ret f.
 Proof.
-  intros. red. exists (create0 X).
-  edestruct H. rewrite <- H1; cat.
+  unfold initial, Ret.
+  intros.
+  exists (create0 X).
+  rewrite (H _ (id I)), H.
+  reflexivity.
 Qed.
 
 Lemma mor_from_term_is_sec :
-  forall (C : Cat) (T X : Ob C) (f : Hom T X) (delete : forall T' : Ob C, Hom T' T),
-    terminal T delete -> Sec f.
+  forall (C : Cat) (T : Ob C) (delete : forall T' : Ob C, Hom T' T),
+    terminal T delete ->
+      forall {X : Ob C} (f : Hom T X), Sec f.
 Proof.
-  intros. red. exists (delete0 X).
-  edestruct H. rewrite <- H1; cat.
+  unfold terminal, Ret.
+  intros.
+  exists (delete0 X).
+  rewrite (H _ (id T)), H.
+  reflexivity.
 Qed.
+
+End Traditional.
+
+Module Equational.
+
+Lemma HasInit_uiso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 ~~ @init C hi2.
+Proof.
+  unfold uniquely_isomorphic, Iso.
+  intros.
+  exists (create (init C)).
+  split.
+  - exists (create (init C)).
+    split; rewrite !create_unique, (create_unique (id (init C))); reflexivity.
+  - cbn. intros y _. rewrite (create_unique y). reflexivity.
+Qed.
+
+Lemma HasInit_iso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 ~ @init C hi2.
+Proof.
+  intros. destruct (HasInit_uiso hi1 hi2). cat.
+Qed.
+
+Lemma HasInit_create_equiv :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 = @init C hi2 ->
+      forall X : Ob C, JMequiv (@create _ hi1 X) (@create _ hi2 X).
+Proof.
+  intros C [I1 c1 H1] [I2 c2 H2] Heq X; cbn in *.
+  destruct Heq.
+  constructor.
+  rewrite (H1 _ (c2 _)).
+  reflexivity.
+Qed.
+
+Lemma iso_to_init_is_init :
+  forall (C : Cat) (hi : HasInit C),
+    forall {X : Ob C} (f : Hom X (init C)), Iso f ->
+      initial X (fun Y : Ob C => f .> create Y).
+Proof.
+  unfold initial.
+  intros C [I c H] X f (f' & Heq1 & Heq2) Y g.
+  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, id_left.
+  reflexivity.
+Defined.
+
+Lemma mor_to_init_is_ret :
+  forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
+    Ret f.
+Proof.
+  intros; red.
+  exists (create X).
+  rewrite create_unique, <- (create_unique (id _)).
+  reflexivity.
+Qed.
+
+Lemma HasTerm_uiso :
+  forall (C : Cat) (ht1 ht2 : HasTerm C),
+    @term C ht1 ~~ @term C ht2.
+Proof.
+  unfold uniquely_isomorphic, Iso.
+  intros.
+  exists (delete (term C)).
+  split.
+  - exists (delete (term C)).
+    split; rewrite !delete_unique, (delete_unique (id (term C))); reflexivity.
+  - cbn. intros y _. rewrite (delete_unique y). reflexivity.
+Qed.
+
+Lemma HasTerm_iso :
+  forall (C : Cat) (ht1 ht2 : HasTerm C),
+    @term C ht1 ~ @term C ht2.
+Proof.
+  intros. destruct (HasTerm_uiso ht1 ht2). cat.
+Qed.
+
+Lemma HasTerm_delete_equiv :
+  forall (C : Cat) (ht1 ht2 : HasTerm C),
+    @term C ht1 = @term C ht2 ->
+      forall X : Ob C, JMequiv (@delete _ ht1 X) (@delete _ ht2 X).
+Proof.
+  intros C [T1 d1 H1] [T2 d2 H2] Heq X; cbn in *.
+  destruct Heq.
+  constructor.
+  rewrite (H1 _ (d2 _)).
+  reflexivity.
+Qed.
+
+Lemma iso_to_term_is_term :
+  forall (C : Cat) (ht : HasTerm C),
+      forall {X : Ob C} (f : Hom (term C) X), Iso f ->
+        terminal X (fun Y : Ob C => delete Y .> f).
+Proof.
+  unfold terminal.
+  intros C [T d H] X f (f' & Heq1 & Heq2) Y g.
+  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, id_right.
+  reflexivity.
+Defined.
+
+Lemma mor_from_term_is_sec :
+  forall (C : Cat) (ht : HasTerm C) (X : Ob C) (f : Hom (term C) X),
+    Sec f.
+Proof.
+  intros; red.
+  exists (delete X).
+  rewrite delete_unique, <- (delete_unique (id _)).
+  reflexivity.
+Qed.
+
+End Equational.
