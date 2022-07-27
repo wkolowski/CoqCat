@@ -21,6 +21,9 @@ Class HasEqualizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
   eq_mor :
     forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+  eq_mor_ok :
+    forall (X Y : Ob C) (f g : Hom X Y),
+      eq_mor f g .> f = eq_mor f g .> g;
   eq_mor_Proper :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' ->
@@ -35,8 +38,8 @@ Class HasEqualizers (C : Cat) : Type :=
         f == f' -> g == g' -> JMequiv (factorize H) (factorize H');
   universal :
     forall
-      {X Y : Ob C} {f g : Hom X Y}
-      {E' : Ob C} {e' : Hom E' X} (H : e' .> f == e' .> g)
+      {X Y : Ob C} [f g : Hom X Y]
+      [E' : Ob C] [e' : Hom E' X] (H : e' .> f == e' .> g)
       (h : Hom E' (eq_ob f g)),
         factorize H == h <-> h .> eq_mor f g == e'
 }.
@@ -65,28 +68,12 @@ Lemma equalizer_is_mono :
   Mon (eq_mor f g).
 Proof.
   intros A h1 h2 Heq.
+  assert ((h1 .> eq_mor f g) .> f == (h1 .> eq_mor f g) .> g).
+  {
+    rewrite !comp_assoc, .
+  }
+  pose (@universal C heq X Y f g A (h1 .> eq_mor f g)).
+  
 Admitted.
-
-(*
-   forall
-    (E : Ob C) (e : Hom E X)
-    (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
-      equalizer C f g E e factorize -> Mon e.
-Proof.
-  unfold equalizer, setoid_unique, Mon. intros.
-  rename X0 into Z. rename g0 into h'.
-  destruct H as [eq H].
-  assert ((h .> e) .> f == (h .> e) .> g).
-    assocr'. rewrite eq. reflexivity.
-  assert ((h' .> e) .> f == (h' .> e) .> g).
-    assocr'. rewrite eq. reflexivity.
-  destruct (H Z (h .> e) H1) as [u Hh].
-  edestruct (H Z (h' .> e) H2) as [u' Hh'].
-  assert (factorize0 Z (h .> e) H1 == factorize0 Z (h' .> e) H2).
-    rewrite Hh, Hh'. reflexivity. reflexivity. assumption.
-  specialize (Hh h); specialize (Hh' h').
-  rewrite <- Hh, <- Hh'; try rewrite H3; reflexivity.
-Defined.
-*)
 
 End HasEqualizers.
