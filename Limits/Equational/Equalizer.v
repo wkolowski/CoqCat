@@ -70,10 +70,9 @@ Proof.
   intros A h1 h2 Heq.
   assert ((h1 .> eq_mor f g) .> f == (h1 .> eq_mor f g) .> g).
   {
-    rewrite !comp_assoc, .
+    rewrite !comp_assoc. admit.
   }
   pose (@universal C heq X Y f g A (h1 .> eq_mor f g)).
-  
 Admitted.
 
 End HasEqualizers.

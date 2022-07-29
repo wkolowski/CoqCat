@@ -28,7 +28,7 @@ Proof.
   extensionality proj.
   extensionality tuple.
   apply propositional_extensionality.
-  unfold indexed_product, indexed_product'.
+  unfold indexed_product, indexed_product', setoid_unique.
   split.
   - intros H X f h.
     destruct (H X f) as [H1 H2].

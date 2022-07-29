@@ -9,6 +9,14 @@ Definition indexed_product
     forall (X : Ob C) (f : forall j : J, Hom X (A j)) (h : Hom X P),
       tuple _ f == h <-> forall j : J, f j == h .> proj j.
 
+Definition indexed_coproduct
+  (C : Cat) {J : Set} {A : J -> Ob C}
+  (P : Ob C) (coproj : forall j : J, Hom (A j) P)
+  (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
+  : Prop :=
+    forall (X : Ob C) (f : forall j : J, Hom (A j) X) (h : Hom P X),
+      cotuple _ f == h <-> forall j : J, f j == coproj j .> h.
+
 Class HasIndexedProducts (C : Cat) : Type :=
 {
   indexedProdOb :
@@ -92,32 +100,29 @@ Lemma indexed_product_iso_unique :
     (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
       indexed_product C P p tuple -> indexed_product C Q q tuple' -> P ~ Q.
 Proof.
-(*   unfold indexed_product, isomorphic, Iso.
+  unfold indexed_product, isomorphic, Iso.
   intros.
   exists (tuple' _ p), (tuple0 _ q).
   destruct
-    (H P p (id P)) as [HP1 HP2],
-    (H Q q (tuple0 Q q)) as [HQ1 HQ2].
-    (H0 P p) as [HP1' HP2'],
-    (H0 Q q) as [HQ1' HQ2'].
-  split.
-  - rewrite <- (HP2 (tuple' P p .> tuple0 Q q)).
-    + apply HP2. cat.
-    + intros. cat. rewrite <- HQ1, <- HP1'. reflexivity.
-  - rewrite <- (HQ2' (tuple0 Q q .> tuple' P p)).
-    + apply HQ2'. cat.
-    + intros. cat. rewrite <- HP1', <- HQ1. reflexivity. *)
-Admitted.
+    (H P p (tuple' P p .> tuple0 Q q)) as [_ HP2],
+    (H Q q (tuple0 Q q)) as [HQ1 _],
+    (H0 P p (tuple' P p)) as [HP1' _],
+    (H0 Q q (tuple0 Q q .> tuple' P p)) as [_ HQ2'].
+  rewrite <- HP2, <- HQ2'; intros.
+  - rewrite (H P p (id P)), (H0 Q q (id Q)). cat.
+  - rewrite comp_assoc, <- HP1', <- HQ1; cat.
+  - rewrite comp_assoc, <- HQ1, <- HP1'; cat.
+Defined.
 
 Lemma indexed_product_iso_unique2 :
   forall
     (C : Cat) (J : Set) (A B : J -> Ob C)
-    (P : Ob C) (p : forall j : J, Hom P (A j))
-    (u2 : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
-    (Q : Ob C) (q : forall j : J, Hom Q (B j))
-    (u1 : forall (X : Ob C) (f : forall j : J, Hom X (B j)), Hom X Q),
+    (P1 : Ob C) (p1 : forall j : J, Hom P1 (A j))
+    (t1 : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P1)
+    (P2 : Ob C) (p2 : forall j : J, Hom P2 (B j))
+    (t2 : forall (X : Ob C) (f : forall j : J, Hom X (B j)), Hom X P2),
       (forall j : J, A j ~ B j) ->
-      indexed_product C P p u2 -> indexed_product C Q q u1 -> P ~ Q.
+      indexed_product C P1 p1 t1 -> indexed_product C P2 p2 t2 -> P1 ~ P2.
 Proof.
   unfold indexed_product, isomorphic, Iso.
   intros.
@@ -139,27 +144,28 @@ Proof.
     split; intro; destruct (f j) as [f' [g' [eq1 eq2]]]; cat.
   }
   destruct f' as [f' [g' [iso1 iso2]]].
-  destruct (H1 P (fun j => p j .> f' j)) as [eq1 uniq1],
-       (H0 Q (fun j : J => q j .> g' j)) as [eq2 uniq2].
-  exists (u1 P (fun j => p j .> f' j)),
-         (u2 Q (fun j : J => (q j .> g' j))).
+  exists (t2 P1 (fun j => p1 j .> f' j)),
+         (t1 P2 (fun j : J => (p2 j .> g' j))).
   split.
-  - destruct (H0 P p) as [eq_id uniq_id].
-    assert (i_is_id : u2 P p == id P).
-    {
-      apply uniq_id. cat.
-    }
-    rewrite <- i_is_id. symmetry. apply uniq_id. intro. cat.
-    rewrite <- eq2. rewrite <- comp_assoc. rewrite <- eq1. cat.
-    rewrite iso1. cat.
-  - destruct (H1 Q q) as [eq_id uniq_id].
-    assert (i_is_id : u1 Q q == id Q).
-    {
-      apply uniq_id. cat.
-    }
-    rewrite <- i_is_id. symmetry. apply uniq_id. cat.
-    rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
-    rewrite iso2. cat.
+  - destruct (H0 P1 p1 (id P1)) as [_ <-]; [| cat].
+    symmetry. apply H0. intros. rewrite comp_assoc.
+    destruct (H0 P2 (fun j0 : J => p2 j0 .> g' j0) (t1 P2 (fun j0 : J => p2 j0 .> g' j0)))
+      as [<- _]; [| cat].
+    rewrite <- comp_assoc.
+    destruct (H1 P1 (fun j0 : J => p1 j0 .> f' j0) (t2 P1 (fun j0 : J => p1 j0 .> f' j0)))
+      as [<- _]; [| cat].
+    rewrite comp_assoc, iso1, id_right.
+    reflexivity.
+  - destruct (H1 P2 p2 (id P2)) as [_ <-]; [| cat].
+    symmetry; apply H1; intros.
+    rewrite comp_assoc.
+    destruct (H1 P1 (fun j0 : J => p1 j0 .> f' j0) (t2 P1 (fun j0 : J => p1 j0 .> f' j0)))
+      as [<- _]; [| cat].
+    rewrite <- comp_assoc.
+    destruct (H0 P2 (fun j0 : J => p2 j0 .> g' j0) (t1 P2 (fun j0 : J => p2 j0 .> g' j0)))
+      as [<- _]; [| cat].
+    rewrite comp_assoc, iso2, id_right.
+    reflexivity.
 Defined.
 
 Lemma small_and_indexed_products :
@@ -180,7 +186,7 @@ Proof.
   split.
   - unfold product, indexed_product, setoid_unique; cat.
     + destruct (H _ (f true) (f false)) as [[] uniq].
-      destruct j; cbn; assumption.
+      destruct j; cbn; rewrite <- H0; assumption.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       apply uniq. rewrite !H0. cat.
   - unfold product, indexed_product, setoid_unique.
@@ -192,11 +198,12 @@ Proof.
         then f
         else g
     ).
-    destruct (H _ wut) as [H1 H2].
-    specialize (H1 true) as Ht; cbn in Ht.
-    specialize (H1 false) as Hf; cbn in Hf.
+    destruct (H _ wut (t _ (wut true) (wut false))) as [H1 H2].
+    specialize (H1 ltac:(reflexivity) true) as Ht; cbn in Ht.
+    specialize (H1 ltac:(reflexivity) false) as Hf; cbn in Hf.
     cat.
-    apply H2. destruct j; cbn; assumption.
+    destruct (H _ wut y) as [H1' H2'].
+    apply H2'. destruct j; cbn; assumption.
 Qed.
 
 Lemma nullary_prod :
@@ -208,7 +215,7 @@ Lemma nullary_prod :
       terminal T delete -> indexed_product C T p tuple.
 Proof.
   unfold terminal; red; cat.
-  rewrite H, (H _ y).
+  rewrite H, (H _ h).
   reflexivity.
 Qed.
 
@@ -221,7 +228,7 @@ Lemma nullary_coprod :
      initial I create -> indexed_coproduct C I p cotuple.
 Proof.
   unfold initial; red; cat.
-  rewrite H, (H _ y).
+  rewrite H, (H _ h).
   reflexivity.
 Qed.
 
@@ -238,30 +245,3 @@ Lemma unary_coprod_exists :
 Proof.
   red; cat.
 Qed.
-
-(* Dependent type bullshit. This is harder than I thought. *)
-Lemma indexed_product_comm :
-  forall
-    (C : Cat) (J : Set) (A : J -> Ob C)
-    (P : Ob C) (p : forall j : J, Hom P (A j))
-    (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
-    (f : J -> J) 
-    (p' : forall j : J, Hom P (A (f j)))
-    (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A (f j))), Hom X P),
-      (forall j : J, p' j = p (f j)) ->
-        bijective f -> indexed_product C P p tuple -> indexed_product C P p' tuple'.
-Proof.
-  unfold bijective, injective, surjective, indexed_product.
-  destruct 2 as [inj sur]; intros.
-  assert (g : {g : J -> J |
-    (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
-    exists (fun j : J => proj1_sig (constructive_indefinite_description _ (sur j))).
-    split; intros.
-      destruct (constructive_indefinite_description _ (sur j)). auto.
-      destruct (constructive_indefinite_description _ (sur (f j))). auto.
-  destruct g as [g [g_inv1 g_inv2]].
-  assert (h : {h : forall j : J, Hom X (A (f (g j))) |
-  (forall j : J, h j = f0 (g j))}).
-    exists (fun j : J => f0 (g j)). auto.
-  destruct h as [h eq].
-Abort.
