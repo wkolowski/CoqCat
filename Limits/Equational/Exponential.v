@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm.
-From Cat.Limits.Equational Require Export ProdCoprod.
+From Cat.Limits Require Export ProdCoprod.
 
 Set Universe Polymorphism.
 
@@ -82,7 +82,7 @@ Lemma curry_eval :
 Proof.
   rewrite universal.
   unfold ProductFunctor_fmap.
-  prod.
+  fpair.
 Qed.
 
 Lemma curry_comp :

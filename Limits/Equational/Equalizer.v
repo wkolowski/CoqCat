@@ -23,7 +23,7 @@ Class HasEqualizers (C : Cat) : Type :=
     forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
   eq_mor_ok :
     forall (X Y : Ob C) (f g : Hom X Y),
-      eq_mor f g .> f = eq_mor f g .> g;
+      eq_mor f g .> f == eq_mor f g .> g;
   eq_mor_Proper :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' ->
