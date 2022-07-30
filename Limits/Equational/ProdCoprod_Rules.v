@@ -28,13 +28,13 @@ Arguments outl   {C HasProducts A B}.
 Arguments outr   {C HasProducts A B}.
 Arguments fpair  {C HasProducts A B X} _ _.
 
-From Cat.Limits.Equational Require ProdCoprod_Universal_Gibbons.
+From Cat.Limits.Equational Require ProdCoprod_Universal.
 
 Module Equiv.
 
 #[refine]
 #[export]
-Instance to (C : Cat) (hp : HasProducts C) : ProdCoprod_Universal_Gibbons.HasProducts C :=
+Instance to (C : Cat) (hp : HasProducts C) : ProdCoprod_Universal.HasProducts C :=
 {
   prodOb := @prodOb C hp;
   outl := @outl C hp;
@@ -49,17 +49,17 @@ Defined.
 
 #[refine]
 #[export]
-Instance from (C : Cat) (hp : ProdCoprod_Universal_Gibbons.HasProducts C) : HasProducts C :=
+Instance from (C : Cat) (hp : ProdCoprod_Universal.HasProducts C) : HasProducts C :=
 {
-  prodOb := @ProdCoprod_Universal_Gibbons.prodOb C hp;
-  outl := @ProdCoprod_Universal_Gibbons.outl C hp;
-  outr := @ProdCoprod_Universal_Gibbons.outr C hp;
-  fpair := @ProdCoprod_Universal_Gibbons.fpair C hp;
+  prodOb := @ProdCoprod_Universal.prodOb C hp;
+  outl := @ProdCoprod_Universal.outl C hp;
+  outr := @ProdCoprod_Universal.outr C hp;
+  fpair := @ProdCoprod_Universal.fpair C hp;
 }.
 Proof.
-  - intros. rewrite ProdCoprod_Universal_Gibbons.fpair_outl. reflexivity.
-  - intros. rewrite ProdCoprod_Universal_Gibbons.fpair_outr. reflexivity.
-  - intros. symmetry. apply ProdCoprod_Universal_Gibbons.universal.
+  - intros. rewrite ProdCoprod_Universal.fpair_outl. reflexivity.
+  - intros. rewrite ProdCoprod_Universal.fpair_outr. reflexivity.
+  - intros. symmetry. apply ProdCoprod_Universal.universal.
     split; symmetry; assumption.
 Defined.
 

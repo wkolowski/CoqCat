@@ -2,82 +2,7 @@ From Cat Require Export Cat.
 
 Set Implicit Arguments.
 
-Class HasInit (C : Cat) : Type :=
-{
-  init : Ob C;
-  create : forall X : Ob C, Hom init X;
-  create_unique : forall [X : Ob C] (f : Hom init X), f == create X;
-}.
-
-Arguments init   _ {_}.
-Arguments create {C _ } _.
-
-Ltac init := intros; repeat
-match goal with
-| |- context [?f] =>
-  match type of f with
-  | Hom (init _) _ => rewrite (create_unique f)
-  end
-| |- ?x == ?x => reflexivity
-end; try (cat; fail).
-
-Class HasTerm (C : Cat) : Type :=
-{
-  term : Ob C;
-  delete : forall X : Ob C, Hom X term;
-  delete_unique : forall [X : Ob C] (f : Hom X term), f == delete X;
-}.
-
-Arguments term   _ {_}.
-Arguments delete {C _} _.
-
-Ltac term := intros; repeat
-match goal with
-| |- context [?f] =>
-  match type of f with
-  | Hom _ (term _) => rewrite (delete_unique f)
-  end
-| |- ?x == ?x => reflexivity
-end; try (cat; fail).
-
-Class HasZero (C : Cat) : Type :=
-{
-  HasZero_HasInit :> HasInit C;
-  HasZero_HasTerm :> HasTerm C;
-  initial_is_terminal : init C = term C
-}.
-
-Coercion HasZero_HasInit : HasZero >-> HasInit.
-Coercion HasZero_HasTerm : HasZero >-> HasTerm.
-
-#[global] Hint Resolve create_unique delete_unique initial_is_terminal : core.
-
-#[refine]
-#[export]
-Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
-{
-  term := init C;
-  delete := @create C hi
-}.
-Proof. cat. Defined.
-
-#[refine]
-#[export]
-Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
-{
-  init := term C;
-  create := @delete C ht
-}.
-Proof. cat. Defined.
-
-#[refine]
-#[export]
-Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
-{
-  HasZero_HasInit := HasInit_Dual hz;
-  HasZero_HasTerm := HasTerm_Dual hz;
-}.
-Proof. cat. Defined.
+Module Traditional.
 
 Definition initial
   {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
@@ -107,8 +32,6 @@ Lemma dual_zero_self :
 Proof.
   unfold isZero; cat.
 Qed.
-
-Module Traditional.
 
 Lemma initial_uiso :
   forall
@@ -221,7 +144,7 @@ Lemma mor_to_init_is_ret :
 Proof.
   unfold initial, Ret.
   intros.
-  exists (create0 X).
+  exists (create X).
   rewrite (H _ (id I)), H.
   reflexivity.
 Qed.
@@ -233,14 +156,91 @@ Lemma mor_from_term_is_sec :
 Proof.
   unfold terminal, Ret.
   intros.
-  exists (delete0 X).
+  exists (delete X).
   rewrite (H _ (id T)), H.
   reflexivity.
 Qed.
 
 End Traditional.
 
-Module Equational.
+Export Traditional.
+
+Class HasInit (C : Cat) : Type :=
+{
+  init : Ob C;
+  create : forall X : Ob C, Hom init X;
+  create_unique : forall [X : Ob C] (f : Hom init X), f == create X;
+}.
+
+Arguments init   _ {_}.
+Arguments create {C _ } _.
+
+Ltac init := intros; repeat
+match goal with
+| |- context [?f] =>
+  match type of f with
+  | Hom (init _) _ => rewrite (create_unique f)
+  end
+| |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
+Class HasTerm (C : Cat) : Type :=
+{
+  term : Ob C;
+  delete : forall X : Ob C, Hom X term;
+  delete_unique : forall [X : Ob C] (f : Hom X term), f == delete X;
+}.
+
+Arguments term   _ {_}.
+Arguments delete {C _} _.
+
+Ltac term := intros; repeat
+match goal with
+| |- context [?f] =>
+  match type of f with
+  | Hom _ (term _) => rewrite (delete_unique f)
+  end
+| |- ?x == ?x => reflexivity
+end; try (cat; fail).
+
+Class HasZero (C : Cat) : Type :=
+{
+  HasZero_HasInit :> HasInit C;
+  HasZero_HasTerm :> HasTerm C;
+  initial_is_terminal : init C = term C
+}.
+
+Coercion HasZero_HasInit : HasZero >-> HasInit.
+Coercion HasZero_HasTerm : HasZero >-> HasTerm.
+
+#[global] Hint Resolve create_unique delete_unique initial_is_terminal : core.
+
+#[refine]
+#[export]
+Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+{
+  term := init C;
+  delete := @create C hi
+}.
+Proof. cat. Defined.
+
+#[refine]
+#[export]
+Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
+{
+  init := term C;
+  create := @delete C ht
+}.
+Proof. cat. Defined.
+
+#[refine]
+#[export]
+Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+{
+  HasZero_HasInit := HasInit_Dual hz;
+  HasZero_HasTerm := HasTerm_Dual hz;
+}.
+Proof. cat. Defined.
 
 Lemma HasInit_uiso :
   forall (C : Cat) (hi1 hi2 : HasInit C),
@@ -347,5 +347,3 @@ Proof.
   rewrite delete_unique, <- (delete_unique (id _)).
   reflexivity.
 Qed.
-
-End Equational.

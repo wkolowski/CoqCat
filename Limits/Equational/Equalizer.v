@@ -68,11 +68,12 @@ Lemma equalizer_is_mono :
   Mon (eq_mor f g).
 Proof.
   intros A h1 h2 Heq.
-  assert ((h1 .> eq_mor f g) .> f == (h1 .> eq_mor f g) .> g).
-  {
-    rewrite !comp_assoc. admit.
-  }
-  pose (@universal C heq X Y f g A (h1 .> eq_mor f g)).
-Admitted.
+  assert (H1 : (h1 .> eq_mor f g) .> f == (h1 .> eq_mor f g) .> g)
+    by (rewrite !comp_assoc, eq_mor_ok; reflexivity).
+  destruct (@universal _ _ _ _ f g _ (h1 .> eq_mor f g) H1 h1) as [_ <-]; [| reflexivity].
+  destruct (@universal _ _ _ _ f g _ (h1 .> eq_mor f g) H1 h2) as [_ <-].
+  - reflexivity.
+  - symmetry. assumption.
+Qed.
 
 End HasEqualizers.

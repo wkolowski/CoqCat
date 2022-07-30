@@ -10,9 +10,12 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
   curry_Proper :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
-  universal :
+  he_comp :
+    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y),
+      curry f ×' id X .> eval == f;
+  he_unique :
     forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
-      curry f == g <-> g ×' id X .> eval == f
+      g ×' id X .> eval == f -> g == curry f;
 }.
 
 Section Exponential.
@@ -27,8 +30,9 @@ Lemma universal_property :
   forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
-  intros.
-  apply universal.
+  split.
+  - intros <-. apply he_comp.
+  - intros Heq. symmetry. apply he_unique. assumption.
 Qed.
 
 Lemma computation_rule :
@@ -36,18 +40,15 @@ Lemma computation_rule :
     curry f ×' id X .> eval == f.
 Proof.
   intros f.
-  rewrite <- universal.
-  reflexivity.
+  apply he_comp.
 Qed.
 
 Lemma uniqueness_rule :
   forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
     g ×' id X .> eval == f -> g == curry f.
 Proof.
-  intros.
-  symmetry.
-  rewrite universal.
-  assumption.
+  intros f.
+  apply he_unique.
 Qed.
 
 Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
@@ -67,7 +68,8 @@ Lemma curry_uncurry :
 Proof.
   intros f.
   unfold uncurry.
-  rewrite universal.
+  symmetry.
+  apply he_unique.
   reflexivity.
 Qed.
 
@@ -81,8 +83,7 @@ Lemma uncurry_curry :
 Proof.
   intros C hp he X Y Z f.
   unfold uncurry.
-  rewrite <- universal.
-  reflexivity.
+  apply he_comp.
 Qed.
 
 Section Exponential.
@@ -96,7 +97,7 @@ Context
 Lemma curry_eval :
   curry eval == id (expOb X Y).
 Proof.
-  rewrite universal.
+  symmetry; apply he_unique.
   unfold ProductFunctor_fmap.
   fpair.
 Qed.
@@ -105,15 +106,10 @@ Lemma curry_comp :
   forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
     curry (eval (X := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
-  intros A f g.
-  rewrite universal.
+  intros.
+  symmetry; apply he_unique.
   rewrite <- (id_left X), ProductFunctor_fmap_pres_comp, comp_assoc.
-  setoid_replace (curry (eval .> g) ×' id X .> eval) with (eval (X := X) .> g)
-    by (rewrite <- universal; reflexivity).
-  rewrite <- comp_assoc.
-  setoid_replace (curry (eval .> f) ×' id X .> eval) with (eval (X := X) .> f)
-    by (rewrite <- universal; reflexivity).
-  rewrite comp_assoc.
+  rewrite he_comp, <- comp_assoc, he_comp, comp_assoc.
   reflexivity.
 Qed.
 
@@ -121,8 +117,8 @@ Lemma uncurry_id :
   uncurry (id (expOb X Y)) == eval.
 Proof.
   unfold uncurry.
-  rewrite <- universal, curry_eval.
-  reflexivity.
+  unfold ProductFunctor_fmap.
+  fpair.
 Qed.
 
 End Exponential.
