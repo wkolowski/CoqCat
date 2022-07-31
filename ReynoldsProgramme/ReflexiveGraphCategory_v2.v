@@ -121,6 +121,6 @@ Proof.
   admit.
   admit.
   constructor. trivial.
-  constructor. intros. destruct X, Y, f. cbn in *. apply func_Proper. assumption.
+  constructor. intros. destruct X, Y, f. cbn in *. apply Proper_func. assumption.
   intros * [] []. constructor. cbn. auto.
 Admitted.

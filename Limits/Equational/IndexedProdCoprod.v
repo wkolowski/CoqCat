@@ -27,7 +27,7 @@ Class HasIndexedProducts (C : Cat) : Type :=
   tuple :
     forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom X (A j)),
       Hom X (indexedProdOb J A);
-  tuple_Proper :
+  Proper_tuple :
     forall
       (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),

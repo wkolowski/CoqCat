@@ -9,7 +9,7 @@ Class HasProducts (C : Cat) : Type :=
   outr : forall {A B : Ob C}, Hom (prodOb A B) B;
   fpair :
     forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
-  fpair_Proper :>
+  Proper_fpair :>
     forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
   universal :
@@ -70,10 +70,10 @@ repeat match goal with
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
-| |- fpair _ _ == fpair _ _ => apply fpair_Proper
+| |- fpair _ _ == fpair _ _ => apply Proper_fpair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply fpair_Proper
+| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite <- ?comp_assoc; auto
@@ -89,10 +89,10 @@ repeat match goal with
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
-| |- fpair _ _ == fpair _ _ => apply fpair_Proper
+| |- fpair _ _ == fpair _ _ => apply Proper_fpair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply fpair_Proper
+| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite <- ?comp_assoc; cat
@@ -117,7 +117,7 @@ Class HasCoproducts (C : Cat) : Type :=
   finr : forall {A B : Ob C}, Hom B (coprodOb A B);
   copair :
     forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coprodOb A B) X;
-  copair_Proper :>
+  Proper_copair :>
     forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@copair A B X);
   universal' :
@@ -175,10 +175,10 @@ repeat match goal with
 | |- context [finr .> copair _ _] => rewrite copair_finr
 | |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
-| |- copair _ _ == copair _ _ => apply copair_Proper
+| |- copair _ _ == copair _ _ => apply Proper_copair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply copair_Proper
+| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite ?comp_assoc; auto
@@ -194,10 +194,10 @@ repeat match goal with
 | |- context [finr .> copair _ _] => rewrite copair_finr
 | |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
-| |- copair _ _ == copair _ _ => apply copair_Proper
+| |- copair _ _ == copair _ _ => apply Proper_copair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply copair_Proper
+| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite ?comp_assoc; cat

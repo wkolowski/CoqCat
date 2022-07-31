@@ -423,7 +423,7 @@ Instance GrpCat : Cat :=
 }.
 Proof.
   (* Proper *) proper; repeat red; intros; destruct x, y, x0, y0; cat;
-    eapply (@comp_Proper MonCat); auto.
+    eapply (@Proper_comp MonCat); auto.
   (* Category laws *) all: grp.
 Defined.
 

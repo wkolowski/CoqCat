@@ -66,7 +66,7 @@ Proof.
   destruct 1; trivial.
 Qed.*)
 
-Definition eq_ob_Proper_T
+Definition Proper_eq_ob_T
   (C : Cat) (X Y : Ob C) (f f' g g' : Hom X Y) : f == f' -> g == g' -> Prop.
 Proof.
 Abort.
@@ -75,19 +75,19 @@ Class HasEqualizers (C : Cat) : Type :=
 {
   eq_ob :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-  eq_ob_Proper :
+  Proper_eq_ob :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
   eq_mor :
     forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
-  eq_mor_Proper :
+  Proper_eq_mor :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> (*eq_ob f g = eq_ob f' g' ->*)
         JMequiv (eq_mor f g) (eq_mor f' g');
   factorize :
     forall {X Y : Ob C} (f g : Hom X Y) (E' : Ob C) (e' : Hom E' X),
       e' .> f == e' .> g -> Hom E' (eq_ob f g);
-  (* TODO: factorize_Proper :
+  (* TODO: Proper_factorize :
     forall
       (X Y E' : Ob C) (f f' g g' : Hom X Y) (e' : Hom E' X)
       (H : e' .> f == e' .> g) (H' : e' .> f' == e' .> g'),
@@ -105,18 +105,18 @@ Class HasCoequalizers (C : Cat) : Type :=
 {
   coeq_ob :
     forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-  coeq_ob_Proper :
+  Proper_coeq_ob :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
   coeq_mor :
     forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
-  coeq_mor_Proper :
+  Proper_coeq_mor :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
   cofactorize :
     forall {X Y : Ob C} (f g : Hom X Y) (Q' : Ob C) (q' : Hom Y Q'),
       f .> q' == g .> q' -> Hom (coeq_ob f g) Q';
-  (* TODO: cofactorize_Proper :
+  (* TODO: Proper_cofactorize :
     forall
       (X Y Q' : Ob C) (f f' g g' : Hom X Y) (q' : Hom Y Q')
       (H : f .> q' == g .> q') (H' : f' .> q' == g' .> q'),
@@ -151,8 +151,8 @@ Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers
 }.
 Proof.
   all: cbn; intros.
-    destruct (eq_ob_Proper Y X f f' g g' H H0). auto.
-    destruct (eq_mor_Proper Y X f f' g g' H H0). auto.
+    destruct (Proper_eq_ob Y X f f' g g' H H0). auto.
+    destruct (Proper_eq_mor Y X f f' g g' H H0). auto.
 Defined.
 
 #[refine]
@@ -166,8 +166,8 @@ Instance HasEqualizers_Dual (C : Cat) (he : HasCoequalizers C) : HasEqualizers (
 }.
 Proof.
   all: cbn; intros.
-    destruct (coeq_ob_Proper Y X f f' g g' H H0). auto.
-    destruct (coeq_mor_Proper Y X f f' g g' H H0). auto.
+    destruct (Proper_coeq_ob Y X f f' g g' H H0). auto.
+    destruct (Proper_coeq_mor Y X f f' g g' H H0). auto.
 Defined.
 
 #[refine]

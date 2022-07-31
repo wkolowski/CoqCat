@@ -16,7 +16,7 @@ Class HasEqualizers (C : Cat) : Type :=
 {
   eq_ob :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-  eq_ob_Proper :
+  Proper_eq_ob :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
   eq_mor :
@@ -24,14 +24,14 @@ Class HasEqualizers (C : Cat) : Type :=
   eq_mor_ok :
     forall (X Y : Ob C) (f g : Hom X Y),
       eq_mor f g .> f == eq_mor f g .> g;
-  eq_mor_Proper :
+  Proper_eq_mor :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' ->
         JMequiv (eq_mor f g) (eq_mor f' g');
   factorize :
     forall {X Y : Ob C} [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
       e' .> f == e' .> g -> Hom E' (eq_ob f g);
-  factorize_Proper :
+  Proper_factorize :
     forall
       (X Y E' : Ob C) (f f' g g' : Hom X Y) (e' : Hom E' X)
       (H : e' .> f == e' .> g) (H' : e' .> f' == e' .> g'),

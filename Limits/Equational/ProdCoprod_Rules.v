@@ -9,7 +9,7 @@ Class HasProducts (C : Cat) : Type :=
   outr : forall {A B : Ob C}, Hom (prodOb A B) B;
   fpair :
     forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
-  fpair_Proper :>
+  Proper_fpair :>
     forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
   comp_l :

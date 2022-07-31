@@ -5,7 +5,7 @@ From Cat Require Export Instances.Setoids.
 Class SetoidRel (X Y : Setoid') : Type :=
 {
   rel : X -> Y -> Prop;
-  rel_Proper :> Proper (equiv ==> equiv ==> iff) rel
+  Proper_rel :> Proper (equiv ==> equiv ==> iff) rel
 }.
 
 Coercion rel : SetoidRel >-> Funclass.
@@ -13,7 +13,7 @@ Coercion rel : SetoidRel >-> Funclass.
 Ltac setoidrelhom R := try intros until R;
 match type of R with
 | SetoidRel _ _ =>
-  let a := fresh R "_Proper" in destruct R as [?R a]
+  let a := fresh "Proper_" R in destruct R as [?R a]
 | Hom _ _ => progress cbn in R; setoidrelhom R
 end.
 
@@ -176,15 +176,15 @@ Proof.
   | H : False |- _ => inversion H
   end.
     exists (inl y). eauto.
-    eapply f_Proper; eauto.
+    eapply Proper_f; eauto.
     exists (inr y); eauto.
-    eapply g_Proper; eauto. repeat red in y_Proper.
+    eapply Proper_g; eauto. repeat red in Proper_y.
     destruct (H x a) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
-      eapply y_Proper; eauto. simpl. assumption.
+      eapply Proper_y; eauto. simpl. assumption.
       inversion H'2.
     destruct (H0 x b) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
       inversion H'2.
-      eapply y_Proper; eauto. simpl. assumption.
+      eapply Proper_y; eauto. simpl. assumption.
     destruct (H x a) as [_ H']. apply H'. exists (inl a). eauto.
     destruct (H0 x b) as [_ H']. apply H'. exists (inr b). eauto.
 Defined.
@@ -246,15 +246,15 @@ Proof.
   | H : False |- _ => inversion H
   end.
     exists (inl x); eauto.
-    eapply f_Proper; eauto.
+    eapply Proper_f; eauto.
     exists (inr x); eauto.
-    eapply g_Proper; eauto.
+    eapply Proper_g; eauto.
     destruct (H a y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
-      eapply (y_Proper (inl a) (inl p1)); eauto.
+      eapply (Proper_y (inl a) (inl p1)); eauto.
       inversion Hp1.
     destruct (H0 b y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
       inversion Hp1.
-      eapply (y_Proper (inr b) (inr p2)); eauto.
+      eapply (Proper_y (inr b) (inr p2)); eauto.
     destruct (H a y0). apply H3. exists (inl a); eauto.
     destruct (H0 b y0). apply H3. exists (inr b); eauto.
 Defined.

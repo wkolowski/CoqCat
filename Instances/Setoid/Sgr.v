@@ -8,7 +8,7 @@ Class Sgr : Type :=
 {
   setoid :> Setoid';
   op : carrier -> carrier -> carrier;
-  op_Proper :> Proper (equiv ==> equiv ==> equiv) op;
+  Proper_op :> Proper (equiv ==> equiv ==> equiv) op;
   assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
@@ -72,7 +72,7 @@ Lemma expDenoteNel_nel_app :
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
     reflexivity.
-    pose op_Proper. rewrite IHt1, assoc. reflexivity.
+    pose Proper_op. rewrite IHt1, assoc. reflexivity.
 Qed.
 
 Lemma expDenoteNel_hom :
@@ -165,7 +165,7 @@ Ltac sgrob S := try intros until S;
 match type of S with
 | Sgr =>
   let a := fresh S "_op" in
-  let a' := fresh S "_op_Proper" in 
+  let a' := fresh S "_Proper_op" in 
   let b := fresh S "_assoc" in destruct S as [S a a' b]; setoidob S
 | Ob _ => progress cbn in S; sgrob S
 end; sgr_simpl.
@@ -506,7 +506,7 @@ Qed.
 
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
-Lemma app_nel_Proper :
+Lemma Proper_app_nel :
   forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
@@ -556,7 +556,7 @@ match l with
 | a ::: t => op a (fold t)
 end.
 
-Lemma fold_Proper :
+Lemma Proper_fold :
   forall (A : Sgr) (l1 l2 : nel A),
     equiv_nel l1 l2 -> fold l1 == fold l2.
 Proof.

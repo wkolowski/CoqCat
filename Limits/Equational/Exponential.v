@@ -9,7 +9,7 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   expOb : Ob C -> Ob C -> Ob C;
   eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
-  curry_Proper :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
+  Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
   universal :
     forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
       curry f == g <-> g ×' id X .> eval == f
@@ -53,7 +53,7 @@ Qed.
 Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
-Instance uncurry_Proper : Proper (equiv ==> equiv) uncurry.
+Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
 Proof.
   intros f g Heq.
   unfold uncurry.

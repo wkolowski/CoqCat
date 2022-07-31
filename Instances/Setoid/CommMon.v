@@ -613,7 +613,7 @@ Proof.
     | 0 => @neutr N
     | S n' => op (q tt) (f n')
     end;
-    func_Proper := ltac: (formulaer; subst; reflexivity)
+    Proper_func := ltac: (formulaer; subst; reflexivity)
   |}.
   pose f2 : SgrHom MonListUnit N :=
   {|

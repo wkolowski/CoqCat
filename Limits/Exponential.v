@@ -15,7 +15,7 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   expOb : Ob C -> Ob C -> Ob C;
   eval : forall X Y : Ob C, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
-  curry_Proper :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
+  Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
   is_exponential : forall (X Y : Ob C), exponential X Y (expOb X Y) (eval X Y) (@curry X Y)
 }.
 
@@ -34,12 +34,12 @@ Context
 Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
-Instance uncurry_Proper : Proper (equiv ==> equiv) uncurry.
+Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
 Proof.
   unfold Proper, respectful, uncurry. intros.
   cut (x ×' id Y == y ×' id Y).
     intro H'. rewrite H'. reflexivity.
-    apply ProductFunctor_fmap_Proper; [assumption | reflexivity].
+    apply Proper_ProductFunctor_fmap; [assumption | reflexivity].
 Qed.
 
 Lemma curry_uncurry :
@@ -113,7 +113,7 @@ match goal with
 | |- context [curry (eval .> (_ .> _))] =>
         rewrite <- (comp_assoc eval); rewrite curry_comp
 | |- curry _ == id _ => rewrite <- curry_eval
-| |- curry _ == curry _ => apply curry_Proper
+| |- curry _ == curry _ => apply Proper_curry
 | |- _ .> _ == _ .> _ => try (f_equiv; auto; fail)
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
@@ -152,8 +152,8 @@ Proof.
             destruct (H E' eval'), (H0 E eval0).
               rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
     intros. edestruct H0. apply H1.
-    intros. edestruct H0. apply H3. rewrite <- H2. apply comp_Proper; cat.
-      apply ProductFunctor_fmap_Proper; cat. rewrite H3; cat.
+    intros. edestruct H0. apply H3. rewrite <- H2. apply Proper_comp; cat.
+      apply Proper_ProductFunctor_fmap; cat. rewrite H3; cat.
 Qed.
 
 Arguments exponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.

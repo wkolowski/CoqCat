@@ -32,7 +32,7 @@ Class HasProducts (C : Cat) : Type :=
   proj1 : forall A B : Ob C, Hom (prodOb A B) A;
   proj2 : forall A B : Ob C, Hom (prodOb A B) B;
   fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
-  fpair_Proper :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
+  Proper_fpair :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
   is_product :
     forall (A B : Ob C), product C (prodOb A B) (proj1 A B) (proj2 A B) (@fpair A B)
 }.
@@ -48,7 +48,7 @@ Class HasCoproducts (C : Cat) : Type :=
   coproj1 : forall A B : Ob C, Hom A (coprodOb A B);
   coproj2 : forall A B : Ob C, Hom B (coprodOb A B);
   copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coprodOb A B) X;
-  copair_Proper :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@copair A B X);
+  Proper_copair :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@copair A B X);
   is_coproduct :
     forall A B : Ob C, coproduct C (coprodOb A B) (coproj1 A B) (coproj2 A B) (@copair A B)
 }.
@@ -75,7 +75,7 @@ Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual
   coproj1 := @proj1 C hp;
   coproj2 := @proj2 C hp;
   copair := @fpair C hp;
-  copair_Proper := @fpair_Proper C hp;
+  Proper_copair := @Proper_fpair C hp;
   is_coproduct := @is_product C hp
 }.
 
@@ -86,7 +86,7 @@ Instance HasProducts_Dual (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C
   proj1 := @coproj1 C hp;
   proj2 := @coproj2 C hp;
   fpair := @copair C hp;
-  fpair_Proper := @copair_Proper C hp;
+  Proper_fpair := @Proper_copair C hp;
   is_product := @is_coproduct C hp
 }.
 
@@ -194,10 +194,10 @@ repeat match goal with
 | |- context [fpair _ _ .> proj2] => rewrite fpair_proj2
 | |- context [fpair proj1 proj2] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
-| |- fpair _ _ == fpair _ _ => apply fpair_Proper
+| |- fpair _ _ == fpair _ _ => apply Proper_fpair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply fpair_Proper
+| |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite <- ?comp_assoc; auto
@@ -498,10 +498,10 @@ repeat match goal with
 | |- context [coproj2 .> copair _ _] => rewrite copair_coproj2
 | |- context [copair coproj1 coproj2] => rewrite copair_id
 | |- ?x == ?x => reflexivity
-| |- copair _ _ == copair _ _ => apply copair_Proper
+| |- copair _ _ == copair _ _ => apply Proper_copair
 | |- context [id _ .> _] => rewrite id_left
 | |- context [_ .> id _] => rewrite id_right
-| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply copair_Proper
+| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite ?comp_assoc; auto
@@ -640,7 +640,7 @@ Definition ProductFunctor_fmap
     fpair (proj1 .> f) (proj2 .> g).
 
 #[export]
-Instance ProductFunctor_fmap_Proper :
+Instance Proper_ProductFunctor_fmap :
   forall (C : Cat) (hp : HasProducts C) (X X' Y Y' : Ob C),
     Proper
       ((@equiv _ (HomSetoid X Y))  ==>
@@ -700,7 +700,7 @@ Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_prodOb C C
   fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) => ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  proper. apply ProductFunctor_fmap_Proper; cat.
+  proper. apply Proper_ProductFunctor_fmap; cat.
   intros. apply ProductFunctor_fmap_pres_comp.
   intros. apply ProductFunctor_fmap_pres_id.
 Defined.
@@ -712,7 +712,7 @@ Definition CoproductFunctor_fmap
   := (copair (f .> coproj1) (g .> coproj2)).
 
 #[export]
-Instance CoproductFunctor_fmap_Proper :
+Instance Proper_CoproductFunctor_fmap :
   forall (C : Cat) (hp : HasCoproducts C) (X X' Y Y' : Ob C),
     Proper
       ((@equiv _ (HomSetoid X Y))  ==>
@@ -771,7 +771,7 @@ Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_prodOb
   fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) => CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  proper. apply CoproductFunctor_fmap_Proper; cat.
+  proper. apply Proper_CoproductFunctor_fmap; cat.
   intros. apply CoproductFunctor_fmap_pres_comp.
   intros. apply CoproductFunctor_fmap_pres_id.
 Defined.

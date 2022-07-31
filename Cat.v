@@ -12,7 +12,7 @@ Class Cat : Type :=
   Hom : Ob -> Ob -> Type;
   HomSetoid :> forall A B : Ob, Setoid (Hom A B);
   comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
-  comp_Proper :> forall A B C : Ob, Proper (equiv ==> equiv ==> equiv) (@comp A B C);
+  Proper_comp :> forall A B C : Ob, Proper (equiv ==> equiv ==> equiv) (@comp A B C);
   comp_assoc :
     forall {A B C D : Ob} (f : Hom A B) (g : Hom B C) (h : Hom C D),
       comp (comp f g) h == comp f (comp g h);
@@ -210,8 +210,8 @@ Lemma cat_split : forall
   (HomSetoid' : forall A B : Ob', Setoid (Hom' A B))
   (comp : forall A B C : Ob, Hom A B -> Hom B C -> Hom A C)
   (comp' : forall A B C : Ob', Hom' A B -> Hom' B C -> Hom' A C)
-  comp_Proper
-  comp'_Proper
+  Proper_comp
+  Proper_comp'
   comp_assoc
   comp_assoc'
   (id : forall A : Ob, Hom A A)
@@ -222,8 +222,8 @@ Lemma cat_split : forall
   id'_right,
     Ob = Ob' -> JMeq Hom Hom' -> JMeq comp comp' -> JMeq id id' ->
     JMeq HomSetoid HomSetoid' ->
-    @Build_Cat Ob Hom HomSetoid comp comp_Proper comp_assoc id id_left id_right =
-    @Build_Cat Ob' Hom' HomSetoid' comp' comp'_Proper comp_assoc' id' id'_left id'_right.
+    @Build_Cat Ob Hom HomSetoid comp Proper_comp comp_assoc id id_left id_right =
+    @Build_Cat Ob' Hom' HomSetoid' comp' Proper_comp' comp_assoc' id' id'_left id'_right.
 Proof.
   intros. repeat
   match goal with
@@ -639,11 +639,11 @@ end.
 Class SetoidHom (X Y : Setoid') : Type :=
 {
   func : X -> Y;
-  func_Proper :> Proper (@equiv _ X ==> @equiv _ Y) func
+  Proper_func :> Proper (@equiv _ X ==> @equiv _ Y) func
 }.
 
 Arguments func [X Y] _.
-Arguments func_Proper [X Y] _.
+Arguments Proper_func [X Y] _.
 
 Coercion func : SetoidHom >-> Funclass.
 
@@ -711,7 +711,7 @@ Class Functor (C : Cat) (D : Cat) : Type :=
 {
   fob : Ob C -> Ob D;
   fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
-  fmap_Proper :> forall A B : Ob C, Proper (equiv ==> equiv) (@fmap A B);
+  Proper_fmap :> forall A B : Ob C, Proper (equiv ==> equiv) (@fmap A B);
   pres_comp : forall {A B C : Ob C} (f : Hom A B) (g : Hom B C), fmap (f .> g) == fmap f .> fmap g;
   pres_id : forall A : Ob C, fmap (id A) == id (fob A)
 }.
@@ -847,7 +847,7 @@ Class Contravariant (C : Cat) (D : Cat) : Type :=
 {
   coob : Ob C -> Ob D;
   comap : forall {X Y : Ob C}, Hom X Y -> Hom (coob Y) (coob X);
-  comap_Proper :> forall X Y : Ob C, Proper (equiv ==> equiv) (@comap X Y);
+  Proper_comap :> forall X Y : Ob C, Proper (equiv ==> equiv) (@comap X Y);
   comap_comp : forall (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z), comap (f .> g) == comap g .> comap f;
   comap_id : forall A : Ob C, comap (id A) == id (coob A)
 }.
@@ -883,7 +883,7 @@ Class Bifunctor (C D E : Cat) : Type :=
   bimap :
     forall {X Y : Ob C} {X' Y' : Ob D},
       Hom X Y -> Hom X' Y' -> Hom (biob X X') (biob Y Y');
-  bimap_Proper :>
+  Proper_bimap :>
     forall (X Y : Ob C) (X' Y' : Ob D),
       Proper (equiv ==> equiv ==> equiv) (@bimap X Y X' Y');
   bimap_pres_comp :
@@ -940,7 +940,7 @@ Class Profunctor (C D E: Cat) : Type :=
   dimap :
     forall {X Y : Ob C} {X' Y' : Ob D},
       Hom X Y -> Hom X' Y' -> Hom (diob Y X') (diob X Y');
-  dimap_Proper :>
+  Proper_dimap :>
     forall (X Y : Ob C) (X' Y' : Ob D),
       Proper (equiv ==> equiv ==> equiv) (@dimap X Y X' Y');
   dimap_comp :

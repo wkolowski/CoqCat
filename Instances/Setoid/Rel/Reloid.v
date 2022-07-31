@@ -8,7 +8,7 @@ Class Reloid : Type :=
 {
   carrier : Setoid';
   rel : carrier -> carrier -> Prop;
-  rel_Proper :> Proper (equiv ==> equiv ==> iff) rel
+  Proper_rel :> Proper (equiv ==> equiv ==> iff) rel
 }.
 
 Coercion carrier : Reloid >-> Setoid'.
@@ -17,7 +17,7 @@ Ltac reloidob X := try intros until X;
 match type of X with
 | Reloid =>
   let a := fresh X "_rel" in 
-  let b := fresh X "_rel_Proper" in destruct X as [X a b]; setoidob X
+  let b := fresh X "_Proper_rel" in destruct X as [X a b]; setoidob X
 | Ob _ => progress cbn in X; reloidob X
 end.
 

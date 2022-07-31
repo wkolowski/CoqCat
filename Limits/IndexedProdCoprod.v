@@ -67,7 +67,7 @@ Class HasIndexedProducts (C : Cat) : Type :=
   tuple :
     forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom X (A j)),
       Hom X (indexedProdOb J A);
-  tuple_Proper :
+  Proper_tuple :
     forall
       (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom X (A j)),
@@ -91,7 +91,7 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
   cotuple :
     forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
       Hom (indexedCoprodOb J A) X;
-  cotuple_Proper :
+  Proper_cotuple :
     forall
       (J : Set) (A : J -> Ob C) (X : Ob C)
       (f : forall j : J, Hom (A j) X) (g : forall j : J, Hom (A j) X),
@@ -124,7 +124,7 @@ Instance HasIndexedProducts_Dual
   indexedProdOb := @indexedCoprodOb C hp;
   indexedProj := @indexedCoproj C hp;
   tuple := @cotuple C hp;
-  tuple_Proper := @cotuple_Proper C hp;
+  Proper_tuple := @Proper_cotuple C hp;
   is_indexed_product := @is_indexed_coproduct C hp
 }.
 
@@ -135,7 +135,7 @@ Instance HasIndexedCoproducts_Dual
   indexedCoprodOb := @indexedProdOb C hp;
   indexedCoproj := @indexedProj C hp;
   cotuple := @tuple C hp;
-  cotuple_Proper := @tuple_Proper C hp;
+  Proper_cotuple := @Proper_tuple C hp;
   is_indexed_coproduct := @is_indexed_product C hp
 }.
 

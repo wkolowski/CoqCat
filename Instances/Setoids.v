@@ -30,7 +30,7 @@ Lemma CoqSetoid_sur_is_epi :
 Proof.
   unfold Epi, surjectiveS; intros. cbn in *. intro.
   destruct (H x) as [a eq].
-  rewrite (func_Proper g x), (func_Proper h x).
+  rewrite (Proper_func g x), (Proper_func h x).
     apply H0.
     all: rewrite eq; reflexivity.
 Defined.
@@ -51,7 +51,7 @@ Lemma CoqSetoid_ret_char :
 Proof.
   unfold Ret, surjectiveS; split; cbn; intros.
     destruct H as [g H]. red. exists g. setoid'.
-    do 2 destruct H. exists {| func := x; func_Proper := H |}. cat.
+    do 2 destruct H. exists {| func := x; Proper_func := H |}. cat.
 Qed.
 
 #[refine]

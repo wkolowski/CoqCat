@@ -31,10 +31,10 @@ Class HasPullbacks (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
   pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) X;
   pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) Y;
-  pull1_Proper :
+  Proper_pull1 :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
       f == f' -> g == g' -> JMequiv (pull1 f g) (pull1 f' g');
-  pull2_Proper :
+  Proper_pull2 :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
       f == f' -> g == g' -> JMequiv (pull2 f g) (pull2 f' g');
   factor :
@@ -58,10 +58,10 @@ Class HasPushouts (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
   push1 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom X (pushoutOb f g);
   push2 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom Y (pushoutOb f g);
-  push1_Proper :
+  Proper_push1 :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
       f == f' -> g == g' -> JMequiv (push1 f g) (push1 f' g');
-  push2_Proper :
+  Proper_push2 :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
       f == f' -> g == g' -> JMequiv (push2 f g) (push2 f' g');
   cofactor :
