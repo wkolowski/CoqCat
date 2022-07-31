@@ -25,9 +25,9 @@ Class ReflexiveGraphCategory : Type :=
   mid   : forall {X : Ob}, Mor X X;
   mcomp : forall {X Y Z : Ob}, Mor X Y -> Mor Y Z -> Mor X Z;
 
-  mcomp_id_l : forall {X Y : Ob} (f : Mor X Y), mcomp mid f = f;
+  mcomp_mid_l : forall {X Y : Ob} (f : Mor X Y), mcomp mid f = f;
 
-  mcomp_id_r : forall {X Y : Ob} (f : Mor X Y), mcomp f mid = f;
+  mcomp_mid_r : forall {X Y : Ob} (f : Mor X Y), mcomp f mid = f;
 
   mcomp_assoc :
     forall {A B C D : Ob} (f : Mor A B) (g : Mor B C) (h : Mor C D),
@@ -49,14 +49,14 @@ Class ReflexiveGraphCategory : Type :=
         fill f1 g1 R S -> fill f2 g2 S T ->
           fill (mcomp f1 f2) (mcomp g1 g2) R T;
 
-  rcomp_id_l :
+  rcomp_rid_l :
     forall
       {Y Y' Z Z' : Ob}
       {f2 : Mor Y Z} {g2 : Mor Y' Z'}
       {S : Rel Y Y'} {T : Rel Z Z'}
       (iota : fill mid mid S S) (beta : fill f2 g2 S T),
-        transport (fun p => fill p _ S T) (mcomp_id_l f2)
-          (transport (fun p => fill _ p S T) (mcomp_id_l g2)
+        transport (fun p => fill p _ S T) (mcomp_mid_l f2)
+          (transport (fun p => fill _ p S T) (mcomp_mid_l g2)
             (rcomp iota beta)) = beta;
 
   rcomp_rid_r :
@@ -170,8 +170,8 @@ Instance RGC_RGC'
     Hom := Mor C;
     id := mid C;
     comp := @mcomp C;
-    comp_id_l := @mcomp_id_l C;
-    comp_id_r := @mcomp_id_r C;
+    comp_id_l := @mcomp_mid_l C;
+    comp_id_r := @mcomp_mid_r C;
     comp_assoc := @mcomp_assoc C;
   |};
 

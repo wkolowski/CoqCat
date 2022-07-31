@@ -14,9 +14,9 @@ Class ReflexiveGraphCategory : Type :=
   mid   : forall {X : Ob}, Mor X X;
   mcomp : forall {X Y Z : Ob}, Mor X Y -> Mor Y Z -> Mor X Z;
 
-  mcomp_id_l : forall {X Y : Ob} (f : Mor X Y), mcomp mid f = f;
+  mcomp_mid_l : forall {X Y : Ob} (f : Mor X Y), mcomp mid f = f;
 
-  mcomp_id_r : forall {X Y : Ob} (f : Mor X Y), mcomp f mid = f;
+  mcomp_mid_r : forall {X Y : Ob} (f : Mor X Y), mcomp f mid = f;
 
   mcomp_assoc :
     forall {A B C D : Ob} (f : Mor A B) (g : Mor B C) (h : Mor C D),

@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export InitTerm ProdCoprod IndexedProdCoprod Equalizer Pullback Exponential.
+From Cat.Limits Require Export InitTerm ProdCoprod IndexedProdCoprod Equalizer Coequalizer Pullback Exponential.
 
 #[refine]
 #[export]
