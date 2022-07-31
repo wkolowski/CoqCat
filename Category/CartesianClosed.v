@@ -12,7 +12,7 @@ Coercion HasTerm_CartesianClosed : CartesianClosed >-> HasTerm.
 Coercion HasProducts_CartesianClosed : CartesianClosed >-> HasProducts.
 Coercion HasExponentials_CartesianClosed  : CartesianClosed >-> HasExponentials.
 
-Lemma prod_term_iso_l :
+Lemma prodOb_term_l :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     prodOb (term C) X ~ X.
 Proof.
@@ -22,30 +22,30 @@ Proof.
   fpair. term.
 Defined.
 
-Lemma prod_term_iso_l' :
+Lemma prodOb_term_l' :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
-    {f : Hom (prodOb (term C) X) X | Iso f}.
+    {f : Hom (prodOb (term C) X) X | isIso f}.
 Proof.
   intros. exists proj2.
   red. exists (fpair (delete X) (id X)). fpair. term.
 Defined.
 
-Lemma prod_term_iso_r :
+Lemma prodOb_term_r :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     prodOb X (term C) ~ X.
 Proof.
-  intros. rewrite prodOb_comm. apply prod_term_iso_l.
+  intros. rewrite prodOb_comm. apply prodOb_term_l.
 Defined.
 
-Lemma prod_term_iso_r' :
+Lemma prodOb_term_r' :
   forall (C : Cat) (X : Ob C) (ht : HasTerm C) (hp : HasProducts C),
-    {f : Hom (prodOb X (term C)) X | Iso f}.
+    {f : Hom (prodOb X (term C)) X | isIso f}.
 Proof.
   intros. exists proj1.
   red. exists (fpair (id X) (delete X)). fpair. term.
 Defined.
 
-Lemma coprod_init_iso_l :
+Lemma coprodOb_init_l :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     coprodOb (init C) X ~ X.
 Proof.
@@ -55,9 +55,9 @@ Proof.
   copair. init.
 Defined.
 
-Lemma coprod_init_iso_l' :
+Lemma coprodOb_init_l' :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    {f : Hom (coprodOb (init C) X) X | Iso f}.
+    {f : Hom (coprodOb (init C) X) X | isIso f}.
 Proof.
   intros.
   exists (copair (create X) (id X)).
@@ -65,16 +65,16 @@ Proof.
   copair. init.
 Defined.
 
-Lemma coprod_init_iso_r :
+Lemma coprodOb_init_r :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     coprodOb X (init C) ~ X.
 Proof.
-  intros. rewrite coprodOb_comm. apply coprod_init_iso_l.
+  intros. rewrite coprodOb_comm. apply coprodOb_init_l.
 Qed.
 
-Lemma coprod_init_iso_r' :
+Lemma coprodOb_init_r' :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    {f : Hom (coprodOb X (init C)) X | Iso f}.
+    {f : Hom (coprodOb X (init C)) X | isIso f}.
 Proof.
   intros.
   exists (copair (id X) (create X)).
@@ -89,20 +89,36 @@ Proof.
   symmetry.
   red. exists (curry proj1).
   red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
-  split.
+  split; cycle 1.
+  - rewrite <- (curry_uncurry (id (expOb (term C) Y))).
+    symmetry.
+    apply universal_property.
+    setoid_replace (
+      (fpair (curry (uncurry (id (expOb (term C) Y)))) (delete (expOb (term C) Y))
+        .> eval) .> curry (X := term C) proj1)
+    with (curry (uncurry (id (expOb (term C) Y)))).
+    + rewrite computation_rule. reflexivity.
+    + rewrite !curry_uncurry. admit.
+  - rewrite <- comp_assoc, fpair_pre, delete_unique, comp_id_r.
+    admit.
 Abort.
 
 (* TODO *) Lemma wuuut :
   forall (C : Cat) (ccc : CartesianClosed C) (X Y A : Ob C) (f : Hom A (expOb X Y)) (g : Hom A X),
     fpair f g .> eval .> curry proj1 == f.
 Proof.
-  intros C [[] [] []].
-    do 2 red in is_exponential.
-    do 2 red in is_product. unfold ProductFunctor_fmap in is_exponential. cbn in *.
 Abort.
 
 (* TODO *) Lemma exp_term_cod :
   forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
     expOb Y (term C) ~ term C.
 Proof.
+  unfold isomorphic, isIso.
+  intros.
+  exists (delete _), (curry (delete _)).
+  split; cycle 1.
+  - term.
+  - rewrite <- curry_eval.
+    symmetry.
+    apply universal_property. Check curry (delete _).
 Abort.

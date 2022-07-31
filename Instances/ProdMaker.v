@@ -53,7 +53,7 @@ match goal with
 | _ => idtac
 end.
 
-#[global] Hint Rewrite @id_left @id_right @pmhom_coherence @pmhom_coherence' : prodmaker_base.
+#[global] Hint Rewrite @comp_id_l @comp_id_r @pmhom_coherence @pmhom_coherence' : prodmaker_base.
 
 Ltac pm := intros;
 match goal with

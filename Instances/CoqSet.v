@@ -18,21 +18,21 @@ Proof.
   (* Category laws *) all: cat.
 Defined.
 
-Lemma CoqSet_mon_inj :
+Lemma CoqSet_isMono_inj :
   forall (A B : Ob CoqSet) (f : A -> B),
-    Mon f <-> injective f.
+    isMono f <-> injective f.
 Proof.
-  unfold Mon, injective; cbn; split; intros.
+  unfold isMono, injective; cbn; split; intros.
     change (x = y) with ((fun _ => x) x = (fun _ => y) x).
       apply H. auto.
     apply H. apply H0.
 Defined.
 
-Lemma CoqSet_ret_sur :
+Lemma CoqSet_isRet_sur :
   forall (X Y : Set) (f : Hom X Y),
-    Ret f <-> surjective f.
+    isRet f <-> surjective f.
 Proof.
-  unfold Ret, surjective; cbn; split; intros.
+  unfold isRet, surjective; cbn; split; intros.
     destruct H as [g eq]. exists (g b). apply eq.
     exists (
     fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
@@ -42,17 +42,17 @@ Defined.
 
 (* TODO : characterize epimorphisms and sections *)
 
-Lemma CoqSet_iso_bij :
+Lemma CoqSet_isIso_bij :
   forall (A B : Set) (f : Hom A B),
-    Iso f <-> bijective f.
+    isIso f <-> bijective f.
 Proof.
   split; intros.
-    red. rewrite iso_iff_mon_ret in H. destruct H. split.
-      rewrite <- CoqSet_mon_inj. assumption.
-      rewrite <- CoqSet_ret_sur. assumption.
-    destruct H. rewrite iso_iff_mon_ret. split.
-      rewrite CoqSet_mon_inj. assumption.
-      rewrite CoqSet_ret_sur. assumption.
+    red. rewrite isIso_iff_isMono_isRet in H. destruct H. split.
+      rewrite <- CoqSet_isMono_inj. assumption.
+      rewrite <- CoqSet_isRet_sur. assumption.
+    destruct H. rewrite isIso_iff_isMono_isRet. split.
+      rewrite CoqSet_isMono_inj. assumption.
+      rewrite CoqSet_isRet_sur. assumption.
 Defined.
 
 #[refine]
@@ -73,22 +73,22 @@ Instance HasTerm_CoqSet : HasTerm CoqSet :=
 }.
 Proof. cat. Defined.
 
-Definition is_singleton (A : Set) : Prop :=
-  exists a : A, True /\ forall (x y : A), x = y.
+Definition isSingleton (A : Set) : Prop :=
+  exists a : A, True /\ forall x y : A, x = y.
 
-Definition is_singleton_delete :
-  forall A : Set, is_singleton A -> forall X : Set, X -> A.
+Definition isSingleton_delete :
+  forall A : Set, isSingleton A -> forall X : Set, X -> A.
 Proof.
-  unfold is_singleton. intros.
+  unfold isSingleton. intros.
   apply constructive_indefinite_description in H.
   destruct H as [a [_ H]]. exact a.
 Defined.
 
 Lemma CoqSet_terminal_ob :
-  forall (A : Set) (H : is_singleton A),
-    @terminal CoqSet A (is_singleton_delete A H).
+  forall (A : Set) (H : isSingleton A),
+    @terminal CoqSet A (isSingleton_delete A H).
 Proof.
-  unfold is_singleton, terminal; intros. cat.
+  unfold isSingleton, terminal; intros. cat.
   compute. destruct (constructive_indefinite_description _ _).
   destruct a. erewrite e. reflexivity.
 Qed.

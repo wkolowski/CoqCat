@@ -107,7 +107,7 @@ Lemma curry_comp :
 Proof.
   intros A f g.
   rewrite universal.
-  rewrite <- (id_left X), ProductFunctor_fmap_pres_comp, comp_assoc.
+  rewrite <- (comp_id_l X), ProductFunctor_fmap_comp, comp_assoc.
   setoid_replace (curry (eval .> g) ×' id X .> eval) with (eval (X := X) .> g)
     by (rewrite <- universal; reflexivity).
   rewrite <- comp_assoc.

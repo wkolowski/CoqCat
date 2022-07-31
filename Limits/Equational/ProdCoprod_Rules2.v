@@ -43,8 +43,8 @@ repeat match goal with
 | |- context [fpair proj1 proj2] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
 | |- fpair _ _ == fpair _ _ => apply Proper_fpair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
@@ -104,8 +104,8 @@ repeat match goal with
 | |- context [copair coproj1 coproj2] => rewrite copair_id
 | |- ?x == ?x => reflexivity
 | |- copair _ _ == copair _ _ => apply Proper_copair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
@@ -194,7 +194,7 @@ Proof.
   unfold ProdCoprod.product, setoid_unique. cat.
     rewrite fpair_proj1. reflexivity.
     rewrite fpair_proj2. reflexivity.
-    rewrite H, H0. rewrite fpair_pre, fpair_id, id_right. reflexivity.
+    rewrite H, H0. rewrite fpair_pre, fpair_id, comp_id_r. reflexivity.
 Defined.
 
 #[refine]
@@ -221,7 +221,7 @@ Proof.
   unfold ProdCoprod.coproduct, setoid_unique. cat.
     rewrite copair_coproj1. reflexivity.
     rewrite copair_coproj2. reflexivity.
-    rewrite H, H0. rewrite copair_post, copair_id, id_left. reflexivity.
+    rewrite H, H0. rewrite copair_post, copair_id, comp_id_l. reflexivity.
 Defined.
 
 #[refine]
@@ -257,7 +257,7 @@ Lemma iso_to_prod :
     (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
       product C P p1 p2 fpair ->
-      forall (f : Hom Q P) (H : Iso f),
+      forall (f : Hom Q P) (H : isIso f),
       product C Q (f .> p1) (f .> p2)
         (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
           match constructive_indefinite_description _ H with
@@ -287,7 +287,7 @@ Qed.
 
 Lemma prodOb_assoc' :
   forall (C : Cat) (hp : HasProducts C) (X Y Z : Ob C),
-    {f : Hom (prodOb (prodOb X Y) Z) (prodOb X (prodOb Y Z)) | Iso f}.
+    {f : Hom (prodOb (prodOb X Y) Z) (prodOb X (prodOb Y Z)) | isIso f}.
 Proof.
   intros.
   exists (fpair (proj1 .> proj1) (fpair (proj1 .> proj2) proj2)).
@@ -304,7 +304,7 @@ Lemma coproduct_uiso :
     (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
       coproduct C P p1 p2 copair -> coproduct C Q q1 q2 copair' ->
-        exists !! f : Hom P Q, Iso f /\ p1 .> f == q1 /\ p2 .> f == q2.
+        exists !! f : Hom P Q, isIso f /\ p1 .> f == q1 /\ p2 .> f == q2.
 
 Lemma coproduct_copair_equiv :
   forall
@@ -341,7 +341,7 @@ Qed.
 
 Lemma coprodOb_assoc' :
   forall (C : Cat) (hp : HasCoproducts C) (X Y Z : Ob C),
-    {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | Iso f}.
+    {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | isIso f}.
 Proof.
   intros.
   exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
@@ -369,14 +369,14 @@ Proof.
   rewrite H, H0. reflexivity.
 Qed.
 
-Lemma ProductFunctor_fmap_pres_id :
+Lemma ProductFunctor_fmap_id :
   forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
     ProductFunctor_fmap (id X) (id Y) == id (prodOb X Y).
 Proof.
   intros; unfold ProductFunctor_fmap. prod.
 Defined.
 
-Lemma ProductFunctor_fmap_pres_comp :
+Lemma ProductFunctor_fmap_comp :
   forall
     (C : Cat) (hp : HasProducts C) (A1 A2 B1 B2 C1 C2 : Ob C)
     (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
@@ -387,7 +387,7 @@ Proof.
   unfold ProductFunctor_fmap. prod.
 Defined.
 
-Lemma ProductFunctor_fmap_pres_comp_l :
+Lemma ProductFunctor_fmap_comp_l :
   forall
     {C : Cat} {hp : HasProducts C}
     {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
@@ -395,10 +395,10 @@ Lemma ProductFunctor_fmap_pres_comp_l :
         ==
       ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
+  intros. rewrite <- ProductFunctor_fmap_comp. cat.
 Defined.
 
-Lemma ProductFunctor_fmap_pres_comp_r :
+Lemma ProductFunctor_fmap_comp_r :
   forall
     {C : Cat} {hp : HasProducts C}
     {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
@@ -406,7 +406,7 @@ Lemma ProductFunctor_fmap_pres_comp_r :
         ==
       ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_pres_comp. cat.
+  intros. rewrite <- ProductFunctor_fmap_comp. cat.
 Defined.
 
 #[refine]
@@ -418,8 +418,8 @@ Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_prodOb C C
 }.
 Proof.
   proper. apply Proper_ProductFunctor_fmap; cat.
-  intros. apply ProductFunctor_fmap_pres_comp.
-  intros. apply ProductFunctor_fmap_pres_id.
+  intros. apply ProductFunctor_fmap_comp.
+  intros. apply ProductFunctor_fmap_id.
 Defined.
 
 Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
@@ -442,14 +442,14 @@ Proof.
   unfold Proper, respectful, CoproductFunctor_fmap. coprod.
 Qed.
 
-Lemma CoproductFunctor_fmap_pres_id :
+Lemma CoproductFunctor_fmap_id :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
     CoproductFunctor_fmap (id X) (id Y) == id (coprodOb X Y).
 Proof.
   intros; unfold CoproductFunctor_fmap. coprod.
 Defined.
 
-Lemma CoproductFunctor_fmap_pres_comp :
+Lemma CoproductFunctor_fmap_comp :
   forall
     (C : Cat) (hp : HasCoproducts C) (A1 A2 B1 B2 C1 C2 : Ob C)
     (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
@@ -460,7 +460,7 @@ Proof.
   unfold CoproductFunctor_fmap; intros. coprod.
 Defined.
 
-Lemma CoproductFunctor_fmap_pres_comp_l :
+Lemma CoproductFunctor_fmap_comp_l :
   forall
     {C : Cat} {hp : HasCoproducts C}
     {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
@@ -468,10 +468,10 @@ Lemma CoproductFunctor_fmap_pres_comp_l :
         ==
       CoproductFunctor_fmap f (id Z) .> CoproductFunctor_fmap g (id Z).
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
+  intros. rewrite <- CoproductFunctor_fmap_comp. cat.
 Defined.
 
-Lemma CoproductFunctor_fmap_pres_comp_r :
+Lemma CoproductFunctor_fmap_comp_r :
   forall
     {C : Cat} {hp : HasCoproducts C}
     {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
@@ -479,7 +479,7 @@ Lemma CoproductFunctor_fmap_pres_comp_r :
         ==
       CoproductFunctor_fmap (id Z) f .> CoproductFunctor_fmap (id Z) g.
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_pres_comp. cat.
+  intros. rewrite <- CoproductFunctor_fmap_comp. cat.
 Defined.
 
 #[refine]
@@ -491,8 +491,8 @@ Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_prodOb
 }.
 Proof.
   proper. apply Proper_CoproductFunctor_fmap; cat.
-  intros. apply CoproductFunctor_fmap_pres_comp.
-  intros. apply CoproductFunctor_fmap_pres_id.
+  intros. apply CoproductFunctor_fmap_comp.
+  intros. apply CoproductFunctor_fmap_id.
 Defined.
 
 Notation "A + B" := (fob CoproductFunctor (A, B)).

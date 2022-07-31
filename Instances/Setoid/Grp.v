@@ -524,7 +524,7 @@ Defined.
 
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
 
-Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | Iso f}.
+Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | isIso f}.
 
 Definition AutHom_Fun
   {C : Cat} {X : Ob C} (A B : AutOb C X) (f : AutHom A B)
@@ -545,12 +545,12 @@ Proof. grp. Defined.
 Definition AutComp
   (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
 Proof.
-  red. exists (f .> g). destruct f, g; cbn. apply iso_comp; auto.
+  red. exists (f .> g). destruct f, g; cbn. apply isIso_comp; auto.
 Defined.
 
 Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.
 Proof.
-  red. exists (id A). apply id_is_aut.
+  red. exists (id A). apply isAut_id.
 Defined.
 
 #[refine]

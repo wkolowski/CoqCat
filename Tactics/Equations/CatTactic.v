@@ -48,7 +48,7 @@ Lemma expDenoteHL_comp_app :
     expDenoteHL (l1 +++ l2) == expDenoteHL l1 .> expDenoteHL l2.
 Proof.
   intros. funelim (Happ l1 l2); simp Happ expDenoteHL.
-    rewrite id_left. reflexivity.
+    rewrite comp_id_l. reflexivity.
     rewrite H, comp_assoc. reflexivity.
 Qed.
 
@@ -58,7 +58,7 @@ Lemma flatten_correct :
 Proof.
   intros. funelim (flatten e); simp flatten expDenoteHL expDenote.
     reflexivity.
-    rewrite id_right. reflexivity.
+    rewrite comp_id_r. reflexivity.
     rewrite expDenoteHL_comp_app, H, H0. reflexivity.
 Qed.
 

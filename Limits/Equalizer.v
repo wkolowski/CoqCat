@@ -64,7 +64,7 @@ Lemma equalizer_uiso :
     {E' : Ob C} {e' : Hom E' X}
     {factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E'},
       equalizer C f g E e factorize -> equalizer C f g E' e' factorize' ->
-        exists!! f : Hom E E', Iso f /\ e == f .> e'.
+        exists!! f : Hom E E', isIso f /\ e == f .> e'.
 Proof.
   unfold equalizer; intros. destruct H, H0.
   destruct
@@ -126,13 +126,13 @@ Proof.
   edestruct H0, H7. apply H8.
 Qed.
 
-Lemma equalizer_is_mono :
+Lemma isMono_equalizer :
   forall
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
-      equalizer C f g E e factorize -> Mon e.
+      equalizer C f g E e factorize -> isMono e.
 Proof.
-  unfold equalizer, setoid_unique, Mon. intros.
+  unfold equalizer, setoid_unique, isMono. intros.
   rename X0 into Z. rename g0 into h'.
   destruct H as [eq H].
   assert ((h .> e) .> f == (h .> e) .> g).
@@ -151,17 +151,17 @@ Lemma equalizer_epi_is_iso :
   forall
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
-      equalizer C f g E e factorize -> Epi e -> Iso e.
+      equalizer C f g E e factorize -> isEpi e -> isIso e.
 Proof.
-  intros. assert (HMon : Mon e).
-    eapply equalizer_is_mono; eauto.
-    unfold Epi, Mon in *. destruct H.
+  intros. assert (HisMono : isMono e).
+    eapply isMono_equalizer; eauto.
+    unfold isEpi, isMono in *. destruct H.
     red. pose (Heq := H0 _ _ _ H). assert (id X .> f == id X .> g).
       cat.
       exists (factorize0 _ (id X) H2). split.
         edestruct H1. assert (e .> factorize0 X (id X) H2 .> e == id E .> e).
           assocr. rewrite H3. cat.
-          rewrite (HMon _ _ _ H5). reflexivity.
+          rewrite (HisMono _ _ _ H5). reflexivity.
         edestruct H1. apply H3.
 Qed.
 

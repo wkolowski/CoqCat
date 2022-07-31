@@ -98,7 +98,7 @@ Class HasLimits (C : Cat) : Type :=
 Arguments limitOb  [C _ J] _.
 Arguments limitMor [C _ J F] _.
 
-(* TODO : coherence conditions for (co)limits *)
+(* TODO : natural conditions for (co)limits *)
 
 #[refine]
 #[export]
@@ -111,7 +111,7 @@ Instance ConeImage
 }.
 Proof.
   simpl. apply (fmap F). exact (component (legs K) X).
-  cat. rewrite <- pres_comp. rewrite (coherence (legs K) f). cat.
+  cat. rewrite <- fmap_comp. rewrite (natural (legs K) f). cat.
 Defined.
 
 Definition continuous {C D : Cat} {F : Functor C D} : Prop :=

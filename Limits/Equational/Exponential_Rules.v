@@ -108,7 +108,7 @@ Lemma curry_comp :
 Proof.
   intros.
   symmetry; apply he_unique.
-  rewrite <- (id_left X), ProductFunctor_fmap_pres_comp, comp_assoc.
+  rewrite <- (comp_id_l X), ProductFunctor_fmap_comp, comp_assoc.
   rewrite he_comp, <- comp_assoc, he_comp, comp_assoc.
   reflexivity.
 Qed.

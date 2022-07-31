@@ -64,8 +64,8 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma equalizer_is_mono :
-  Mon (eq_mor f g).
+Lemma isMono_equalizer :
+  isMono (eq_mor f g).
 Proof.
   intros A h1 h2 Heq.
   assert (H1 : (h1 .> eq_mor f g) .> f == (h1 .> eq_mor f g) .> g)

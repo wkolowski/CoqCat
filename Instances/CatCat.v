@@ -263,7 +263,7 @@ Proof.
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
       rewrite H1, H2. reflexivity.
     + intros [F X] [G Y] [H Z] [[α H1] f] [[β H2] g]; cbn in *.
-      cat. rewrite H2, pres_comp, !comp_assoc, <- H2. reflexivity.
+      cat. rewrite H2, fmap_comp, !comp_assoc, <- H2. reflexivity.
     + intros [F X]; cbn. functor.
   - cbn; intros D E C. intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.

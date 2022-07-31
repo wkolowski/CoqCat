@@ -12,7 +12,7 @@ Class Distributive (C : Cat) : Type :=
   HasTerm_Distributive :> HasTerm C;
   HasProducts_Distributive :> HasProducts C;
   HasCoproducts_Distributive :> HasCoproducts C;
-  Iso_distr : forall X Y Z : Ob C, Iso (distr X Y Z)
+  isIso_distr : forall X Y Z : Ob C, isIso (distr X Y Z)
 }.
 
 (* TODO *) Lemma distr_prodOb_init :

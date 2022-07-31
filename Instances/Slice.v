@@ -34,7 +34,7 @@ Defined.
 
 Definition SliceId {C : Cat} {Y : Ob C} (X : SliceOb C Y) : SliceHom X X.
 Proof.
-  red. exists (id X). rewrite id_left. reflexivity.
+  red. exists (id X). rewrite comp_id_l. reflexivity.
 Defined.
 
 #[refine]

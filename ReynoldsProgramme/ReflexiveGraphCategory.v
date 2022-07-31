@@ -143,9 +143,9 @@ Class Functor (C D : Cat) : Type :=
   fob : Obj C -> Obj D;
   fmap :
     forall {A B : Obj C}, Hom A B -> Hom (fob A) (fob B);
-  pres_id :
+  fmap_id :
     forall A : Obj C, fmap (@id C A) = id;
-  pres_comp :
+  fmap_comp :
     forall (A B C0 : Obj C) (f : Hom A B) (g : Hom B C0),
       fmap (comp f g) = comp (fmap f) (fmap g);
 }.

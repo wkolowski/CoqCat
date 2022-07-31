@@ -78,7 +78,7 @@ Lemma expDenoteHL_comp_app :
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
 Proof.
   induction l1; cbn; intros.
-    rewrite id_left. reflexivity.
+    rewrite comp_id_l. reflexivity.
     assocr. rewrite IHl1. reflexivity.
 Qed.
 

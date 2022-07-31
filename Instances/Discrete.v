@@ -23,9 +23,9 @@ Defined.
 
 Lemma Discrete_char_iso :
   forall (X : Set) (x x' : X) (f : @Hom (Discrete X) x x'),
-    Iso f.
+    isIso f.
 Proof.
-  unfold Iso; cbn; intros. assert (g : x' = x).
+  unfold isIso; cbn; intros. assert (g : x' = x).
     rewrite f. trivial.
     exists g. auto.
 Defined.

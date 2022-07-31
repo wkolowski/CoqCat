@@ -100,7 +100,7 @@ Instance SimplifyCompIdL
   simplify := simplify e
 }.
 Proof.
-  cbn. rewrite simplify_spec. rewrite id_left. reflexivity.
+  cbn. rewrite simplify_spec. rewrite comp_id_l. reflexivity.
 Defined.
 
 #[refine]
@@ -112,7 +112,7 @@ Instance SimplifyCompIdR
   simplify := simplify e
 }.
 Proof.
-  cbn. rewrite simplify_spec. rewrite id_right. reflexivity.
+  cbn. rewrite simplify_spec. rewrite comp_id_r. reflexivity.
 Defined.
 
 #[refine]
@@ -134,7 +134,7 @@ Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D) : Simplify (Fma
   simplify := Id (fob F X)
 }.
 Proof.
-  cbn. rewrite pres_id. reflexivity.
+  cbn. rewrite fmap_id. reflexivity.
 Defined.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
@@ -188,7 +188,7 @@ Lemma expDenoteHL_app :
     expDenoteHL (l1 +++ l2) == expDenoteHL l1 .> expDenoteHL l2.
 Proof.
   induction l1; cbn; intros.
-    rewrite id_left. reflexivity.
+    rewrite comp_id_l. reflexivity.
     assocr. rewrite IHl1. reflexivity.
 Qed.
 
@@ -204,9 +204,9 @@ Lemma expDenoteHL_Hmap_flatten :
     expDenoteHL (Hmap F (flatten e)) == expDenote (Fmap F e).
 Proof.
   induction e; cbn.
-  - rewrite pres_id. reflexivity.
-  - rewrite id_right. reflexivity.
-  - rewrite expDenoteHL_Hmap_Happ, expDenoteHL_app, IHe1, IHe2, pres_comp; cbn. reflexivity.
+  - rewrite fmap_id. reflexivity.
+  - rewrite comp_id_r. reflexivity.
+  - rewrite expDenoteHL_Hmap_Happ, expDenoteHL_app, IHe1, IHe2, fmap_comp; cbn. reflexivity.
   - rewrite Hmap_Hmap, (IHe (FunctorComp F0 F)); cbn. reflexivity.
 Qed.
 
@@ -215,8 +215,8 @@ Lemma expDenoteHL_fmap :
     expDenoteHL (Hmap F l) == fmap F (expDenoteHL l).
 Proof.
   induction l as [| h t]; cbn.
-    rewrite pres_id. reflexivity.
-    rewrite pres_comp, IHl. reflexivity.
+    rewrite fmap_id. reflexivity.
+    rewrite fmap_comp, IHl. reflexivity.
 Qed.
 
 Lemma flatten_correct :
@@ -247,7 +247,7 @@ Ltac flat_reflect_cat := intros;
 match goal with
 | |- ?f == ?g =>
         do 2 (rewrite <- reify_spec, <- simplify_spec at 1; symmetry);
-        apply cat_reflect; cbn; rewrite !id_right
+        apply cat_reflect; cbn; rewrite !comp_id_r
 end.
 
 Section Test.

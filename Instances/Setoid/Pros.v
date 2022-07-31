@@ -97,26 +97,26 @@ Proof.
   (* Category laws *) all: pros.
 Defined.
 
-Lemma Pros_mon_inj :
+Lemma Pros_isMono_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
-    Mon f <-> injectiveS f.
+    isMono f <-> injectiveS f.
 Proof.
-  unfold Mon, injective; split; red; intros.
+  unfold isMono, injective; split; red; intros.
     cbn in H.
 Abort.
 
-Lemma Pros_epi_sur :
+Lemma Pros_isEpi_sur :
   forall (X Y : Pros) (f : ProsHom X Y),
-    Epi f <-> surjective f.
+    isEpi f <-> surjective f.
 Proof.
-  unfold Epi, surjective; split; intros.
+  unfold isEpi, surjective; split; intros.
 Abort.
 
-Lemma Pros_sec_inj :
+Lemma Pros_isSec_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
-    Sec f <-> injective f.
+    isSec f <-> injective f.
 Proof.
-  unfold Sec, injective; split; intros.
+  unfold isSec, injective; split; intros.
     destruct H as [g g_inv]. proshoms.
       replace x with (g (f x)); auto.
       replace y with (g (f y)); auto.

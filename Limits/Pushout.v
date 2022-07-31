@@ -57,7 +57,7 @@ Lemma pushout_uiso
   (cofactor' : forall (Q' : Ob C) (q1' : Hom X Q') (q2' : Hom Y Q'),
     f .> q1' == g .> q2' -> Hom Q Q')
   : pushout C f g P p1 p2 cofactor -> pushout C f g Q q1 q2 cofactor' ->
-      exists!! f : Hom Q P, Iso f /\ p1 == q1 .> f /\ p2 == q2 .> f.
+      exists!! f : Hom Q P, isIso f /\ p1 == q1 .> f /\ p2 == q2 .> f.
 Proof.
   revert X Y A f g P p1 p2 cofactor Q q1 q2 cofactor'.
   rewrite <- (Dual_Dual C). intros.
@@ -65,11 +65,11 @@ Proof.
   rewrite <- dual_pullback_pushout in H0.
   destruct (pullback_uiso H H0). cbn in *.
   exists x. cat.
-    rewrite dual_iso_self. assumption.
+    rewrite Dual_isIso. assumption.
     symmetry. assumption.
     symmetry. assumption.
     apply H2. cat.
-      rewrite dual_iso_self. assumption.
+      rewrite Dual_isIso. assumption.
         symmetry. assumption.
         symmetry. assumption.
 Qed.

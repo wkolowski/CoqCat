@@ -59,7 +59,7 @@ Lemma denoteHL_Happ :
     denoteHL (l1 +++ l2) == denoteHL l1 .> denoteHL l2.
 Proof.
   intros. funelim (Happ l1 l2); simp Happ denoteHL.
-    rewrite id_left. reflexivity.
+    rewrite comp_id_l. reflexivity.
     rewrite H, comp_assoc. reflexivity.
 Qed.
 
@@ -68,8 +68,8 @@ Lemma denoteHL_Hfmap :
     denoteHL (Hfmap F l) == fmap F (denoteHL l).
 Proof.
   intros. funelim (Hfmap F l); simp Hfmap denoteHL.
-    rewrite pres_id. reflexivity.
-    rewrite pres_comp, H. reflexivity.
+    rewrite fmap_id. reflexivity.
+    rewrite fmap_comp, H. reflexivity.
 Qed.
 
 Lemma flatten_correct :
@@ -78,7 +78,7 @@ Lemma flatten_correct :
 Proof.
   intros. funelim (flatten e); simp flatten denoteHL denote.
     reflexivity.
-    rewrite id_right. reflexivity.
+    rewrite comp_id_r. reflexivity.
     rewrite denoteHL_Happ, H, H0. reflexivity.
     rewrite denoteHL_Hfmap, H. reflexivity.
 Qed.
@@ -114,7 +114,7 @@ match goal with
     change (denote e1 == denote e2);
     apply cat_reflect;
     repeat (simp flatten || simp Happ || simp denoteHL);
-    rewrite ?id_right
+    rewrite ?comp_id_r
 end.
 
 Section Test.

@@ -52,7 +52,7 @@ Definition FAlgComp
   {C : Cat} {F : Functor C C} {X Y Z : FAlg F} (f : FAlgHom X Y) (g : FAlgHom Y Z) : FAlgHom X Z.
 Proof.
   falg. exists (f .> g). rewrite <- comp_assoc. rewrite f_cond.
-  rewrite comp_assoc. rewrite g_cond. rewrite pres_comp.
+  rewrite comp_assoc. rewrite g_cond. rewrite fmap_comp.
   rewrite comp_assoc. reflexivity.
 Defined.
 

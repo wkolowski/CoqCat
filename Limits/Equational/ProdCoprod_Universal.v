@@ -33,7 +33,7 @@ Context
 Lemma fpair_id :
   fpair outl outr == id (prodOb A B).
 Proof.
-  rewrite universal, !id_left.
+  rewrite universal, !comp_id_l.
   split; reflexivity.
 Qed.
 
@@ -71,8 +71,8 @@ repeat match goal with
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
 | |- fpair _ _ == fpair _ _ => apply Proper_fpair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
@@ -90,8 +90,8 @@ repeat match goal with
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
 | |- fpair _ _ == fpair _ _ => apply Proper_fpair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- fpair _ _ == id (prodOb _ _) => rewrite <- fpair_id; apply Proper_fpair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
@@ -176,8 +176,8 @@ repeat match goal with
 | |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
 | |- copair _ _ == copair _ _ => apply Proper_copair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
@@ -195,8 +195,8 @@ repeat match goal with
 | |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
 | |- copair _ _ == copair _ _ => apply Proper_copair
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv

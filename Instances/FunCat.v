@@ -27,8 +27,8 @@ Instance FunCat_prodOb {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Fu
 }.
 Proof.
   proper.
-  intros. rewrite 2 pres_comp, ProductFunctor_fmap_pres_comp. reflexivity.
-  intros. rewrite 2 pres_id, ProductFunctor_fmap_pres_id. reflexivity.
+  intros. rewrite 2 fmap_comp, ProductFunctor_fmap_comp. reflexivity.
+  intros. rewrite 2 fmap_id, ProductFunctor_fmap_id. reflexivity.
 Defined.
 
 #[refine]
@@ -92,8 +92,8 @@ Instance FunCat_coprodOb {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) 
 }.
 Proof.
   proper.
-  intros. rewrite 2 pres_comp, CoproductFunctor_fmap_pres_comp. reflexivity.
-  intros. rewrite 2 pres_id, CoproductFunctor_fmap_pres_id. reflexivity.
+  intros. rewrite 2 fmap_comp, CoproductFunctor_fmap_comp. reflexivity.
+  intros. rewrite 2 fmap_id, CoproductFunctor_fmap_id. reflexivity.
 Defined.
 
 #[refine]

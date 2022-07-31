@@ -31,6 +31,37 @@ Context
   [he : HasExponentials C]
   [X Y Z : Ob C].
 
+Lemma universal_property :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    curry f == g <-> g ×' id X .> eval == f.
+Proof.
+  intros.
+  destruct he; unfold exponential, setoid_unique in *; cbn in *.
+  destruct (is_exponential0 X Y E f).
+  split.
+  - intros <-. apply H.
+  - intros Heq. apply H0. assumption.
+Qed.
+
+Lemma computation_rule :
+  forall f : Hom (prodOb (expOb X Y) X) Y,
+    curry f ×' id X .> eval == f.
+Proof.
+  intros f.
+  rewrite <- universal_property.
+  reflexivity.
+Qed.
+
+Lemma uniqueness_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    g ×' id X .> eval == f -> g == curry f.
+Proof.
+  intros.
+  symmetry.
+  rewrite universal_property.
+  assumption.
+Qed.
+
 Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
@@ -79,8 +110,8 @@ Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
-  apply (H2 (id _)). rewrite ProductFunctor_fmap_pres_id.
-  rewrite id_left. reflexivity.
+  apply (H2 (id _)). rewrite ProductFunctor_fmap_id.
+  rewrite comp_id_l. reflexivity.
 Qed.
 
 Lemma curry_comp :
@@ -91,8 +122,8 @@ Proof.
   destruct (is_exponential0 _ _ _ ((eval0 X Y .> f) .> g)).
   destruct (is_exponential0 _ _ _ (eval0 X Y .> f)).
   destruct (is_exponential0 _ _ _ (eval0 X Z .> g)).
-  apply H0. rewrite <- (id_left X).
-  rewrite ProductFunctor_fmap_pres_comp. rewrite comp_assoc.
+  apply H0. rewrite <- (comp_id_l X).
+  rewrite ProductFunctor_fmap_comp. rewrite comp_assoc.
   rewrite H3. rewrite <- comp_assoc. rewrite H1. reflexivity.
 Qed.
 
@@ -102,7 +133,7 @@ Proof.
   destruct he; cbn; intros.
   do 2 red in is_exponential0.
   destruct (is_exponential0 _ _ _ (eval0 X Y)) as [H1 H2].
-  unfold uncurry. rewrite ProductFunctor_fmap_pres_id. cat.
+  unfold uncurry. rewrite ProductFunctor_fmap_id. cat.
 Qed.
 
 End Exponential.
@@ -115,8 +146,8 @@ match goal with
 | |- curry _ == id _ => rewrite <- curry_eval
 | |- curry _ == curry _ => apply Proper_curry
 | |- _ .> _ == _ .> _ => try (f_equiv; auto; fail)
-| |- context [id _ .> _] => rewrite id_left
-| |- context [_ .> id _] => rewrite id_right
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
 | |- ?x == ?x => reflexivity
 end.
 
@@ -129,7 +160,7 @@ Lemma exponential_uiso :
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
       exponential X Y E eval curry ->
       exponential X Y E' eval' curry' ->
-        exists !! f : Hom E E', Iso f /\ f ×' id X .> eval' == eval.
+        exists !! f : Hom E E', isIso f /\ f ×' id X .> eval' == eval.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
   exists (curry' E eval0). repeat split.
@@ -139,16 +170,16 @@ Proof.
         rewrite <- (H2 (curry' E eval0 .> curry0 E' eval')).
           rewrite (H2 (id E)).
             reflexivity.
-            rewrite ProductFunctor_fmap_pres_id, id_left. reflexivity.
-          rewrite ProductFunctor_fmap_pres_comp_l.
+            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
+          rewrite ProductFunctor_fmap_comp_l.
             destruct (H E' eval'), (H0 E eval0).
               rewrite comp_assoc. rewrite H3. rewrite H5. reflexivity.
       destruct (H0 E' eval') as [H1 H2].
         rewrite <- (H2 (curry0 E' eval' .> curry' E eval0)).
           rewrite (H2 (id E')).
             reflexivity.
-            rewrite ProductFunctor_fmap_pres_id, id_left. reflexivity.
-          rewrite ProductFunctor_fmap_pres_comp_l.
+            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
+          rewrite ProductFunctor_fmap_comp_l.
             destruct (H E' eval'), (H0 E eval0).
               rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
     intros. edestruct H0. apply H1.

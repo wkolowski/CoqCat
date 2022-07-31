@@ -99,7 +99,7 @@ Class HasColimits (C : Cat) : Type :=
 Arguments colimitOb  [C _ J] _.
 Arguments colimitMor [C _ J F] _.
 
-(* TODO : coherence conditions for (co)limits *)
+(* TODO : natural conditions for (co)limits *)
 
 #[refine]
 #[export]
@@ -112,7 +112,7 @@ Instance CoconeImage
 }.
 Proof.
   - cbn. apply (fmap F). exact (component (colegs K) X).
-  - cat. rewrite <- pres_comp. rewrite <- (coherence (colegs K) f). cat.
+  - cat. rewrite <- fmap_comp. rewrite <- (natural (colegs K) f). cat.
 Defined.
 
 Definition cocontinuous {C D : Cat} {F : Functor C D} : Prop :=

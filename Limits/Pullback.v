@@ -47,7 +47,7 @@ Lemma pullback_uiso
   (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
   (factor' : forall (Q' : Ob C) (q1' : Hom Q' X) (q2' : Hom Q' Y), q1' .> f == q2' .> g -> Hom Q' Q) :
     pullback C f g P p1 p2 factor -> pullback C f g Q q1 q2 factor' ->
-      exists!! f : Hom P Q, Iso f /\ f .> q1 == p1 /\ f .> q2 == p2.
+      exists!! f : Hom P Q, isIso f /\ f .> q1 == p1 /\ f .> q2 == p2.
 Proof.
   intros. destruct H as [HP HP'], H0 as [HQ HQ'].
   exists (factor' P p1 p2 HP).

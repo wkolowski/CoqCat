@@ -253,7 +253,7 @@ Lemma indexed_product_iso_unique :
     (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
       indexed_product C P p tuple -> indexed_product C Q q tuple' -> P ~ Q.
 Proof.
-  unfold indexed_product, isomorphic, Iso.
+  unfold indexed_product, isomorphic, isIso.
   intros.
   exists (tuple' _ p), (tuple0 _ q).
   destruct
@@ -280,7 +280,7 @@ Lemma indexed_product_iso_unique2 :
       (forall j : J, A j ~ B j) ->
       indexed_product C P p u2 -> indexed_product C Q q u1 -> P ~ Q.
 Proof.
-  unfold indexed_product, isomorphic, Iso.
+  unfold indexed_product, isomorphic, isIso.
   intros.
   assert (f : forall j : J, {f : Hom (A j) (B j) &
     {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).

@@ -44,7 +44,7 @@ Proof.
   intros C A B createA createB createA_unique createB_unique.
   exists (createA B).
   split.
-  - unfold Iso.
+  - unfold isIso.
     exists (createB A).
     rewrite (createA_unique _ (id A)), (createB_unique _ (id B)), !createA_unique, !createB_unique.
     split; reflexivity.
@@ -85,7 +85,7 @@ Proof.
   intro C.
   rewrite <- (Dual_Dual C); cbn; intros.
   rewrite <- dual_initial_terminal in *.
-  rewrite dual_unique_iso_self.
+  rewrite Dual_uniquely_isomorphic.
   eapply initial_uiso; cat.
 Qed.
 
@@ -116,33 +116,33 @@ Qed.
 Lemma iso_to_init_is_init :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
     initial I create ->
-      forall {X : Ob C} (f : Hom X I), Iso f ->
+      forall {X : Ob C} (f : Hom X I), isIso f ->
         initial X (fun Y : Ob C => f .> create Y).
 Proof.
   unfold initial.
   intros C I c H X f (f' & Heq1 & Heq2) Y g.
-  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, id_left.
+  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
   reflexivity.
 Defined.
 
 Lemma iso_to_term_is_term :
   forall (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T),
     terminal T delete ->
-      forall {X : Ob C} (f : Hom T X), Iso f ->
+      forall {X : Ob C} (f : Hom T X), isIso f ->
         terminal X (fun Y : Ob C => delete Y .> f).
 Proof.
   unfold terminal.
   intros C T d H X f (f' & Heq1 & Heq2) Y g.
-  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, id_right.
+  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, comp_id_r.
   reflexivity.
 Defined.
 
 Lemma mor_to_init_is_ret :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
     initial I create ->
-      forall {X : Ob C} (f : Hom X I), Ret f.
+      forall {X : Ob C} (f : Hom X I), isRet f.
 Proof.
-  unfold initial, Ret.
+  unfold initial, isRet.
   intros.
   exists (create X).
   rewrite (H _ (id I)), H.
@@ -152,9 +152,9 @@ Qed.
 Lemma mor_from_term_is_sec :
   forall (C : Cat) (T : Ob C) (delete : forall T' : Ob C, Hom T' T),
     terminal T delete ->
-      forall {X : Ob C} (f : Hom T X), Sec f.
+      forall {X : Ob C} (f : Hom T X), isSec f.
 Proof.
-  unfold terminal, Ret.
+  unfold terminal, isRet.
   intros.
   exists (delete X).
   rewrite (H _ (id T)), H.
@@ -246,7 +246,7 @@ Lemma HasInit_uiso :
   forall (C : Cat) (hi1 hi2 : HasInit C),
     @init C hi1 ~~ @init C hi2.
 Proof.
-  unfold uniquely_isomorphic, Iso.
+  unfold uniquely_isomorphic, isIso.
   intros.
   exists (create (init C)).
   split.
@@ -276,18 +276,18 @@ Qed.
 
 Lemma iso_to_init_is_init :
   forall (C : Cat) (hi : HasInit C),
-    forall {X : Ob C} (f : Hom X (init C)), Iso f ->
+    forall {X : Ob C} (f : Hom X (init C)), isIso f ->
       initial X (fun Y : Ob C => f .> create Y).
 Proof.
   unfold initial.
   intros C [I c H] X f (f' & Heq1 & Heq2) Y g.
-  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, id_left.
+  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
   reflexivity.
 Defined.
 
 Lemma mor_to_init_is_ret :
   forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
-    Ret f.
+    isRet f.
 Proof.
   intros; red.
   exists (create X).
@@ -299,7 +299,7 @@ Lemma HasTerm_uiso :
   forall (C : Cat) (ht1 ht2 : HasTerm C),
     @term C ht1 ~~ @term C ht2.
 Proof.
-  unfold uniquely_isomorphic, Iso.
+  unfold uniquely_isomorphic, isIso.
   intros.
   exists (delete (term C)).
   split.
@@ -329,18 +329,18 @@ Qed.
 
 Lemma iso_to_term_is_term :
   forall (C : Cat) (ht : HasTerm C),
-      forall {X : Ob C} (f : Hom (term C) X), Iso f ->
+      forall {X : Ob C} (f : Hom (term C) X), isIso f ->
         terminal X (fun Y : Ob C => delete Y .> f).
 Proof.
   unfold terminal.
   intros C [T d H] X f (f' & Heq1 & Heq2) Y g.
-  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, id_right.
+  rewrite <- (H _ (g .> f')), comp_assoc, Heq2, comp_id_r.
   reflexivity.
 Defined.
 
 Lemma mor_from_term_is_sec :
   forall (C : Cat) (ht : HasTerm C) (X : Ob C) (f : Hom (term C) X),
-    Sec f.
+    isSec f.
 Proof.
   intros; red.
   exists (delete X).

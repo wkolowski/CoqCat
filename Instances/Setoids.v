@@ -14,42 +14,42 @@ Proof. setoid. Defined.
 
 Arguments const _ [Y] _.
 
-Lemma CoqSetoid_mon_char :
+Lemma CoqSetoid_isMono :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    Mon f <-> injectiveS f.
+    isMono f <-> injectiveS f.
 Proof.
-  unfold Mon, injectiveS; split; intros.
+  unfold isMono, injectiveS; split; intros.
     specialize (H _ (const Y a) (const Y a')). cbn in H.
       apply H; auto. exact (f a).
     cbn. intro. apply H. apply H0.
 Defined.
 
-Lemma CoqSetoid_sur_is_epi :
+Lemma CoqSetoid_isEpi :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    surjectiveS f -> Epi f.
+    surjectiveS f -> isEpi f.
 Proof.
-  unfold Epi, surjectiveS; intros. cbn in *. intro.
+  unfold isEpi, surjectiveS; intros. cbn in *. intro.
   destruct (H x) as [a eq].
   rewrite (Proper_func g x), (Proper_func h x).
     apply H0.
     all: rewrite eq; reflexivity.
 Defined.
 
-Lemma CoqSetoid_sec_is_inj :
+Lemma CoqSetoid_isSec :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    Sec f -> injectiveS f.
+    isSec f -> injectiveS f.
 Proof.
-  unfold Sec, injectiveS; intros.
+  unfold isSec, injectiveS; intros.
   destruct H as [g H]. cbn in *. cut (g (f a) == g (f a')).
     intro. rewrite !H in H1. assumption.
     setoid.
 Defined.
 
-Lemma CoqSetoid_ret_char :
+Lemma CoqSetoid_isRet :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    Ret f <-> surjectiveS' f.
+    isRet f <-> surjectiveS' f.
 Proof.
-  unfold Ret, surjectiveS; split; cbn; intros.
+  unfold isRet, surjectiveS; split; cbn; intros.
     destruct H as [g H]. red. exists g. setoid'.
     do 2 destruct H. exists {| func := x; Proper_func := H |}. cat.
 Qed.

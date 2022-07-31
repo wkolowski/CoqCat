@@ -73,7 +73,7 @@ Proof.
   intros.
   apply is_indexed_product.
   intros.
-  rewrite id_left.
+  rewrite comp_id_l.
   reflexivity.
 Qed.
 
@@ -100,7 +100,7 @@ Lemma indexed_product_iso_unique :
     (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
       indexed_product C P p tuple -> indexed_product C Q q tuple' -> P ~ Q.
 Proof.
-  unfold indexed_product, isomorphic, Iso.
+  unfold indexed_product, isomorphic, isIso.
   intros.
   exists (tuple' _ p), (tuple0 _ q).
   destruct
@@ -124,7 +124,7 @@ Lemma indexed_product_iso_unique2 :
       (forall j : J, A j ~ B j) ->
       indexed_product C P1 p1 t1 -> indexed_product C P2 p2 t2 -> P1 ~ P2.
 Proof.
-  unfold indexed_product, isomorphic, Iso.
+  unfold indexed_product, isomorphic, isIso.
   intros.
   assert (f : forall j : J, {f : Hom (A j) (B j) &
     {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).
@@ -154,7 +154,7 @@ Proof.
     rewrite <- comp_assoc.
     destruct (H1 P1 (fun j0 : J => p1 j0 .> f' j0) (t2 P1 (fun j0 : J => p1 j0 .> f' j0)))
       as [<- _]; [| cat].
-    rewrite comp_assoc, iso1, id_right.
+    rewrite comp_assoc, iso1, comp_id_r.
     reflexivity.
   - destruct (H1 P2 p2 (id P2)) as [_ <-]; [| cat].
     symmetry; apply H1; intros.
@@ -164,7 +164,7 @@ Proof.
     rewrite <- comp_assoc.
     destruct (H0 P2 (fun j0 : J => p2 j0 .> g' j0) (t1 P2 (fun j0 : J => p2 j0 .> g' j0)))
       as [<- _]; [| cat].
-    rewrite comp_assoc, iso2, id_right.
+    rewrite comp_assoc, iso2, comp_id_r.
     reflexivity.
 Defined.
 
