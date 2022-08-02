@@ -13,15 +13,6 @@ Definition coequalizer
     forall (Q' : Ob C) (q' : Hom Y Q') (H : f .> q' == g .> q'),
       setoid_unique (fun u : Hom Q Q' => q .> u == q') (cofactorize H).
 
-Definition biequalizer
-  (C : Cat) {X Y : Ob C} (f g : Hom X Y)
-  (E : Ob C) (e : Hom E X) (q : Hom Y E)
-  (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E)
-  (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom E Q')
-  : Prop :=
-    equalizer C f g E e factorize /\
-    coequalizer C f g E q cofactorize.
-
 Class HasCoequalizers (C : Cat) : Type :=
 {
   coeq_ob :
@@ -117,18 +108,6 @@ Lemma dual_equalizer_coequalizer :
         <->
       @coequalizer (Dual C) Y X f g E e factorize.
 Proof. cat. Qed.
-
-Lemma dual_biqualizer_self :
-  forall
-    (E : Ob C) (e : Hom E X) (q : Hom Y E)
-    (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E)
-    (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom E Q'),
-      @biequalizer C X Y f g E e q factorize cofactorize
-        <->
-      @biequalizer (Dual C) Y X f g E q e cofactorize factorize.
-Proof.
-  unfold biequalizer. do 2 split; destruct H; assumption.
-Qed.
 
 End HasCoequalizers.
 
@@ -232,47 +211,5 @@ Proof.
   intros. destruct he; cbn in *.
   edestruct is_coequalizer0, s. cat.
 Defined.
-
-(* TODO : finish *) Lemma biequalizer_uiso :
-  forall
-    (E : Ob C) (e : Hom E X) (q : Hom Y E)
-    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E)
-    (cofactorize : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom E Q'')
-    (E' : Ob C) (e' : Hom E' X) (q' : Hom Y E')
-    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E')
-    (cofactorize' : forall (Q'' : Ob C) (q'' : Hom Y Q''), f .> q'' == g .> q'' -> Hom E' Q''),
-      biequalizer C f g E e q factorize cofactorize ->
-      biequalizer C f g E' e' q' factorize' cofactorize' ->
-        exists!! f : Hom E E', isIso f /\ e == f .> e' /\ q .> f == q'.
-Proof.
-  unfold biequalizer; intros.
-  destruct H as [[HE_eq HE_uq] [HC_eq HC_uq]],
-    H0 as [[HE'_eq HE'_uq] [HC'_eq HC'_uq]].
-  destruct (HE_uq E' e' HE'_eq) as [eq unique].
-  destruct (HE'_uq E e HE_eq) as [eq' unique'].
-  exists (factorize' E e HE_eq).
-  repeat split.
-    red. exists (factorize E' e' HE'_eq). split. (*
-      destruct (HE_uq E (factorize' E e HE_eq .> e')). rewrite eq'. auto.
-        rewrite <- (H0 (factorize' E e .> factorize0 E' e')).
-        apply H0. rewrite eq'. cat.
-        rewrite comp_assoc, eq. reflexivity.
-      destruct (HE'_uq E' (factorize0 E' e' .> e)). rewrite eq. auto.
-        rewrite <- (H0 (factorize0 E' e' .> factorize' E e)).
-        apply H0. rewrite eq. cat.
-        rewrite comp_assoc, eq'. reflexivity.
-    rewrite eq'. reflexivity.
-    Focus 2.
-    intros. destruct H as [_ [H1 _]]. apply unique'. symmetry. auto.
-    destruct (HC_uq E' q' HC'_eq).
-    destruct (HC'_uq E q HC_eq).
-    assert (factorize' E e .> e' .> g .> q'
-      == e .> f .> q .> cofactorize0 E' q').
-      rewrite eq'. rewrite HE_eq.
-      assocr'. rewrite H. reflexivity. rewrite unique'. eauto.
-        rewrite H0. eauto.
-    assert (factorize' E e == cofactorize0 E' q').
-      apply unique'. *)
-Abort.
 
 End HasCoequalizers.
