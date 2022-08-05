@@ -75,6 +75,30 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma iso_to_init_is_init :
+  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
+    initial I create ->
+      forall {X : Ob C} (f : Hom X I), isIso f ->
+        initial X (fun Y : Ob C => f .> create Y).
+Proof.
+  unfold initial.
+  intros C I c H X f (f' & Heq1 & Heq2) Y g.
+  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
+  reflexivity.
+Defined.
+
+Lemma mor_to_init_is_ret :
+  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
+    initial I create ->
+      forall {X : Ob C} (f : Hom X I), isRet f.
+Proof.
+  unfold initial, isRet.
+  intros.
+  exists (create X).
+  rewrite (H _ (id I)), H.
+  reflexivity.
+Qed.
+
 Lemma terminal_uiso :
   forall
     (C : Cat) (A B : Ob C)
@@ -113,18 +137,6 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma iso_to_init_is_init :
-  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
-    initial I create ->
-      forall {X : Ob C} (f : Hom X I), isIso f ->
-        initial X (fun Y : Ob C => f .> create Y).
-Proof.
-  unfold initial.
-  intros C I c H X f (f' & Heq1 & Heq2) Y g.
-  rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
-  reflexivity.
-Defined.
-
 Lemma iso_to_term_is_term :
   forall (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T),
     terminal T delete ->
@@ -136,18 +148,6 @@ Proof.
   rewrite <- (H _ (g .> f')), comp_assoc, Heq2, comp_id_r.
   reflexivity.
 Defined.
-
-Lemma mor_to_init_is_ret :
-  forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
-    initial I create ->
-      forall {X : Ob C} (f : Hom X I), isRet f.
-Proof.
-  unfold initial, isRet.
-  intros.
-  exists (create X).
-  rewrite (H _ (id I)), H.
-  reflexivity.
-Qed.
 
 Lemma mor_from_term_is_sec :
   forall (C : Cat) (T : Ob C) (delete : forall T' : Ob C, Hom T' T),
