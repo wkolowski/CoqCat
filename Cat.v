@@ -28,6 +28,7 @@ Notation "f .> g" := (comp f g) (at level 50).
 #[global] Hint Resolve comp_assoc comp_id_l comp_id_r : core.
 
 (** *** The identity is unique *)
+
 Lemma id_unique_left :
   forall (C : Cat) (A : Ob C) (idA : Hom A A),
     (forall (B : Ob C) (f : Hom A B), idA .> f == f) -> idA == id A.
@@ -253,22 +254,6 @@ Proof.
   | |- ?x = ?x => reflexivity
   end;
   f_equal; apply proof_irrelevance.
-Qed.
-
-Lemma setoid_split :
-  forall A A' equiv equiv' setoid_equiv setoid_equiv',
-    A = A' -> JMeq equiv equiv' ->
-      JMeq (@Build_Setoid A equiv setoid_equiv) (@Build_Setoid A' equiv' setoid_equiv').
-Proof.
-  intros. repeat
-  match goal with
-  | H : _ = _ |- _ => subst
-  | H : JMeq _ _ |- _ => apply JMeq_eq in H
-  | |- ?x = ?x => reflexivity
-  end.
-  f_equal.
-  assert (setoid_equiv = setoid_equiv') by apply proof_irrelevance.
-  rewrite H. trivial.
 Qed.
 
 (*

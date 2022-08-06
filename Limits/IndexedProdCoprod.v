@@ -6,7 +6,7 @@ Definition indexed_product
   (P : Ob C) (proj : forall j : J, Hom P (A j))
   (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
   : Prop :=
-    forall (X : Ob C) (f : forall j : J, Hom X (A j)), 
+    forall (X : Ob C) (f : forall j : J, Hom X (A j)),
       setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j) (tuple X f).
 
 Definition indexed_product'

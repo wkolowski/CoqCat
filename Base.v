@@ -113,6 +113,19 @@ match goal with
 | _ => my_simpl; eauto
 end.
 
+(** Proving equality of setoids *)
+
+Lemma setoid_split :
+  forall A A' equiv equiv' setoid_equiv setoid_equiv',
+    A = A' -> JMeq equiv equiv' ->
+      JMeq (@Build_Setoid A equiv setoid_equiv) (@Build_Setoid A' equiv' setoid_equiv').
+Proof.
+  intros.
+  subst.
+  replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
+  reflexivity.
+Qed.
+
 (** Some setoid instances. *)
 
 #[refine]

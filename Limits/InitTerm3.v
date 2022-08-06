@@ -81,45 +81,37 @@ Definition mediate {C : Cat} {hz : HasZero C} (X Y : Ob C) : Hom X Y :=
 
 #[refine]
 #[export]
-Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+Instance HasInit'_Dual [C : Cat] [X : Ob C] (ht : HasTerm' X) : @HasInit' (Dual C) X :=
 {
-  term := init C;
+  create := delete;
 }.
-Proof.
-  esplit. Unshelve. all: cycle 1; cbn.
-  - exact create.
-  - intros. init.
-Defined.
+Proof. cbn; term. Defined.
 
-#[refine]
 #[export]
 Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 {
   init := term C;
 }.
-Proof.
-  esplit. Unshelve. all: cycle 1; cbn.
-  - exact delete.
-  - intros. term.
-Defined.
 
-(*
-Lemma dual_initial_terminal :
-  forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
-    @initial C X create <-> @terminal (Dual C) X create.
-Proof. cat. Qed.
-*)
+#[refine]
+#[export]
+Instance HasTerm'_Dual [C : Cat] [X : Ob C] (hi : HasInit' X) : @HasTerm' (Dual C) X :=
+{
+  delete := create;
+}.
+Proof. cbn; init. Defined.
 
-(* Lemma dual_zero_self :
-  forall
-    (C : Cat) (X : Ob C)
-    (create : forall X' : Ob C, Hom X X')
-    (delete : forall X' : Ob C, Hom X' X),
-      @isZero C X create delete <-> @isZero (Dual C) X delete create.
-Proof.
-  unfold isZero; cat.
-Qed.
- *)
+#[export]
+Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+{
+  term := init C;
+}.
+
+#[export]
+Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
+{
+  zero := @zero C hz;
+}.
 
 Lemma HasInit'_uiso :
   forall
@@ -128,12 +120,11 @@ Lemma HasInit'_uiso :
     (I2 : Ob C) (hi2 : HasInit' I2),
       I1 ~~ I2.
 Proof.
-  unfold uniquely_isomorphic, isomorphic.
+  unfold uniquely_isomorphic, isomorphic, isIso.
   intros.
   exists (create I2).
   split.
-  - unfold isIso.
-    exists (create I1).
+  - exists (create I1).
     init.
   - intros. init.
 Qed.
