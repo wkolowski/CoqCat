@@ -255,13 +255,13 @@ Proof.
   end.
 Defined.
 
-Definition Apartoid_coproj1
+Definition Apartoid_finl
   (X Y : Apartoid) : ApartoidHom X (Apartoid_coprodOb X Y).
 Proof.
   red. exists inl. apartoid.
 Defined.
 
-Definition Apartoid_coproj2
+Definition Apartoid_finr
   (X Y : Apartoid) : ApartoidHom Y (Apartoid_coprodOb X Y).
 Proof.
   red. exists inr. apartoid.
@@ -284,8 +284,8 @@ Defined.
 Instance HasCoproducts_Apartoid : HasCoproducts ApartoidCat :=
 {
   coprodOb := Apartoid_coprodOb;
-  coproj1 := Apartoid_coproj1;
-  coproj2 := Apartoid_coproj2;
+  finl := Apartoid_finl;
+  finr := Apartoid_finr;
   copair := Apartoid_copair
 }.
 Proof.

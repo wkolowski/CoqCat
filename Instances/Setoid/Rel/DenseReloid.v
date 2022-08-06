@@ -175,17 +175,17 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_coproj1 (X Y : DenseReloid) : ReloidHom X (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_finl (X Y : DenseReloid) : ReloidHom X (DenseReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj1 X Y
+  func := Reloid_finl X Y
 }.
 Proof. dreloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_coproj2 (X Y : DenseReloid) : ReloidHom Y (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_finr (X Y : DenseReloid) : ReloidHom Y (DenseReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj2 X  Y
+  func := Reloid_finr X  Y
 }.
 Proof. dreloid. Defined.
 
@@ -206,8 +206,8 @@ Defined.
 Instance HasCoproducts_DenseReloid : HasCoproducts DenseReloidCat :=
 {
   coprodOb := DenseReloid_coprodOb;
-  coproj1 := DenseReloid_coproj1;
-  coproj2 := DenseReloid_coproj2;
+  finl := DenseReloid_finl;
+  finr := DenseReloid_finr;
   copair := DenseReloid_copair;
 }.
 Proof.

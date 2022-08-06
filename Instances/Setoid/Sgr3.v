@@ -433,13 +433,13 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
     (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
 }.
 
-Definition Sgr_freeprod_setoid_coproj1
+Definition Sgr_freeprod_setoid_finl
   (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
   exists (fun x : X => singl (inl x)). sgr.
 Defined.
 
-Definition Sgr_freeprod_setoid_coproj2
+Definition Sgr_freeprod_setoid_finr
   (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
   exists (fun y : Y => singl (inr y)). sgr.
@@ -556,15 +556,15 @@ Proof.
   intros. rewrite app_nel_assoc. reflexivity.
 Defined.
 
-Definition Sgr_coproj1 (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
+Definition Sgr_finl (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
 Proof.
-  red. exists (Sgr_freeprod_setoid_coproj1 X Y).
+  red. exists (Sgr_freeprod_setoid_finl X Y).
   simpl. unfold fpeq4; cbn. reflexivity.
 Defined.
 
-Definition Sgr_coproj2 (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
+Definition Sgr_finr (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
 Proof.
-  red. exists (Sgr_freeprod_setoid_coproj2 X Y).
+  red. exists (Sgr_freeprod_setoid_finr X Y).
   cbn; unfold fpeq4; cbn. reflexivity.
 Defined.
 

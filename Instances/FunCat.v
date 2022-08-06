@@ -98,10 +98,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_coproj1
+Instance FunCat_finl
   {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans F (FunCat_coprodOb F G) :=
 {
-  component := fun _ : Ob C => coproj1
+  component := fun _ : Ob C => finl
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap. copair.
@@ -109,10 +109,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_coproj2
+Instance FunCat_finr
   {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans G (FunCat_coprodOb F G) :=
 {
-  component := fun _ : Ob C => coproj2
+  component := fun _ : Ob C => finr
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap. copair.
@@ -137,8 +137,8 @@ Instance HasCoproducts_FunCat
   {C D : Cat} {hp : HasCoproducts D} : HasCoproducts (FunCat C D) :=
 {
   coprodOb := FunCat_coprodOb;
-  coproj1 := @FunCat_coproj1 C D hp;
-  coproj2 := @FunCat_coproj2 C D hp;
+  finl := @FunCat_finl C D hp;
+  finr := @FunCat_finr C D hp;
   copair := fun (F G H : Functor C D)
     (α : @Hom (FunCat C D) F H) (β : @Hom (FunCat C D) G H)
     => @FunCat_copair C D hp F G H α β

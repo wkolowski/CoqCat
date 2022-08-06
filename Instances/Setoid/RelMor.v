@@ -193,7 +193,7 @@ Definition SetoidRel_coprodOb := SetoidRel_prodOb.
 
 #[refine]
 #[export]
-Instance SetoidRel_coproj1 (X Y : Setoid') : SetoidRel X (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_finl (X Y : Setoid') : SetoidRel X (SetoidRel_coprodOb X Y) :=
 {
   rel := fun (x : X) (p : X + Y) =>
     match p with
@@ -205,7 +205,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_coproj2 (X Y : Setoid') : SetoidRel Y (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_finr (X Y : Setoid') : SetoidRel Y (SetoidRel_coprodOb X Y) :=
 {
   rel := fun (y : Y) (p : X + Y) =>
     match p with
@@ -234,8 +234,8 @@ Proof. rel. Defined.
 Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
 {
   coprodOb := SetoidRel_coprodOb;
-  coproj1 := SetoidRel_coproj1;
-  coproj2 := SetoidRel_coproj2;
+  finl := SetoidRel_finl;
+  finr := SetoidRel_finr;
   copair := SetoidRel_copair;
 }.
 Proof.

@@ -304,8 +304,8 @@ Defined.
 Instance hp_hpeq' (C : Cat) (hp : ProdCoprod.HasCoproducts C) : HasCoproducts C :=
 {
   coprodOb := @ProdCoprod.coprodOb C hp;
-  finl := @ProdCoprod.coproj1 C hp;
-  finr := @ProdCoprod.coproj2 C hp;
+  finl := @ProdCoprod.finl C hp;
+  finr := @ProdCoprod.finr C hp;
   copair := @ProdCoprod.copair C hp;
 }.
 Proof.
@@ -319,8 +319,8 @@ Defined.
 Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : ProdCoprod.HasCoproducts C :=
 {
   coprodOb := @coprodOb C hp_eq;
-  coproj1 := @finl C hp_eq;
-  coproj2 := @finr C hp_eq;
+  finl := @finl C hp_eq;
+  finr := @finr C hp_eq;
   copair := @copair C hp_eq;
 }.
 Proof.

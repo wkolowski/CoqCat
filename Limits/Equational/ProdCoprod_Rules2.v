@@ -66,8 +66,8 @@ Proof. prod. Qed.
 Class HasCoproducts (C : Cat) : Type :=
 {
   coprodOb : Ob C -> Ob C -> Ob C;
-  coproj1 : forall {A B : Ob C}, Hom A (coprodOb A B);
-  coproj2 : forall {A B : Ob C}, Hom B (coprodOb A B);
+  finl : forall {A B : Ob C}, Hom A (coprodOb A B);
+  finr : forall {A B : Ob C}, Hom B (coprodOb A B);
   copair :
     forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coprodOb A B) X;
   Proper_copair :>
@@ -76,14 +76,14 @@ Class HasCoproducts (C : Cat) : Type :=
 (* reflection *)
   copair_id :
     forall X Y : Ob C,
-      copair coproj1 coproj2 == id (coprodOb X Y);
+      copair finl finr == id (coprodOb X Y);
 (* cancellation *)
-  copair_coproj1 :
+  copair_finl :
     forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
-      coproj1 .> copair f g == f;
-  copair_coproj2 :
+      finl .> copair f g == f;
+  copair_finr :
     forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
-      coproj2 .> copair f g == g;
+      finr .> copair f g == g;
 (* fusion *)
   copair_post :
     forall (X Y A B : Ob C) (f1 : Hom X A) (f2 : Hom Y A) (g : Hom A B),
@@ -91,17 +91,17 @@ Class HasCoproducts (C : Cat) : Type :=
 }.
 
 Arguments coprodOb {C HasCoproducts} _ _.
-Arguments coproj1  {C HasCoproducts A B}.
-Arguments coproj2  {C HasCoproducts A B}.
+Arguments finl  {C HasCoproducts A B}.
+Arguments finr  {C HasCoproducts A B}.
 Arguments copair   {C HasCoproducts A B X} _ _.
 
 Ltac coprod := intros; try split;
 repeat match goal with
-| |- context [copair (coproj1 .> ?x) (coproj2 .> ?x)] => rewrite copair_post, copair_id
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite copair_post, copair_id
 | |- context [copair _ _ .> _] => rewrite <- copair_post
-| |- context [coproj1 .> copair _ _] => rewrite copair_coproj1
-| |- context [coproj2 .> copair _ _] => rewrite copair_coproj2
-| |- context [copair coproj1 coproj2] => rewrite copair_id
+| |- context [finl .> copair _ _] => rewrite copair_finl
+| |- context [finr .> copair _ _] => rewrite copair_finr
+| |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
 | |- copair _ _ == copair _ _ => apply Proper_copair
 | |- context [id _ .> _] => rewrite comp_id_l
@@ -116,7 +116,7 @@ Lemma copair_comp :
   forall
     (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
     (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
-      copair (h1 .> f) (h2 .> g) == copair (h1 .> coproj1) (h2 .> coproj2) .> copair f g.
+      copair (h1 .> f) (h2 .> g) == copair (h1 .> finl) (h2 .> finr) .> copair f g.
 Proof. coprod. Qed.
 
 Class HasBiproducts (C : Cat) : Type :=
@@ -137,8 +137,8 @@ Instance HasProducts_Dual {C : Cat} (hp : HasCoproducts C) : HasProducts (Dual C
 {
   prodOb := @coprodOb C hp;
   fpair := @copair C hp;
-  outl := @coproj1 C hp;
-  outr := @coproj2 C hp;
+  outl := @finl C hp;
+  outr := @finr C hp;
 }.
 Proof. all: cat; coprod. Defined.
 
@@ -148,8 +148,8 @@ Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual
 {
   coprodOb := @prodOb C hp;
   copair := @fpair C hp;
-  coproj1 := @outl C hp;
-  coproj2 := @outr C hp;
+  finl := @outl C hp;
+  finr := @outr C hp;
 }.
 Proof. all: cat; prod. Defined.
 
@@ -202,8 +202,8 @@ Defined.
 Instance hp_hpeq' (C : Cat) (hp : ProdCoprod.HasCoproducts C) : HasCoproducts C :=
 {
   coprodOb := @ProdCoprod.coprodOb C hp;
-  coproj1 := @ProdCoprod.coproj1 C hp;
-  coproj2 := @ProdCoprod.coproj2 C hp;
+  finl := @ProdCoprod.finl C hp;
+  finr := @ProdCoprod.finr C hp;
   copair := @ProdCoprod.copair C hp;
 }.
 Proof. all: ProdCoprod.copair. Defined.
@@ -213,14 +213,14 @@ Proof. all: ProdCoprod.copair. Defined.
 Instance hpeq_hp' (C : Cat) (hp_eq : HasCoproducts C) : ProdCoprod.HasCoproducts C :=
 {
   coprodOb := @coprodOb C hp_eq;
-  coproj1 := @coproj1 C hp_eq;
-  coproj2 := @coproj2 C hp_eq;
+  finl := @finl C hp_eq;
+  finr := @finr C hp_eq;
   copair := @copair C hp_eq;
 }.
 Proof.
   unfold ProdCoprod.coproduct, setoid_unique. cat.
-    rewrite copair_coproj1. reflexivity.
-    rewrite copair_coproj2. reflexivity.
+    rewrite copair_finl. reflexivity.
+    rewrite copair_finr. reflexivity.
     rewrite H, H0. rewrite copair_post, copair_id, comp_id_l. reflexivity.
 Defined.
 
@@ -324,8 +324,8 @@ Lemma coprodOb_comm :
     coprodOb X Y ~ coprodOb Y X.
 Proof.
   intros.
-  red. exists (copair coproj2 coproj1).
-  red. exists (copair coproj2 coproj1).
+  red. exists (copair finr finl).
+  red. exists (copair finr finl).
   coprod.
 Qed.
 
@@ -334,8 +334,8 @@ Lemma coprodOb_assoc :
     coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
 Proof.
   intros.
-  red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
-  red. exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
+  red. exists (copair (finl .> finl) (copair (finr .> finl) finr)).
+  red. exists (copair (copair finl (finl .> finr)) (finr .> finr)).
   coprod.
 Qed.
 
@@ -344,8 +344,8 @@ Lemma coprodOb_assoc' :
     {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | isIso f}.
 Proof.
   intros.
-  exists (copair (copair coproj1 (coproj1 .> coproj2)) (coproj2 .> coproj2)).
-  red. exists (copair (coproj1 .> coproj1) (copair (coproj2 .> coproj1) coproj2)).
+  exists (copair (copair finl (finl .> finr)) (finr .> finr)).
+  red. exists (copair (finl .> finl) (copair (finr .> finl) finr)).
   coprod.
 Defined.
 
@@ -428,7 +428,7 @@ Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
 Definition CoproductFunctor_fmap
   {C : Cat} {hp : HasCoproducts C} {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
   : Hom (coprodOb X X') (coprodOb Y Y')
-  := copair (f .> coproj1) (g .> coproj2).
+  := copair (f .> finl) (g .> finr).
 
 #[export]
 Instance Proper_CoproductFunctor_fmap :

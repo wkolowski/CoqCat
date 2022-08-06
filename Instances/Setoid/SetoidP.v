@@ -99,8 +99,8 @@ end.
 Instance HasCoproducts_SetP : HasCoproducts SetP :=
 {
   coprodOb := sum;
-  coproj1 := fun (A B : Set) (a : A) => Some (inl a);
-  coproj2 := fun (A B : Set) (b : B) => Some (inr b);
+  finl := fun (A B : Set) (a : A) => Some (inl a);
+  finr := fun (A B : Set) (b : B) => Some (inr b);
   copair := SetP_copair
 }.
 Proof.

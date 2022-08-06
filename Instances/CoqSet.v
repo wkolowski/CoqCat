@@ -128,8 +128,8 @@ Proof.
 Defined.
 
 Definition CoqSet_coprodOb := sum.
-Definition CoqSet_coproj1 := @inl.
-Definition CoqSet_coproj2 := @inr.
+Definition CoqSet_finl := @inl.
+Definition CoqSet_finr := @inr.
 
 Definition CoqSet_copair (X Y A : Set) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
   fun p : X + Y =>
@@ -143,8 +143,8 @@ Definition CoqSet_copair (X Y A : Set) (f : Hom X A) (g : Hom Y A) : Hom (sum X 
 Instance HasCoproducts_CoqSet : HasCoproducts CoqSet :=
 {
   coprodOb := sum;
-  coproj1 := @inl;
-  coproj2 := @inr;
+  finl := @inl;
+  finr := @inr;
   copair := CoqSet_copair
 }.
 Proof.

@@ -4,7 +4,7 @@ Definition distr
   {C : Cat} {hi : HasInit C} {ht : HasTerm C}
   {hp : HasProducts C} {hc : HasCoproducts C} (X Y Z : Ob C)
   : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
-  := copair (fpair outl (outr .> coproj1)) (fpair outl (outr .> coproj2)).
+  := copair (fpair outl (outr .> finl)) (fpair outl (outr .> finr)).
 
 Class Distributive (C : Cat) : Type :=
 {

@@ -51,7 +51,7 @@ Lemma coprodOb_init_l :
 Proof.
   intros.
   red. exists (copair (create X) (id X)).
-  red. exists coproj2.
+  red. exists finr.
   copair. init.
 Defined.
 
@@ -61,7 +61,7 @@ Lemma coprodOb_init_l' :
 Proof.
   intros.
   exists (copair (create X) (id X)).
-  red. exists coproj2.
+  red. exists finr.
   copair. init.
 Defined.
 
@@ -78,7 +78,7 @@ Lemma coprodOb_init_r' :
 Proof.
   intros.
   exists (copair (id X) (create X)).
-  red. exists coproj1.
+  red. exists finl.
   copair. init.
 Defined.
 

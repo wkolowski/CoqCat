@@ -118,14 +118,14 @@ Proof.
   destruct x, y; pos.
 Defined.
 
-Definition Pos_coproj1 (X Y : Pos) : ProsHom X (Pos_coprodOb X Y).
+Definition Pos_finl (X Y : Pos) : ProsHom X (Pos_coprodOb X Y).
 Proof.
-  red. exists (Pros_coproj1 X Y). pos.
+  red. exists (Pros_finl X Y). pos.
 Defined.
 
-Definition Pos_coproj2 (X Y : Pos) : ProsHom Y (Pos_coprodOb X Y).
+Definition Pos_finr (X Y : Pos) : ProsHom Y (Pos_coprodOb X Y).
 Proof.
-  red. exists (Pros_coproj2 X Y). pos.
+  red. exists (Pros_finr X Y). pos.
 Defined.
 
 Definition Pos_copair
@@ -139,8 +139,8 @@ Defined.
 Instance HasCoproducts_Pos : HasCoproducts PosCat :=
 {
   coprodOb := Pos_coprodOb;
-  coproj1 := Pos_coproj1;
-  coproj2 := Pos_coproj2;
+  finl := Pos_finl;
+  finr := Pos_finr;
   copair := Pos_copair
 }.
 Proof.

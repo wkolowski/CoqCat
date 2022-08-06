@@ -155,17 +155,17 @@ Proof. intros [] [] []; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_coproj1 (X Y : TransReloid) : ReloidHom X (TransReloid_coprodOb X Y) :=
+Instance TransReloid_finl (X Y : TransReloid) : ReloidHom X (TransReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj1 X Y;
+  func := Reloid_finl X Y;
 }.
 Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_coproj2 (X Y : TransReloid) : ReloidHom Y (TransReloid_coprodOb X Y) :=
+Instance TransReloid_finr (X Y : TransReloid) : ReloidHom Y (TransReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj2 X Y;
+  func := Reloid_finr X Y;
 }.
 Proof. treloid. Defined.
 
@@ -186,8 +186,8 @@ Defined.
 Instance HasCoproducts_TransReloid : HasCoproducts TransReloidCat :=
 {
   coprodOb := TransReloid_coprodOb;
-  coproj1 := TransReloid_coproj1;
-  coproj2 := TransReloid_coproj2;
+  finl := TransReloid_finl;
+  finr := TransReloid_finr;
   copair := TransReloid_copair;
 }.
 Proof.

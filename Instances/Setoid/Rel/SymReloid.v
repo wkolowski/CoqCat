@@ -155,17 +155,17 @@ Proof. intros [] []; cbn; intuition. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_coproj1 (X Y : SymReloid) : ReloidHom X (SymReloid_coprodOb X Y) :=
+Instance SymReloid_finl (X Y : SymReloid) : ReloidHom X (SymReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj1 X Y;
+  func := Reloid_finl X Y;
 }.
 Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_coproj2 (X Y : SymReloid) : ReloidHom Y (SymReloid_coprodOb X Y) :=
+Instance SymReloid_finr (X Y : SymReloid) : ReloidHom Y (SymReloid_coprodOb X Y) :=
 {
-  func := Reloid_coproj2 X Y;
+  func := Reloid_finr X Y;
 }.
 Proof. sreloid. Defined.
 
@@ -186,8 +186,8 @@ Defined.
 Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
 {
   coprodOb := SymReloid_coprodOb;
-  coproj1 := SymReloid_coproj1;
-  coproj2 := SymReloid_coproj2;
+  finl := SymReloid_finl;
+  finr := SymReloid_finr;
   copair := SymReloid_copair;
 }.
 Proof.

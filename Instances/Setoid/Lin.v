@@ -217,14 +217,14 @@ Proof.
   end; my_simpl; try f_equal; lin').
 Defined.
 
-Definition Lin_coproj1 (X Y : Lin) : ProsHom X (Lin_coprodOb X Y).
+Definition Lin_finl (X Y : Lin) : ProsHom X (Lin_coprodOb X Y).
 Proof.
-  red. exists (CoqSetoid_coproj1 X Y). lin.
+  red. exists (CoqSetoid_finl X Y). lin.
 Defined.
 
-Definition Lin_coproj2 (X Y : Lin) : ProsHom Y (Lin_coprodOb X Y).
+Definition Lin_finr (X Y : Lin) : ProsHom Y (Lin_coprodOb X Y).
 Proof.
-  red. exists (CoqSetoid_coproj2 X Y). lin.
+  red. exists (CoqSetoid_finr X Y). lin.
 Defined.
 
 Definition Lin_copair

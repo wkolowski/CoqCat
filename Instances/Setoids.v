@@ -174,13 +174,13 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_coproj1 (X Y : Setoid') : SetoidHom X (CoqSetoid_coprodOb X Y).
+Instance CoqSetoid_finl (X Y : Setoid') : SetoidHom X (CoqSetoid_coprodOb X Y).
 Proof.
   split with inl. proper.
 Defined.
 
 #[export]
-Instance CoqSetoid_coproj2 (X Y : Setoid') : SetoidHom Y (CoqSetoid_coprodOb X Y).
+Instance CoqSetoid_finr (X Y : Setoid') : SetoidHom Y (CoqSetoid_coprodOb X Y).
 Proof.
   split with inr. proper.
 Defined.
@@ -206,8 +206,8 @@ Defined.
 Instance HasCoproducts_CoqSetoid : HasCoproducts CoqSetoid :=
 {
   coprodOb := CoqSetoid_coprodOb;
-  coproj1 := CoqSetoid_coproj1;
-  coproj2 := CoqSetoid_coproj2;
+  finl := CoqSetoid_finl;
+  finr := CoqSetoid_finr;
   copair := CoqSetoid_copair
 }.
 Proof.

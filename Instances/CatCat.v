@@ -179,7 +179,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_coproj1 (X Y : Cat) : Functor X (CAT_coprodOb X Y) :=
+Instance CAT_finl (X Y : Cat) : Functor X (CAT_coprodOb X Y) :=
 {
   fob := inl;
   fmap := fun _ _ f => f
@@ -188,7 +188,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_coproj2 (X Y : Cat) : Functor Y (CAT_coprodOb X Y) :=
+Instance CAT_finr (X Y : Cat) : Functor Y (CAT_coprodOb X Y) :=
 {
   fob := inr;
   fmap := fun _ _ f => f
@@ -222,8 +222,8 @@ Defined.
 Instance HasCoproducts_CAT : HasCoproducts CAT :=
 {
   coprodOb := CAT_coprodOb;
-  coproj1 := CAT_coproj1;
-  coproj2 := CAT_coproj2;
+  finl := CAT_finl;
+  finr := CAT_finr;
   copair := CAT_copair
 }.
 Proof.

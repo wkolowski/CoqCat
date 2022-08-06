@@ -233,14 +233,14 @@ Proof.
   destruct a, b; destruct c1; pros.
 Defined.
 
-Definition Pros_coproj1 (X Y : Pros) : ProsHom X (Pros_coprodOb X Y).
+Definition Pros_finl (X Y : Pros) : ProsHom X (Pros_coprodOb X Y).
 Proof.
-  red. exists (CoqSetoid_coproj1 X Y). pros.
+  red. exists (CoqSetoid_finl X Y). pros.
 Defined.
 
-Definition Pros_coproj2 (X Y : Pros) : ProsHom Y (Pros_coprodOb X Y).
+Definition Pros_finr (X Y : Pros) : ProsHom Y (Pros_coprodOb X Y).
 Proof.
-  red. exists (CoqSetoid_coproj2 X Y). pros.
+  red. exists (CoqSetoid_finr X Y). pros.
 Defined.
 
 Definition Pros_copair
@@ -254,8 +254,8 @@ Defined.
 Instance HasCoproducts_Pros : HasCoproducts ProsCat :=
 {
   coprodOb := Pros_coprodOb;
-  coproj1 := Pros_coproj1;
-  coproj2 := Pros_coproj2;
+  finl := Pros_finl;
+  finr := Pros_finr;
   copair := Pros_copair
 }.
 Proof.

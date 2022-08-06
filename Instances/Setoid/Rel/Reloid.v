@@ -211,17 +211,17 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_coproj1 (X Y : Reloid) : ReloidHom X (Reloid_coprodOb X Y) :=
+Instance Reloid_finl (X Y : Reloid) : ReloidHom X (Reloid_coprodOb X Y) :=
 {
-  func := CoqSetoid_coproj1 X Y;
+  func := CoqSetoid_finl X Y;
 }.
 Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_coproj2 (X Y : Reloid) : ReloidHom Y (Reloid_coprodOb X Y) :=
+Instance Reloid_finr (X Y : Reloid) : ReloidHom Y (Reloid_coprodOb X Y) :=
 {
-  func := CoqSetoid_coproj2 X Y;
+  func := CoqSetoid_finr X Y;
 }.
 Proof. reloid. Defined.
 
@@ -242,8 +242,8 @@ Defined.
 Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
 {
   coprodOb := Reloid_coprodOb;
-  coproj1 := Reloid_coproj1;
-  coproj2 := Reloid_coproj2;
+  finl := Reloid_finl;
+  finr := Reloid_finr;
   copair := Reloid_copair;
 }.
 Proof.
