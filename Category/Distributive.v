@@ -4,7 +4,7 @@ Definition distr
   {C : Cat} {hi : HasInit C} {ht : HasTerm C}
   {hp : HasProducts C} {hc : HasCoproducts C} (X Y Z : Ob C)
   : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
-  := copair (fpair proj1 (proj2 .> coproj1)) (fpair proj1 (proj2 .> coproj2)).
+  := copair (fpair outl (outr .> coproj1)) (fpair outl (outr .> coproj2)).
 
 Class Distributive (C : Cat) : Type :=
 {
@@ -21,7 +21,7 @@ Class Distributive (C : Cat) : Type :=
 Proof.
   intros. symmetry.
   red. exists (create _).
-  red. exists (proj1).
+  red. exists outl.
   split.
     init.
     rewrite <- fpair_id.

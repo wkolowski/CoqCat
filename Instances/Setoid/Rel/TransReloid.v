@@ -137,8 +137,8 @@ Proof. treloid. Defined.
 Instance HasProducts_TransReloid : HasProducts TransReloidCat :=
 {
   prodOb := TransReloid_prodOb;
-  proj1 := TransReloid_proj1;
-  proj2 := TransReloid_proj2;
+  outl := TransReloid_proj1;
+  outr := TransReloid_proj2;
   fpair := TransReloid_fpair;
 }.
 Proof.

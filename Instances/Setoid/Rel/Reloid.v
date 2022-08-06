@@ -184,8 +184,8 @@ Proof. reloid. Defined.
 Instance HasProducts_Reloid : HasProducts ReloidCat :=
 {
   prodOb := Reloid_prodOb;
-  proj1 := Reloid_proj1;
-  proj2 := Reloid_proj2;
+  outl := Reloid_proj1;
+  outr := Reloid_proj2;
   fpair := Reloid_fpair;
 }.
 Proof.

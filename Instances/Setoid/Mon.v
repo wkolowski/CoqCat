@@ -450,8 +450,8 @@ Defined.
 Instance HasProducts_Mon : HasProducts MonCat :=
 {
   prodOb := Mon_prodOb;
-  proj1 := Mon_proj1;
-  proj2 := Mon_proj2;
+  outl := Mon_proj1;
+  outr := Mon_proj2;
   fpair := Mon_fpair
 }.
 Proof.

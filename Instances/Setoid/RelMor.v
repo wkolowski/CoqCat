@@ -164,8 +164,8 @@ Proof. rel. Defined.
 Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
 {
   prodOb := SetoidRel_prodOb;
-  proj1 := SetoidRel_proj1;
-  proj2 := SetoidRel_proj2;
+  outl := SetoidRel_proj1;
+  outr := SetoidRel_proj2;
   fpair := SetoidRel_fpair
 }.
 Proof.

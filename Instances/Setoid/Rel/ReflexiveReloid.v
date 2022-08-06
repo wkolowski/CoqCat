@@ -141,8 +141,8 @@ Proof. rreloid. Defined.
 Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
 {
   prodOb := ReflexiveReloid_prodOb;
-  proj1 := ReflexiveReloid_proj1;
-  proj2 := ReflexiveReloid_proj2;
+  outl := ReflexiveReloid_proj1;
+  outr := ReflexiveReloid_proj2;
   fpair := ReflexiveReloid_fpair;
 }.
 Proof.

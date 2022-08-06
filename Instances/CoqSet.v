@@ -101,8 +101,8 @@ Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod 
 Instance HasProducts_CoqSet : HasProducts CoqSet :=
 {
   prodOb := prod;
-  proj1 := @fst;
-  proj2 := @snd;
+  outl := @fst;
+  outr := @snd;
   fpair := CoqSet_fpair
 }.
 Proof.

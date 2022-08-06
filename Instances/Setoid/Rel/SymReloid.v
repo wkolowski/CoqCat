@@ -137,8 +137,8 @@ Proof. sreloid. Defined.
 Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
 {
   prodOb := SymReloid_prodOb;
-  proj1 := SymReloid_proj1;
-  proj2 := SymReloid_proj2;
+  outl := SymReloid_proj1;
+  outr := SymReloid_proj2;
   fpair := SymReloid_fpair;
 }.
 Proof.

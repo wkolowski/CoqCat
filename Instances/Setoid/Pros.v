@@ -202,8 +202,8 @@ Defined.
 Instance HasProducts_Pros : HasProducts ProsCat :=
 {
   prodOb := Pros_prodOb;
-  proj1 := Pros_proj1;
-  proj2 := Pros_proj2;
+  outl := Pros_proj1;
+  outr := Pros_proj2;
   fpair := @Pros_fpair
 }.
 Proof.

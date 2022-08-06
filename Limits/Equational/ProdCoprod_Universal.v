@@ -276,8 +276,8 @@ Module Equiv.
 Instance hp_hpeq (C : Cat) (hp : ProdCoprod.HasProducts C) : HasProducts C :=
 {
   prodOb := @ProdCoprod.prodOb C hp;
-  outl := @ProdCoprod.proj1 C hp;
-  outr := @ProdCoprod.proj2 C hp;
+  outl := @ProdCoprod.outl C hp;
+  outr := @ProdCoprod.outr C hp;
   fpair := @ProdCoprod.fpair C hp;
 }.
 Proof.
@@ -291,8 +291,8 @@ Defined.
 Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : ProdCoprod.HasProducts C :=
 {
   prodOb := @prodOb C hp_eq;
-  proj1 := @outl C hp_eq;
-  proj2 := @outr C hp_eq;
+  outl := @outl C hp_eq;
+  outr := @outr C hp_eq;
   fpair := @fpair C hp_eq;
 }.
 Proof.

@@ -323,8 +323,8 @@ Defined.
 Instance HasProducts_Sgr : HasProducts SgrCat :=
 {
   prodOb := Sgr_prodOb;
-  proj1 := Sgr_proj1;
-  proj2 := Sgr_proj2;
+  outl := Sgr_proj1;
+  outr := Sgr_proj2;
   fpair := Sgr_fpair
 }.
 Proof. all: sgr. Defined.

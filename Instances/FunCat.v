@@ -36,7 +36,7 @@ Defined.
 Instance FunCat_proj1
   {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
 {
-  component := fun _ : Ob C => proj1
+  component := fun _ : Ob C => outl
 }.
 Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
@@ -47,7 +47,7 @@ Defined.
 Instance FunCat_proj2
   {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
 {
-  component := fun _ : Ob C => proj2
+  component := fun _ : Ob C => outr
 }.
 Proof.
   intros. cbn. unfold ProductFunctor_fmap. fpair.
@@ -71,8 +71,8 @@ Defined.
 Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunCat C D) :=
 {
   prodOb := FunCat_prodOb;
-  proj1 := @FunCat_proj1 C D hp;
-  proj2 := @FunCat_proj2 C D hp;
+  outl := @FunCat_proj1 C D hp;
+  outr := @FunCat_proj2 C D hp;
   fpair := fun (G H F : Functor C D) (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H) =>
     @FunCat_fpair C D hp F G H α β
 }.

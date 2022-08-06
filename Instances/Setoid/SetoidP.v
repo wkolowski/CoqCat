@@ -75,8 +75,8 @@ end.
 Instance HasProducts_SetP : HasProducts SetP :=
 {
   prodOb := sumprod;
-  proj1 := SetP_proj1;
-  proj2 := SetP_proj2;
+  outl := SetP_proj1;
+  outr := SetP_proj2;
   fpair := SetP_fpair
 }.
 Proof.

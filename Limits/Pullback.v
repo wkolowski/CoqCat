@@ -132,7 +132,7 @@ Qed.
     e .> f == e .> g -> Hom E' E),
     equalizer C f g E e1 factorize ->
     equalizer C f g E e2 factorize ->
-    pullback C f g (prodOb E E) (proj1 .> e1) (proj2 .> e2)
+    pullback C f g (prodOb E E) (outl .> e1) (outr .> e2)
       (fun (E' : Ob C) (e1 : Hom E' X) (e2 : Hom E' X) _ =>
         fpair (factorize E' e1) (factorize E' e2)).
 Proof.

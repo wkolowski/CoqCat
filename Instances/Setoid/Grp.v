@@ -513,8 +513,8 @@ Defined.
 Instance HasProducts_Grp : HasProducts GrpCat :=
 {
   prodOb := Grp_prodOb;
-  proj1 := Grp_proj1;
-  proj2 := Grp_proj2;
+  outl := Grp_proj1;
+  outr := Grp_proj2;
   fpair := Grp_fpair
 }.
 Proof.

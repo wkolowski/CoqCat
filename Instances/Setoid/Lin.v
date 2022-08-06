@@ -149,8 +149,8 @@ Abort.
 TODO: Instance HasProducts_Lin : HasProducts LinCat :=
 {
   prodOb := Lin_prod;
-  proj1 := Pros_proj1;
-  proj2 := Pros_proj2;
+  outl := Pros_proj1;
+  outr := Pros_proj2;
   fpair := @Pros_fpair
 }.
 Proof.

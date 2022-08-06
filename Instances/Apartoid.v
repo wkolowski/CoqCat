@@ -226,8 +226,8 @@ Defined.
 Instance HasProducts_Apartoid : HasProducts ApartoidCat :=
 {
   prodOb := Apartoid_prodOb;
-  proj1 := Apartoid_proj1;
-  proj2 := Apartoid_proj2;
+  outl := Apartoid_proj1;
+  outr := Apartoid_proj2;
   fpair := Apartoid_fpair
 }.
 Proof.

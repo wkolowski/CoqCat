@@ -103,8 +103,8 @@ Defined.
 Instance HasProducts_CAT : HasProducts CAT :=
 {
   prodOb := CAT_prodOb;
-  proj1 := CAT_proj1;
-  proj2 := CAT_proj2;
+  outl := CAT_proj1;
+  outr := CAT_proj2;
   fpair := CAT_fpair
 }.
 Proof.

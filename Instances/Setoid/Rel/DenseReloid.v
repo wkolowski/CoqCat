@@ -152,8 +152,8 @@ Proof. reloid. Defined.
 Instance HasProducts_DenseReloid : HasProducts DenseReloidCat :=
 {
   prodOb := DenseReloid_prodOb;
-  proj1 := DenseReloid_proj1;
-  proj2 := DenseReloid_proj2;
+  outl := DenseReloid_proj1;
+  outr := DenseReloid_proj2;
   fpair := DenseReloid_fpair;
 }.
 Proof.

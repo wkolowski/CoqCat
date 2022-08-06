@@ -148,8 +148,8 @@ Proof. setoid. Defined.
 Instance HasProducts_CoqSetoid : HasProducts CoqSetoid :=
 {
   prodOb := CoqSetoid_prodOb;
-  proj1 := CoqSetoid_proj1;
-  proj2 := CoqSetoid_proj2;
+  outl := CoqSetoid_proj1;
+  outr := CoqSetoid_proj2;
   fpair := CoqSetoid_fpair
 }.
 Proof. all: setoid'. Defined.
