@@ -20,6 +20,8 @@ Notation "'exists' !! x : A , P" :=
   (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
 Set Warnings "+deprecated-ident-entry".
 
+#[global] Hint Unfold setoid_unique : core.
+
 (** Kinds of ordinary functions. The suffix "S" at the end of some
     of these stands for "Setoid". *)
 

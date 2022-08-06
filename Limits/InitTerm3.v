@@ -88,7 +88,7 @@ Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
 Proof.
   esplit. Unshelve. all: cycle 1; cbn.
   - exact create.
-  - intros. rewrite create_unique. reflexivity.
+  - intros. init.
 Defined.
 
 #[refine]
@@ -100,7 +100,7 @@ Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 Proof.
   esplit. Unshelve. all: cycle 1; cbn.
   - exact delete.
-  - intros. rewrite delete_unique. reflexivity.
+  - intros. term.
 Defined.
 
 (*
@@ -134,8 +134,8 @@ Proof.
   split.
   - unfold isIso.
     exists (create I1).
-    split; rewrite !create_unique; symmetry; rewrite create_unique; reflexivity.
-  - intros. symmetry. rewrite create_unique. reflexivity.
+    init.
+  - intros. init.
 Qed.
 
 Lemma initial_iso :
@@ -158,9 +158,9 @@ Qed.
 
 Lemma iso_to_init_is_init :
   forall (C : Cat) (I X : Ob C),
-    I ~ X -> HasInit' I -> HasInit' X.
+    Iso I X -> HasInit' I -> HasInit' X.
 Proof.
-  intros C I X HIso hi.
+  intros C I X (f & g) hi.
 (*   intros C I c H X f (f' & Heq1 & Heq2) Y g.
   rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
   reflexivity. *)
@@ -173,8 +173,7 @@ Proof.
   unfold isRet.
   intros.
   exists (create X).
-  rewrite create_unique; symmetry; rewrite create_unique.
-  reflexivity.
+  init.
 Qed.
 
 Lemma HasTerm'_uiso :
@@ -189,9 +188,9 @@ Proof.
   exists (delete T1).
   split.
   - unfold isIso.
-    exists (delete T2). init.
-    split; rewrite !delete_unique; symmetry; rewrite delete_unique; reflexivity.
-  - intros. symmetry. rewrite delete_unique. reflexivity.
+    exists (delete T2).
+    term.
+  - intros. term.
 Qed.
 
 Lemma HasTerm'_iso :
@@ -229,6 +228,5 @@ Proof.
   unfold isSec.
   intros.
   exists (delete X).
-  rewrite delete_unique; symmetry; rewrite delete_unique.
-  reflexivity.
+  term.
 Qed.

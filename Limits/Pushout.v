@@ -65,11 +65,11 @@ Proof.
   rewrite <- dual_pullback_pushout in H0.
   destruct (pullback_uiso H H0). cbn in *.
   exists x. cat.
-    rewrite Dual_isIso. assumption.
+    rewrite isIso_Dual. assumption.
     symmetry. assumption.
     symmetry. assumption.
     apply H2. cat.
-      rewrite Dual_isIso. assumption.
+      rewrite isIso_Dual. assumption.
         symmetry. assumption.
         symmetry. assumption.
 Qed.

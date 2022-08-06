@@ -125,10 +125,10 @@ Proof.
   rewrite <- dual_equalizer_coequalizer in H0.
   destruct (equalizer_uiso H H0).
   exists x. repeat split.
-    rewrite <- Dual_isIso. cat.
+    rewrite isIso_Dual. cat.
     cat. rewrite H3. reflexivity.
     intros. cat. apply H4. cat.
-      rewrite Dual_isIso. assumption.
+      rewrite isIso_Dual. assumption.
       rewrite H3. reflexivity.
 Qed.
 
@@ -140,9 +140,10 @@ Lemma isEpi_coequalizer :
       coequalizer C f g Q q cofactorize -> isEpi q.
 Proof.
   intro C. rewrite <- (Dual_Dual C); cbn; intros.
-  rewrite <- Dual_isMono_isEpi.
-  rewrite <- dual_equalizer_coequalizer in *.
-  eapply isMono_equalizer. eauto.
+  rewrite isEpi_Dual.
+  eapply isMono_equalizer.
+  rewrite dual_equalizer_coequalizer.
+  eassumption.
 Qed.
 
 Lemma coequalizer_mono_is_iso :
@@ -153,11 +154,10 @@ Lemma coequalizer_mono_is_iso :
       coequalizer C f g Q q cofactorize -> isMono q -> isIso q.
 Proof.
   intro C. rewrite <- (Dual_Dual C); cbn; intros.
-  rewrite Dual_isMono_isEpi in H0.
-  rewrite <- Dual_isIso.
+  rewrite isIso_Dual.
   apply (@equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).
-    rewrite dual_equalizer_coequalizer. exact H.
-    exact H0.
+  - rewrite dual_equalizer_coequalizer. exact H.
+  - rewrite isEpi_Dual. exact H0.
 Qed.
 
 Section HasCoequalizers.
