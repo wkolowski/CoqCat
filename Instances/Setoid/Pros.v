@@ -181,14 +181,14 @@ Proof.
   all: pros.
 Defined.
 
-Definition Pros_proj1 (X Y : Pros) : ProsHom (Pros_prodOb X Y) X.
+Definition Pros_outl (X Y : Pros) : ProsHom (Pros_prodOb X Y) X.
 Proof.
-  red. exists (CoqSetoid_proj1 X Y). pros.
+  red. exists (CoqSetoid_outl X Y). pros.
 Defined.
 
-Definition Pros_proj2 (X Y : Pros) : ProsHom (Pros_prodOb X Y) Y.
+Definition Pros_outr (X Y : Pros) : ProsHom (Pros_prodOb X Y) Y.
 Proof.
-  red. exists (CoqSetoid_proj2 X Y). pros.
+  red. exists (CoqSetoid_outr X Y). pros.
 Defined.
 
 Definition Pros_fpair
@@ -202,8 +202,8 @@ Defined.
 Instance HasProducts_Pros : HasProducts ProsCat :=
 {
   prodOb := Pros_prodOb;
-  outl := Pros_proj1;
-  outr := Pros_proj2;
+  outl := Pros_outl;
+  outr := Pros_outr;
   fpair := @Pros_fpair
 }.
 Proof.

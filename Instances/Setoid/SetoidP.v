@@ -47,14 +47,14 @@ Proof. cat; destruct (f x); cat. Defined.
 Instance HasZero_SetP : HasZero SetP := {}.
 Proof. cat. Defined.
 
-Definition SetP_proj1 (X Y : Set) (p : sumprod X Y) : option X :=
+Definition SetP_outl (X Y : Set) (p : sumprod X Y) : option X :=
 match p with
 | inl' x => Some x
 | pair' x _ => Some x
 | _ => None
 end.
 
-Definition SetP_proj2 (X Y : Set) (p : sumprod X Y) : option Y :=
+Definition SetP_outr (X Y : Set) (p : sumprod X Y) : option Y :=
 match p with
 | inr' y => Some y
 | pair' _ y => Some y
@@ -75,8 +75,8 @@ end.
 Instance HasProducts_SetP : HasProducts SetP :=
 {
   prodOb := sumprod;
-  outl := SetP_proj1;
-  outr := SetP_proj2;
+  outl := SetP_outl;
+  outr := SetP_outr;
   fpair := SetP_fpair
 }.
 Proof.

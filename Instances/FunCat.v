@@ -33,7 +33,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_proj1
+Instance FunCat_outl
   {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
 {
   component := fun _ : Ob C => outl
@@ -44,7 +44,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_proj2
+Instance FunCat_outr
   {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
 {
   component := fun _ : Ob C => outr
@@ -71,8 +71,8 @@ Defined.
 Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunCat C D) :=
 {
   prodOb := FunCat_prodOb;
-  outl := @FunCat_proj1 C D hp;
-  outr := @FunCat_proj2 C D hp;
+  outl := @FunCat_outl C D hp;
+  outr := @FunCat_outr C D hp;
   fpair := fun (G H F : Functor C D) (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H) =>
     @FunCat_fpair C D hp F G H α β
 }.

@@ -58,7 +58,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_proj1 (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
+Instance CAT_outl (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
 {
   fob := fst;
   fmap := fun _ _ => fst
@@ -67,7 +67,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_proj2 (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
+Instance CAT_outr (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
 {
   fob := snd;
   fmap := fun _ _ => snd
@@ -103,8 +103,8 @@ Defined.
 Instance HasProducts_CAT : HasProducts CAT :=
 {
   prodOb := CAT_prodOb;
-  outl := CAT_proj1;
-  outr := CAT_proj2;
+  outl := CAT_outl;
+  outr := CAT_outr;
   fpair := CAT_fpair
 }.
 Proof.

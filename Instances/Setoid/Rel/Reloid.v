@@ -155,17 +155,17 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_proj1 (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) X :=
+Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) X :=
 {
-  func := CoqSetoid_proj1 X Y
+  func := CoqSetoid_outl X Y
 }.
 Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_proj2 (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) Y :=
+Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) Y :=
 {
-  func := CoqSetoid_proj2 X Y
+  func := CoqSetoid_outr X Y
 }.
 Proof. reloid. Defined.
 
@@ -184,8 +184,8 @@ Proof. reloid. Defined.
 Instance HasProducts_Reloid : HasProducts ReloidCat :=
 {
   prodOb := Reloid_prodOb;
-  outl := Reloid_proj1;
-  outr := Reloid_proj2;
+  outl := Reloid_outl;
+  outr := Reloid_outr;
   fpair := Reloid_fpair;
 }.
 Proof.

@@ -110,19 +110,19 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_proj1
+Instance ReflexiveReloid_outl
   (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_prodOb X Y) X :=
 {
-  func := Reloid_proj1 X Y
+  func := Reloid_outl X Y
 }.
 Proof. rreloid. Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_proj2
+Instance ReflexiveReloid_outr
   (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_prodOb X Y) Y :=
 {
-  func := Reloid_proj2 X Y
+  func := Reloid_outr X Y
 }.
 Proof. rreloid. Defined.
 
@@ -141,8 +141,8 @@ Proof. rreloid. Defined.
 Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
 {
   prodOb := ReflexiveReloid_prodOb;
-  outl := ReflexiveReloid_proj1;
-  outr := ReflexiveReloid_proj2;
+  outl := ReflexiveReloid_outl;
+  outr := ReflexiveReloid_outr;
   fpair := ReflexiveReloid_fpair;
 }.
 Proof.

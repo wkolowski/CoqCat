@@ -321,14 +321,14 @@ Proof.
   sgr.
 Defined.
 
-Definition Sgr_proj1 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
+Definition Sgr_outl (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
 Proof.
-  exists (CoqSetoid_proj1 X Y). sgr.
+  exists (CoqSetoid_outl X Y). sgr.
 Defined.
 
-Definition Sgr_proj2 (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
+Definition Sgr_outr (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
 Proof.
-  exists (CoqSetoid_proj2 X Y). sgr.
+  exists (CoqSetoid_outr X Y). sgr.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B) : SgrHom X (Sgr_prodOb A B).
@@ -341,8 +341,8 @@ Defined.
 Instance HasProducts_Sgr : HasProducts SgrCat :=
 {
   prodOb := Sgr_prodOb;
-  outl := Sgr_proj1;
-  outr := Sgr_proj2;
+  outl := Sgr_outl;
+  outr := Sgr_outr;
   fpair := Sgr_fpair
 }.
 Proof. all: sgr. Defined.

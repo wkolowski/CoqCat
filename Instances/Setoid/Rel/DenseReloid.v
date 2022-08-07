@@ -123,17 +123,17 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_proj1 (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) X :=
+Instance DenseReloid_outl (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) X :=
 {
-  func := Reloid_proj1 X Y
+  func := Reloid_outl X Y
 }.
 Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_proj2 (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) Y :=
+Instance DenseReloid_outr (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) Y :=
 {
-  func := Reloid_proj2 X Y
+  func := Reloid_outr X Y
 }.
 Proof. reloid. Defined.
 
@@ -152,8 +152,8 @@ Proof. reloid. Defined.
 Instance HasProducts_DenseReloid : HasProducts DenseReloidCat :=
 {
   prodOb := DenseReloid_prodOb;
-  outl := DenseReloid_proj1;
-  outr := DenseReloid_proj2;
+  outl := DenseReloid_outl;
+  outr := DenseReloid_outr;
   fpair := DenseReloid_fpair;
 }.
 Proof.

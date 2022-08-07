@@ -526,14 +526,14 @@ Instance Mon_prodOb (X Y : Mon) : Mon :=
 }.
 Proof. all: destruct a; mon. Defined.
 
-Definition Mon_proj1 (X Y : Mon) : Hom (Mon_prodOb X Y) X.
+Definition Mon_outl (X Y : Mon) : Hom (Mon_prodOb X Y) X.
 Proof.
-  mon_simpl. exists (Sgr_proj1 X Y). mon.
+  mon_simpl. exists (Sgr_outl X Y). mon.
 Defined.
 
-Definition Mon_proj2 (X Y : Mon) : Hom (Mon_prodOb X Y) Y.
+Definition Mon_outr (X Y : Mon) : Hom (Mon_prodOb X Y) Y.
 Proof.
-  mon_simpl. exists (Sgr_proj2 X Y). mon.
+  mon_simpl. exists (Sgr_outr X Y). mon.
 Defined.
 
 Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
@@ -547,8 +547,8 @@ Defined.
 Instance HasProducts_Mon : HasProducts MonCat :=
 {
   prodOb := Mon_prodOb;
-  outl := Mon_proj1;
-  outr := Mon_proj2;
+  outl := Mon_outl;
+  outr := Mon_outr;
   fpair := Mon_fpair
 }.
 Proof.

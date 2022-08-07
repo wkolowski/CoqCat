@@ -108,17 +108,17 @@ Proof. split; sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_proj1 (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) X :=
+Instance SymReloid_outl (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) X :=
 {
-  func := Reloid_proj1 X Y
+  func := Reloid_outl X Y
 }.
 Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_proj2 (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) Y :=
+Instance SymReloid_outr (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) Y :=
 {
-  func := Reloid_proj2 X Y
+  func := Reloid_outr X Y
 }.
 Proof. sreloid. Defined.
 
@@ -137,8 +137,8 @@ Proof. sreloid. Defined.
 Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
 {
   prodOb := SymReloid_prodOb;
-  outl := SymReloid_proj1;
-  outr := SymReloid_proj2;
+  outl := SymReloid_outl;
+  outr := SymReloid_outr;
   fpair := SymReloid_fpair;
 }.
 Proof.

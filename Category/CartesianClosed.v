@@ -99,7 +99,7 @@ Proof.
     with (curry (uncurry (id (expOb (term C) Y)))).
     + rewrite computation_rule. reflexivity.
     + rewrite !curry_uncurry. admit.
-  - rewrite <- comp_assoc, fpair_pre, delete_unique, comp_id_r.
+  - rewrite <- comp_assoc, <- fpair_pre, delete_unique, comp_id_r.
     admit.
 Abort.
 

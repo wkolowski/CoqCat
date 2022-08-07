@@ -27,7 +27,7 @@ Proof.
     rewrite <- fpair_id.
       destruct (is_product _ _ _ (create (init C)) (create X)) as [[H1 H2] H3].
         rewrite <- H3.
-          rewrite fpair_pre. apply Proper_fpair.
+          rewrite <- fpair_pre. apply Proper_fpair.
             assert (create (init C) == id (init C)). init.
               rewrite H. cat.
             destruct d, HasProducts_Distributive. cbn in *.

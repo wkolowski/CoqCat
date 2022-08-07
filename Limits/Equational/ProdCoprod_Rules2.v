@@ -17,10 +17,10 @@ Class HasProducts (C : Cat) : Type :=
     forall X Y : Ob C,
       fpair outl outr == id (prodOb X Y);
 (* cancellation *)
-  fpair_proj1 :
+  fpair_outl :
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
       fpair f g .> outl == f;
-  fpair_proj2 :
+  fpair_outr :
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
       fpair f g .> outr == g;
 (* fusion *)
@@ -38,8 +38,8 @@ Ltac prod := intros; try split;
 repeat match goal with
 | |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
 | |- context [_ .> fpair _ _] => rewrite <- fpair_pre
-| |- context [fpair _ _ .> outl] => rewrite fpair_proj1
-| |- context [fpair _ _ .> outr] => rewrite fpair_proj2
+| |- context [fpair _ _ .> outl] => rewrite fpair_outl
+| |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
 | |- fpair _ _ == fpair _ _ => apply Proper_fpair
@@ -192,8 +192,8 @@ Instance hpeq_hp (C : Cat) (hp_eq : HasProducts C) : ProdCoprod.HasProducts C :=
 }.
 Proof.
   unfold ProdCoprod.product, setoid_unique. cat.
-    rewrite fpair_proj1. reflexivity.
-    rewrite fpair_proj2. reflexivity.
+    rewrite fpair_outl. reflexivity.
+    rewrite fpair_outr. reflexivity.
     rewrite H, H0. rewrite fpair_pre, fpair_id, comp_id_r. reflexivity.
 Defined.
 

@@ -99,8 +99,8 @@ Proof. pos. Defined.
 Instance HasProducts_Pos : HasProducts PosCat :=
 {
   prodOb := Pos_prodOb;
-  outl := Pros_proj1;
-  outr := Pros_proj2;
+  outl := Pros_outl;
+  outr := Pros_outr;
   fpair := @Pros_fpair
 }.
 Proof.

@@ -2,6 +2,8 @@ From Cat Require Export Cat.
 
 Set Implicit Arguments.
 
+Section Traditional.
+
 Definition product
   (C : Cat) {A B : Ob C}
   (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
@@ -273,6 +275,8 @@ Proof.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
 Qed.
 
+End Traditional.
+
 Class HasProducts (C : Cat) : Type :=
 {
   prodOb : Ob C -> Ob C -> Ob C;
@@ -285,43 +289,9 @@ Class HasProducts (C : Cat) : Type :=
 }.
 
 Arguments prodOb {C HasProducts} _ _.
-Arguments outl  {C HasProducts A B}.
-Arguments outr  {C HasProducts A B}.
+Arguments outl   {C HasProducts A B}.
+Arguments outr   {C HasProducts A B}.
 Arguments fpair  {C HasProducts A B X} _ _.
-
-Lemma fpair_proj1 :
-  forall (C : Cat) (hp : HasProducts C) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-    fpair f g .> outl == f.
-Proof.
-  destruct hp; cbn; intros. do 2 red in is_product0.
-  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
-  rewrite <- H1. reflexivity.
-Qed.
-
-Lemma fpair_proj2 :
-  forall (C : Cat) (hp : HasProducts C) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-    fpair f g .> outr == g.
-Proof.
-  destruct hp; cbn; intros. do 2 red in is_product0.
-  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
-  rewrite <- H2. reflexivity.
-Qed.
-
-Lemma fpair_pre :
-  forall
-    (C : Cat) (hp : HasProducts C)
-    (A B X Y : Ob C) (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
-      f .> fpair g1 g2 == fpair (f .> g1) (f .> g2).
-Proof.
-  destruct hp; cbn; intros. do 2 red in is_product0.
-  destruct (is_product0 X Y A (f .> g1) (f .> g2)) as [_ H3].
-  destruct (is_product0 X Y B g1 g2) as [[H1' H2'] _].
-  rewrite <- H3.
-    reflexivity.
-    split.
-      rewrite comp_assoc, <- H1'. reflexivity.
-      rewrite comp_assoc, <- H2'. reflexivity.
-Qed.
 
 Lemma fpair_id :
   forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
@@ -335,28 +305,84 @@ Proof.
     split; cat.
 Qed.
 
+Lemma fpair_outl :
+  forall (C : Cat) (hp : HasProducts C) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
+    fpair f g .> outl == f.
+Proof.
+  destruct hp; cbn; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H1. reflexivity.
+Qed.
+
+Lemma fpair_outr :
+  forall (C : Cat) (hp : HasProducts C) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
+    fpair f g .> outr == g.
+Proof.
+  destruct hp; cbn; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A f g) as [[H1 H2] H3].
+  rewrite <- H2. reflexivity.
+Qed.
+
+Lemma fpair_pre :
+  forall
+    (C : Cat) (hp : HasProducts C)
+    (A B X Y : Ob C) (f : Hom A B) (g1 : Hom B X) (g2 : Hom B Y),
+      fpair (f .> g1) (f .> g2) == f .> fpair g1 g2.
+Proof.
+  destruct hp; cbn; intros. do 2 red in is_product0.
+  destruct (is_product0 X Y A (f .> g1) (f .> g2)) as [_ H3].
+  destruct (is_product0 X Y B g1 g2) as [[H1' H2'] _].
+  rewrite H3.
+    reflexivity.
+    split.
+      rewrite comp_assoc, <- H1'. reflexivity.
+      rewrite comp_assoc, <- H2'. reflexivity.
+Qed.
+
+Lemma fpair_universal :
+  forall
+    {C : Cat} {hp : HasProducts C}
+    {A B X : Ob C} (f : Hom X A) (g : Hom X B) (h : Hom X (prodOb A B)),
+      fpair f g == h <-> f == h .> outl /\ g == h .> outr.
+Proof.
+  split.
+  - intros <-. rewrite fpair_outl, fpair_outr. split; reflexivity.
+  - intros [-> ->]. rewrite fpair_pre, fpair_id, comp_id_r. reflexivity.
+Qed.
+
+Lemma fpair_unique :
+  forall
+    {C : Cat} {hp : HasProducts C}
+    {A B X : Ob C} (f : Hom X A) (g : Hom X B) (h : Hom X (prodOb A B)),
+      h .> outl == f -> h .> outr == g -> h == fpair f g.
+Proof.
+  intros * <- <-.
+  rewrite fpair_pre, fpair_id, comp_id_r.
+  reflexivity.
+Qed.
+
 Lemma fpair_comp :
   forall
     (C : Cat) (hp : HasProducts C) (A X Y X' Y' : Ob C)
     (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
       fpair (f .> h1) (g .> h2) == fpair f g .> fpair (outl .> h1) (outr .> h2).
 Proof.
-  intros. rewrite fpair_pre, <- ?comp_assoc, ?fpair_proj1, ?fpair_proj2. reflexivity.
+  intros. rewrite <- fpair_pre, <- ?comp_assoc, ?fpair_outl, ?fpair_outr. reflexivity.
 Qed.
 
 Lemma fpair_pre_id :
   forall (C : Cat) (hp : HasProducts C) (A X Y : Ob C) (f : Hom A (prodOb X Y)),
     fpair (f .> outl) (f .> outr) == f.
 Proof.
-  intros. rewrite <- fpair_pre, fpair_id, comp_id_r. reflexivity.
+  intros. rewrite fpair_pre, fpair_id, comp_id_r. reflexivity.
 Qed.
 
 Ltac fpair := intros; try split;
 repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite fpair_pre
-| |- context [fpair _ _ .> outl] => rewrite fpair_proj1
-| |- context [fpair _ _ .> outr] => rewrite fpair_proj2
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
+| |- context [fpair _ _ .> outl] => rewrite fpair_outl
+| |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- ?x == ?x => reflexivity
 | |- fpair _ _ == fpair _ _ => apply Proper_fpair
@@ -368,7 +394,7 @@ repeat match goal with
 | _ => rewrite <- ?comp_assoc; auto
 end.
 
-#[global] Hint Rewrite fpair_pre_id fpair_pre fpair_proj1 fpair_proj2 fpair_id : fpair'_base.
+#[global] Hint Rewrite fpair_pre_id fpair_pre fpair_outl fpair_outr fpair_id : fpair'_base.
 
 Ltac fpair' := autorewrite with fpair'_base.
 
@@ -753,26 +779,26 @@ Set Warnings "require-in-module".
 
 #[refine]
 #[export]
-Instance Simplify_fpair_proj1
+Instance Simplify_fpair_outl
   (C : Cat) (hp : HasProducts C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var outl)) | 1 :=
 {
   simplify := Var f
 }.
 Proof.
-  cbn. rewrite fpair_proj1. reflexivity.
+  cbn. rewrite fpair_outl. reflexivity.
 Defined.
 
 #[refine]
 #[export]
-Instance Simplify_fpair_proj2
+Instance Simplify_fpair_outr
   (C : Cat) (hp : HasProducts C) (X Y Z : Ob C) (f : Hom X Y) (g : Hom X Z)
   : Simplify (Comp (Var (fpair f g)) (Var outr)) | 1 :=
 {
   simplify := Var g
 }.
 Proof.
-  cbn. rewrite fpair_proj2. reflexivity.
+  cbn. rewrite fpair_outr. reflexivity.
 Defined.
 
 #[refine]
@@ -826,3 +852,170 @@ end.
 (* TODO: class-based simplification *)
 
 End Tactic.
+
+Module Universal.
+
+Class HasProducts (C : Cat) : Type :=
+{
+  prodOb : Ob C -> Ob C -> Ob C;
+  outl : forall {A B : Ob C}, Hom (prodOb A B) A;
+  outr : forall {A B : Ob C}, Hom (prodOb A B) B;
+  fpair :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
+  Proper_fpair :>
+    forall (A B X : Ob C),
+      Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
+  universal :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B) (h : Hom X (prodOb A B)),
+      fpair f g == h <-> f == h .> outl /\ g == h .> outr
+}.
+
+Arguments prodOb {C HasProducts} _ _.
+Arguments outl   {C HasProducts A B}.
+Arguments outr   {C HasProducts A B}.
+Arguments fpair  {C HasProducts A B X} _ _.
+
+Section HasProducts.
+
+Context
+  [C : Cat] [hp : HasProducts C]
+  [A B X Y : Ob C]
+  (f : Hom X A) (g : Hom X B).
+
+(** (outl x, outr x) = x *)
+Lemma fpair_id :
+  fpair outl outr == id (prodOb A B).
+Proof.
+  rewrite universal, !comp_id_l.
+  split; reflexivity.
+Qed.
+
+(** outl (x, y) = x *)
+Lemma fpair_outl :
+  fpair f g .> outl == f.
+Proof.
+  destruct (universal f g (fpair f g)) as [[<- _] _]; reflexivity.
+Qed.
+
+(** outr (x, y) = y *)
+Lemma fpair_outr :
+  fpair f g .> outr == g.
+Proof.
+  destruct (universal f g (fpair f g)) as [[_ <-] _]; reflexivity.
+Qed.
+
+Lemma fpair_pre :
+  forall h : Hom Y X,
+    fpair (h .> f) (h .> g) == h .> fpair f g.
+Proof.
+  intros h.
+  rewrite universal, !comp_assoc, fpair_outl, fpair_outr.
+  split; reflexivity.
+Qed.
+
+End HasProducts.
+
+End Universal.
+
+Module UniversalEquiv.
+
+#[refine]
+#[export]
+Instance to (C : Cat) (hp : HasProducts C) : Universal.HasProducts C :=
+{
+  prodOb := @prodOb C hp;
+  outl := @outl C hp;
+  outr := @outr C hp;
+  fpair := @fpair C hp;
+}.
+Proof.
+  apply @fpair_universal.
+Defined.
+
+#[refine]
+#[export]
+Instance from (C : Cat) (hp : Universal.HasProducts C) : HasProducts C :=
+{
+  prodOb := @Universal.prodOb C hp;
+  outl := @Universal.outl C hp;
+  outr := @Universal.outr C hp;
+  fpair := @Universal.fpair C hp;
+}.
+Proof.
+  unfold product, setoid_unique.
+  intros A B X f g; split.
+  - rewrite Universal.fpair_outl, Universal.fpair_outr. split; reflexivity.
+  - intros h [-> ->].
+    rewrite Universal.fpair_pre, Universal.fpair_id, comp_id_r.
+    reflexivity.
+Defined.
+
+End UniversalEquiv.
+
+Module Rules.
+
+Class HasProducts (C : Cat) : Type :=
+{
+  prodOb : Ob C -> Ob C -> Ob C;
+  outl : forall {A B : Ob C}, Hom (prodOb A B) A;
+  outr : forall {A B : Ob C}, Hom (prodOb A B) B;
+  fpair :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
+  Proper_fpair :>
+    forall (A B X : Ob C),
+      Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
+  comp_l :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
+      fpair f g .> outl == f;
+  comp_r :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B),
+      fpair f g .> outr == g;
+  unique :
+    forall {A B X : Ob C} (f : Hom X A) (g : Hom X B) (h : Hom X (prodOb A B)),
+      h .> outl == f -> h .> outr == g -> h == fpair f g;
+}.
+
+Arguments prodOb {C HasProducts} _ _.
+Arguments outl   {C HasProducts A B}.
+Arguments outr   {C HasProducts A B}.
+Arguments fpair  {C HasProducts A B X} _ _.
+
+End Rules.
+
+Module RulesEquiv.
+
+#[refine]
+#[export]
+Instance to (C : Cat) (hp : HasProducts C) : Rules.HasProducts C :=
+{
+  prodOb := @prodOb C hp;
+  outl := @outl C hp;
+  outr := @outr C hp;
+  fpair := @fpair C hp;
+}.
+Proof.
+  - apply fpair_outl.
+  - apply fpair_outr.
+  - intros A B X f g h <- <-.
+    rewrite fpair_pre, fpair_id, comp_id_r.
+    reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance from (C : Cat) (hp : Rules.HasProducts C) : HasProducts C :=
+{
+  prodOb := @Rules.prodOb C hp;
+  outl := @Rules.outl C hp;
+  outr := @Rules.outr C hp;
+  fpair := @Rules.fpair C hp;
+}.
+Proof.
+  - unfold product, setoid_unique.
+    intros A B X f g; split.
+    + rewrite Rules.comp_l, Rules.comp_r. split; reflexivity.
+    + intros y [-> ->].
+      symmetry; apply Rules.unique; reflexivity.
+Defined.
+
+End RulesEquiv.

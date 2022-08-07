@@ -108,17 +108,17 @@ Proof. split; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_proj1 (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) X :=
+Instance TransReloid_outl (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) X :=
 {
-  func := Reloid_proj1 X Y
+  func := Reloid_outl X Y
 }.
 Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_proj2 (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) Y :=
+Instance TransReloid_outr (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) Y :=
 {
-  func := Reloid_proj2 X Y
+  func := Reloid_outr X Y
 }.
 Proof. treloid. Defined.
 
@@ -137,8 +137,8 @@ Proof. treloid. Defined.
 Instance HasProducts_TransReloid : HasProducts TransReloidCat :=
 {
   prodOb := TransReloid_prodOb;
-  outl := TransReloid_proj1;
-  outr := TransReloid_proj2;
+  outl := TransReloid_outl;
+  outr := TransReloid_outr;
   fpair := TransReloid_fpair;
 }.
 Proof.

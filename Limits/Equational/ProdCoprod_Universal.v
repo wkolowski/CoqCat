@@ -12,7 +12,7 @@ Class HasProducts (C : Cat) : Type :=
   Proper_fpair :>
     forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
-  universal :
+  fpair_universal :
     forall {A B X : Ob C} (f : Hom X A) (g : Hom X B) (h : Hom X (prodOb A B)),
       fpair f g == h <-> f == h .> outl /\ g == h .> outr
 }.
@@ -33,7 +33,7 @@ Context
 Lemma fpair_id :
   fpair outl outr == id (prodOb A B).
 Proof.
-  rewrite universal, !comp_id_l.
+  rewrite fpair_universal, !comp_id_l.
   split; reflexivity.
 Qed.
 
@@ -41,14 +41,14 @@ Qed.
 Lemma fpair_outl :
   fpair f g .> outl == f.
 Proof.
-  destruct (universal f g (fpair f g)) as [[<- _] _]; reflexivity.
+  destruct (fpair_universal f g (fpair f g)) as [[<- _] _]; reflexivity.
 Qed.
 
 (** outr (x, y) = y *)
 Lemma fpair_outr :
   fpair f g .> outr == g.
 Proof.
-  destruct (universal f g (fpair f g)) as [[_ <-] _]; reflexivity.
+  destruct (fpair_universal f g (fpair f g)) as [[_ <-] _]; reflexivity.
 Qed.
 
 Lemma fpair_pre :
@@ -56,7 +56,7 @@ Lemma fpair_pre :
     fpair (h .> f) (h .> g) == h .> fpair f g.
 Proof.
   intros h.
-  rewrite universal, !comp_assoc, fpair_outl, fpair_outr.
+  rewrite fpair_universal, !comp_assoc, fpair_outl, fpair_outr.
   split; reflexivity.
 Qed.
 
@@ -81,8 +81,8 @@ end.
 
 Ltac prod' := cbn; intros; try split;
 repeat match goal with
-| |- context [fpair _ _ == _] => rewrite universal
-| H : fpair _ _ == _ |- _ => rewrite universal in H
+| |- context [fpair _ _ == _] => rewrite fpair_universal
+| H : fpair _ _ == _ |- _ => rewrite fpair_universal in H
 | |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
 | |- context [_ .> fpair _ _] => rewrite <- fpair_pre
 | |- context [fpair _ _ .> outl] => rewrite fpair_outl
@@ -120,7 +120,7 @@ Class HasCoproducts (C : Cat) : Type :=
   Proper_copair :>
     forall (A B X : Ob C),
       Proper (equiv ==> equiv ==> equiv) (@copair A B X);
-  universal' :
+  fpair_universal' :
     forall {A B X : Ob C} (f : Hom A X) (g : Hom B X) (h : Hom (coprodOb A B) X),
       copair f g == h <-> f == finl .> h /\ g == finr .> h
 }.
@@ -140,20 +140,20 @@ Context
 Lemma copair_id :
   copair finl finr == id (coprodOb X Y).
 Proof.
-  rewrite universal'.
+  rewrite fpair_universal'.
   cat.
 Qed.
 
 Lemma copair_finl :
   finl .> copair f g == f.
 Proof.
-  destruct (universal' f g (copair f g)) as [[<- _] _]; reflexivity.
+  destruct (fpair_universal' f g (copair f g)) as [[<- _] _]; reflexivity.
 Qed.
 
 Lemma copair_finr :
   finr .> copair f g == g.
 Proof.
-  destruct (universal' f g (copair f g)) as [[_ <-] _]; reflexivity.
+  destruct (fpair_universal' f g (copair f g)) as [[_ <-] _]; reflexivity.
 Qed.
 
 Lemma copair_post :
@@ -161,7 +161,7 @@ Lemma copair_post :
     copair (f .> h) (g .> h) == copair f g .> h.
 Proof.
   intros h.
-  rewrite universal', <- !comp_assoc, copair_finl, copair_finr.
+  rewrite fpair_universal', <- !comp_assoc, copair_finl, copair_finr.
   split; reflexivity.
 Qed.
 
@@ -186,7 +186,7 @@ end.
 
 Ltac coprod' := intros; try split;
 repeat match goal with
-| |- context [copair _ _ == _] => rewrite universal'
+| |- context [copair _ _ == _] => rewrite fpair_universal'
 (* | |- context [_ == copair _ _] =>  *)
 | |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite copair_post, copair_id
 | |- context [copair _ _ .> _] => rewrite <- copair_post
@@ -211,7 +211,7 @@ Lemma copair_comp :
 Proof.
   intros.
   rewrite
-    universal',
+    fpair_universal',
     <- !comp_assoc, copair_finl, copair_finr,
     !comp_assoc, copair_finl, copair_finr.
   split; reflexivity.

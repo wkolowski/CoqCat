@@ -124,7 +124,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_proj1 (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) X :=
+Instance SetoidRel_outl (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) X :=
 {
   rel := fun (p : X + Y) (x : X) =>
     match p with
@@ -136,7 +136,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_proj2 (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) Y :=
+Instance SetoidRel_outr (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) Y :=
 {
   rel := fun (p : X + Y) (y : Y) =>
     match p with
@@ -164,8 +164,8 @@ Proof. rel. Defined.
 Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
 {
   prodOb := SetoidRel_prodOb;
-  outl := SetoidRel_proj1;
-  outr := SetoidRel_proj2;
+  outl := SetoidRel_outl;
+  outr := SetoidRel_outr;
   fpair := SetoidRel_fpair
 }.
 Proof.

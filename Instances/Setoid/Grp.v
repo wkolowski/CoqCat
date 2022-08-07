@@ -493,14 +493,14 @@ Instance Grp_prodOb (X Y : Grp) : Grp :=
 }.
 Proof. all: destruct x; grp. Defined.
 
-Definition Grp_proj1 (X Y : Grp) : Hom (Grp_prodOb X Y) X.
+Definition Grp_outl (X Y : Grp) : Hom (Grp_prodOb X Y) X.
 Proof.
-  grp_simpl. exists (Mon_proj1 X Y). grp.
+  grp_simpl. exists (Mon_outl X Y). grp.
 Defined.
 
-Definition Grp_proj2 (X Y : Grp) : Hom (Grp_prodOb X Y) Y.
+Definition Grp_outr (X Y : Grp) : Hom (Grp_prodOb X Y) Y.
 Proof.
-  grp_simpl. exists (Mon_proj2 X Y). grp.
+  grp_simpl. exists (Mon_outr X Y). grp.
 Defined.
 
 Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_prodOb A B).
@@ -513,8 +513,8 @@ Defined.
 Instance HasProducts_Grp : HasProducts GrpCat :=
 {
   prodOb := Grp_prodOb;
-  outl := Grp_proj1;
-  outr := Grp_proj2;
+  outl := Grp_outl;
+  outr := Grp_outr;
   fpair := Grp_fpair
 }.
 Proof.

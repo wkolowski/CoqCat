@@ -132,12 +132,12 @@ Abort.
 (* TODO : products of linear orders suck because of constructivity *)
 
 (*
-Definition Lin_proj1 (X Y : Lin) : ProsHom (Lin_prod X Y) X.
+Definition Lin_outl (X Y : Lin) : ProsHom (Lin_prod X Y) X.
 Proof.
   red. exists fst. destruct 1, H; try rewrite H; lin.
 Defined.
 
-Definition Lin_proj2 (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
+Definition Lin_outr (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
 Proof.
   red. exists snd. lin'. destruct a, a', H, H; cbn in *.
 Abort.
@@ -149,8 +149,8 @@ Abort.
 TODO: Instance HasProducts_Lin : HasProducts LinCat :=
 {
   prodOb := Lin_prod;
-  outl := Pros_proj1;
-  outr := Pros_proj2;
+  outl := Pros_outl;
+  outr := Pros_outr;
   fpair := @Pros_fpair
 }.
 Proof.

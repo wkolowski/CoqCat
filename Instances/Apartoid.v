@@ -204,12 +204,12 @@ Proof.
     destruct (neq_cotrans _ _ c4 H); auto.
 Defined.
 
-Definition Apartoid_proj1 (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) X.
+Definition Apartoid_outl (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) X.
 Proof.
   red. exists fst. apartoid.
 Defined.
 
-Definition Apartoid_proj2 (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) Y.
+Definition Apartoid_outr (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) Y.
 Proof.
   red. exists snd. apartoid.
 Defined.
@@ -226,8 +226,8 @@ Defined.
 Instance HasProducts_Apartoid : HasProducts ApartoidCat :=
 {
   prodOb := Apartoid_prodOb;
-  outl := Apartoid_proj1;
-  outr := Apartoid_proj2;
+  outl := Apartoid_outl;
+  outr := Apartoid_outr;
   fpair := Apartoid_fpair
 }.
 Proof.

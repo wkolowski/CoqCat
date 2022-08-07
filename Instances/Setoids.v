@@ -119,7 +119,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_proj1 (X Y : Setoid') : SetoidHom (CoqSetoid_prodOb X Y) X :=
+Instance CoqSetoid_outl (X Y : Setoid') : SetoidHom (CoqSetoid_prodOb X Y) X :=
 {
   func := fst
 }.
@@ -127,7 +127,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_proj2 (X Y : Setoid') : SetoidHom (CoqSetoid_prodOb X Y) Y :=
+Instance CoqSetoid_outr (X Y : Setoid') : SetoidHom (CoqSetoid_prodOb X Y) Y :=
 {
   func := snd
 }.
@@ -148,8 +148,8 @@ Proof. setoid. Defined.
 Instance HasProducts_CoqSetoid : HasProducts CoqSetoid :=
 {
   prodOb := CoqSetoid_prodOb;
-  outl := CoqSetoid_proj1;
-  outr := CoqSetoid_proj2;
+  outl := CoqSetoid_outl;
+  outr := CoqSetoid_outr;
   fpair := CoqSetoid_fpair
 }.
 Proof. all: setoid'. Defined.
@@ -211,9 +211,10 @@ Instance HasCoproducts_CoqSetoid : HasCoproducts CoqSetoid :=
   copair := CoqSetoid_copair
 }.
 Proof.
-  all: repeat match goal with
-| p : _ + _ |- _ => destruct p
-| _ => setoid'
+  all: repeat
+  match goal with
+  | p : _ + _ |- _ => destruct p
+  | _ => setoid'
   end.
 Defined.
 

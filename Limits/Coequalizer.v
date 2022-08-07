@@ -42,16 +42,6 @@ Arguments coeq_ob     [C _ X Y] _ _.
 Arguments coeq_mor    [C _ X Y] _ _.
 Arguments cofactorize [C _ X Y f g Q' q'] _.
 
-Class HasBiequalizers (C : Cat) : Type :=
-{
-  HasEqualizers_bi :> HasEqualizers C;
-  HasCoequalizers_bi :> HasCoequalizers C;
-  equalizer_is_coequalizer : forall (X Y : Ob C) (f g : Hom X Y), eq_ob f g = coeq_ob f g
-}.
-
-Coercion HasEqualizers_bi : HasBiequalizers >-> HasEqualizers.
-Coercion HasCoequalizers_bi : HasBiequalizers >-> HasCoequalizers.
-
 #[refine]
 #[export]
 Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
@@ -80,17 +70,6 @@ Proof.
   all: cbn; intros.
     destruct (Proper_coeq_ob Y X f f' g g' H H0). auto.
     destruct (Proper_coeq_mor Y X f f' g g' H H0). auto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasBiequalizers_Dual (C : Cat) (he : HasBiequalizers C) : HasBiequalizers (Dual C) :=
-{
-  HasEqualizers_bi := HasEqualizers_Dual he;
-  HasCoequalizers_bi := HasCoequalizers_Dual he;
-}.
-Proof.
-  simpl. intros. rewrite equalizer_is_coequalizer. trivial.
 Defined.
 
 Section HasCoequalizers.
