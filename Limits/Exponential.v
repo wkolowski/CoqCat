@@ -10,13 +10,63 @@ Definition exponential
       setoid_unique (fun u : Hom E' E =>
         ProductFunctor_fmap u (id X) .> eval == eval') (curry E' eval').
 
+Lemma exponential_uiso :
+  forall
+    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
+    (E : Ob C) (eval : Hom (prodOb E X) Y)
+    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
+    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
+    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
+      exponential X Y E eval curry ->
+      exponential X Y E' eval' curry' ->
+        exists !! f : Hom E E', isIso f /\ f ×' id X .> eval' == eval.
+Proof.
+  intros. do 2 red in H. do 2 red in H0.
+  exists (curry' E eval). repeat split.
+    red. exists (curry E' eval').
+    split.
+      destruct (H E eval) as [H1 H2].
+        rewrite <- (H2 (curry' E eval .> curry E' eval')).
+          rewrite (H2 (id E)).
+            reflexivity.
+            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
+          rewrite ProductFunctor_fmap_comp_l.
+            destruct (H E' eval'), (H0 E eval).
+              rewrite comp_assoc. rewrite H3. rewrite H5. reflexivity.
+      destruct (H0 E' eval') as [H1 H2].
+        rewrite <- (H2 (curry E' eval' .> curry' E eval)).
+          rewrite (H2 (id E')).
+            reflexivity.
+            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
+          rewrite ProductFunctor_fmap_comp_l.
+            destruct (H E' eval'), (H0 E eval).
+              rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
+    intros. edestruct H0. apply H1.
+    intros. edestruct H0. apply H3. rewrite <- H2. apply Proper_comp; cat.
+      apply Proper_ProductFunctor_fmap; cat. rewrite H3; cat.
+Qed.
+
+Arguments exponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
+
+Lemma exponential_iso :
+  forall
+    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
+    (E : Ob C) (eval : Hom (prodOb E X) Y)
+    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
+    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
+    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
+      exponential X Y E eval curry -> exponential X Y E' eval' curry' -> E ~ E'.
+Proof.
+  intros. destruct (exponential_uiso H H0). cat.
+Qed.
+
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall X Y : Ob C, Hom (prodOb (expOb X Y) X) Y;
+  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
   Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
-  is_exponential : forall (X Y : Ob C), exponential X Y (expOb X Y) (eval X Y) (@curry X Y)
+  is_exponential : forall X Y : Ob C, exponential X Y (expOb X Y) eval (@curry X Y)
 }.
 
 Arguments expOb {C hp HasExponentials} _ _.
@@ -44,10 +94,10 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall f : Hom (prodOb (expOb X Y) X) Y,
+  forall {E : Ob C} (f : Hom (prodOb E X) Y),
     curry f ×' id X .> eval == f.
 Proof.
-  intros f.
+  intros E f.
   rewrite <- universal_property.
   reflexivity.
 Qed.
@@ -151,56 +201,6 @@ match goal with
 | |- ?x == ?x => reflexivity
 end.
 
-Lemma exponential_uiso :
-  forall
-    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E : Ob C) (eval : Hom (prodOb E X) Y)
-    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
-    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
-    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential X Y E eval curry ->
-      exponential X Y E' eval' curry' ->
-        exists !! f : Hom E E', isIso f /\ f ×' id X .> eval' == eval.
-Proof.
-  intros. do 2 red in H. do 2 red in H0.
-  exists (curry' E eval0). repeat split.
-    red. exists (curry0 E' eval').
-    split.
-      destruct (H E eval0) as [H1 H2].
-        rewrite <- (H2 (curry' E eval0 .> curry0 E' eval')).
-          rewrite (H2 (id E)).
-            reflexivity.
-            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
-          rewrite ProductFunctor_fmap_comp_l.
-            destruct (H E' eval'), (H0 E eval0).
-              rewrite comp_assoc. rewrite H3. rewrite H5. reflexivity.
-      destruct (H0 E' eval') as [H1 H2].
-        rewrite <- (H2 (curry0 E' eval' .> curry' E eval0)).
-          rewrite (H2 (id E')).
-            reflexivity.
-            rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
-          rewrite ProductFunctor_fmap_comp_l.
-            destruct (H E' eval'), (H0 E eval0).
-              rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
-    intros. edestruct H0. apply H1.
-    intros. edestruct H0. apply H3. rewrite <- H2. apply Proper_comp; cat.
-      apply Proper_ProductFunctor_fmap; cat. rewrite H3; cat.
-Qed.
-
-Arguments exponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
-
-Lemma exponential_iso :
-  forall
-    (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E : Ob C) (eval : Hom (prodOb E X) Y)
-    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
-    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
-    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential X Y E eval curry -> exponential X Y E' eval' curry' -> E ~ E'.
-Proof.
-  intros. destruct (exponential_uiso H H0). cat.
-Qed.
-
 Lemma HasExponentials_unique :
   forall
     {C : Cat} {hp : HasProducts C}
@@ -221,3 +221,330 @@ Instance ExponentialFunctor
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
 Proof. all: curry. Defined.
+
+Module Universal.
+
+Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
+{
+  expOb : Ob C -> Ob C -> Ob C;
+  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
+  universal :
+    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+      curry f == g <-> g ×' id X .> eval == f
+}.
+
+Arguments expOb {C hp HasExponentials} _ _.
+Arguments eval  {C hp HasExponentials X Y}.
+Arguments curry {C hp HasExponentials X Y Z} _.
+
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
+  [X Y Z : Ob C].
+
+Lemma universal_property :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    curry f == g <-> g ×' id X .> eval == f.
+Proof.
+  intros.
+  apply universal.
+Qed.
+
+Lemma computation_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+    curry f ×' id X .> eval == f.
+Proof.
+  intros E f.
+  rewrite <- universal.
+  reflexivity.
+Qed.
+
+Lemma uniqueness_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    g ×' id X .> eval == f -> g == curry f.
+Proof.
+  intros.
+  symmetry.
+  rewrite universal.
+  assumption.
+Qed.
+
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+
+#[export]
+Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
+Proof.
+  intros f g Heq.
+  unfold uncurry.
+  rewrite Heq.
+  reflexivity.
+Qed.
+
+Lemma curry_uncurry :
+  forall f : Hom X (expOb Y Z),
+    curry (uncurry f) == f.
+Proof.
+  intros f.
+  unfold uncurry.
+  rewrite universal.
+  reflexivity.
+Qed.
+
+End Exponential.
+
+Lemma uncurry_curry :
+  forall
+    {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
+    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+      uncurry (curry f) == f.
+Proof.
+  intros C hp he X Y Z f.
+  unfold uncurry.
+  rewrite <- universal.
+  reflexivity.
+Qed.
+
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
+  [X Y Z : Ob C].
+
+Lemma curry_eval :
+  curry eval == id (expOb X Y).
+Proof.
+  rewrite universal.
+  unfold ProductFunctor_fmap.
+  fpair.
+Qed.
+
+Lemma curry_comp :
+  forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
+    curry (eval (X := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+Proof.
+  intros A f g.
+  rewrite universal.
+  rewrite <- (comp_id_l X), ProductFunctor_fmap_comp, comp_assoc.
+  setoid_replace (curry (eval .> g) ×' id X .> eval) with (eval (X := X) .> g)
+    by (rewrite <- universal; reflexivity).
+  rewrite <- comp_assoc.
+  setoid_replace (curry (eval .> f) ×' id X .> eval) with (eval (X := X) .> f)
+    by (rewrite <- universal; reflexivity).
+  rewrite comp_assoc.
+  reflexivity.
+Qed.
+
+Lemma uncurry_id :
+  uncurry (id (expOb X Y)) == eval.
+Proof.
+  unfold uncurry.
+  rewrite <- universal, curry_eval.
+  reflexivity.
+Qed.
+
+End Exponential.
+
+End Universal.
+
+Module UniversalEquiv.
+
+#[refine]
+#[export]
+Instance to (C : Cat) (hp : HasProducts C) (he : HasExponentials C)
+  : Universal.HasExponentials C :=
+{
+  expOb := @expOb C hp he;
+  eval := @eval C hp he;
+  curry := @curry C hp he;
+}.
+Proof.
+  split.
+  - intros <-. apply computation_rule.
+  - intros Heq. symmetry. apply uniqueness_rule. assumption.
+Defined.
+
+#[refine]
+#[export]
+Instance from (C : Cat) (hp : HasProducts C) (he : Universal.HasExponentials C)
+  : HasExponentials C :=
+{
+  expOb := @Universal.expOb C hp he;
+  eval := @Universal.eval C hp he;
+  curry := @Universal.curry C hp he;
+}.
+Proof.
+  unfold exponential, setoid_unique.
+  intros X Y E' eval'; split.
+  - apply Universal.universal. reflexivity.
+  - intros h <-. apply Universal.curry_uncurry.
+Defined.
+
+End UniversalEquiv.
+
+Module Rules.
+
+Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
+{
+  expOb : Ob C -> Ob C -> Ob C;
+  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
+  he_comp :
+    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y),
+      curry f ×' id X .> eval == f;
+  he_unique :
+    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+      g ×' id X .> eval == f -> g == curry f;
+}.
+
+Arguments expOb {C hp HasExponentials} _ _.
+Arguments eval  {C hp HasExponentials X Y}.
+Arguments curry {C hp HasExponentials X Y Z} _.
+
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
+  [X Y Z : Ob C].
+
+Lemma universal_property :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    curry f == g <-> g ×' id X .> eval == f.
+Proof.
+  split.
+  - intros <-. apply he_comp.
+  - intros Heq. symmetry. apply he_unique. assumption.
+Qed.
+
+Lemma computation_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+    curry f ×' id X .> eval == f.
+Proof.
+  intros E f.
+  apply he_comp.
+Qed.
+
+Lemma uniqueness_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    g ×' id X .> eval == f -> g == curry f.
+Proof.
+  intros f.
+  apply he_unique.
+Qed.
+
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+
+#[export]
+Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
+Proof.
+  intros f g Heq.
+  unfold uncurry.
+  rewrite Heq.
+  reflexivity.
+Qed.
+
+Lemma curry_uncurry :
+  forall f : Hom X (expOb Y Z),
+    curry (uncurry f) == f.
+Proof.
+  intros f.
+  unfold uncurry.
+  symmetry.
+  apply he_unique.
+  reflexivity.
+Qed.
+
+End Exponential.
+
+Lemma uncurry_curry :
+  forall
+    {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
+    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+      uncurry (curry f) == f.
+Proof.
+  intros C hp he X Y Z f.
+  unfold uncurry.
+  apply he_comp.
+Qed.
+
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
+  [X Y Z : Ob C].
+
+Lemma curry_eval :
+  curry eval == id (expOb X Y).
+Proof.
+  symmetry; apply he_unique.
+  unfold ProductFunctor_fmap.
+  fpair.
+Qed.
+
+Lemma curry_comp :
+  forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
+    curry (eval (X := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+Proof.
+  intros.
+  symmetry; apply he_unique.
+  rewrite <- (comp_id_l X), ProductFunctor_fmap_comp, comp_assoc.
+  rewrite he_comp, <- comp_assoc, he_comp, comp_assoc.
+  reflexivity.
+Qed.
+
+Lemma uncurry_id :
+  uncurry (id (expOb X Y)) == eval.
+Proof.
+  unfold uncurry.
+  unfold ProductFunctor_fmap.
+  fpair.
+Qed.
+
+End Exponential.
+
+End Rules.
+
+Module RulesEquiv.
+
+#[refine]
+#[export]
+Instance to (C : Cat) (hp : HasProducts C) (he : HasExponentials C)
+  : Rules.HasExponentials C :=
+{
+  expOb := @expOb C hp he;
+  eval := @eval C hp he;
+  curry := @curry C hp he;
+}.
+Proof.
+  - apply computation_rule.
+  - apply uniqueness_rule.
+Defined.
+
+#[refine]
+#[export]
+Instance from (C : Cat) (hp : HasProducts C) (he : Rules.HasExponentials C)
+  : HasExponentials C :=
+{
+  expOb := @Rules.expOb C hp he;
+  eval := @Rules.eval C hp he;
+  curry := @Rules.curry C hp he;
+}.
+Proof.
+  unfold exponential, setoid_unique.
+  intros X Y E' eval'; split.
+  - apply Rules.he_comp.
+  - intros h <-. apply Rules.curry_uncurry.
+Defined.
+
+End RulesEquiv.

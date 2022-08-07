@@ -214,6 +214,7 @@ Proof.
     replace {x : X | f x = g x} with {x : X | f' x = g' x}.
     + constructor. cbn. reflexivity.
     + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
+  - intros X Y f g [x Heq]; cbn. assumption.
   - cbn; intros X Y f f' g g' Hf Hg.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
@@ -229,11 +230,18 @@ Instance HasEqualizers_CoqSet' : HasEqualizers CoqSet :=
   factorize := @CoqSet_factorize;
 }.
 Proof.
-  intros. cbn in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    f_equal. extensionality x. rewrite H, H0. trivial.
+  - intros. cbn in *.
+    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+    {
+      f_equal. extensionality x. rewrite H, H0. trivial.
+    }
     rewrite H1 in *. constructor. reflexivity.
-  intros. cbn in *. assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    f_equal. extensionality x. rewrite H, H0. trivial.
+  - intros X Y f g [x Heq]; cbn. assumption.
+  - intros. cbn in *.
+    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
+    {
+      f_equal. extensionality x. rewrite H, H0. trivial.
+    }
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
 Abort.

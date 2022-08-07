@@ -22,6 +22,9 @@ Class HasCoequalizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
   coeq_mor :
     forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
+  coeq_mor_ok :
+    forall (X Y : Ob C) (f g : Hom X Y),
+      f .> coeq_mor f g == g .> coeq_mor f g;
   Proper_coeq_mor :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
@@ -53,8 +56,9 @@ Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers
 }.
 Proof.
   all: cbn; intros.
-    destruct (Proper_eq_ob Y X f f' g g' H H0). auto.
-    destruct (Proper_eq_mor Y X f f' g g' H H0). auto.
+  - destruct (Proper_eq_ob Y X f f' g g' H H0). auto.
+  - apply eq_mor_ok.
+  - destruct (Proper_eq_mor Y X f f' g g' H H0). auto.
 Defined.
 
 #[refine]
@@ -68,8 +72,9 @@ Instance HasEqualizers_Dual (C : Cat) (he : HasCoequalizers C) : HasEqualizers (
 }.
 Proof.
   all: cbn; intros.
-    destruct (Proper_coeq_ob Y X f f' g g' H H0). auto.
-    destruct (Proper_coeq_mor Y X f f' g g' H H0). auto.
+  - destruct (Proper_coeq_ob Y X f f' g g' H H0). auto.
+  - apply coeq_mor_ok.
+  - destruct (Proper_coeq_mor Y X f f' g g' H H0). auto.
 Defined.
 
 Section HasCoequalizers.
