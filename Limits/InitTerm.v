@@ -18,20 +18,23 @@ Definition isZero
   (delete : forall X : Ob C, Hom X Z)
   : Prop := initial Z create /\ terminal Z delete.
 
-Lemma dual_initial_terminal :
-  forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
-    @initial C X create <-> @terminal (Dual C) X create.
-Proof. cat. Qed.
+Lemma initial_Dual :
+  forall (C : Cat) (X : Ob C) (delete : forall X' : Ob C, Hom X' X),
+    @initial (Dual C) X delete = @terminal C X delete.
+Proof. reflexivity. Defined.
 
-Lemma dual_zero_self :
+Lemma terminal_Dual :
+  forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
+    @terminal (Dual C) X create = @initial C X create.
+Proof. reflexivity. Defined.
+
+Lemma isZero_Dual :
   forall
     (C : Cat) (X : Ob C)
     (create : forall X' : Ob C, Hom X X')
     (delete : forall X' : Ob C, Hom X' X),
-      @isZero C X create delete <-> @isZero (Dual C) X delete create.
-Proof.
-  unfold isZero; cat.
-Qed.
+      @isZero (Dual C) X delete create <-> @isZero C X create delete.
+Proof. firstorder. Defined.
 
 Lemma initial_uiso :
   forall
@@ -108,9 +111,9 @@ Lemma terminal_uiso :
 Proof.
   intro C.
   rewrite <- (Dual_Dual C); cbn; intros.
-  rewrite <- dual_initial_terminal in *.
+  rewrite terminal_Dual in *.
   rewrite Dual_uniquely_isomorphic.
-  eapply initial_uiso; cat.
+  eapply initial_uiso; eassumption.
 Qed.
 
 Lemma terminal_iso :

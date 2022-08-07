@@ -100,14 +100,23 @@ Context
   [X Y : Ob C]
   [f g : Hom X Y].
 
-Lemma dual_equalizer_coequalizer :
+Lemma equalizer_Dual :
+  forall
+    (Q : Ob C) (q : Hom Y Q)
+    (cofactorize : forall (Q' : Ob C) (q' : Hom Y Q'), f .> q' == g .> q' -> Hom Q Q'),
+      @equalizer (Dual C) Y X f g Q q cofactorize
+        =
+      @coequalizer C X Y f g Q q cofactorize.
+Proof. reflexivity. Defined.
+
+Lemma coequalizer_Dual :
   forall
     (E : Ob C) (e : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
-      @equalizer C X Y f g E e factorize
-        <->
-      @coequalizer (Dual C) Y X f g E e factorize.
-Proof. cat. Qed.
+      @coequalizer (Dual C) Y X f g E e factorize
+        =
+      @equalizer C X Y f g E e factorize.
+Proof. reflexivity. Defined.
 
 End HasCoequalizers.
 
@@ -121,8 +130,7 @@ Lemma coequalizer_uiso :
         exists!! f : Hom Q' Q, isIso f /\ q' .> f == q.
 Proof.
   intro. rewrite <- (Dual_Dual C). intros. cbn in *.
-  rewrite <- dual_equalizer_coequalizer in H.
-  rewrite <- dual_equalizer_coequalizer in H0.
+  rewrite coequalizer_Dual in *.
   destruct (equalizer_uiso H H0).
   exists x. repeat split.
     rewrite isIso_Dual. cat.
@@ -142,7 +150,7 @@ Proof.
   intro C. rewrite <- (Dual_Dual C); cbn; intros.
   rewrite isEpi_Dual.
   eapply isMono_equalizer.
-  rewrite dual_equalizer_coequalizer.
+  rewrite coequalizer_Dual in H.
   eassumption.
 Qed.
 
@@ -156,7 +164,7 @@ Proof.
   intro C. rewrite <- (Dual_Dual C); cbn; intros.
   rewrite isIso_Dual.
   apply (@equalizer_epi_is_iso (Dual C) Y X f g _ _ cofactorize0).
-  - rewrite dual_equalizer_coequalizer. exact H.
+  - rewrite coequalizer_Dual in H. exact H.
   - rewrite isEpi_Dual. exact H0.
 Qed.
 

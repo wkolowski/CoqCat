@@ -40,13 +40,25 @@ Arguments push1     [C _ X Y A] _ _.
 Arguments push2     [C _ X Y A] _ _.
 Arguments cofactor  [C _ X Y A f g P p1 p2] _.
 
-Lemma dual_pullback_pushout :
+Lemma pullback_Dual :
+  forall
+    (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
+    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'), f .> p1' == g .> p2' -> Hom P P'),
+      pullback (Dual C) f g P p1 p2 cofactor
+        =
+      pushout C f g P p1 p2 cofactor.
+Proof. reflexivity. Defined.
+
+Lemma pushout_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P),
-      pullback C f g P p1 p2 factor <-> pushout (Dual C) f g P p1 p2 factor.
-Proof. cat. Defined.
+      pushout (Dual C) f g P p1 p2 factor
+        =
+      pullback C f g P p1 p2 factor.
+Proof. reflexivity. Defined.
 
 Lemma pushout_uiso
   (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
@@ -61,8 +73,7 @@ Lemma pushout_uiso
 Proof.
   revert X Y A f g P p1 p2 cofactor Q q1 q2 cofactor'.
   rewrite <- (Dual_Dual C). intros.
-  rewrite <- dual_pullback_pushout in H.
-  rewrite <- dual_pullback_pushout in H0.
+  rewrite pushout_Dual in *.
   destruct (pullback_uiso H H0). cbn in *.
   exists x. cat.
     rewrite isIso_Dual. assumption.

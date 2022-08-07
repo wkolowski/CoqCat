@@ -25,28 +25,36 @@ Definition biproduct
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
   : Prop := product C P pA pB (@fpair) /\ coproduct C P iA iB (@copair).
 
-Lemma dual_product_coproduct :
+Lemma product_Dual :
+  forall
+    (C : Cat) (X Y : Ob C)
+    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
+      product (Dual C) P p1 p2 copair
+        =
+      coproduct C P p1 p2 copair.
+Proof. reflexivity. Defined.
+
+Lemma coproduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-      product C P p1 p2 fpair
-        <->
-      coproduct (Dual C) P p1 p2 fpair.
-Proof. cat. Defined.
+      coproduct (Dual C) P p1 p2 fpair
+        =
+      product C P p1 p2 fpair.
+Proof. reflexivity. Defined.
 
-Lemma dual_biproduct_self :
+Lemma bicoproduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (q1 : Hom X P) (q2 : Hom Y P)
     (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
     (copair : forall (P' : Ob C) (q1' : Hom X P') (q2' : Hom Y P'), Hom P P'),
-      biproduct C P p1 p2 q1 q2 fpair copair
+      biproduct (Dual C) P q1 q2 p1 p2 copair fpair
         <->
-      biproduct (Dual C) P q1 q2 p1 p2 copair fpair.
-Proof.
-  unfold biproduct. cat.
-Qed.
+      biproduct C P p1 p2 q1 q2 fpair copair.
+Proof. firstorder. Defined.
 
 Lemma product_uiso :
   forall
