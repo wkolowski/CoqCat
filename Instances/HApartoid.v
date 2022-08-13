@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct IndexedProduct IndexedCoproduct Equalizer.
+From Cat.Limits Require Import Initial Terminal Product Coproduct IndexedProduct IndexedCoproduct Equalizer.
 
 Class HApartoid : Type :=
 {

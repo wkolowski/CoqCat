@@ -1,7 +1,7 @@
 From CoqAlgs.Sorting Require Import Perm InsertionSort.
 
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct.
+From Cat.Limits Require Import Initial Terminal Product Coproduct.
 From Cat Require Export Instances.Setoid.Mon.
 
 Set Implicit Arguments.

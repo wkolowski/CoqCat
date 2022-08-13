@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm Coproduct IndexedProduct IndexedCoproduct.
+From Cat.Limits Require Import Initial Terminal Coproduct IndexedProduct IndexedCoproduct.
 
 Section Traditional.
 

@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct Exponential.
+From Cat.Limits Require Import Initial Terminal Product Coproduct Exponential.
 From Cat.Instances Require Import Discrete FunCat.
 
 Set Implicit Arguments.

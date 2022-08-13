@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Category Require Import CartesianClosed Monoidal.
-From Cat.Limits Require Import InitTerm Product Coproduct.
+From Cat.Limits Require Import Initial Terminal Product Coproduct.
 From Cat Require Import Instances.Setoids.
 
 Class Enriched (V : Monoidal) : Type :=

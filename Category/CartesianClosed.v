@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct Exponential.
+From Cat.Limits Require Import Initial Terminal Product Coproduct Exponential.
 
 Class CartesianClosed (C : Cat) : Type :=
 {

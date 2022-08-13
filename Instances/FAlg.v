@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct.
+From Cat.Limits Require Import Initial Terminal Product Coproduct.
 
 Definition FAlg {C : Cat} (F : Functor C C) : Type :=
   {X : Ob C & @Hom C (fob F X) X}.

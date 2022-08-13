@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Export InitTerm Product Coproduct.
+From Cat.Limits Require Export Initial Terminal Product Coproduct.
 From Cat Require Export Instances.Setoid.Pros.
 
 #[refine]

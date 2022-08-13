@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import InitTerm Product Coproduct Equalizer.
+From Cat.Limits Require Import Initial Terminal Product Coproduct Equalizer.
 
 Set Implicit Arguments.
 

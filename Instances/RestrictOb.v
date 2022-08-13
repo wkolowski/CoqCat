@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm.
+From Cat.Limits Require Import Initial Terminal.
 
 #[refine]
 #[export]
