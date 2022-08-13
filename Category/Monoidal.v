@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Category Require Import CartesianClosed.
-From Cat.Limits Require Import InitTerm ProdCoprod.
+From Cat.Limits Require Import InitTerm Product Coproduct.
 
 Set Implicit Arguments.
 

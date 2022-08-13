@@ -49,7 +49,8 @@ Proof.
   split.
   - unfold isIso.
     exists (createB A).
-    rewrite (createA_unique _ (id A)), (createB_unique _ (id B)), !createA_unique, !createB_unique.
+    rewrite (createA_unique _ (id A)), (createB_unique _ (id B)),
+            !createA_unique, !createB_unique.
     split; reflexivity.
   - intros. rewrite (createA_unique _ y). reflexivity.
 Qed.

@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm ProdCoprod Exponential.
+From Cat.Limits Require Import InitTerm Product Coproduct Exponential.
 
 Class CartesianClosed (C : Cat) : Type :=
 {
@@ -120,5 +120,5 @@ Proof.
   - term.
   - rewrite <- curry_eval.
     symmetry.
-    apply universal_property. Check curry (delete _).
+    apply universal_property.
 Abort.

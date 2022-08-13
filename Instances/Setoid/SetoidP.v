@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm ProdCoprod.
+From Cat.Limits Require Import InitTerm Product Coproduct.
 
 #[refine]
 #[export]

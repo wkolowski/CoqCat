@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Export InitTerm ProdCoprod.
+From Cat.Limits Require Export InitTerm Product Coproduct.
 
 Definition isExponential
   {C : Cat} {hp : HasProducts C}

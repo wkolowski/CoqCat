@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import ProdCoprod Exponential.
+From Cat.Limits Require Import Product Coproduct Exponential.
 
 Set Implicit Arguments.
 

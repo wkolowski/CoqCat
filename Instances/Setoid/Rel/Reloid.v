@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import InitTerm ProdCoprod IndexedProdCoprod.
+From Cat.Limits Require Import InitTerm Product Coproduct IndexedProduct IndexedCoproduct.
 From Cat Require Export Instances.Setoids.
 
 Set Implicit Arguments.

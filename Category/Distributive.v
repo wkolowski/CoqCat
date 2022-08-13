@@ -1,4 +1,4 @@
-From Cat.Limits Require Import InitTerm ProdCoprod.
+From Cat.Limits Require Import InitTerm Product Coproduct.
 
 Definition distr
   {C : Cat} {hi : HasInit C} {ht : HasTerm C}
