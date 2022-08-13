@@ -1,5 +1,6 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import Initial Terminal Zero Product Coproduct IndexedProduct IndexedCoproduct.
+From Cat.Limits Require Import Initial Terminal Zero Product Coproduct.
+From Cat.Limits.Indexed Require Import Product Coproduct.
 From Cat Require Export Instances.Setoids.
 
 Class SetoidRel (X Y : Setoid') : Type :=

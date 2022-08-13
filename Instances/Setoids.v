@@ -1,6 +1,7 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export Initial Terminal Product Coproduct Equalizer Coequalizer IndexedProduct IndexedCoproduct Exponential.
+From Cat.Limits Require Export Initial Terminal Product Coproduct Equalizer Coequalizer Exponential.
+From Cat.Limits.Indexed Require Import Product Coproduct.
 
 Set Implicit Arguments.
 

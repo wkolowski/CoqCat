@@ -1,5 +1,6 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct IndexedProduct IndexedCoproduct Equalizer Coequalizer.
+From Cat.Limits Require Import Initial Terminal Product Coproduct Equalizer Coequalizer.
+From Cat.Limits.Indexed Require Import Product Coproduct.
 
 Class Apartoid : Type :=
 {
