@@ -71,7 +71,7 @@ Definition particular_colimit
   {J C : Cat} {F : Functor J C}
   (colimitOb : Cocone F)
   (colimitMor : forall K : Cocone F, CoconeHom colimitOb K)
-  : Prop := @initial (CoconeCat F) colimitOb colimitMor.
+  : Prop := @isInitial (CoconeCat F) colimitOb colimitMor.
 
 Definition shaped_colimit
   {J C : Cat}

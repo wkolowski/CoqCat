@@ -336,7 +336,7 @@ Instance HasIndexedProducts_Apartoid : HasIndexedProducts ApartoidCat :=
 Proof.
   (* tuple is proper *) cbn; intros. destruct 1 as [j H'].
     eapply H. eassumption.
-  (* Product law *) unfold indexed_product; red; split;
+  (* Product law *) unfold isIndexedProduct; red; split;
   cbn in *; intros; eauto. destruct 1 as [j H'].
   red in y. destruct y as [y Hy]; cbn in *.
   eapply H; eauto.

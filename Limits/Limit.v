@@ -67,7 +67,7 @@ Definition particular_limit
   {J C : Cat} {F : Functor J C}
   (limitOb : Cone F)
   (limitMor : forall K : Cone F, ConeHom K limitOb)
-  : Prop := @terminal (ConeCat F) limitOb limitMor.
+  : Prop := @isTerminal (ConeCat F) limitOb limitMor.
 
 Definition shaped_limit
   {J C : Cat}

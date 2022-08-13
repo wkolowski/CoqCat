@@ -3,7 +3,7 @@ From Cat.Limits Require Import InitTerm ProdCoprod.
 
 Section Traditional.
 
-Definition indexed_product
+Definition isIndexedProduct
   (C : Cat) {J : Set} {A : J -> Ob C}
   (P : Ob C) (proj : forall j : J, Hom P (A j))
   (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
@@ -11,7 +11,7 @@ Definition indexed_product
     forall (X : Ob C) (f : forall j : J, Hom X (A j)),
       setoid_unique (fun d : Hom X P => forall j : J, f j == d .> proj j) (tuple X f).
 
-Definition indexed_coproduct
+Definition isIndexedCoproduct
   (C : Cat) {J : Set} {A : J -> Ob C}
   (P : Ob C) (coproj : forall j : J, Hom (A j) P)
   (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
@@ -19,24 +19,24 @@ Definition indexed_coproduct
     forall (X : Ob C) (f : forall j : J, Hom (A j) X), 
       setoid_unique (fun d : Hom P X => forall j : J, f j == coproj j .> d) (cotuple X f).
 
-Definition indexed_biproduct
+Definition isIndexedBiproduct
   (C : Cat) {J : Set} {A : J -> Ob C} (P : Ob C)
   (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
   (diag : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
   (codiag : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X)
   : Prop :=
-    indexed_product C P proj diag /\ indexed_coproduct C P coproj codiag.
+    isIndexedProduct C P proj diag /\ isIndexedCoproduct C P coproj codiag.
 
-Lemma indexed_product_iso_unique :
+Lemma isIndexedProduct_iso_unique :
   forall
     (C : Cat) (J : Set) (A : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j))
     (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
     (Q : Ob C) (q : forall j : J, Hom Q (A j))
     (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X Q),
-      indexed_product C P p tuple -> indexed_product C Q q tuple' -> P ~ Q.
+      isIndexedProduct C P p tuple -> isIndexedProduct C Q q tuple' -> P ~ Q.
 Proof.
-  unfold indexed_product, isomorphic, isIso.
+  unfold isIndexedProduct, isomorphic, isIso.
   intros.
   exists (tuple' _ p), (tuple _ q).
   destruct
@@ -53,7 +53,7 @@ Proof.
     + intros. cat. rewrite <- HP1', <- HQ1. reflexivity.
 Qed.
 
-Lemma indexed_product_iso_unique2 :
+Lemma isIndexedProduct_iso_unique2 :
   forall
     (C : Cat) (J : Set) (A B : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j))
@@ -61,9 +61,9 @@ Lemma indexed_product_iso_unique2 :
     (Q : Ob C) (q : forall j : J, Hom Q (B j))
     (u1 : forall (X : Ob C) (f : forall j : J, Hom X (B j)), Hom X Q),
       (forall j : J, A j ~ B j) ->
-      indexed_product C P p u2 -> indexed_product C Q q u1 -> P ~ Q.
+      isIndexedProduct C P p u2 -> isIndexedProduct C Q q u1 -> P ~ Q.
 Proof.
-  unfold indexed_product, isomorphic, isIso.
+  unfold isIndexedProduct, isomorphic, isIso.
   intros.
   assert (f : forall j : J, {f : Hom (A j) (B j) &
     {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).
@@ -111,7 +111,7 @@ Lemma small_and_indexed_products :
     {C : Cat} {A B : Ob C}
     (P : Ob C) (pA : Hom P A) (pB : Hom P B)
     (t : forall X : Ob C, Hom X A -> Hom X B -> Hom X P),
-      product C P pA pB t
+      isProduct C P pA pB t
         <->
       exists
         (f := fun b : bool => if b then A else B)
@@ -119,15 +119,15 @@ Lemma small_and_indexed_products :
                 then pA else pB)
         (tuple := fun (X : Ob C) (f : forall j : bool, Hom X (if j then A else B)) =>
                     t X (f true) (f false)),
-          f true = A /\ f false = B /\ indexed_product C P p tuple.
+          f true = A /\ f false = B /\ isIndexedProduct C P p tuple.
 Proof.
   split.
-  - unfold product, indexed_product, setoid_unique; cat.
+  - unfold isProduct, isIndexedProduct, setoid_unique; cat.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       destruct j; cbn; assumption.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       apply uniq. rewrite !H0. cat.
-  - unfold product, indexed_product, setoid_unique.
+  - unfold isProduct, isIndexedProduct, setoid_unique.
     intros (_ & _ & H) X f g.
     pose
     (
@@ -149,9 +149,9 @@ Lemma nullary_prod :
     (T : Ob C) (delete : forall X : Ob C, Hom X T)
     (p : forall j : Empty_set, Hom T (A j))
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
-      terminal T delete -> indexed_product C T p tuple.
+      isTerminal T delete -> isIndexedProduct C T p tuple.
 Proof.
-  unfold terminal; red; cat.
+  unfold isTerminal; red; cat.
   rewrite H, (H _ y).
   reflexivity.
 Qed.
@@ -162,29 +162,29 @@ Lemma nullary_coprod :
     (create : forall X : Ob C, Hom I X)
     (p : forall j : Empty_set, Hom (A j) I)
     (cotuple : forall (X : Ob C) (f : forall j : Empty_set, Hom (A j) X), Hom I X),
-     initial I create -> indexed_coproduct C I p cotuple.
+     isInitial I create -> isIndexedCoproduct C I p cotuple.
 Proof.
-  unfold initial; red; cat.
+  unfold isInitial; red; cat.
   rewrite H, (H _ y).
   reflexivity.
 Qed.
 
 Lemma unary_prod_exists :
   forall (C : Cat) (A : unit -> Ob C),
-    indexed_product C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
+    isIndexedProduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
 Proof.
   red; cat.
 Qed.
 
 Lemma unary_coprod_exists :
   forall (C : Cat) (A : unit -> Ob C),
-    indexed_coproduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
+    isIndexedCoproduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
 Proof.
   red; cat.
 Qed.
 
 (* Dependent type bullshit. This is harder than I thought. *)
-Lemma indexed_product_comm :
+Lemma isIndexedProduct_comm :
   forall
     (C : Cat) (J : Set) (A : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j))
@@ -193,9 +193,9 @@ Lemma indexed_product_comm :
     (p' : forall j : J, Hom P (A (f j)))
     (tuple' : forall (X : Ob C) (f : forall j : J, Hom X (A (f j))), Hom X P),
       (forall j : J, p' j = p (f j)) ->
-        bijective f -> indexed_product C P p tuple -> indexed_product C P p' tuple'.
+        bijective f -> isIndexedProduct C P p tuple -> isIndexedProduct C P p' tuple'.
 Proof.
-  unfold bijective, injective, surjective, indexed_product.
+  unfold bijective, injective, surjective, isIndexedProduct.
   destruct 2 as [inj sur]; intros.
   assert (g : {g : J -> J |
     (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
@@ -312,7 +312,7 @@ Lemma small_and_indexed_product's :
     {C : Cat} {A B : Ob C}
     (P : Ob C) (pA : Hom P A) (pB : Hom P B)
     (t : forall X : Ob C, Hom X A -> Hom X B -> Hom X P),
-      product C P pA pB t
+      isProduct C P pA pB t
         <->
       exists
         (f := fun b : bool => if b then A else B)
@@ -323,12 +323,12 @@ Lemma small_and_indexed_product's :
           f true = A /\ f false = B /\ indexed_product' C P p tuple.
 Proof.
   split.
-  - unfold product, indexed_product', setoid_unique; cat.
+  - unfold isProduct, indexed_product', setoid_unique; cat.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       destruct j; cbn; rewrite <- H0; assumption.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       apply uniq. rewrite !H0. cat.
-  - unfold product, indexed_product', setoid_unique.
+  - unfold isProduct, indexed_product', setoid_unique.
     intros (_ & _ & H) X f g.
     pose
     (
@@ -351,9 +351,9 @@ Lemma nullary_prod :
     (T : Ob C) (delete : forall X : Ob C, Hom X T)
     (p : forall j : Empty_set, Hom T (A j))
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
-      terminal T delete -> indexed_product' C T p tuple.
+      isTerminal T delete -> indexed_product' C T p tuple.
 Proof.
-  unfold terminal; red; cat.
+  unfold isTerminal; red; cat.
   rewrite H, (H _ h).
   reflexivity.
 Qed.
@@ -364,9 +364,9 @@ Lemma nullary_coprod :
     (create : forall X : Ob C, Hom I X)
     (p : forall j : Empty_set, Hom (A j) I)
     (cotuple : forall (X : Ob C) (f : forall j : Empty_set, Hom (A j) X), Hom I X),
-     initial I create -> indexed_coproduct' C I p cotuple.
+     isInitial I create -> indexed_coproduct' C I p cotuple.
 Proof.
-  unfold initial; red; cat.
+  unfold isInitial; red; cat.
   rewrite H, (H _ h).
   reflexivity.
 Qed.
@@ -404,7 +404,7 @@ Class HasIndexedProducts (C : Cat) : Type :=
         (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
   is_indexed_product :
     forall (J : Set) (A : J -> Ob C),
-      indexed_product C (indexedProdOb J A) (indexedProj J A) (tuple J A)
+      isIndexedProduct C (indexedProdOb J A) (indexedProj J A) (tuple J A)
 }.
 
 Arguments indexedProdOb [C _ J] _.
@@ -474,7 +474,7 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
         (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
   is_indexed_coproduct :
     forall (J : Set) (A : J -> Ob C),
-      indexed_coproduct C (indexedCoprodOb J A) (indexedCoproj J A) (cotuple J A)
+      isIndexedCoproduct C (indexedCoprodOb J A) (indexedCoproj J A) (cotuple J A)
 }.
 
 Arguments indexedCoprodOb [C _ J] _.
@@ -532,7 +532,7 @@ Class HasIndexedBiproducts (C : Cat) : Type :=
 {
   indexedProduct :> HasIndexedProducts C;
   indexedCoproduct :> HasIndexedCoproducts C;
-  product_is_coproduct :
+  isProduct_isCoproduct :
     forall (J : Set) (A : J -> Ob C),
       @indexedProdOb C indexedProduct J A = @indexedCoprodOb C indexedCoproduct J A
 }.
@@ -571,5 +571,5 @@ Instance HasIndexedBiproducts_Dual
   indexedCoproduct := HasIndexedCoproducts_Dual C hp;
 }.
 Proof.
-  intros. simpl. rewrite product_is_coproduct. trivial.
+  intros. simpl. rewrite isProduct_isCoproduct. trivial.
 Defined.

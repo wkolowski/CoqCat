@@ -4,7 +4,7 @@ Set Implicit Arguments.
 
 Section Traditional.
 
-Definition product
+Definition isProduct
   (C : Cat) {A B : Ob C}
   (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
   (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
@@ -12,7 +12,7 @@ Definition product
     forall (X : Ob C) (f : Hom X A) (g : Hom X B),
       setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
 
-Definition coproduct
+Definition isCoproduct
   (C : Cat) {A B : Ob C}
   (P : Ob C) (p1 : Hom A P) (p2 : Hom B P)
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
@@ -20,31 +20,31 @@ Definition coproduct
     forall (X : Ob C) (f : Hom A X) (g : Hom B X),
       setoid_unique (fun d : Hom P X => f == p1 .> d /\ g == p2 .> d) (copair f g).
 
-Definition biproduct
+Definition isBiproduct
   (C : Cat) {A B : Ob C} (P : Ob C)
   (pA : Hom P A) (pB : Hom P B) (iA : Hom A P) (iB : Hom B P)
   (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
-  : Prop := product C P pA pB (@fpair) /\ coproduct C P iA iB (@copair).
+  : Prop := isProduct C P pA pB (@fpair) /\ isCoproduct C P iA iB (@copair).
 
-Lemma product_Dual :
+Lemma isProduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      product (Dual C) P p1 p2 copair
+      isProduct (Dual C) P p1 p2 copair
         =
-      coproduct C P p1 p2 copair.
+      isCoproduct C P p1 p2 copair.
 Proof. reflexivity. Defined.
 
-Lemma coproduct_Dual :
+Lemma isCoproduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-      coproduct (Dual C) P p1 p2 fpair
+      isCoproduct (Dual C) P p1 p2 fpair
         =
-      product C P p1 p2 fpair.
+      isProduct C P p1 p2 fpair.
 Proof. reflexivity. Defined.
 
 Lemma bicoproduct_Dual :
@@ -53,19 +53,19 @@ Lemma bicoproduct_Dual :
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (q1 : Hom X P) (q2 : Hom Y P)
     (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P)
     (copair : forall (P' : Ob C) (q1' : Hom X P') (q2' : Hom Y P'), Hom P P'),
-      biproduct (Dual C) P q1 q2 p1 p2 copair fpair
+      isBiproduct (Dual C) P q1 q2 p1 p2 copair fpair
         <->
-      biproduct C P p1 p2 q1 q2 fpair copair.
+      isBiproduct C P p1 p2 q1 q2 fpair copair.
 Proof. firstorder. Defined.
 
-Lemma product_uiso :
+Lemma isProduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
     (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
     (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
-      product C P p1 p2 fpair -> product C Q q1 q2 fpair' ->
+      isProduct C P p1 p2 fpair -> isProduct C Q q1 q2 fpair' ->
         exists!! f : Hom P Q, isIso f /\ p1 == f .> q1 /\ p2 == f .> q2.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
@@ -94,36 +94,36 @@ Proof.
       edestruct H0. apply H2. cat.
 Qed.
 
-Lemma product_iso :
+Lemma isProduct_iso :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
     (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
     (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
-      product C P p1 p2 fpair -> product C Q q1 q2 fpair' -> P ~ Q.
+      isProduct C P p1 p2 fpair -> isProduct C Q q1 q2 fpair' -> P ~ Q.
 Proof.
-  intros. destruct (product_uiso H H0). cat.
+  intros. destruct (isProduct_uiso H H0). cat.
 Qed.
 
-Lemma product_fpair_equiv :
+Lemma isProduct_fpair_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
     (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      product C P p1 p2 fpair -> product C P p1 p2 fpair' ->
+      isProduct C P p1 p2 fpair -> isProduct C P p1 p2 fpair' ->
         forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
           fpair A f g == fpair' A f g.
 Proof.
   intros. edestruct H, H0. cat.
 Qed.
 
-Lemma product_p1_equiv
+Lemma isProduct_p1_equiv
   (C : Cat) (X Y : Ob C)
   (P : Ob C) (p1 : Hom P X) (p1' : Hom P X) (p2 : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P) :
-    product C P p1 p2 fpair -> product C P p1' p2 fpair -> p1 == p1'.
+    isProduct C P p1 p2 fpair -> isProduct C P p1' p2 fpair -> p1 == p1'.
 Proof.
   intros. do 2 red in H.
   destruct (H P p1 p2) as [[H1 H2] H3].
@@ -131,12 +131,12 @@ Proof.
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Lemma product_p2_equiv :
+Lemma isProduct_p2_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (p2' : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-    product C P p1 p2 fpair -> product C P p1 p2' fpair -> p2 == p2'.
+    isProduct C P p1 p2 fpair -> isProduct C P p1 p2' fpair -> p2 == p2'.
 Proof.
   intros. do 2 red in H.
   destruct (H P p1 p2) as [[H1 H2] H3].
@@ -149,15 +149,15 @@ Qed.
     (C : Cat) (X Y : Ob C)
     (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
-      product C P p1 p2 fpair ->
+      isProduct C P p1 p2 fpair ->
       forall (f : Hom Q P) (H : isIso f),
-      product C Q (f .> p1) (f .> p2)
+      isProduct C Q (f .> p1) (f .> p2)
         (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
           match constructive_indefinite_description _ H with
           | exist _ g _ => fpair A p1' p2' .> g
           end).
 Proof.
-  unfold product in *. intros.
+  unfold isProduct in *. intros.
   destruct (constructive_indefinite_description _ _) as (f_inv & eq1 & eq2).
   edestruct H as [[H1 H2] H3]. repeat split.
     rewrite comp_assoc, <- (comp_assoc f_inv f).
@@ -169,24 +169,24 @@ Proof.
         rewrite eq1. cat.
 Qed.
 
-Lemma product_comm :
+Lemma isProduct_comm :
   forall
     (C : Cat) (X Y P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      product C P p1 p2 fpair -> product C P p2 p1 (fun A f g => fpair A g f).
+      isProduct C P p1 p2 fpair -> isProduct C P p2 p1 (fun A f g => fpair A g f).
 Proof.
-  unfold product in *; intros.
+  unfold isProduct in *; intros.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
 Qed.
 
-Lemma coproduct_uiso :
+Lemma isCoproduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
     (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
-      coproduct C P p1 p2 copair -> coproduct C Q q1 q2 copair' ->
+      isCoproduct C P p1 p2 copair -> isCoproduct C Q q1 q2 copair' ->
         exists!! f : Hom P Q, isIso f /\ p1 .> f == q1 /\ p2 .> f == q2.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
@@ -215,36 +215,36 @@ Proof.
       edestruct H. apply H2. split; [rewrite eq1 | rewrite eq2]; cat.
 Qed.
 
-Lemma coproduct_iso :
+Lemma isCoproduct_iso :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
     (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
-      coproduct C P p1 p2 copair -> coproduct C Q q1 q2 copair' -> P ~ Q.
+      isCoproduct C P p1 p2 copair -> isCoproduct C Q q1 q2 copair' -> P ~ Q.
 Proof.
-  intros. destruct (coproduct_uiso H H0). cat.
+  intros. destruct (isCoproduct_uiso H H0). cat.
 Qed.
 
-Lemma coproduct_copair_equiv :
+Lemma isCoproduct_copair_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
     (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      coproduct C P p1 p2 copair -> coproduct C P p1 p2 copair' ->
+      isCoproduct C P p1 p2 copair -> isCoproduct C P p1 p2 copair' ->
         forall (A : Ob C) (f : Hom X A) (g : Hom Y A), copair A f g == copair' A f g.
 Proof.
   intros. edestruct H, H0. apply H2. cat.
 Qed.
 
-Lemma coproduct_p1_equiv :
+Lemma isCoproduct_p1_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p1' : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      coproduct C P p1 p2 copair -> coproduct C P p1' p2 copair -> p1 == p1'.
+      isCoproduct C P p1 p2 copair -> isCoproduct C P p1' p2 copair -> p1 == p1'.
 Proof.
   intros. do 2 red in H.
   destruct (H P p1 p2) as [[H1 H2] H3].
@@ -252,12 +252,12 @@ Proof.
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Lemma coproduct_p2_equiv :
+Lemma isCoproduct_p2_equiv :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P) (p2' : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      coproduct C P p1 p2 copair -> coproduct C P p1 p2' copair -> p2 == p2'.
+      isCoproduct C P p1 p2 copair -> isCoproduct C P p1 p2' copair -> p2 == p2'.
 Proof.
   intros. do 2 red in H.
   destruct (H P p1 p2) as [[H1 H2] H3].
@@ -265,13 +265,13 @@ Proof.
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
-Lemma coproduct_comm :
+Lemma isCoproduct_comm :
   forall
     (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      coproduct C P p1 p2 copair -> coproduct C P p2 p1 (fun A f g => copair A g f).
+      isCoproduct C P p1 p2 copair -> isCoproduct C P p2 p1 (fun A f g => copair A g f).
 Proof.
-  unfold coproduct in *; intros.
+  unfold isCoproduct in *; intros.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
 Qed.
 
@@ -285,7 +285,7 @@ Class HasProducts (C : Cat) : Type :=
   fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
   Proper_fpair :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@fpair A B X);
   is_product :
-    forall (A B : Ob C), product C (prodOb A B) outl outr (@fpair A B)
+    forall (A B : Ob C), isProduct C (prodOb A B) outl outr (@fpair A B)
 }.
 
 Arguments prodOb {C HasProducts} _ _.
@@ -515,7 +515,7 @@ Class HasCoproducts (C : Cat) : Type :=
   copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coprodOb A B) X;
   Proper_copair :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@copair A B X);
   is_coproduct :
-    forall A B : Ob C, coproduct C (coprodOb A B) (finl A B) (finr A B) (@copair A B)
+    forall A B : Ob C, isCoproduct C (coprodOb A B) (finl A B) (finr A B) (@copair A B)
 }.
 
 Arguments coprodOb {C HasCoproducts} _ _.
@@ -712,7 +712,7 @@ Class HasBiproducts (C : Cat) : Type :=
 {
   products :> HasProducts C;
   coproducts :> HasCoproducts C;
-  product_is_coproduct : forall X Y : Ob C, prodOb X Y = coprodOb X Y
+  isProduct_isCoproduct : forall X Y : Ob C, prodOb X Y = coprodOb X Y
 }.
 
 Coercion products : HasBiproducts >-> HasProducts.
@@ -748,7 +748,7 @@ Instance HasBiproducts_Dual (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Du
   coproducts := HasCoproducts_Dual hp;
 }.
 Proof.
-  simpl. intros. rewrite product_is_coproduct. trivial.
+  simpl. intros. rewrite isProduct_isCoproduct. trivial.
 Defined.
 
 #[refine]
@@ -1050,7 +1050,7 @@ Instance from (C : Cat) (hp : Universal.HasProducts C) : HasProducts C :=
   fpair := @Universal.fpair C hp;
 }.
 Proof.
-  unfold product, setoid_unique.
+  unfold isProduct, setoid_unique.
   intros A B X f g; split.
   - Universal.fpair.
   - intros h [-> ->]. Universal.fpair.
@@ -1180,7 +1180,7 @@ Instance from (C : Cat) (hp : Rules.HasProducts C) : HasProducts C :=
   fpair := @Rules.fpair C hp;
 }.
 Proof.
-  unfold product, setoid_unique.
+  unfold isProduct, setoid_unique.
   intros A B X f g; split.
   - Rules.fpair.
   - intros y [-> ->]. Rules.fpair.
@@ -1350,7 +1350,7 @@ Instance from (C : Cat) (hp : Rules2.HasProducts C) : HasProducts C :=
   fpair := @Rules2.fpair C hp;
 }.
 Proof.
-  unfold product, setoid_unique.
+  unfold isProduct, setoid_unique.
   intros A B X f g; split.
   - Rules2.fpair.
   - intros y [-> ->]. Rules2.fpair.

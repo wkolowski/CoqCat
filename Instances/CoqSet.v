@@ -86,9 +86,9 @@ Defined.
 
 Lemma CoqSet_terminal_ob :
   forall (A : Set) (H : isSingleton A),
-    @terminal CoqSet A (isSingleton_delete A H).
+    @isTerminal CoqSet A (isSingleton_delete A H).
 Proof.
-  unfold isSingleton, terminal; intros. cat.
+  unfold isSingleton, isTerminal; intros. cat.
   compute. destruct (constructive_indefinite_description _ _).
   destruct a. erewrite e. reflexivity.
 Qed.

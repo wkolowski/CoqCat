@@ -129,7 +129,7 @@ Proof.
   - intros. init.
 Qed.
 
-Lemma initial_iso :
+Lemma isInitial_iso :
   forall
     (C : Cat)
     (I1 : Ob C) (hi1 : HasInit' I1)
@@ -139,7 +139,7 @@ Proof.
   intros. destruct (HasInit'_uiso hi1 hi2). cat.
 Qed.
 
-Lemma initial_create_equiv :
+Lemma isInitial_create_equiv :
   forall (C : Cat) (I : Ob C) (hi1 hi2 : HasInit' I),
     forall X : Ob C, @create _ _ hi1 X == @create _ _ hi2 X.
 Proof.
@@ -194,7 +194,7 @@ Proof.
   intros. destruct (HasTerm'_uiso ht1 ht2). cat.
 Qed.
 
-Lemma terminal_delete_equiv :
+Lemma isTerminal_delete_equiv :
   forall (C : Cat) (T : Ob C) (ht1 ht2 : HasTerm' T),
     forall X : Ob C, @delete _ _ ht1 X == @delete _ _ ht2 X.
 Proof.

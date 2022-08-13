@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat.Limits Require Export InitTerm ProdCoprod.
 
-Definition exponential
+Definition isExponential
   {C : Cat} {hp : HasProducts C}
   (X Y E : Ob C) (eval : Hom (prodOb E X) Y)
   (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E)
@@ -10,15 +10,15 @@ Definition exponential
       setoid_unique (fun u : Hom E' E =>
         ProductFunctor_fmap u (id X) .> eval == eval') (curry E' eval').
 
-Lemma exponential_uiso :
+Lemma isExponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential X Y E eval curry ->
-      exponential X Y E' eval' curry' ->
+      isExponential X Y E eval curry ->
+      isExponential X Y E' eval' curry' ->
         exists !! f : Hom E E', isIso f /\ f ×' id X .> eval' == eval.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
@@ -46,18 +46,18 @@ Proof.
       apply Proper_ProductFunctor_fmap; cat. rewrite H3; cat.
 Qed.
 
-Arguments exponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
+Arguments isExponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
 
-Lemma exponential_iso :
+Lemma isExponential_iso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
     (E : Ob C) (eval : Hom (prodOb E X) Y)
     (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
     (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
     (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      exponential X Y E eval curry -> exponential X Y E' eval' curry' -> E ~ E'.
+      isExponential X Y E eval curry -> isExponential X Y E' eval' curry' -> E ~ E'.
 Proof.
-  intros. destruct (exponential_uiso H H0). cat.
+  intros. destruct (isExponential_uiso H H0). cat.
 Qed.
 
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
@@ -66,7 +66,7 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
   curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
   Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
-  is_exponential : forall X Y : Ob C, exponential X Y (expOb X Y) eval (@curry X Y)
+  is_exponential : forall X Y : Ob C, isExponential X Y (expOb X Y) eval (@curry X Y)
 }.
 
 Arguments expOb {C hp HasExponentials} _ _.
@@ -86,7 +86,7 @@ Lemma universal_property :
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
   intros.
-  destruct he; unfold exponential, setoid_unique in *; cbn in *.
+  destruct he; unfold isExponential, setoid_unique in *; cbn in *.
   destruct (is_exponential0 X Y E f).
   split.
   - intros <-. apply H.
@@ -208,7 +208,7 @@ Lemma HasExponentials_unique :
       @expOb C hp he X Y ~ @expOb C hp he' X Y.
 Proof.
   intros. destruct he, he'. cbn in *.
-  destruct (exponential_uiso (is_exponential0 X Y) (is_exponential1 X Y)).
+  destruct (isExponential_uiso (is_exponential0 X Y) (is_exponential1 X Y)).
   cat.
 Qed.
 
@@ -380,7 +380,7 @@ Instance from (C : Cat) (hp : HasProducts C) (he : Universal.HasExponentials C)
   curry := @Universal.curry C hp he;
 }.
 Proof.
-  unfold exponential, setoid_unique.
+  unfold isExponential, setoid_unique.
   intros X Y E' eval'; split.
   - apply Universal.universal. reflexivity.
   - intros h <-. apply Universal.curry_uncurry.
@@ -541,7 +541,7 @@ Instance from (C : Cat) (hp : HasProducts C) (he : Rules.HasExponentials C)
   curry := @Rules.curry C hp he;
 }.
 Proof.
-  unfold exponential, setoid_unique.
+  unfold isExponential, setoid_unique.
   intros X Y E' eval'; split.
   - apply Rules.he_comp.
   - intros h <-. apply Rules.curry_uncurry.

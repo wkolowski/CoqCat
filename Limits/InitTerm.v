@@ -4,11 +4,11 @@ Set Implicit Arguments.
 
 Module Traditional.
 
-Definition initial
+Definition isInitial
   {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
     forall (X : Ob C) (f : Hom I X), f == create X.
 
-Definition terminal
+Definition isTerminal
   {C : Cat} (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop :=
     forall (X : Ob C) (f : Hom X T), f == delete X.
 
@@ -16,16 +16,16 @@ Definition isZero
   {C : Cat} (Z : Ob C)
   (create : forall X : Ob C, Hom Z X)
   (delete : forall X : Ob C, Hom X Z)
-  : Prop := initial Z create /\ terminal Z delete.
+  : Prop := isInitial Z create /\ isTerminal Z delete.
 
-Lemma initial_Dual :
+Lemma isInitial_Dual :
   forall (C : Cat) (X : Ob C) (delete : forall X' : Ob C, Hom X' X),
-    @initial (Dual C) X delete = @terminal C X delete.
+    @isInitial (Dual C) X delete = @isTerminal C X delete.
 Proof. reflexivity. Defined.
 
-Lemma terminal_Dual :
+Lemma isTerminal_Dual :
   forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
-    @terminal (Dual C) X create = @initial C X create.
+    @isTerminal (Dual C) X create = @isInitial C X create.
 Proof. reflexivity. Defined.
 
 Lemma isZero_Dual :
@@ -36,14 +36,14 @@ Lemma isZero_Dual :
       @isZero (Dual C) X delete create <-> @isZero C X create delete.
 Proof. firstorder. Defined.
 
-Lemma initial_uiso :
+Lemma isInitial_uiso :
   forall
     (C : Cat) (A B : Ob C)
     (createA : forall X : Ob C, Hom A X)
     (createB : forall X : Ob C, Hom B X),
-      initial A createA -> initial B createB -> A ~~ B.
+      isInitial A createA -> isInitial B createB -> A ~~ B.
 Proof.
-  unfold initial, uniquely_isomorphic, isomorphic.
+  unfold isInitial, uniquely_isomorphic, isomorphic.
   intros C A B createA createB createA_unique createB_unique.
   exists (createA B).
   split.
@@ -54,25 +54,25 @@ Proof.
   - intros. rewrite (createA_unique _ y). reflexivity.
 Qed.
 
-Lemma initial_iso :
+Lemma isInitial_iso :
   forall
     (C : Cat) (A B : Ob C)
     (createA : forall X : Ob C, Hom A X)
     (createB : forall X : Ob C, Hom B X),
-      initial A createA -> initial B createB -> A ~ B.
+      isInitial A createA -> isInitial B createB -> A ~ B.
 Proof.
-  intros. destruct (initial_uiso H H0). cat.
+  intros. destruct (isInitial_uiso H H0). cat.
 Qed.
 
-Lemma initial_create_equiv :
+Lemma isInitial_create_equiv :
   forall
     (C : Cat) (I : Ob C)
     (create : forall X : Ob C, Hom I X)
     (create' : forall X : Ob C, Hom I X),
-      initial I create -> initial I create' ->
+      isInitial I create -> isInitial I create' ->
         forall X : Ob C, create X == create' X.
 Proof.
-  unfold initial.
+  unfold isInitial.
   intros C I c1 c2 H1 H2 X.
   rewrite (H1 _ (c2 X)).
   reflexivity.
@@ -80,11 +80,11 @@ Qed.
 
 Lemma iso_to_init_is_init :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
-    initial I create ->
+    isInitial I create ->
       forall {X : Ob C} (f : Hom X I), isIso f ->
-        initial X (fun Y : Ob C => f .> create Y).
+        isInitial X (fun Y : Ob C => f .> create Y).
 Proof.
-  unfold initial.
+  unfold isInitial.
   intros C I c H X f (f' & Heq1 & Heq2) Y g.
   rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
   reflexivity.
@@ -92,49 +92,49 @@ Defined.
 
 Lemma mor_to_init_is_ret :
   forall (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X),
-    initial I create ->
+    isInitial I create ->
       forall {X : Ob C} (f : Hom X I), isRet f.
 Proof.
-  unfold initial, isRet.
+  unfold isInitial, isRet.
   intros.
   exists (create X).
   rewrite (H _ (id I)), H.
   reflexivity.
 Qed.
 
-Lemma terminal_uiso :
+Lemma isTerminal_uiso :
   forall
     (C : Cat) (A B : Ob C)
     (deleteA : forall X : Ob C, Hom X A)
     (deleteB : forall X : Ob C, Hom X B),
-      terminal A deleteA -> terminal B deleteB -> A ~~ B.
+      isTerminal A deleteA -> isTerminal B deleteB -> A ~~ B.
 Proof.
   intro C.
   rewrite <- (Dual_Dual C); cbn; intros.
-  rewrite terminal_Dual in *.
+  rewrite isTerminal_Dual in *.
   rewrite Dual_uniquely_isomorphic.
-  eapply initial_uiso; eassumption.
+  eapply isInitial_uiso; eassumption.
 Qed.
 
-Lemma terminal_iso :
+Lemma isTerminal_iso :
   forall
     (C : Cat) (A B : Ob C)
     (deleteA : forall X : Ob C, Hom X A)
     (deleteB : forall X : Ob C, Hom X B),
-      terminal A deleteA -> terminal B deleteB -> A ~ B.
+      isTerminal A deleteA -> isTerminal B deleteB -> A ~ B.
 Proof.
-  intros. destruct (terminal_uiso H H0). cat.
+  intros. destruct (isTerminal_uiso H H0). cat.
 Qed.
 
-Lemma terminal_delete_equiv :
+Lemma isTerminal_delete_equiv :
   forall
     (C : Cat) (T : Ob C)
     (delete : forall X : Ob C, Hom X T)
     (delete' : forall X : Ob C, Hom X T),
-      terminal T delete -> terminal T delete' ->
+      isTerminal T delete -> isTerminal T delete' ->
         forall X : Ob C, delete X == delete' X.
 Proof.
-  unfold terminal.
+  unfold isTerminal.
   intros C T d1 d2 H1 H2 X.
   rewrite (H1 _ (d2 X)).
   reflexivity.
@@ -142,11 +142,11 @@ Qed.
 
 Lemma iso_to_term_is_term :
   forall (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T),
-    terminal T delete ->
+    isTerminal T delete ->
       forall {X : Ob C} (f : Hom T X), isIso f ->
-        terminal X (fun Y : Ob C => delete Y .> f).
+        isTerminal X (fun Y : Ob C => delete Y .> f).
 Proof.
-  unfold terminal.
+  unfold isTerminal.
   intros C T d H X f (f' & Heq1 & Heq2) Y g.
   rewrite <- (H _ (g .> f')), comp_assoc, Heq2, comp_id_r.
   reflexivity.
@@ -154,10 +154,10 @@ Defined.
 
 Lemma mor_from_term_is_sec :
   forall (C : Cat) (T : Ob C) (delete : forall T' : Ob C, Hom T' T),
-    terminal T delete ->
+    isTerminal T delete ->
       forall {X : Ob C} (f : Hom T X), isSec f.
 Proof.
-  unfold terminal, isRet.
+  unfold isTerminal, isRet.
   intros.
   exists (delete X).
   rewrite (H _ (id T)), H.
@@ -210,13 +210,13 @@ Class HasZero (C : Cat) : Type :=
 {
   HasZero_HasInit :> HasInit C;
   HasZero_HasTerm :> HasTerm C;
-  initial_is_terminal : init C = term C
+  isInitial_isTerminal : init C = term C
 }.
 
 Coercion HasZero_HasInit : HasZero >-> HasInit.
 Coercion HasZero_HasTerm : HasZero >-> HasTerm.
 
-#[global] Hint Resolve create_unique delete_unique initial_is_terminal : core.
+#[global] Hint Resolve create_unique delete_unique isInitial_isTerminal : core.
 
 #[refine]
 #[export]
@@ -280,9 +280,9 @@ Qed.
 Lemma iso_to_init_is_init :
   forall (C : Cat) (hi : HasInit C),
     forall {X : Ob C} (f : Hom X (init C)), isIso f ->
-      initial X (fun Y : Ob C => f .> create Y).
+      isInitial X (fun Y : Ob C => f .> create Y).
 Proof.
-  unfold initial.
+  unfold isInitial.
   intros C [I c H] X f (f' & Heq1 & Heq2) Y g.
   rewrite <- (H _ (f' .> g)), <- comp_assoc, Heq1, comp_id_l.
   reflexivity.
@@ -333,9 +333,9 @@ Qed.
 Lemma iso_to_term_is_term :
   forall (C : Cat) (ht : HasTerm C),
       forall {X : Ob C} (f : Hom (term C) X), isIso f ->
-        terminal X (fun Y : Ob C => delete Y .> f).
+        isTerminal X (fun Y : Ob C => delete Y .> f).
 Proof.
-  unfold terminal.
+  unfold isTerminal.
   intros C [T d H] X f (f' & Heq1 & Heq2) Y g.
   rewrite <- (H _ (g .> f')), comp_assoc, Heq2, comp_id_r.
   reflexivity.

@@ -146,7 +146,7 @@ Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
   fpair := ReflexiveReloid_fpair;
 }.
 Proof.
-  all: unfold product; reloid.
+  all: unfold isProduct; reloid.
 Defined.
 
 #[refine]
@@ -198,5 +198,5 @@ Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
 }.
 Proof.
   proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold coproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  unfold isCoproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
 Defined.

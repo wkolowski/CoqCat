@@ -3,7 +3,7 @@ From Cat.Limits Require Import InitTerm ProdCoprod Equalizer Coequalizer Pullbac
 
 Set Implicit Arguments.
 
-Definition pushout
+Definition isPushout
   (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (cofactor : forall {P' : Ob C} (p1' : Hom X P') (p2' : Hom Y P'), f .> p1' == g .> p2' -> Hom P P')
@@ -32,7 +32,7 @@ Class HasPushouts (C : Cat) : Type :=
       f .> p1 == g .> p2 -> Hom (pushoutOb f g) P;
   is_pushout :
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-      pushout C f g (pushoutOb f g) (push1 f g) (push2 f g) (@cofactor X Y A f g)
+      isPushout C f g (pushoutOb f g) (push1 f g) (push2 f g) (@cofactor X Y A f g)
 }.
 
 Arguments pushoutOb [C _ X Y A] _ _.
@@ -40,27 +40,27 @@ Arguments push1     [C _ X Y A] _ _.
 Arguments push2     [C _ X Y A] _ _.
 Arguments cofactor  [C _ X Y A f g P p1 p2] _.
 
-Lemma pullback_Dual :
+Lemma isPullback_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'), f .> p1' == g .> p2' -> Hom P P'),
-      pullback (Dual C) f g P p1 p2 cofactor
+      isPullback (Dual C) f g P p1 p2 cofactor
         =
-      pushout C f g P p1 p2 cofactor.
+      isPushout C f g P p1 p2 cofactor.
 Proof. reflexivity. Defined.
 
-Lemma pushout_Dual :
+Lemma isPushout_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
     (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
     (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P),
-      pushout (Dual C) f g P p1 p2 factor
+      isPushout (Dual C) f g P p1 p2 factor
         =
-      pullback C f g P p1 p2 factor.
+      isPullback C f g P p1 p2 factor.
 Proof. reflexivity. Defined.
 
-Lemma pushout_uiso
+Lemma isPushout_uiso
   (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
@@ -68,13 +68,13 @@ Lemma pushout_uiso
   (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
   (cofactor' : forall (Q' : Ob C) (q1' : Hom X Q') (q2' : Hom Y Q'),
     f .> q1' == g .> q2' -> Hom Q Q')
-  : pushout C f g P p1 p2 cofactor -> pushout C f g Q q1 q2 cofactor' ->
+  : isPushout C f g P p1 p2 cofactor -> isPushout C f g Q q1 q2 cofactor' ->
       exists!! f : Hom Q P, isIso f /\ p1 == q1 .> f /\ p2 == q2 .> f.
 Proof.
   revert X Y A f g P p1 p2 cofactor Q q1 q2 cofactor'.
   rewrite <- (Dual_Dual C). intros.
-  rewrite pushout_Dual in *.
-  destruct (pullback_uiso H H0). cbn in *.
+  rewrite isPushout_Dual in *.
+  destruct (isPullback_uiso H H0). cbn in *.
   exists x. cat.
     rewrite isIso_Dual. assumption.
     symmetry. assumption.
@@ -85,7 +85,7 @@ Proof.
         symmetry. assumption.
 Qed.
 
-Lemma pushout_iso
+Lemma isPushout_iso
   (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
   (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
@@ -93,19 +93,19 @@ Lemma pushout_iso
   (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
   (cofactor' : forall (Q' : Ob C) (q1' : Hom X Q') (q2' : Hom Y Q'),
     f .> q1' == g .> q2' -> Hom Q Q')
-  : pushout C f g P p1 p2 cofactor -> pushout C f g Q q1 q2 cofactor' -> P ~ Q.
+  : isPushout C f g P p1 p2 cofactor -> isPushout C f g Q q1 q2 cofactor' -> P ~ Q.
 Proof.
-  intros. destruct (pushout_uiso H H0).
+  intros. destruct (isPushout_uiso H H0).
   symmetry. cat.
 Qed.
 
-Lemma pushout_coproduct :
+Lemma isCoproduct_isPushout :
   forall
     (C : Cat) (ht : HasInit C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      pushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g) ->
-        coproduct C P p1 p2 copair.
+      isPushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g) ->
+        isCoproduct C P p1 p2 copair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     init.
@@ -115,13 +115,13 @@ Proof.
       intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
 Qed.
 
-Lemma coproduct_pushout :
+Lemma isPushout_isCoproduct :
   forall
     (C : Cat) (ht : HasInit C) (X Y : Ob C)
     (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      coproduct C P p1 p2 copair ->
-        pushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g).
+      isCoproduct C P p1 p2 copair ->
+        isPushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g).
 Proof.
   red; intros. repeat split.
     init.
@@ -132,13 +132,13 @@ Proof.
       rewrite H5. reflexivity.
 Qed.
 
-Lemma pushout_coequalizer :
+Lemma isCoequalizer_isPushout :
   forall
     (C : Cat) (X Y : Ob C) (f g : Hom X Y)
     (P : Ob C) (p : Hom Y P)
     (cofactor : forall (P' : Ob C) (f : Hom Y P') (g : Hom Y P'), Hom P P'),
-      pushout C f g P p p (fun P' f g _ => cofactor P' f g) ->
-        coequalizer C f g P p (fun (P' : Ob C) (p : Hom Y P') _ => cofactor P' p p).
+      isPushout C f g P p p (fun P' f g _ => cofactor P' f g) ->
+        isCoequalizer C f g P p (fun (P' : Ob C) (p : Hom Y P') _ => cofactor P' p p).
 Proof.
   repeat split.
     destruct H. assumption.
