@@ -64,36 +64,36 @@ Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
 }.
 Proof. proper. all: cat. Defined.
 
-Definition particular_colimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
+Definition isColimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
   forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
 
-Definition particular_colimit
+Definition isColimit
   {J C : Cat} {F : Functor J C}
   (colimitOb : Cocone F)
   (colimitMor : forall K : Cocone F, CoconeHom colimitOb K)
   : Prop := @isInitial (CoconeCat F) colimitOb colimitMor.
 
-Definition shaped_colimit
+Definition allShapedColimits
   {J C : Cat}
   (colimitOb : forall (F : Functor J C), Cocone F)
   (colimitMor : forall {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
   : Prop :=
-    forall F : Functor J C, @particular_colimit J C F (colimitOb F) (@colimitMor F).
+    forall F : Functor J C, @isColimit J C F (colimitOb F) (@colimitMor F).
 
-Definition colimit
+Definition allColimits
   {C : Cat}
   (colimitOb : forall {J : Cat} (F : Functor J C), Cocone F)
   (colimitMor : forall {J : Cat} {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
   : Prop :=
     forall (J : Cat) (F : Functor J C),
-      @shaped_colimit J C (@colimitOb J) (@colimitMor J).
+      @allShapedColimits J C (@colimitOb J) (@colimitMor J).
 
 Class HasColimits (C : Cat) : Type :=
 {
   colimitOb  : forall {J : Cat} (F : Functor J C), Cocone F;
   colimitMor : forall {J : Cat} (F : Functor J C) (K : Cocone F), CoconeHom (colimitOb F) K;
   (* Proper? *)
-  isColimit : colimit (@colimitOb) (@colimitMor);
+  ok : allColimits (@colimitOb) (@colimitMor);
 }.
 
 Arguments colimitOb  [C _ J] _.
@@ -117,4 +117,4 @@ Defined.
 
 Definition cocontinuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cocone Diagram),
-    particular_colimit' K -> particular_colimit' (CoconeImage F K).
+    isColimit' K -> isColimit' (CoconeImage F K).

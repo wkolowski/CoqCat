@@ -63,36 +63,36 @@ Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
 }.
 Proof. proper. all: cat. Defined.
 
-Definition particular_limit
+Definition isLimit
   {J C : Cat} {F : Functor J C}
   (limitOb : Cone F)
   (limitMor : forall K : Cone F, ConeHom K limitOb)
   : Prop := @isTerminal (ConeCat F) limitOb limitMor.
 
-Definition shaped_limit
+Definition isLimit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
+  forall K' : Cone F, exists!! _ : ConeHom K' K, True.
+
+Definition allShapedLimits
   {J C : Cat}
   (limitOb : forall F : Functor J C, Cone F)
   (limitMor : forall {F : Functor J C} (K : Cone F), ConeHom K (limitOb F))
   : Prop :=
-    forall F : Functor J C, @particular_limit J C F (limitOb F) (@limitMor F).
+    forall F : Functor J C, @isLimit J C F (limitOb F) (@limitMor F).
 
-Definition particular_limit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
-  forall K' : Cone F, exists!! _ : ConeHom K' K, True.
-
-Definition limit
+Definition allLimits
   {C : Cat}
   (limitOb  : forall {J : Cat} (F : Functor J C), Cone F)
   (limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F))
   : Prop :=
     forall (J : Cat) (F : Functor J C),
-      @shaped_limit J C (@limitOb J) (@limitMor J).
+      @allShapedLimits J C (@limitOb J) (@limitMor J).
 
 Class HasLimits (C : Cat) : Type :=
 {
   limitOb  : forall {J : Cat} (F : Functor J C), Cone F;
   limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F);
   (* Proper? *)
-  isLimit : limit (@limitOb) (@limitMor);
+  ok : allLimits (@limitOb) (@limitMor);
 }.
 
 Arguments limitOb  [C _ J] _.
@@ -114,9 +114,9 @@ Proof.
   cat. rewrite <- fmap_comp. rewrite (natural (legs K) f). cat.
 Defined.
 
-Definition continuous {C D : Cat} {F : Functor C D} : Prop :=
+Definition isContinuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
-    particular_limit' K -> particular_limit' (ConeImage F K).
+    isLimit' K -> isLimit' (ConeImage F K).
 
 #[export]
 Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
@@ -127,10 +127,10 @@ Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
 
 Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
 
-Lemma limit_char
+Lemma isLimit_char
   (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K) :
-    @particular_limit J C F K del
+    @isLimit J C F K del
       <->
     forall c : Ob C,
       @isomorphic CoqSetoid (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
