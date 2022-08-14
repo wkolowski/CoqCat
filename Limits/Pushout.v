@@ -5,13 +5,14 @@ Set Implicit Arguments.
 
 Definition isPushout
   (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-  (cofactor : forall {P' : Ob C} (p1' : Hom X P') (p2' : Hom Y P'), f .> p1' == g .> p2' -> Hom P P')
+  (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
+  (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
+                f .> pushl' == g .> pushr' -> Hom P P')
   : Prop :=
-    f .> p1 == g .> p2
+    f .> pushl == g .> pushr
       /\
     forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2),
-      setoid_unique (fun u : Hom P Q => p1 .> u == q1 /\ p2 .> u == q2) (cofactor q1 q2 H).
+      setoid_unique (fun u : Hom P Q => pushl .> u == q1 /\ pushr .> u == q2) (cofactor q1 q2 H).
 
 Class HasPushouts (C : Cat) : Type :=
 {
@@ -19,60 +20,63 @@ Class HasPushouts (C : Cat) : Type :=
   pushoutObProper :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
       f == f' -> g == g' -> JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
-  push1 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom X (pushoutOb f g);
-  push2 : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom Y (pushoutOb f g);
-  Proper_push1 :
+  pushl : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom X (pushoutOb f g);
+  pushr : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom Y (pushoutOb f g);
+  Proper_pushl :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
-      f == f' -> g == g' -> JMequiv (push1 f g) (push1 f' g');
-  Proper_push2 :
+      f == f' -> g == g' -> JMequiv (pushl f g) (pushl f' g');
+  Proper_pushr :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
-      f == f' -> g == g' -> JMequiv (push2 f g) (push2 f' g');
+      f == f' -> g == g' -> JMequiv (pushr f g) (pushr f' g');
   cofactor :
-    forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y) {P : Ob C} (p1 : Hom X P) (p2 : Hom Y P),
-      f .> p1 == g .> p2 -> Hom (pushoutOb f g) P;
+    forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y) {P : Ob C} (pushl : Hom X P) (pushr : Hom Y P),
+      f .> pushl == g .> pushr -> Hom (pushoutOb f g) P;
   is_pushout :
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-      isPushout C f g (pushoutOb f g) (push1 f g) (push2 f g) (@cofactor X Y A f g)
+      isPushout C f g (pushoutOb f g) (pushl f g) (pushr f g) (@cofactor X Y A f g)
 }.
 
 Arguments pushoutOb [C _ X Y A] _ _.
-Arguments push1     [C _ X Y A] _ _.
-Arguments push2     [C _ X Y A] _ _.
-Arguments cofactor  [C _ X Y A f g P p1 p2] _.
+Arguments pushl     [C _ X Y A] _ _.
+Arguments pushr     [C _ X Y A] _ _.
+Arguments cofactor  [C _ X Y A f g P pushl pushr] _.
 
 Lemma isPullback_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-    (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'), f .> p1' == g .> p2' -> Hom P P'),
-      isPullback (Dual C) f g P p1 p2 cofactor
+    (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
+    (cofactor : forall (P' : Ob C) (pushl' : Hom X P') (pushr' : Hom Y P'),
+                  f .> pushl' == g .> pushr' -> Hom P P'),
+      isPullback (Dual C) f g P pushl pushr cofactor
         =
-      isPushout C f g P p1 p2 cofactor.
+      isPushout C f g P pushl pushr cofactor.
 Proof. reflexivity. Defined.
 
 Lemma isPushout_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P),
-      isPushout (Dual C) f g P p1 p2 factor
+    (P : Ob C) (pushl : Hom P X) (pushr : Hom P Y)
+    (factor : forall (P' : Ob C) (pushl' : Hom P' X) (pushr' : Hom P' Y),
+                pushl' .> f == pushr' .> g -> Hom P' P),
+      isPushout (Dual C) f g P pushl pushr factor
         =
-      isPullback C f g P p1 p2 factor.
+      isPullback C f g P pushl pushr factor.
 Proof. reflexivity. Defined.
 
-Lemma isPushout_uiso
-  (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
-  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-  (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
-    f .> p1' == g .> p2' -> Hom P P')
-  (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
-  (cofactor' : forall (Q' : Ob C) (q1' : Hom X Q') (q2' : Hom Y Q'),
-    f .> q1' == g .> q2' -> Hom Q Q')
-  : isPushout C f g P p1 p2 cofactor -> isPushout C f g Q q1 q2 cofactor' ->
-      exists!! f : Hom Q P, isIso f /\ p1 == q1 .> f /\ p2 == q2 .> f.
+Lemma isPushout_uiso :
+  forall
+    (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
+    (P1 : Ob C) (pushl1 : Hom X P1) (pushr1 : Hom Y P1)
+    (cofactor1 : forall (P1' : Ob C) (pushl1' : Hom X P1') (pushr1' : Hom Y P1'),
+                   f .> pushl1' == g .> pushr1' -> Hom P1 P1')
+    (P2 : Ob C) (pushl2 : Hom X P2) (pushr2 : Hom Y P2)
+    (cofactor2 : forall (P2' : Ob C) (pushl2' : Hom X P2') (pushr2' : Hom Y P2'),
+                   f .> pushl2' == g .> pushr2' -> Hom P2 P2'),
+      isPushout C f g P1 pushl1 pushr1 cofactor1 ->
+      isPushout C f g P2 pushl2 pushr2 cofactor2 ->
+        exists!! f : Hom P2 P1, isIso f /\ pushl1 == pushl2 .> f /\ pushr1 == pushr2 .> f.
 Proof.
-  revert X Y A f g P p1 p2 cofactor Q q1 q2 cofactor'.
-  rewrite <- (Dual_Dual C). intros.
+  intros C; rewrite <- (Dual_Dual C); intros.
   rewrite isPushout_Dual in *.
   destruct (isPullback_uiso H H0). cbn in *.
   exists x. cat.
@@ -85,15 +89,18 @@ Proof.
         symmetry. assumption.
 Qed.
 
-Lemma isPushout_iso
-  (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
-  (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-  (cofactor : forall (P' : Ob C) (p1' : Hom X P') (p2' : Hom Y P'),
-    f .> p1' == g .> p2' -> Hom P P')
-  (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
-  (cofactor' : forall (Q' : Ob C) (q1' : Hom X Q') (q2' : Hom Y Q'),
-    f .> q1' == g .> q2' -> Hom Q Q')
-  : isPushout C f g P p1 p2 cofactor -> isPushout C f g Q q1 q2 cofactor' -> P ~ Q.
+Lemma isPushout_iso :
+  forall
+    (C : Cat) (X Y A : Ob C) (f : Hom A X) (g : Hom A Y)
+    (P1 : Ob C) (pushl1 : Hom X P1) (pushr1 : Hom Y P1)
+    (cofactor1 : forall (P1' : Ob C) (pushl1' : Hom X P1') (pushr1' : Hom Y P1'),
+                   f .> pushl1' == g .> pushr1' -> Hom P1 P1')
+    (P2 : Ob C) (pushl2 : Hom X P2) (pushr2 : Hom Y P2)
+    (cofactor2 : forall (P2' : Ob C) (pushl2' : Hom X P2') (pushr2' : Hom Y P2'),
+                   f .> pushl2' == g .> pushr2' -> Hom P2 P2'),
+      isPushout C f g P1 pushl1 pushr1 cofactor1 ->
+      isPushout C f g P2 pushl2 pushr2 cofactor2 ->
+        P1 ~ P2.
 Proof.
   intros. destruct (isPushout_uiso H H0).
   symmetry. cat.
@@ -102,10 +109,10 @@ Qed.
 Lemma isCoproduct_isPushout :
   forall
     (C : Cat) (ht : HasInit C) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      isPushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g) ->
-        isCoproduct C P p1 p2 copair.
+      isPushout C (create X) (create Y) P pushl pushr (fun P' f g _ => copair P' f g) ->
+        isCoproduct C P pushl pushr copair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     init.
@@ -118,10 +125,10 @@ Qed.
 Lemma isPushout_isCoproduct :
   forall
     (C : Cat) (ht : HasInit C) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      isCoproduct C P p1 p2 copair ->
-        isPushout C (create X) (create Y) P p1 p2 (fun P' f g _ => copair P' f g).
+      isCoproduct C P pushl pushr copair ->
+        isPushout C (create X) (create Y) P pushl pushr (fun P' f g _ => copair P' f g).
 Proof.
   red; intros. repeat split.
     init.

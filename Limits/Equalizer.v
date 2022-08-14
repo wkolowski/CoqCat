@@ -21,30 +21,30 @@ Context
 
 Lemma isEqualizer_uiso :
   forall
-    {E : Ob C} {e : Hom E X}
-    {factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E}
-    {E' : Ob C} {e' : Hom E' X}
-    {factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E'},
-      isEqualizer C f g E e factorize -> isEqualizer C f g E' e' factorize' ->
-        exists!! f : Hom E E', isIso f /\ e == f .> e'.
+    {E1 : Ob C} {e1 : Hom E1 X}
+    {factorize1 : forall (E1' : Ob C) (e1' : Hom E1' X), e1' .> f == e1' .> g -> Hom E1' E1}
+    {E2 : Ob C} {e2 : Hom E2 X}
+    {factorize2 : forall (E2' : Ob C) (e2' : Hom E2' X), e2' .> f == e2' .> g -> Hom E2' E2},
+      isEqualizer C f g E1 e1 factorize1 ->
+      isEqualizer C f g E2 e2 factorize2 ->
+        exists!! f : Hom E1 E2, isIso f /\ e1 == f .> e2.
 Proof.
   unfold isEqualizer; intros. destruct H, H0.
   destruct
-    (H1 E e H) as [eq1 unique1],
-    (H1 E' e' H0) as [eq1' unique1'],
-    (H2 E' e' H0) as [eq2 unique2],
-    (H2 E e H) as [eq2' unique2'].
-  exists (factorize' E e H).
+    (H1 E1 e1 H) as [eq1 unique1],
+    (H1 E2 e2 H0) as [eq1' unique1'],
+    (H2 E2 e2 H0) as [eq2 unique2],
+    (H2 E1 e1 H) as [eq2' unique2'].
+  exists (factorize2 E1 e1 H).
   repeat split.
-    red. exists (factorize E' e' H0). split.
-      assert (Heq : (factorize' E e H .> e') .> f ==
-        (factorize' E e H .> e') .> g).
+    red. exists (factorize1 E2 e2 H0). split.
+      assert (Heq : (factorize2 E1 e1 H .> e2) .> f == (factorize2 E1 e1 H .> e2) .> g).
         rewrite eq2'. trivial.
-        destruct (H1 E (factorize' E e H .> e') Heq).
-          rewrite <- (unique1 (factorize' E e H .> factorize E' e' H0)).
+        destruct (H1 E1 (factorize2 E1 e1 H .> e2) Heq).
+          rewrite <- (unique1 (factorize2 E1 e1 H .> factorize1 E2 e2 H0)).
             auto.
             assocr. rewrite eq1'. auto.
-          rewrite <- (unique2 (factorize E' e' H0 .> factorize' E e H)).
+          rewrite <- (unique2 (factorize1 E2 e2 H0 .> factorize2 E1 e1 H)).
             auto.
             assocr. rewrite eq2'. auto.
     rewrite eq2'. reflexivity.
@@ -53,10 +53,13 @@ Qed.
 
 Lemma isEqualizer_iso :
   forall
-    (E E' : Ob C) (e : Hom E X) (e' : Hom E' X)
-    (factorize : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .> g -> Hom E'' E)
-    (factorize' : forall (E'' : Ob C) (e'' : Hom E'' X), e'' .> f == e'' .>g -> Hom E'' E'),
-      isEqualizer C f g E e factorize -> isEqualizer C f g E' e' factorize' -> E ~ E'.
+    {E1 : Ob C} {e1 : Hom E1 X}
+    {factorize1 : forall (E1' : Ob C) (e1' : Hom E1' X), e1' .> f == e1' .> g -> Hom E1' E1}
+    {E2 : Ob C} {e2 : Hom E2 X}
+    {factorize2 : forall (E2' : Ob C) (e2' : Hom E2' X), e2' .> f == e2' .> g -> Hom E2' E2},
+      isEqualizer C f g E1 e1 factorize1 ->
+      isEqualizer C f g E2 e2 factorize2 ->
+        E1 ~ E2.
 Proof.
   intros. destruct (isEqualizer_uiso H H0).
   do 2 destruct H1. eauto.
@@ -64,9 +67,11 @@ Qed.
 
 Lemma isEqualizer_equiv :
   forall
-    (E : Ob C) (e1 : Hom E X) (e2 : Hom E X)
+    (E : Ob C) (e1 e2 : Hom E X)
     (factorize : forall (E' : Ob C) (e : Hom E' X), e .> f == e .> g -> Hom E' E),
-      isEqualizer C f g E e1 factorize -> isEqualizer C f g E e2 factorize -> e1 == e2.
+      isEqualizer C f g E e1 factorize ->
+      isEqualizer C f g E e2 factorize ->
+        e1 == e2.
 Proof.
   intros. edestruct H, H0, (H4 _ _ H3).
   assert (factorize E e2 H3 == id E).
@@ -77,11 +82,11 @@ Qed.
 Lemma isEqualizer_equiv_factorize :
   forall
     (E : Ob C) (e : Hom E X)
-    (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E)
-    (factorize' : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
-      isEqualizer C f g E e factorize -> isEqualizer C f g E e factorize' ->
+    (factorize1 factorize2 : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
+      isEqualizer C f g E e factorize1 ->
+      isEqualizer C f g E e factorize2 ->
         forall (E' : Ob C) (e' : Hom E' X) (H : e' .> f == e' .> g),
-          factorize E' e' H == factorize' E' e' H.
+          factorize1 E' e' H == factorize2 E' e' H.
 Proof.
   intros.
   edestruct H, H3. apply H5.

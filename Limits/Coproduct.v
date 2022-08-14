@@ -7,62 +7,63 @@ Section Traditional.
 
 Definition isCoproduct
   (C : Cat) {A B : Ob C}
-  (P : Ob C) (p1 : Hom A P) (p2 : Hom B P)
+  (P : Ob C) (finl : Hom A P) (finr : Hom B P)
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
   : Prop :=
     forall (X : Ob C) (f : Hom A X) (g : Hom B X),
-      setoid_unique (fun d : Hom P X => f == p1 .> d /\ g == p2 .> d) (copair f g).
+      setoid_unique (fun d : Hom P X => f == finl .> d /\ g == finr .> d) (copair f g).
 
 Lemma isProduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (P : Ob C) (finl : Hom X P) (finr : Hom Y P)
     (copair : forall (P' : Ob C) (f : Hom X P') (g : Hom Y P'), Hom P P'),
-      isProduct (Dual C) P p1 p2 copair
+      isProduct (Dual C) P finl finr copair
         =
-      isCoproduct C P p1 p2 copair.
+      isCoproduct C P finl finr copair.
 Proof. reflexivity. Defined.
 
 Lemma isCoproduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-      isCoproduct (Dual C) P p1 p2 fpair
+    (P : Ob C) (outl : Hom P X) (outr : Hom P Y)
+    (fpair : forall (P' : Ob C) (outl' : Hom P' X) (outr' : Hom P' Y), Hom P' P),
+      isCoproduct (Dual C) P outl outr fpair
         =
-      isProduct C P p1 p2 fpair.
+      isProduct C P outl outr fpair.
 Proof. reflexivity. Defined.
 
 Lemma isCoproduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-    (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
-    (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
-    (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C Q q1 q2 copair' ->
-        exists!! f : Hom P Q, isIso f /\ p1 .> f == q1 /\ p2 .> f == q2.
+    (P1 : Ob C) (finl1 : Hom X P1) (finr1 : Hom Y P1)
+    (copair1 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P1 A)
+    (P2 : Ob C) (finl2 : Hom X P2) (finr2 : Hom Y P2)
+    (copair2 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P2 A),
+      isCoproduct C P1 finl1 finr1 copair1 ->
+      isCoproduct C P2 finl2 finr2 copair2 ->
+        exists!! f : Hom P1 P2, isIso f /\ finl1 .> f == finl2 /\ finr1 .> f == finr2.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
-  exists (copair _ q1 q2).
+  exists (copair1 _ finl2 finr2).
   red. repeat split.
-    exists (copair' _ p1 p2).
+    exists (copair2 _ finl1 finr1).
       destruct
-        (H P p1 p2) as [[HP1 HP2] HP3],
-        (H Q q1 q2) as [[HQ1 HQ2] HQ3],
-        (H0 P p1 p2) as [[HP1' HP2'] HP3'],
-        (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
+        (H P1 finl1 finr1) as [[HP11 HP12] HP13],
+        (H P2 finl2 finr2) as [[HP21 HP22] HP23],
+        (H0 P1 finl1 finr1) as [[HP11' HP12'] HP13'],
+        (H0 P2 finl2 finr2) as [[HP21' HP22'] HP23'].
       cat.
-        rewrite <- (HP3 (copair Q q1 q2 .> copair' P p1 p2)).
-          apply HP3. cat.
+        rewrite <- (HP13 (copair1 P2 finl2 finr2 .> copair2 P1 finl1 finr1)).
+          apply HP13. cat.
           cat; rewrite <- comp_assoc.
-            rewrite <- HQ1. assumption.
-            rewrite <- HQ2. assumption.
-        rewrite <- (HQ3' (copair' P p1 p2 .> copair Q q1 q2)).
-          apply HQ3'. cat.
+            rewrite <- HP21. assumption.
+            rewrite <- HP22. assumption.
+        rewrite <- (HP23' (copair2 P1 finl1 finr1 .> copair1 P2 finl2 finr2)).
+          apply HP23'. cat.
           cat; rewrite <- comp_assoc.
-            rewrite <- HP1'. assumption.
-            rewrite <- HP2'. assumption.
+            rewrite <- HP11'. assumption.
+            rewrite <- HP12'. assumption.
     edestruct H as [[H1 H2] _]. rewrite <- H1. reflexivity.
     edestruct H as [[H1 H2] _]. rewrite <- H2. reflexivity.
     intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
@@ -72,11 +73,13 @@ Qed.
 Lemma isCoproduct_iso :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-    (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
-    (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q)
-    (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom Q A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C Q q1 q2 copair' -> P ~ Q.
+    (P1 : Ob C) (finl1 : Hom X P1) (finr1 : Hom Y P1)
+    (copair1 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P1 A)
+    (P2 : Ob C) (finl2 : Hom X P2) (finr2 : Hom Y P2)
+    (copair2 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P2 A),
+      isCoproduct C P1 finl1 finr1 copair1 ->
+      isCoproduct C P2 finl2 finr2 copair2 ->
+        P1 ~ P2.
 Proof.
   intros. destruct (isCoproduct_uiso H H0). cat.
 Qed.
@@ -84,46 +87,52 @@ Qed.
 Lemma isCoproduct_copair_equiv :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
-    (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A)
-    (copair' : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C P p1 p2 copair' ->
-        forall (A : Ob C) (f : Hom X A) (g : Hom Y A), copair A f g == copair' A f g.
+    (P : Ob C) (finl : Hom X P) (finr : Hom Y P)
+    (copair1 copair2 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
+      isCoproduct C P finl finr copair1 ->
+      isCoproduct C P finl finr copair2 ->
+        forall (A : Ob C) (f : Hom X A) (g : Hom Y A), copair1 A f g == copair2 A f g.
 Proof.
   intros. edestruct H, H0. apply H2. cat.
 Qed.
 
-Lemma isCoproduct_p1_equiv :
+Lemma isCoproduct_finl_equiv :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p1' : Hom X P) (p2 : Hom Y P)
+    (P : Ob C) (finl1 finl2 : Hom X P) (finr : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C P p1' p2 copair -> p1 == p1'.
+      isCoproduct C P finl1 finr copair ->
+      isCoproduct C P finl2 finr copair ->
+        finl1 == finl2.
 Proof.
   intros. do 2 red in H.
-  destruct (H P p1 p2) as [[H1 H2] H3].
-  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  destruct (H P finl1 finr) as [[H1 H2] H3].
+  destruct (H0 P finl1 finr) as [[H1' H2'] H3'].
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Lemma isCoproduct_p2_equiv :
+Lemma isCoproduct_finr_equiv :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom X P) (p2 : Hom Y P) (p2' : Hom Y P)
+    (P : Ob C) (finl : Hom X P) (finr1 finr2 : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C P p1 p2' copair -> p2 == p2'.
+      isCoproduct C P finl finr1 copair ->
+      isCoproduct C P finl finr2 copair ->
+        finr1 == finr2.
 Proof.
   intros. do 2 red in H.
-  destruct (H P p1 p2) as [[H1 H2] H3].
-  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  destruct (H P finl finr1) as [[H1 H2] H3].
+  destruct (H0 P finl finr1) as [[H1' H2'] H3'].
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
 Lemma isCoproduct_comm :
   forall
-    (C : Cat) (X Y P : Ob C) (p1 : Hom X P) (p2 : Hom Y P)
+    (C : Cat) (X Y : Ob C)
+    (P : Ob C) (finl : Hom X P) (finr : Hom Y P)
     (copair : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
-      isCoproduct C P p1 p2 copair -> isCoproduct C P p2 p1 (fun A f g => copair A g f).
+      isCoproduct C P finl finr copair ->
+        isCoproduct C P finr finl (fun A f g => copair A g f).
 Proof.
   unfold isCoproduct in *; intros.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.

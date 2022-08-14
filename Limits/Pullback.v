@@ -5,13 +5,14 @@ Set Implicit Arguments.
 
 Definition isPullback
   (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
-  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-  (factor : forall {P' : Ob C} (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P)
+  (P : Ob C) (pullL : Hom P X) (pullR : Hom P Y)
+  (factor : forall {P' : Ob C} (pullL' : Hom P' X) (pullR' : Hom P' Y),
+              pullL' .> f == pullR' .> g -> Hom P' P)
   : Prop :=
-    p1 .> f == p2 .> g
+    pullL .> f == pullR .> g
       /\
-    forall (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y) (H : q1 .> f == q2 .> g),
-      setoid_unique (fun u : Hom Q P => u .> p1 == q1 /\ u .> p2 == q2) (factor q1 q2 H).
+    forall (Q : Ob C) (pullL2 : Hom Q X) (pullR2 : Hom Q Y) (H : pullL2 .> f == pullR2 .> g),
+      setoid_unique (fun u : Hom Q P => u .> pullL == pullL2 /\ u .> pullR == pullR2) (factor pullL2 pullR2 H).
 
 Class HasPullbacks (C : Cat) : Type :=
 {
@@ -19,58 +20,67 @@ Class HasPullbacks (C : Cat) : Type :=
   pullbackObProper :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
       f == f' -> g == g' -> JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
-  pull1 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) X;
-  pull2 : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) Y;
-  Proper_pull1 :
+  pullL : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) X;
+  pullR : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) Y;
+  Proper_pullL :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> JMequiv (pull1 f g) (pull1 f' g');
-  Proper_pull2 :
+      f == f' -> g == g' -> JMequiv (pullL f g) (pullL f' g');
+  Proper_pullR :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> JMequiv (pull2 f g) (pull2 f' g');
+      f == f' -> g == g' -> JMequiv (pullR f g) (pullR f' g');
   factor :
-    forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A) {P : Ob C} (p1 : Hom P X) (p2 : Hom P Y),
-      p1 .> f == p2 .> g -> Hom P (pullbackOb f g);
+    forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A) {P : Ob C} (pullL : Hom P X) (pullR : Hom P Y),
+      pullL .> f == pullR .> g -> Hom P (pullbackOb f g);
   is_pullback :
     forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
-      isPullback C f g (pullbackOb f g) (pull1 f g) (pull2 f g) (@factor X Y A f g)
+      isPullback C f g (pullbackOb f g) (pullL f g) (pullR f g) (@factor X Y A f g)
 }.
 
 Arguments pullbackOb [C _ X Y A] _ _.
-Arguments pull1      [C _ X Y A] _ _.
-Arguments pull2      [C _ X Y A] _ _.
-Arguments factor     [C _ X Y A f g P p1 p2] _.
+Arguments pullL      [C _ X Y A] _ _.
+Arguments pullR      [C _ X Y A] _ _.
+Arguments factor     [C _ X Y A f g P pullL pullR] _.
 
-Lemma isPullback_uiso
-  (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
-  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-  (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P)
-  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
-  (factor' : forall (Q' : Ob C) (q1' : Hom Q' X) (q2' : Hom Q' Y), q1' .> f == q2' .> g -> Hom Q' Q) :
-    isPullback C f g P p1 p2 factor -> isPullback C f g Q q1 q2 factor' ->
-      exists!! f : Hom P Q, isIso f /\ f .> q1 == p1 /\ f .> q2 == p2.
+Lemma isPullback_uiso :
+  forall
+    (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
+    (P1 : Ob C) (pullL1 : Hom P1 X) (pullR1 : Hom P1 Y)
+    (factor1 : forall (P1' : Ob C) (pullL1' : Hom P1' X) (pullR1' : Hom P1' Y),
+                 pullL1' .> f == pullR1' .> g -> Hom P1' P1)
+    (P2 : Ob C) (pullL2 : Hom P2 X) (pullR2 : Hom P2 Y)
+    (factor2 : forall (P2' : Ob C) (pullL2' : Hom P2' X) (pullR2' : Hom P2' Y),
+                 pullL2' .> f == pullR2' .> g -> Hom P2' P2),
+      isPullback C f g P1 pullL1 pullR1 factor1 ->
+      isPullback C f g P2 pullL2 pullR2 factor2 ->
+        exists!! f : Hom P1 P2, isIso f /\ f .> pullL2 == pullL1 /\ f .> pullR2 == pullR1.
 Proof.
-  intros. destruct H as [HP HP'], H0 as [HQ HQ'].
-  exists (factor' P p1 p2 HP).
+  intros. destruct H as [HP1 HP1'], H0 as [HP2 HP2'].
+  exists (factor2 P1 pullL1 pullR1 HP1).
   destruct
-    (HP' P p1 p2 HP) as [[HP1 HP2] HP3],
-    (HP' Q q1 q2 HQ) as [[HP1' HP2'] HP3'],
-    (HQ' P p1 p2 HP) as [[HQ1' HQ2'] HQ3'],
-    (HQ' Q q1 q2 HQ) as [[HQ1 HQ2] HQ3].
+    (HP1' P1 pullL1 pullR1 HP1) as [[HP11 HP12] HP13],
+    (HP1' P2 pullL2 pullR2 HP2) as [[HP11' HP12'] HP13'],
+    (HP2' P1 pullL1 pullR1 HP1) as [[HP21' HP22'] HP23'],
+    (HP2' P2 pullL2 pullR2 HP2) as [[HP21 HP22] HP23].
   repeat split; cat.
-    red. exists (factor Q q1 q2 HQ). split.
-      rewrite <- (HP3 (factor' P p1 p2 HP .> factor Q q1 q2 HQ)); auto.
-        assocr'. rewrite HP1', HQ1', HP2', HQ2'. cat.
-      rewrite <- (HQ3 (factor Q q1 q2 HQ .> factor' P p1 p2 HP)); auto.
-        assocr'. rewrite HQ2', HQ1', HP2', HP1'. cat.
+    red. exists (factor1 P2 pullL2 pullR2 HP2). split.
+      rewrite <- (HP13 (factor2 P1 pullL1 pullR1 HP1 .> factor1 P2 pullL2 pullR2 HP2)); auto.
+        assocr'. rewrite HP11', HP21', HP12', HP22'. cat.
+      rewrite <- (HP23 (factor1 P2 pullL2 pullR2 HP2 .> factor2 P1 pullL1 pullR1 HP1)); auto.
+        assocr'. rewrite HP22', HP21', HP12', HP11'. cat.
 Qed.
 
-Lemma isPullback_iso
-  (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
-  (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-  (factor : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), p1' .> f == p2' .> g -> Hom P' P)
-  (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
-  (factor' : forall (Q' : Ob C) (q1' : Hom Q' X) (q2' : Hom Q' Y), q1' .> f == q2' .> g -> Hom Q' Q) :
-    isPullback C f g P p1 p2 factor -> isPullback C f g Q q1 q2 factor' -> P ~ Q.
+Lemma isPullback_iso :
+  forall
+    (C : Cat) (X Y A : Ob C) (f : Hom X A) (g : Hom Y A)
+    (P1 : Ob C) (pullL1 : Hom P1 X) (pullR1 : Hom P1 Y)
+    (factor1 : forall (P1' : Ob C) (pullL1' : Hom P1' X) (pullR1' : Hom P1' Y),
+                 pullL1' .> f == pullR1' .> g -> Hom P1' P1)
+    (P2 : Ob C) (pullL2 : Hom P2 X) (pullR2 : Hom P2 Y)
+    (factor2 : forall (P2' : Ob C) (pullL2' : Hom P2' X) (pullR2' : Hom P2' Y),
+                 pullL2' .> f == pullR2' .> g -> Hom P2' P2),
+      isPullback C f g P1 pullL1 pullR1 factor1 ->
+      isPullback C f g P2 pullL2 pullR2 factor2 ->
+        P1 ~ P2.
 Proof.
   intros. destruct (isPullback_uiso H H0).
   red. exists x. destruct H1 as [[H1 _] _]. assumption.
@@ -79,12 +89,12 @@ Qed.
 Lemma isProduct_isPullback :
   forall
     (C : Cat) (ht : HasTerm C) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (fpair : forall (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y), Hom P' P),
-      isPullback C (delete X) (delete Y) P p1 p2
-        (fun (P' : Ob C) (p1' : Hom P' X) (p2' : Hom P' Y)
-             (H : p1' .> delete X == p2' .> delete Y) => fpair P' p1' p2') ->
-        isProduct C P p1 p2 fpair.
+    (P : Ob C) (pullL : Hom P X) (pullR : Hom P Y)
+    (fpair : forall (P' : Ob C) (pullL' : Hom P' X) (pullR' : Hom P' Y), Hom P' P),
+      isPullback C (delete X) (delete Y) P pullL pullR
+        (fun (P' : Ob C) (pullL' : Hom P' X) (pullR' : Hom P' Y)
+             (H : pullL' .> delete X == pullR' .> delete Y) => fpair P' pullL' pullR') ->
+        isProduct C P pullL pullR fpair.
 Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     term.
@@ -97,12 +107,12 @@ Qed.
 Lemma isPullback_isProduct :
   forall
     (C : Cat) (ht : HasTerm C) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+    (P : Ob C) (pullL : Hom P X) (pullR : Hom P Y)
     (fpair : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' Y), Hom P' P),
-      isProduct C P p1 p2 fpair ->
+      isProduct C P pullL pullR fpair ->
         isPullback C
-          (delete X) (delete Y) P p1 p2 (fun (P' : Ob C)
-          (p1' : Hom P' X) (p2' : Hom P' Y) _ => fpair P' p1' p2').
+          (delete X) (delete Y) P pullL pullR (fun (P' : Ob C)
+          (pullL' : Hom P' X) (pullR' : Hom P' Y) _ => fpair P' pullL' pullR').
 Proof.
   red; intros. repeat split.
     term.
@@ -116,7 +126,7 @@ Qed.
 Lemma isEqualizer_isPullback
   (C : Cat) (X Y : Ob C) (f g : Hom X Y)
   (P : Ob C) (p : Hom P X) (factor : forall (P' : Ob C) (f : Hom P' X) (g : Hom P' X), Hom P' P) :
-    isPullback C f g P p p (fun P' p1' p2' _ => factor P' p1' p2') ->
+    isPullback C f g P p p (fun P' pullL' pullR' _ => factor P' pullL' pullR') ->
       isEqualizer C f g P p (fun (P' : Ob C) (p : Hom P' X) _ => factor P' p p).
 Proof.
   repeat split.

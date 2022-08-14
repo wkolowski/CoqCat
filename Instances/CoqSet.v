@@ -280,11 +280,11 @@ Instance CoqSet_CartesianClosed : CartesianClosed CoqSet :=
 Definition CoqSet_pullbackOb {X Y A : Set} (f : X -> A) (g : Y -> A) : Set :=
   {p : X * Y | f (fst p) = g (snd p)}.
 
-Definition CoqSet_pull1
+Definition CoqSet_pullL
   {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullbackOb f g)
   : X := fst (proj1_sig p).
 
-Definition CoqSet_pull2
+Definition CoqSet_pullR
   {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullbackOb f g)
   : Y := snd (proj1_sig p).
 
@@ -300,8 +300,8 @@ Abort.
 Instance HasPullbacks_CoqSet : HasPullbacks CoqSet :=
 {
   pullbackOb := @CoqSet_pullbackOb;
-  pull1 := @CoqSet_pull1;
-  pull2 := @CoqSet_pull2;
+  pullL := @CoqSet_pullL;
+  pullR := @CoqSet_pullR;
 }.
 Proof.
 Abort.

@@ -21,10 +21,12 @@ Proof. reflexivity. Defined.
 
 Lemma isTerminal_uiso :
   forall
-    (C : Cat) (A B : Ob C)
-    (deleteA : forall X : Ob C, Hom X A)
-    (deleteB : forall X : Ob C, Hom X B),
-      isTerminal A deleteA -> isTerminal B deleteB -> A ~~ B.
+    (C : Cat)
+    (T1 : Ob C) (delete1 : forall X : Ob C, Hom X T1)
+    (T2 : Ob C) (delete2 : forall X : Ob C, Hom X T2),
+      isTerminal T1 delete1 ->
+      isTerminal T2 delete2 ->
+        T1 ~~ T2.
 Proof.
   intro C.
   rewrite <- (Dual_Dual C); cbn; intros.
@@ -35,21 +37,23 @@ Qed.
 
 Lemma isTerminal_iso :
   forall
-    (C : Cat) (A B : Ob C)
-    (deleteA : forall X : Ob C, Hom X A)
-    (deleteB : forall X : Ob C, Hom X B),
-      isTerminal A deleteA -> isTerminal B deleteB -> A ~ B.
+    (C : Cat)
+    (T1 : Ob C) (delete1 : forall X : Ob C, Hom X T1)
+    (T2 : Ob C) (delete2 : forall X : Ob C, Hom X T2),
+      isTerminal T1 delete1 ->
+      isTerminal T2 delete2 ->
+        T1 ~ T2.
 Proof.
   intros. destruct (isTerminal_uiso H H0). cat.
 Qed.
 
 Lemma isTerminal_delete_equiv :
   forall
-    (C : Cat) (T : Ob C)
-    (delete : forall X : Ob C, Hom X T)
-    (delete' : forall X : Ob C, Hom X T),
-      isTerminal T delete -> isTerminal T delete' ->
-        forall X : Ob C, delete X == delete' X.
+    (C : Cat)
+    (T : Ob C) (delete1 delete2 : forall X : Ob C, Hom X T),
+      isTerminal T delete1 ->
+      isTerminal T delete2 ->
+        forall X : Ob C, delete1 X == delete2 X.
 Proof.
   unfold isTerminal.
   intros C T d1 d2 H1 H2 X.

@@ -10,40 +10,44 @@ Definition isInitial
 
 Lemma isInitial_uiso :
   forall
-    (C : Cat) (A B : Ob C)
-    (createA : forall X : Ob C, Hom A X)
-    (createB : forall X : Ob C, Hom B X),
-      isInitial A createA -> isInitial B createB -> A ~~ B.
+    (C : Cat)
+    (I1 : Ob C) (create1 : forall X : Ob C, Hom I1 X)
+    (I2 : Ob C) (create2 : forall X : Ob C, Hom I2 X),
+      isInitial I1 create1 ->
+      isInitial I2 create2 ->
+        I1 ~~ I2.
 Proof.
   unfold isInitial, uniquely_isomorphic, isomorphic.
-  intros C A B createA createB createA_unique createB_unique.
-  exists (createA B).
+  intros C I1 create1 I2 create2 create1_unique create2_unique.
+  exists (create1 I2).
   split.
   - unfold isIso.
-    exists (createB A).
-    rewrite (createA_unique _ (id A)), (createB_unique _ (id B)),
-            !createA_unique, !createB_unique.
+    exists (create2 I1).
+    rewrite (create1_unique _ (id I1)), (create2_unique _ (id I2)),
+            !create1_unique, !create2_unique.
     split; reflexivity.
-  - intros. rewrite (createA_unique _ y). reflexivity.
+  - intros. rewrite (create1_unique _ y). reflexivity.
 Qed.
 
 Lemma isInitial_iso :
   forall
-    (C : Cat) (A B : Ob C)
-    (createA : forall X : Ob C, Hom A X)
-    (createB : forall X : Ob C, Hom B X),
-      isInitial A createA -> isInitial B createB -> A ~ B.
+    (C : Cat)
+    (I1 : Ob C) (create1 : forall X : Ob C, Hom I1 X)
+    (I2 : Ob C) (create2 : forall X : Ob C, Hom I2 X),
+      isInitial I1 create1 ->
+      isInitial I2 create2 ->
+        I1 ~ I2.
 Proof.
   intros. destruct (isInitial_uiso H H0). cat.
 Qed.
 
 Lemma isInitial_create_equiv :
   forall
-    (C : Cat) (I : Ob C)
-    (create : forall X : Ob C, Hom I X)
-    (create' : forall X : Ob C, Hom I X),
-      isInitial I create -> isInitial I create' ->
-        forall X : Ob C, create X == create' X.
+    (C : Cat)
+    (I : Ob C) (create1 create2 : forall X : Ob C, Hom I X),
+      isInitial I create1 ->
+      isInitial I create2 ->
+        forall X : Ob C, create1 X == create2 X.
 Proof.
   unfold isInitial.
   intros C I c1 c2 H1 H2 X.

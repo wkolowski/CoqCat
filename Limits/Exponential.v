@@ -2,9 +2,9 @@ From Cat Require Export Cat.
 From Cat.Limits Require Export Initial Terminal Product Coproduct.
 
 Definition isExponential
-  {C : Cat} {hp : HasProducts C}
-  (X Y E : Ob C) (eval : Hom (prodOb E X) Y)
-  (curry : forall E' : Ob C, Hom (prodOb E' X) Y -> Hom E' E)
+  {C : Cat} {hp : HasProducts C} (X Y : Ob C)
+  (E : Ob C) (eval : Hom (prodOb E X) Y)
+  (curry : forall E2 : Ob C, Hom (prodOb E2 X) Y -> Hom E2 E)
   : Prop :=
     forall (E' : Ob C) (eval' : Hom (prodOb E' X) Y),
       setoid_unique (fun u : Hom E' E =>
@@ -13,49 +13,51 @@ Definition isExponential
 Lemma isExponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E : Ob C) (eval : Hom (prodOb E X) Y)
-    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
-    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
-    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      isExponential X Y E eval curry ->
-      isExponential X Y E' eval' curry' ->
-        exists !! f : Hom E E', isIso f /\ f ×' id X .> eval' == eval.
+    (E1 : Ob C) (eval1 : Hom (prodOb E1 X) Y)
+    (curry1 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (prodOb E2 X) Y)
+    (curry2 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E2),
+      isExponential X Y E1 eval1 curry1 ->
+      isExponential X Y E2 eval2 curry2 ->
+        exists !! f : Hom E1 E2, isIso f /\ f ×' id X .> eval2 == eval1.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
-  exists (curry' E eval). repeat split.
-    red. exists (curry E' eval').
+  exists (curry2 E1 eval1). repeat split.
+    red. exists (curry1 E2 eval2).
     split.
-      destruct (H E eval) as [H1 H2].
-        rewrite <- (H2 (curry' E eval .> curry E' eval')).
-          rewrite (H2 (id E)).
+      destruct (H E1 eval1) as [H1 H2].
+        rewrite <- (H2 (curry2 E1 eval1 .> curry1 E2 eval2)).
+          rewrite (H2 (id E1)).
             reflexivity.
             rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
           rewrite ProductFunctor_fmap_comp_l.
-            destruct (H E' eval'), (H0 E eval).
+            destruct (H E2 eval2), (H0 E1 eval1).
               rewrite comp_assoc. rewrite H3. rewrite H5. reflexivity.
-      destruct (H0 E' eval') as [H1 H2].
-        rewrite <- (H2 (curry E' eval' .> curry' E eval)).
-          rewrite (H2 (id E')).
+      destruct (H0 E2 eval2) as [H1 H2].
+        rewrite <- (H2 (curry1 E2 eval2 .> curry2 E1 eval1)).
+          rewrite (H2 (id E2)).
             reflexivity.
             rewrite ProductFunctor_fmap_id, comp_id_l. reflexivity.
           rewrite ProductFunctor_fmap_comp_l.
-            destruct (H E' eval'), (H0 E eval).
+            destruct (H E2 eval2), (H0 E1 eval1).
               rewrite comp_assoc. rewrite H5. rewrite H3. reflexivity.
     intros. edestruct H0. apply H1.
     intros. edestruct H0. apply H3. rewrite <- H2. apply Proper_comp; cat.
       apply Proper_ProductFunctor_fmap; cat. rewrite H3; cat.
 Qed.
 
-Arguments isExponential_uiso {C hp X Y E eval curry E' eval' curry'} _ _.
+Arguments isExponential_uiso {C hp X Y E1 eval1 curry1 E2 eval2 curry2} _ _.
 
 Lemma isExponential_iso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E : Ob C) (eval : Hom (prodOb E X) Y)
-    (curry : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E)
-    (E' : Ob C) (eval' : Hom (prodOb E' X) Y)
-    (curry' : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E'),
-      isExponential X Y E eval curry -> isExponential X Y E' eval' curry' -> E ~ E'.
+    (E1 : Ob C) (eval1 : Hom (prodOb E1 X) Y)
+    (curry1 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (prodOb E2 X) Y)
+    (curry2 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E2),
+      isExponential X Y E1 eval1 curry1 ->
+      isExponential X Y E2 eval2 curry2 ->
+        E1 ~ E2.
 Proof.
   intros. destruct (isExponential_uiso H H0). cat.
 Qed.
@@ -381,7 +383,7 @@ Instance from (C : Cat) (hp : HasProducts C) (he : Universal.HasExponentials C)
 }.
 Proof.
   unfold isExponential, setoid_unique.
-  intros X Y E' eval'; split.
+  intros X Y E2 eval'; split.
   - apply Universal.universal. reflexivity.
   - intros h <-. apply Universal.curry_uncurry.
 Defined.
@@ -542,7 +544,7 @@ Instance from (C : Cat) (hp : HasProducts C) (he : Rules.HasExponentials C)
 }.
 Proof.
   unfold isExponential, setoid_unique.
-  intros X Y E' eval'; split.
+  intros X Y E2 eval'; split.
   - apply Rules.he_comp.
   - intros h <-. apply Rules.curry_uncurry.
 Defined.

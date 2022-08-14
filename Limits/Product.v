@@ -6,56 +6,59 @@ Section Traditional.
 
 Definition isProduct
   (C : Cat) {A B : Ob C}
-  (P : Ob C) (p1 : Hom P A) (p2 : Hom P B)
+  (P : Ob C) (outl : Hom P A) (outr : Hom P B)
   (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
   : Prop :=
     forall (X : Ob C) (f : Hom X A) (g : Hom X B),
-      setoid_unique (fun u : Hom X P => f == u .> p1 /\ g == u .> p2) (fpair f g).
+      setoid_unique (fun u : Hom X P => f == u .> outl /\ g == u .> outr) (fpair f g).
 
 Lemma isProduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
-    (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
-    (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
-      isProduct C P p1 p2 fpair -> isProduct C Q q1 q2 fpair' ->
-        exists!! f : Hom P Q, isIso f /\ p1 == f .> q1 /\ p2 == f .> q2.
+    (P1 : Ob C) (outl1 : Hom P1 X) (outr1 : Hom P1 Y)
+    (fpair1 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P1)
+    (P2 : Ob C) (outl2 : Hom P2 X) (outr2 : Hom P2 Y)
+    (fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P2),
+      isProduct C P1 outl1 outr1 fpair1 ->
+      isProduct C P2 outl2 outr2 fpair2 ->
+        exists!! f : Hom P1 P2, isIso f /\ outl1 == f .> outl2 /\ outr1 == f .> outr2.
 Proof.
   intros. do 2 red in H. do 2 red in H0.
-  exists (fpair' _ p1 p2).
+  exists (fpair2 _ outl1 outr1).
   red. repeat split.
-    exists (fpair _ q1 q2).
+    exists (fpair1 _ outl2 outr2).
       destruct
-        (H P p1 p2) as [[HP1 HP2] HP3],
-        (H Q q1 q2) as [[HQ1 HQ2] HQ3],
-        (H0 P p1 p2) as [[HP1' HP2'] HP3'],
-        (H0 Q q1 q2) as [[HQ1' HQ2'] HQ3'].
+        (H P1 outl1 outr1) as [[HP11 HP12] HP13],
+        (H P2 outl2 outr2) as [[HP21 HP22] HP23],
+        (H0 P1 outl1 outr1) as [[HP11' HP12'] HP13'],
+        (H0 P2 outl2 outr2) as [[HP21' HP22'] HP23'].
       split.
-        rewrite <- (HP3 (fpair' P p1 p2 .> fpair Q q1 q2)).
-          apply HP3. cat.
+        rewrite <- (HP13 (fpair2 P1 outl1 outr1 .> fpair1 P2 outl2 outr2)).
+          apply HP13. cat.
           split; assocr.
-            rewrite <- HQ1. assumption.
-            rewrite <- HQ2. assumption.
-        rewrite <- (HQ3' (fpair Q q1 q2 .> fpair' P p1 p2)).
-          apply HQ3'. cat.
+            rewrite <- HP21. assumption.
+            rewrite <- HP22. assumption.
+        rewrite <- (HP23' (fpair1 P2 outl2 outr2 .> fpair2 P1 outl1 outr1)).
+          apply HP23'. cat.
           split; assocr.
-            rewrite <- HP1'. assumption.
-            rewrite <- HP2'. assumption.
+            rewrite <- HP11'. assumption.
+            rewrite <- HP12'. assumption.
     edestruct H0 as [[H1 H2] _]. eauto.
     edestruct H0 as [[H1 H2] _]. eauto.
-    intros. destruct H1 as [[y_inv [iso1 iso2]] [eq1 eq2]].
+    intros. destruct H1 as [[y_inv [iso1 iso2]] [eoutl2 eoutr2]].
       edestruct H0. apply H2. cat.
 Qed.
 
 Lemma isProduct_iso :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
-    (Q : Ob C) (q1 : Hom Q X) (q2 : Hom Q Y)
-    (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A Q),
-      isProduct C P p1 p2 fpair -> isProduct C Q q1 q2 fpair' -> P ~ Q.
+    (P1 : Ob C) (outl1 : Hom P1 X) (outr1 : Hom P1 Y)
+    (fpair1 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P1)
+    (P2 : Ob C) (outl2 : Hom P2 X) (outr2 : Hom P2 Y)
+    (fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P2),
+      isProduct C P1 outl1 outr1 fpair1 ->
+      isProduct C P2 outl2 outr2 fpair2 ->
+        P1 ~ P2.
 Proof.
   intros. destruct (isProduct_uiso H H0). cat.
 Qed.
@@ -63,71 +66,76 @@ Qed.
 Lemma isProduct_fpair_equiv :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
-    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P)
-    (fpair' : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      isProduct C P p1 p2 fpair -> isProduct C P p1 p2 fpair' ->
+    (P : Ob C) (outl : Hom P X) (outr : Hom P Y)
+    (fpair1 fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
+      isProduct C P outl outr fpair1 ->
+      isProduct C P outl outr fpair2 ->
         forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
-          fpair A f g == fpair' A f g.
+          fpair1 A f g == fpair2 A f g.
 Proof.
   intros. edestruct H, H0. cat.
 Qed.
 
-Lemma isProduct_p1_equiv
+Lemma isProduct_outl_equiv
   (C : Cat) (X Y : Ob C)
-  (P : Ob C) (p1 : Hom P X) (p1' : Hom P X) (p2 : Hom P Y)
+  (P : Ob C) (outl1 outl2 : Hom P X) (outr : Hom P Y)
   (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P) :
-    isProduct C P p1 p2 fpair -> isProduct C P p1' p2 fpair -> p1 == p1'.
+    isProduct C P outl1 outr fpair ->
+    isProduct C P outl2 outr fpair ->
+      outl1 == outl2.
 Proof.
   intros. do 2 red in H.
-  destruct (H P p1 p2) as [[H1 H2] H3].
-  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  destruct (H P outl1 outr) as [[H1 H2] H3].
+  destruct (H0 P outl1 outr) as [[H1' H2'] H3'].
   rewrite (H3 (id P)) in H1'. cat. cat.
 Qed.
 
-Lemma isProduct_p2_equiv :
+Lemma isProduct_outr_equiv :
   forall
     (C : Cat) (X Y : Ob C)
-    (P : Ob C) (p1 : Hom P X) (p2 : Hom P Y) (p2' : Hom P Y)
+    (P : Ob C) (outl : Hom P X) (outr1 outr2 : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-    isProduct C P p1 p2 fpair -> isProduct C P p1 p2' fpair -> p2 == p2'.
+      isProduct C P outl outr1 fpair ->
+      isProduct C P outl outr2 fpair ->
+        outr1 == outr2.
 Proof.
   intros. do 2 red in H.
-  destruct (H P p1 p2) as [[H1 H2] H3].
-  destruct (H0 P p1 p2) as [[H1' H2'] H3'].
+  destruct (H P outl outr1) as [[H1 H2] H3].
+  destruct (H0 P outl outr1) as [[H1' H2'] H3'].
   rewrite (H3 (id P)) in H2'. cat. cat.
 Qed.
 
 (* TODO : Dual *) Lemma iso_to_prod :
   forall
     (C : Cat) (X Y : Ob C)
-    (P Q : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+    (P Q : Ob C) (outl : Hom P X) (outr : Hom P Y)
     (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
-      isProduct C P p1 p2 fpair ->
+      isProduct C P outl outr fpair ->
       forall (f : Hom Q P) (H : isIso f),
-      isProduct C Q (f .> p1) (f .> p2)
-        (fun (A : Ob C) (p1' : Hom A X) (p2' : Hom A Y) =>
+      isProduct C Q (f .> outl) (f .> outr)
+        (fun (A : Ob C) (outl' : Hom A X) (outr' : Hom A Y) =>
           match constructive_indefinite_description _ H with
-          | exist _ g _ => fpair A p1' p2' .> g
+          | exist _ g _ => fpair A outl' outr' .> g
           end).
 Proof.
   unfold isProduct in *. intros.
-  destruct (constructive_indefinite_description _ _) as (f_inv & eq1 & eq2).
+  destruct (constructive_indefinite_description _ _) as (f_inv & eoutl2 & eoutr2).
   edestruct H as [[H1 H2] H3]. repeat split.
     rewrite comp_assoc, <- (comp_assoc f_inv f).
-      rewrite eq2. cat.
+      rewrite eoutr2. cat.
     rewrite comp_assoc, <- (comp_assoc f_inv f).
-      rewrite eq2. cat.
+      rewrite eoutr2. cat.
     intros. red in H. destruct (H _ f0 g) as [[H1' H2'] H3'].
       specialize (H3' (y .> f)). rewrite H3'; cat.
-        rewrite eq1. cat.
+        rewrite eoutl2. cat.
 Qed.
 
 Lemma isProduct_comm :
   forall
-    (C : Cat) (X Y P : Ob C) (p1 : Hom P X) (p2 : Hom P Y)
+    (C : Cat) (X Y P : Ob C) (outl : Hom P X) (outr : Hom P Y)
     (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      isProduct C P p1 p2 fpair -> isProduct C P p2 p1 (fun A f g => fpair A g f).
+      isProduct C P outl outr fpair ->
+        isProduct C P outr outl (fun A f g => fpair A g f).
 Proof.
   unfold isProduct in *; intros.
   destruct (H X0 g f) as [[H1 H2] H3]. cat.
@@ -191,7 +199,7 @@ Lemma fpair_unique :
   forall h : Hom X (prodOb A B),
     h .> outl == f -> h .> outr == g -> h == fpair f g.
 Proof.
-  intros h Heq1 Heq2.
+  intros h Heoutl2 Heoutr2.
   symmetry.
   apply fpair_universal.
   split; symmetry; assumption.
@@ -489,7 +497,7 @@ Lemma fpair_unique :
   forall h : Hom X (prodOb A B),
     h .> outl == f -> h .> outr == g -> h == fpair f g.
 Proof.
-  intros h Heq1 Heq2.
+  intros h Heoutl2 Heoutr2.
   symmetry.
   apply fpair_universal.
   split; symmetry; assumption.
