@@ -12,6 +12,24 @@ Definition isEqualizer
     forall (E' : Ob C) (e' : Hom E' X) (H : e' .> f == e' .> g),
       setoid_unique (fun u : Hom E' E => u .> e == e') (factorize H).
 
+Class isEqualizer'
+  (C : Cat) {X Y : Ob C} (f g : Hom X Y)
+  (E : Ob C) (e : Hom E X)
+  (factorize : forall {E' : Ob C} {e' : Hom E' X}, e' .> f == e' .> g -> Hom E' E)
+  : Prop :=
+{
+  equalize_ok : e .> f == e .> g;
+  equalize_comp :
+    forall {E' : Ob C} {e' : Hom E' X} (H : e' .> f == e' .> g),
+      factorize H .> e == e';
+  equalizer_equiv :
+    forall {E' : Ob C} {e1 e2 : Hom E' E},
+      e1 .> e == e2 .> e -> e1 == e2;
+(*   equalizer_equiv :
+    forall {E' : Ob C} {e' : Hom E' X} (H : e' .> f == e' .> g) (h : Hom E' E),
+      factorize H == h <-> h .> e == e' *)
+}.
+
 Section Traditional.
 
 Context
@@ -130,6 +148,25 @@ Proof.
           assocr. rewrite H3. cat.
           rewrite (HisMono _ _ _ H5). reflexivity.
         edestruct H1. apply H3.
+Qed.
+
+Lemma isEqualizer_isEqualizer' :
+  forall
+    (E : Ob C) (e : Hom E X)
+    (factorize : forall {E' : Ob C} {e' : Hom E' X}, e' .> f == e' .> g -> Hom E' E),
+      isEqualizer C f g E e (@factorize) <-> isEqualizer' C f g E e (@factorize).
+Proof.
+  split.
+  - intros H; split.
+    + apply H.
+    + intros. apply H.
+    + intros. eapply isMono_equalizer in H0; eassumption.
+  - intros []; split.
+    + assumption.
+    + split.
+      * apply equalize_comp0.
+      * intros y Hy. apply equalizer_equiv0.
+        rewrite equalize_comp0, Hy. reflexivity.
 Qed.
 
 End Traditional.
