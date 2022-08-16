@@ -25,9 +25,6 @@ Class isEqualizer'
   equalizer_equiv :
     forall {E' : Ob C} {e1 e2 : Hom E' E},
       e1 .> e == e2 .> e -> e1 == e2;
-(*   equalizer_equiv :
-    forall {E' : Ob C} {e' : Hom E' X} (H : e' .> f == e' .> g) (h : Hom E' E),
-      factorize H == h <-> h .> e == e' *)
 }.
 
 Section Traditional.

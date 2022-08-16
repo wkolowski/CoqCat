@@ -305,7 +305,8 @@ Defined.
 Lemma ProductFunctor_fmap_comp :
   forall
     (C : Cat) (hp : HasProducts C)
-    (A1 A2 B1 B2 C1 C2 : Ob C) (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
+    (A1 A2 B1 B2 C1 C2 : Ob C)
+    (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
       ProductFunctor_fmap (f1 .> g1) (f2 .> g2)
         ==
       ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.

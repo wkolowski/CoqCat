@@ -550,3 +550,179 @@ Proof.
 Defined.
 
 End RulesEquiv.
+
+Module Rules2.
+
+Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
+{
+  expOb : Ob C -> Ob C -> Ob C;
+  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  (* Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z); *)
+  he_comp :
+    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y),
+      curry f ×' id X .> eval == f;
+  he_equiv :
+    forall {X Y E : Ob C} (f g : Hom E (expOb X Y)),
+      f ×' id X .> eval == g ×' id X .> eval -> f == g;
+}.
+
+Arguments expOb {C hp HasExponentials} _ _.
+Arguments eval  {C hp HasExponentials X Y}.
+Arguments curry {C hp HasExponentials X Y Z} _.
+
+Section Exponential.
+
+Context
+  {C : Cat}
+  {hp : HasProducts C}
+  {he : HasExponentials C}
+  {X Y Z : Ob C}.
+
+#[export]
+Instance Proper_curry :
+  Proper (equiv ==> equiv) (@curry C hp he X Y Z).
+Proof.
+  proper.
+  apply he_equiv.
+  rewrite !he_comp.
+  assumption.
+Defined.
+
+Lemma universal_property :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    curry f == g <-> g ×' id X .> eval == f.
+Proof.
+  split.
+  - intros <-. apply he_comp.
+  - intros Heq. apply he_equiv. rewrite he_comp. symmetry; assumption.
+Qed.
+
+Lemma computation_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+    curry f ×' id X .> eval == f.
+Proof.
+  intros E f.
+  apply he_comp.
+Qed.
+
+Lemma uniqueness_rule :
+  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    g ×' id X .> eval == f -> g == curry f.
+Proof.
+  intros E f g Heq.
+  apply he_equiv.
+  rewrite he_comp.
+  assumption.
+Qed.
+
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+
+#[export]
+Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
+Proof.
+  intros f g Heq.
+  unfold uncurry.
+  rewrite Heq.
+  reflexivity.
+Qed.
+
+Lemma curry_uncurry :
+  forall f : Hom X (expOb Y Z),
+    curry (uncurry f) == f.
+Proof.
+  intros f.
+  apply he_equiv.
+  rewrite he_comp.
+  reflexivity.
+Qed.
+
+End Exponential.
+
+Lemma uncurry_curry :
+  forall
+    {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
+    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+      uncurry (curry f) == f.
+Proof.
+  intros C hp he X Y Z f.
+  unfold uncurry.
+  apply he_comp.
+Qed.
+
+Section Exponential.
+
+Context
+  [C : Cat]
+  [hp : HasProducts C]
+  [he : HasExponentials C]
+  [X Y Z : Ob C].
+
+Lemma curry_eval :
+  curry eval == id (expOb X Y).
+Proof.
+  apply he_equiv.
+  rewrite he_comp.
+  unfold ProductFunctor_fmap.
+  fpair.
+Qed.
+
+Lemma curry_comp :
+  forall (A : Ob C) (f : Hom Y Z) (g : Hom Z A),
+    curry (eval (X := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
+Proof.
+  intros.
+  symmetry; apply he_equiv.
+  rewrite he_comp, <- (comp_id_l X), ProductFunctor_fmap_comp, comp_assoc.
+  rewrite he_comp, <- comp_assoc, he_comp, comp_assoc.
+  reflexivity.
+Qed.
+
+Lemma uncurry_id :
+  uncurry (id (expOb X Y)) == eval.
+Proof.
+  unfold uncurry, ProductFunctor_fmap.
+  fpair.
+Qed.
+
+End Exponential.
+
+End Rules2.
+
+Module Rules2Equiv.
+
+#[refine]
+#[export]
+Instance to (C : Cat) (hp : HasProducts C) (he : HasExponentials C)
+  : Rules2.HasExponentials C :=
+{
+  expOb := @expOb C hp he;
+  eval := @eval C hp he;
+  curry := @curry C hp he;
+}.
+Proof.
+  - apply computation_rule.
+  - intros. etransitivity; cycle 1.
+    + apply universal_property. symmetry. eassumption.
+    + symmetry. apply universal_property. reflexivity.
+Defined.
+
+#[refine]
+#[export]
+Instance from (C : Cat) (hp : HasProducts C) (he : Rules2.HasExponentials C)
+  : HasExponentials C :=
+{
+  expOb := @Rules2.expOb C hp he;
+  eval := @Rules2.eval C hp he;
+  curry := @Rules2.curry C hp he;
+}.
+Proof.
+  - intros. apply Rules2.Proper_curry.
+  - unfold isExponential, setoid_unique.
+    intros X Y E2 eval'; split.
+    + apply Rules2.he_comp.
+    + intros y Heq. apply Rules2.he_equiv.
+      rewrite Rules2.he_comp, Heq. reflexivity.
+Defined.
+
+End Rules2Equiv.
