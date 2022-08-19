@@ -22,6 +22,20 @@ Class isProduct
 #[export] Hint Mode isProduct ! ! ! ! ! ! ! : core.
 #[export] Hint Mode isProduct ! ! ! - - - - : core.
 
+Lemma fpair_equiv' :
+  forall
+    {C : Cat} {A B : Ob C}
+    {P : Ob C} {outl : Hom P A} {outr : Hom P B}
+    {fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P}
+    {isP : isProduct C P outl outr (@fpair)}
+    {X : Ob C} (h1 h2 : Hom X P),
+        h1 == h2 <-> h1 .> outl == h2 .> outl /\ h1 .> outr == h2 .> outr.
+Proof.
+  split.
+  - now intros ->.
+  - now intros []; apply fpair_equiv.
+Qed.
+
 Section isProduct.
 
 Context
@@ -34,55 +48,38 @@ Context
 
 Arguments fpair {X} _ _.
 
-Instance Proper_fpair :
+#[global] Instance Proper_fpair :
   Proper (equiv ==> equiv ==> equiv) (@fpair X).
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
-  apply fpair_equiv.
-  - rewrite !fpair_outl. assumption.
-  - rewrite !fpair_outr. assumption.
+  now rewrite fpair_equiv', !fpair_outl, !fpair_outr.
 Defined.
 
 Lemma fpair_universal :
   forall h : Hom X P,
     fpair f g == h <-> f == h .> outl /\ g == h .> outr.
 Proof.
-  split.
-  - intros <-.
-    rewrite fpair_outl, fpair_outr.
-    split; reflexivity.
-  - intros [-> ->].
-    apply fpair_equiv.
-    + rewrite fpair_outl; reflexivity.
-    + rewrite fpair_outr; reflexivity.
+  now intros; rewrite fpair_equiv', fpair_outl, fpair_outr.
 Qed.
 
 Lemma fpair_unique :
   forall h : Hom X P,
     h .> outl == f -> h .> outr == g -> h == fpair f g.
 Proof.
-  intros h <- <-.
-  apply fpair_equiv.
-  + rewrite fpair_outl; reflexivity.
-  + rewrite fpair_outr; reflexivity.
+  now intros; rewrite fpair_equiv', fpair_outl, fpair_outr.
 Qed.
 
 Lemma fpair_id :
   fpair outl outr == id P.
 Proof.
-  apply fpair_equiv.
-  + rewrite fpair_outl, comp_id_l; reflexivity.
-  + rewrite fpair_outr, comp_id_l; reflexivity.
+  now rewrite fpair_equiv', fpair_outl, fpair_outr, !comp_id_l.
 Qed.
 
 Lemma fpair_pre :
   forall h : Hom Y X,
     fpair (h .> f) (h .> g) == h .> fpair f g.
 Proof.
-  intros h.
-  apply fpair_equiv.
-  + rewrite comp_assoc, !fpair_outl; reflexivity.
-  + rewrite comp_assoc, !fpair_outr; reflexivity.
+  now intros h; rewrite fpair_equiv', !comp_assoc, !fpair_outl, !fpair_outr.
 Qed.
 
 End isProduct.
@@ -102,7 +99,7 @@ Arguments outl   {C HasProducts A B}.
 Arguments outr   {C HasProducts A B}.
 Arguments fpair  {C HasProducts A B X} _ _.
 
-#[export] Hint Extern 0 (isProduct _ _ _ _ _) => typeclasses eauto : core.
+(* #[export] Hint Extern 0 (isProduct _ _ _ _ _) => typeclasses eauto : core. *)
 
 Ltac fpair := intros; try split;
 repeat match goal with
@@ -147,18 +144,12 @@ Proof.
   intros * H1 H2.
   exists (fpair2 _ outl1 outr1); repeat split.
   - exists (fpair1 _ outl2 outr2); split.
-    + rewrite <- fpair_pre.
-      symmetry; apply fpair_unique.
-      * rewrite fpair_outl, comp_id_l; reflexivity.
-      * rewrite fpair_outr, comp_id_l; reflexivity.
-    + rewrite <- fpair_pre.
-      symmetry; apply fpair_unique.
-      * rewrite fpair_outl, comp_id_l; reflexivity.
-      * rewrite fpair_outr, comp_id_l; reflexivity.
-  - rewrite fpair_outl; reflexivity.
-  - rewrite fpair_outr; reflexivity.
+    + now rewrite fpair_equiv', !comp_assoc, !comp_id_l, !fpair_outl, !fpair_outr.
+    + now rewrite fpair_equiv', !comp_assoc, !comp_id_l, !fpair_outl, !fpair_outr.
+  - now rewrite fpair_outl.
+  - now rewrite fpair_outr.
   - intros y (HIso & Heql & Heqr).
-    symmetry; apply fpair_unique; symmetry; assumption.
+    now rewrite fpair_equiv', fpair_outl, fpair_outr.
 Qed.
 
 Lemma isProduct_iso :
@@ -185,10 +176,7 @@ Lemma isProduct_fpair_equiv :
         forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
           fpair1 A f g == fpair2 A f g.
 Proof.
-  intros.
-  apply fpair_equiv.
-  - rewrite !fpair_outl; reflexivity.
-  - rewrite !fpair_outr; reflexivity.
+  now intros; rewrite fpair_equiv', !fpair_outl, !fpair_outr.
 Qed.
 
 Lemma isProduct_outl_equiv
@@ -199,7 +187,7 @@ Lemma isProduct_outl_equiv
     isProduct C P outl2 outr fpair ->
       outl1 == outl2.
 Proof.
-  intros; rewrite <- fpair_outl, fpair_id, comp_id_l; reflexivity.
+  now intros; rewrite <- fpair_outl, fpair_id, comp_id_l.
 Qed.
 
 Lemma isProduct_outr_equiv :
@@ -211,7 +199,7 @@ Lemma isProduct_outr_equiv :
       isProduct C P outl outr2 fpair ->
         outr1 == outr2.
 Proof.
-  intros; rewrite <- fpair_outr, fpair_id, comp_id_l; reflexivity.
+  now intros; rewrite <- fpair_outr, fpair_id, comp_id_l.
 Qed.
 
 (* TODO : Dual *) Lemma iso_to_prod :
@@ -230,10 +218,10 @@ Proof.
   intros.
   destruct (constructive_indefinite_description _ _) as (f_inv & eoutl2 & eoutr2).
   constructor; intros.
-  - rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outl; reflexivity.
-  - rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outr; reflexivity.
-  - rewrite <- (comp_id_r _ _ f0), <- (comp_id_r _ _ g), <- !eoutl2, <- !comp_assoc.
-    f_equiv; apply fpair_equiv; rewrite !comp_assoc; assumption.
+  - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outl.
+  - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outr.
+  - rewrite <- (comp_id_r _ _ f0), <- (comp_id_r _ _ g), <- !eoutl2, <- !comp_assoc; f_equiv.
+    now rewrite fpair_equiv', !comp_assoc.
 Qed.
 
 Lemma isProduct_comm :

@@ -6,105 +6,12 @@ Set Implicit Arguments.
 Definition isPushout
   (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
   (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-  (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
-                f .> pushl' == g .> pushr' -> Hom P P')
+  (cofactor : forall {P' : Ob C} (x : Hom X P') (y : Hom Y P'), f .> x == g .> y -> Hom P P')
   : Prop :=
     f .> pushl == g .> pushr
       /\
     forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2),
       setoid_unique (fun u : Hom P Q => pushl .> u == q1 /\ pushr .> u == q2) (cofactor q1 q2 H).
-
-Class isPushout'
-  (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-  (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-  (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
-                f .> pushl' == g .> pushr' -> Hom P P')
-  : Prop :=
-{
-  oks : f .> pushl == g .> pushr;
-  universal :
-    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2) (h : Hom P Q),
-      cofactor q1 q2 H == h <-> pushl .> h == q1 /\ pushr .> h == q2
-}.
-
-Class isPushout''
-  (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-  (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-  (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
-                f .> pushl' == g .> pushr' -> Hom P P')
-  : Prop :=
-{
-  oks' : f .> pushl == g .> pushr;
-  pushl_cofactor :
-    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2),
-      pushl .> cofactor q1 q2 H == q1;
-  pushr_cofactor :
-    forall (Q : Ob C) (q1 : Hom X Q) (q2 : Hom Y Q) (H : f .> q1 == g .> q2),
-      pushr .> cofactor q1 q2 H == q2;
-  pushout_equiv :
-    forall (Q : Ob C) (h1 h2 : Hom P Q),
-      pushl .> h1 == pushl .> h2 -> pushr .> h1 == pushr .> h2 -> h1 == h2
-}.
-
-Lemma isPushout_isPusohut'' :
-  forall
-    (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-    (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-    (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
-                  f .> pushl' == g .> pushr' -> Hom P P'),
-      isPushout C f g P pushl pushr (@cofactor) <-> isPushout'' C f g P pushl pushr (@cofactor).
-Proof.
-  split.
-  - split.
-    + apply H.
-    + apply H.
-    + apply H.
-    + intros. etransitivity.
-      symmetry; apply H. Unshelve.
-      * split; eassumption.
-      * apply H. split; reflexivity.
-      * rewrite <- !comp_assoc. f_equiv. apply H.
-  - split.
-    + apply oks'.
-    + split.
-      * split.
-        -- apply pushl_cofactor.
-        -- apply pushr_cofactor.
-      * intros y []. symmetry; apply pushout_equiv.
-        -- rewrite pushl_cofactor; assumption.
-        -- rewrite pushr_cofactor; assumption.
-Qed.
-
-Lemma isPushout'_isPusohut'' :
-  forall
-    (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
-    (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-    (cofactor : forall {P' : Ob C} (pushl' : Hom X P') (pushr' : Hom Y P'),
-                  f .> pushl' == g .> pushr' -> Hom P P'),
-      isPushout' C f g P pushl pushr (@cofactor) <-> isPushout'' C f g P pushl pushr (@cofactor).
-Proof.
-  split.
-  - split.
-    + apply oks.
-    + intros.
-      destruct (universal _ _ _ H0 (cofactor Q q1 q2 H0)) as [[-> _] _]; reflexivity.
-    + intros.
-      destruct (universal _ _ _ H0 (cofactor Q q1 q2 H0)) as [[_ ->] _]; reflexivity.
-    + intros * H1 H2. etransitivity; cycle 1.
-      * rewrite universal; [cat |].
-        rewrite <- comp_assoc, oks, comp_assoc; reflexivity.
-      * symmetry; apply universal. split; assumption.
-  - split.
-    + apply oks'.
-    + split.
-      * intros <-. split.
-        -- apply pushl_cofactor.
-        -- apply pushr_cofactor.
-      * intros [H1 H2].
-        symmetry; apply pushout_equiv.
-        -- rewrite pushl_cofactor; assumption.
-        -- rewrite pushr_cofactor; assumption.
-Qed.
 
 Class HasPushouts (C : Cat) : Type :=
 {

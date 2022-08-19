@@ -23,7 +23,7 @@ Class isEqualizer
 Section isEqualizer.
 
 Context
-  {C : Cat} {A B : Ob C} (f g : Hom A B)
+  {C : Cat} {A B : Ob C} {f g : Hom A B}
   {E : Ob C} {equalize : Hom E A}
   {factorize : forall {E' : Ob C} {e' : Hom E' A}, e' .> f == e' .> g -> Hom E' E}
   {isEq : isEqualizer C f g E equalize (@factorize)}.
@@ -37,6 +37,13 @@ Proof.
   split.
   - intros ->; reflexivity.
   - apply factorize_equiv.
+Qed.
+
+#[global] Lemma Proper_factorize :
+  forall {E' : Ob C} {e1 e2 : Hom E' A} (H1 : e1 .> f == e1 .> g) (H2 : e2 .> f == e2 .> g),
+    e1 == e2 -> factorize H1 == factorize H2.
+Proof.
+  now intros; rewrite factorize_equiv', !factorize_equalize.
 Qed.
 
 Lemma universal :
@@ -57,49 +64,30 @@ Lemma factorize_unique :
     (h : Hom E' E),
       h .> equalize == e' -> h == factorize H.
 Proof.
-  intros * Heq.
-  apply factorize_equiv.
-  rewrite factorize_equalize.
-  assumption.
-Restart.
-  intros * Heq.
-  rewrite factorize_equiv', factorize_equalize, Heq.
-  reflexivity.
+  now intros; rewrite factorize_equiv', factorize_equalize.
 Qed.
 
 Lemma factorize_equalize_ok :
   factorize equalize_ok == id E.
 Proof.
-  apply factorize_equiv.
-  rewrite factorize_equalize, comp_id_l.
-  reflexivity.
-Restart.
-  rewrite factorize_equiv', factorize_equalize, comp_id_l.
-  reflexivity.
+  now rewrite factorize_equiv', factorize_equalize, comp_id_l.
 Defined.
 
 Lemma isMono_equalize :
   isMono equalize.
 Proof.
-  intros X h1 h2 Heq.
-  rewrite factorize_equiv'.
-  assumption.
+  now intros X h1 h2 Heq; rewrite factorize_equiv'.
 Qed.
 
 Lemma factorize_pre :
-  forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (H : (e1 .> e2) .> f == (e1 .> e2) .> g),
-    exists H' : e2 .> f == e2 .> g,
-      factorize H == e1 .> factorize H'.
+  forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (H : e2 .> f == e2 .> g),
+    exists H' : (e1 .> e2) .> f == (e1 .> e2) .> g,
+      factorize H' == e1 .> factorize H.
 Proof.
-  intros.
-  assert (H' : e2 .> f == e2 .> g).
-  {
-    admit.
-  }
-  exists H'.
-  rewrite factorize_equiv', comp_assoc, !factorize_equalize.
-  reflexivity.
-Admitted.
+  esplit. Unshelve. all: cycle 1.
+  - now rewrite !comp_assoc, H.
+  - now rewrite factorize_equiv', factorize_equalize, comp_assoc, factorize_equalize.
+Qed.
 
 End isEqualizer.
 
@@ -124,32 +112,9 @@ Proof.
   exists (factorize2 E1 equalize1 equalize_ok).
   repeat split.
   - exists (factorize1 E2 equalize2 equalize_ok).
-    split.
-    + apply factorize_equiv.
-      rewrite comp_assoc, !factorize_equalize, comp_id_l.
-      reflexivity.
-    + apply factorize_equiv.
-      rewrite comp_assoc, !factorize_equalize, comp_id_l.
-      reflexivity.
-  - rewrite factorize_equalize.
-    reflexivity.
-  - intros y [_ Heq].
-    apply factorize_equiv.
-    rewrite factorize_equalize.
-    assumption.
-Restart.
-  intros * H1 H2.
-  exists (factorize2 E1 equalize1 equalize_ok).
-  repeat split.
-  - exists (factorize1 E2 equalize2 equalize_ok).
-    rewrite (factorize_equiv' (isEq := H1)), (factorize_equiv' (isEq := H2)),
-      !comp_assoc, !factorize_equalize, !comp_id_l.
-    split; reflexivity.
-  - rewrite factorize_equalize.
-    reflexivity.
-  - intros y [_ Heq].
-    rewrite (factorize_equiv' (isEq := H2)), factorize_equalize.
-    assumption.
+    now rewrite factorize_equiv', factorize_equiv', !comp_assoc, !factorize_equalize, !comp_id_l.
+  - now rewrite factorize_equalize.
+  - now intros y [_ ?]; rewrite factorize_equiv', factorize_equalize.
 Qed.
 
 Lemma isEqualizer_iso :
@@ -174,9 +139,7 @@ Lemma isEqualizer_equiv_equalize :
       isEqualizer C f g E equalize2 factorize ->
         equalize1 == equalize2.
 Proof.
-  intros * H1 H2.
-  rewrite <- comp_id_l, <- (factorize_equalize_ok (isEq := H2)), factorize_equalize.
-  reflexivity.
+  now intros; rewrite <- comp_id_l, <- factorize_equalize_ok, factorize_equalize.
 Qed.
 
 Lemma isEqualizer_equiv_factorize :
@@ -188,14 +151,7 @@ Lemma isEqualizer_equiv_factorize :
         forall (E' : Ob C) (e' : Hom E' X) (H : e' .> f == e' .> g),
           factorize1 E' e' H == factorize2 E' e' H.
 Proof.
-  intros.
-  apply factorize_equiv.
-  rewrite !factorize_equalize.
-  reflexivity.
-Restart.
-  intros.
-  rewrite (factorize_equiv' (isEq := H)), !factorize_equalize.
-  reflexivity.
+  now intros; rewrite factorize_equiv', !factorize_equalize.
 Qed.
 
 Lemma isEqualizer_epi_is_iso :
@@ -212,25 +168,7 @@ Proof.
     apply equalize_ok.
   }
   exists (factorize _ (id X) Hfg).
-  split.
-  - apply factorize_equiv.
-    rewrite comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
-    reflexivity.
-  - rewrite factorize_equalize. reflexivity.
-Restart.
-  intros * HisEq HisEpi; red.
-  assert (Hfg : id X .> f == id X .> g).
-  {
-    apply HisEpi.
-    rewrite !comp_id_l.
-    apply equalize_ok.
-  }
-  exists (factorize _ (id X) Hfg).
-  split.
-  - rewrite (factorize_equiv' (isEq := HisEq)), comp_assoc,
-      factorize_equalize, comp_id_l, comp_id_r.
-    reflexivity.
-  - rewrite factorize_equalize. reflexivity.
+  now rewrite factorize_equiv', comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
 Qed.
 
 End Traditional.
