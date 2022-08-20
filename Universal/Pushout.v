@@ -161,6 +161,8 @@ Proof.
   symmetry. cat.
 Qed.
 
+(*
+
 Lemma isCoproduct_isPushout :
   forall
     (C : Cat) (ht : HasInit C) (A B : Ob C)
@@ -208,4 +210,4 @@ Proof.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
 
-
+*)

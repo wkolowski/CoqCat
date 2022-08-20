@@ -3,7 +3,7 @@ From Cat Require Export Cat.
 Set Implicit Arguments.
 
 Class isInitial {C : Cat} (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
-  isInitial' : forall {X : Ob C} (f : Hom I X), f == create X.
+  create_unique : forall {X : Ob C} (f : Hom I X), f == create X.
 
 Class HasInit' {C : Cat} (I : Ob C) : Type :=
 {
@@ -26,7 +26,7 @@ Arguments init _ {_}.
 Coercion HasInit_HasInit' : HasInit >-> HasInit'.
 
 Class isTerminal {C : Cat} (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop :=
-  isTerminal' : forall {X : Ob C} (f : Hom X T), f == delete X.
+  delete_unique : forall {X : Ob C} (f : Hom X T), f == delete X.
 
 Class HasTerm' {C : Cat} (T : Ob C) : Type :=
 {
@@ -63,7 +63,7 @@ Coercion HasZero_HasTerm' : HasZero >-> HasTerm'.
 Definition mediate {C : Cat} {hz : HasZero C} (X Y : Ob C) : Hom X Y :=
   delete X .> create Y.
 
-#[global] Hint Unfold isInitial' isTerminal' isInitial isTerminal : core.
+#[global] Hint Unfold create_unique delete_unique isInitial isTerminal : core.
 
 #[refine]
 #[export]
@@ -74,7 +74,7 @@ Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
 Proof.
   esplit. Unshelve. all: cycle 1; cbn.
   - exact create.
-  - unfold isTerminal; cbn. intros. rewrite isInitial'. reflexivity.
+  - unfold isTerminal; cbn. intros. rewrite create_unique. reflexivity.
 Defined.
 
 #[refine]
@@ -86,5 +86,5 @@ Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 Proof.
   esplit. Unshelve. all: cycle 1; cbn.
   - exact delete.
-  - unfold isInitial; cbn. intros. rewrite isTerminal'. reflexivity.
+  - unfold isInitial; cbn. intros. rewrite delete_unique. reflexivity.
 Defined.

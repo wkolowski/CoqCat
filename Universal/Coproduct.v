@@ -32,15 +32,6 @@ Class HasCoproducts (C : Cat) : Type :=
       {A B P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coprodOb A B) P;
   HasCoproducts_isCoproduct :>
     forall {A B : Ob C}, isCoproduct C (@coprodOb A B) finl finr (@copair A B);
-  (* Proper_coprodOb :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (id (coprodOb f g)) (id (coprodOb f' g'));
-  Proper_finl :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (finl f g) (finl f' g');
-  Proper_finr :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (finr f g) (finr f' g'); *)
 }.
 
 Arguments coprodOb {C HasCoproducts} _ _.
