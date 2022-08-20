@@ -25,9 +25,9 @@ Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
   term := init C;
 }.
 Proof.
-  esplit. red. intros. eapply create_equiv. cbn. Unshelve. all: cycle 1; cbn.
+  esplit. Unshelve. all: cycle 1.
   - exact create.
-  - unfold isTerminal; cbn. intros. rewrite create_unique. reflexivity.
+  - red; cbn; intros; apply create_equiv.
 Defined.
 
 #[refine]
@@ -37,7 +37,7 @@ Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
   init := term C;
 }.
 Proof.
-  esplit. Unshelve. all: cycle 1; cbn.
+  esplit. Unshelve. all: cycle 1.
   - exact delete.
-  - unfold isInitial; cbn. intros. rewrite delete_unique. reflexivity.
+  - red; cbn; intros; apply delete_equiv.
 Defined.

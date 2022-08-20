@@ -99,8 +99,6 @@ Arguments outl   {C HasProducts A B}.
 Arguments outr   {C HasProducts A B}.
 Arguments fpair  {C HasProducts A B X} _ _.
 
-(* #[export] Hint Extern 0 (isProduct _ _ _ _ _) => typeclasses eauto : core. *)
-
 Ltac fpair := intros; try split;
 repeat match goal with
 | |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
@@ -123,12 +121,17 @@ Lemma fpair_comp :
     (C : Cat) (hp : HasProducts C)
     (A X Y X' Y' : Ob C) (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
       fpair (f .> h1) (g .> h2) == fpair f g .> fpair (outl .> h1) (outr .> h2).
-Proof. fpair. Qed.
+Proof.
+  intros; rewrite fpair_equiv'.
+  now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
+Qed.
 
 Lemma fpair_pre_id :
   forall (C : Cat) (hp : HasProducts C) (A X Y : Ob C) (f : Hom A (prodOb X Y)),
     fpair (f .> outl) (f .> outr) == f.
-Proof. fpair. Qed.
+Proof.
+  now intros; rewrite fpair_equiv', fpair_outl, fpair_outr.
+Qed.
 
 Lemma isProduct_uiso :
   forall
@@ -202,7 +205,7 @@ Proof.
   now intros; rewrite <- fpair_outr, fpair_id, comp_id_l.
 Qed.
 
-(* TODO : Dual *) Lemma iso_to_prod :
+Lemma iso_to_prod :
   forall
     (C : Cat) (X Y : Ob C)
     (P Q : Ob C) (outl : Hom P X) (outr : Hom P Y)
