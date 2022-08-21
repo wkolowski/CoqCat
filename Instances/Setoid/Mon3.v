@@ -128,7 +128,7 @@ Lemma mon_reflect :
     expDenoteL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  now intros; rewrite !flatten_correct, !simplify_correct in H.
 Qed.
 
 Class Reify (X : Mon) (x : X) : Type :=

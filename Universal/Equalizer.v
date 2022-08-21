@@ -53,9 +53,8 @@ Lemma universal :
       factorize H == h <-> h .> equalize == e'.
 Proof.
   split.
-  - intros <-. apply factorize_equalize.
-  - intros Heq. apply factorize_equiv.
-    rewrite factorize_equalize. symmetry. assumption.
+  - now intros <-; rewrite factorize_equalize.
+  - now intros Heq; rewrite factorize_equiv', factorize_equalize.
 Qed.
 
 Lemma factorize_unique :

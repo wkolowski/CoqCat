@@ -26,7 +26,7 @@ Proof.
   intros.
   assert (op (inv (inv g)) (op (inv g) g) == g).
     now rewrite assoc, inv_l, neutr_l.
-    rewrite inv_l , neutr_r in H. assumption.
+    now rewrite inv_l , neutr_r in H.
 Qed.
 
 Lemma neutr_unique_l :
@@ -36,7 +36,7 @@ Proof.
   intros.
   assert (op e neutr == e). now rewrite neutr_r.
   assert (op e neutr == neutr). apply H.
-  rewrite H0 in H1. assumption.
+  now rewrite H0 in H1.
 Defined.
 
 Lemma neutr_unique_r :
@@ -46,7 +46,7 @@ Proof.
   intros.
   assert (op neutr e == e). now rewrite neutr_l.
   assert (op neutr e == neutr). apply H. 
-  rewrite H0 in H1. assumption.
+  now rewrite H0 in H1.
 Defined.
 
 Lemma inv_op :
@@ -63,7 +63,7 @@ Proof.
   assert (op (inv (op a b)) (op (op a b) (inv (op a b))) ==
     op (inv (op a b)) (op (op a b) (op (inv b) (inv a)))).
     now rewrite H1.
-  repeat (rewrite assoc, inv_l, neutr_l in H2). assumption.
+  now repeat (rewrite assoc, inv_l, neutr_l in H2).
 Defined.
 
 Lemma inv_neutr :
@@ -213,7 +213,7 @@ Lemma grp_reflect :
     expDenoteL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  now intros; rewrite !flatten_correct, !simplify_correct in H.
 Qed.
 
 Lemma grp_reflect2 :
@@ -222,7 +222,7 @@ Lemma grp_reflect2 :
     expDenoteL (flatten (simplify (simplify e2))) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  now intros; rewrite !flatten_correct, !simplify_correct in H.
 Qed.
 
 Class Reify (X : Grp) (x : X) : Type :=

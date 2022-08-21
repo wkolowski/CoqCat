@@ -106,7 +106,7 @@ Lemma sgr_reflect :
     expDenoteNel (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  now intros; rewrite !flatten_correct, !simplify_correct in H.
 Qed.
 
 Class Reify (X : Sgr) (x : X) : Type :=

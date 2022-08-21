@@ -33,12 +33,12 @@ Definition HSetoidComp
   (X Y Z : HSetoid) (f : HSetoidHom X Y) (g : HSetoidHom Y Z) : HSetoidHom X Z.
 Proof.
   red. exists (fun x : X => g (f x)). intros.
-  destruct f, g. simpl. apply h0. apply h. assumption.
+  destruct f, g; cbn. now apply h0, h.
 Defined.
 
 Definition HSetoidId (X : HSetoid) : HSetoidHom X X.
 Proof.
-  red. exists (fun x : X => x). intros. assumption.
+  red. exists (fun x : X => x). now intros.
 Defined.
 
 #[refine]

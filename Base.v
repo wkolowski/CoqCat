@@ -158,7 +158,7 @@ Proof.
   intros. subst.
   dependent destruction H1.
   dependent destruction H2.
-  constructor. rewrite H. assumption.
+  constructor. now rewrite H.
 Qed.
 
 Arguments JMequiv_trans [A B C SA SB x y z] _ _ _ _.

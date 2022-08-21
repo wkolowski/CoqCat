@@ -137,8 +137,7 @@ Proof.
           (@sort_correct X env (flatten (simplifyExp e2))
                          (Sort_insertionSort natle))
   in H.
-  rewrite !flatten_correct, !simplifyExp_correct in H.
-  assumption.
+  now rewrite !flatten_correct, !simplifyExp_correct in H.
 Qed.
 
 Ltac inList x l :=
@@ -225,9 +224,7 @@ Lemma flat_reflect_hyp' :
       expDenoteL env (s (flatten (simplifyExp e1))) ==
       expDenoteL env (s (flatten (simplifyExp e2))).
 Proof.
-  intros.
-  rewrite !sort_correct, !flatten_correct, !simplifyExp_correct.
-  assumption.
+  now intros; rewrite !sort_correct, !flatten_correct, !simplifyExp_correct.
 Qed.
 
 Ltac cmon_subst := repeat
@@ -357,19 +354,19 @@ Proof.
     destruct (list_eq
               (insertionSort natle (flatten (simplifyExp e)))
               (insertionSort natle (flatten (simplifyExp e0)))).
-      apply Some. apply simplify_correct. f_equiv. assumption.
+      apply Some. now apply simplify_correct.
       apply None.
     apply None.
     destruct (solveFormula X env f1), (solveFormula X env f2).
-      apply Some. split; assumption.
+      now apply Some.
       1-3: apply None.
     destruct (solveFormula X env f1).
-      apply Some. left. assumption.
+      apply Some. now left.
       destruct (solveFormula X env f2).
-        apply Some. right. assumption.
+        apply Some. now right.
         apply None.
     destruct (solveFormula X env f2).
-      apply Some. intro. assumption.
+      apply Some. now intro.
       apply None.
 Defined.
 
@@ -378,7 +375,7 @@ Lemma solveFormula_spec :
     (exists p : formulaDenote env f, solveFormula env f = Some p) ->
       formulaDenote env f.
 Proof.
-  intros. destruct H. assumption.
+  intros. now destruct H.
 Qed.
 
 Ltac solve_goal' :=

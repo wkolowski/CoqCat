@@ -205,8 +205,8 @@ Lemma isCoequalizer_isPushout :
         isCoequalizer C f g P p (fun (P' : Ob C) (p : Hom B P') _ => cofactor P' p p).
 Proof.
   repeat split.
-    destruct H. assumption.
-    edestruct H, (H2 _ _ _ H0), H3. assumption.
+    now destruct H.
+    now edestruct H, (H2 _ _ _ H0), H3.
     intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
 Qed.
 

@@ -142,7 +142,7 @@ Lemma cat_reflect :
     expDenoteHL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !expDenoteHL_flatten, !simplify_correct in H. assumption.
+  now intros; rewrite !expDenoteHL_flatten, !simplify_correct in H.
 Qed.
 
 Lemma cat_expand :
@@ -151,7 +151,7 @@ Lemma cat_expand :
       expDenoteHL (flatten (simplify e1)) ==
       expDenoteHL (flatten (simplify e2)).
 Proof.
-  intros. rewrite !expDenoteHL_flatten, !simplify_correct. assumption.
+  now intros; rewrite !expDenoteHL_flatten, !simplify_correct.
 Qed.
 
 Ltac reify mor :=
@@ -407,8 +407,8 @@ Proof.
   split; intros.
     apply isIso_iff_isSec_isRet in H. cat.
     unfold isIso, isSec, isEpi in *. destruct H as [[g eq] H].
-      exists g. split; try assumption.
-      apply H. rewrite <- comp_assoc. rewrite eq. cat.
+      exists g. split; [easy |]. apply H.
+      now rewrite <- comp_assoc, eq, comp_id_l, comp_id_r.
 Defined.
 
 Lemma isIso_iff_isMono_isRet :
@@ -418,8 +418,8 @@ Proof.
   split; intros.
     apply isIso_iff_isSec_isRet in H. cat.
     unfold isIso, isSec, isEpi in *. destruct H as [H [g eq]].
-    exists g. split; try assumption.
-    apply H. rewrite comp_assoc. rewrite eq. cat.
+    exists g. split; [| easy].
+    apply H. now rewrite comp_assoc, eq, comp_id_l, comp_id_r.
 Defined.
 
 #[global] Hint Resolve isIso_iff_isSec_isRet isIso_iff_isMono_isRet isIso_iff_isSec_isEpi : core.
@@ -640,8 +640,8 @@ Instance isomorphic_equiv (C : Cat) : Equivalence isomorphic.
 Proof.
   split; do 2 red.
   - intros X. exists (id X). apply isIso_id.
-  - intros X Y (f & g & eq1 & eq2). exists g, f; auto.
-  - intros X Y Z [f f_iso] [g g_iso]. exists (f .> g). apply isIso_comp; assumption.
+  - intros X Y (f & g & eq1 & eq2). now exists g, f.
+  - intros X Y Z [f f_iso] [g g_iso]. exists (f .> g). now apply isIso_comp.
 Defined.
 
 (** ** The category of setoids *)
@@ -797,7 +797,7 @@ Lemma isSec_fmap :
     isSec f -> isSec (fmap T f).
 Proof.
   unfold isSec; intros. destruct H as (g, H). exists (fmap T g).
-  functor_simpl'. f_equiv. assumption.
+  functor_simpl'. now f_equiv.
 Defined.
 
 Lemma isRet_fmap :

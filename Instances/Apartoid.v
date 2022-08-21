@@ -127,7 +127,7 @@ Proof.
   (* Proper *) apartoid'.
     apply (C_neq_cotrans _ _ (y0 (x x1))) in H1. destruct H1.
       eapply H0. eauto.
-      eapply (y0_pres_equiv _ _ (H x1)). assumption.
+      now eapply (y0_pres_equiv _ _ (H x1)).
   (* Category laws *) all: apartoid.
 Defined.
 
@@ -302,18 +302,18 @@ Instance Apartoid_indexedProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
   neq := fun f g : forall j : J, A j => exists j : J, f j # g j
 }.
 Proof.
-  intros; intro. destruct H as [j H]. apply (neq_irrefl (x j)). assumption.
-  intros. destruct H as [j H]. exists j. apply neq_sym. assumption.
+  intros; intro. destruct H as [j H]. now apply (neq_irrefl (x j)).
+  intros. destruct H as [j H]. exists j. now apply neq_sym.
   intros. destruct H as [j H]. destruct (neq_cotrans (x j) (y j) (z j) H).
-    left. exists j. assumption.
-    right. exists j. assumption.
+    left. now exists j.
+    right. now exists j.
 Defined.
 
 Definition Apartoid_indexedProj
   {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProdOb A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
-  intro. apply H. simpl. exists j. assumption.
+  intro. apply H. simpl. now exists j.
 Defined.
 
 Definition Apartoid_tuple
@@ -420,7 +420,7 @@ Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 Proof.
   intros. intro. apply H. intro. apply H0. constructor. apply neq_irrefl.
   intros. intro. apply H0. intro. apply H. intro. apply H2.
-    apply coeq_sym. assumption.
+    now apply coeq_sym.
   intros.
   intros. 
     left. intro. apply H.

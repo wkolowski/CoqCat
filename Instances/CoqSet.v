@@ -38,8 +38,7 @@ Proof.
     destruct H as [g eq]. exists (g b). apply eq.
     exists (
     fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
-      intro y. destruct (constructive_indefinite_description _ (H y)).
-      simpl. assumption.
+      intro y. now destruct (constructive_indefinite_description _ (H y)).
 Defined.
 
 (* TODO : characterize epimorphisms and sections *)
@@ -50,11 +49,11 @@ Lemma CoqSet_isIso_bij :
 Proof.
   split; intros.
     red. rewrite isIso_iff_isMono_isRet in H. destruct H. split.
-      rewrite <- CoqSet_isMono_inj. assumption.
-      rewrite <- CoqSet_isRet_sur. assumption.
+      now rewrite <- CoqSet_isMono_inj.
+      now rewrite <- CoqSet_isRet_sur.
     destruct H. rewrite isIso_iff_isMono_isRet. split.
-      rewrite CoqSet_isMono_inj. assumption.
-      rewrite CoqSet_isRet_sur. assumption.
+      now rewrite CoqSet_isMono_inj.
+      now rewrite CoqSet_isRet_sur.
 Defined.
 
 #[refine]
@@ -216,7 +215,7 @@ Proof.
     replace {x : X | f x = g x} with {x : X | f' x = g' x}.
     + constructor. now cbn.
     + f_equal. extensionality x. now rewrite Hf, Hg.
-  - intros X Y f g [x Heq]; cbn. assumption.
+  - now intros X Y f g [x Heq].
   - cbn; intros X Y f f' g g' Hf Hg.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     + f_equal. extensionality x. now rewrite Hf, Hg.
@@ -238,7 +237,7 @@ Proof.
       f_equal. extensionality x. rewrite H, H0. trivial.
     }
     rewrite H1 in *. now constructor.
-  - intros X Y f g [x Heq]; cbn. assumption.
+  - now intros X Y f g [x Heq]; cbn.
   - intros. cbn in *.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     {

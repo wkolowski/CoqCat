@@ -154,7 +154,7 @@ Lemma isPullback_iso :
         P1 ~ P2.
 Proof.
   intros. destruct (isPullback_uiso H H0).
-  red. exists x. destruct H1 as [[H1 _] _]. assumption.
+  red. exists x. now destruct H1 as [[H1 _] _].
 Qed.
 
 Lemma isProduct_isPullback :

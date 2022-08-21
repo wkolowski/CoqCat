@@ -29,7 +29,7 @@ Definition SliceComp
 Proof.
   destruct f as [f Hf], g as [g Hg]; red.
   exists (f .> g).
-  rewrite comp_assoc. rewrite <- Hg. assumption.
+  now rewrite comp_assoc, <- Hg.
 Defined.
 
 Definition SliceId {C : Cat} {Y : Ob C} (X : SliceOb C Y) : SliceHom X X.

@@ -42,7 +42,7 @@ Lemma CoqSetoid_isSec :
 Proof.
   unfold isSec, injectiveS; intros.
   destruct H as [g H]. cbn in *. cut (g (f a) == g (f a')).
-    intro. rewrite !H in H1. assumption.
+    now intros; rewrite !H in H1.
     setoid.
 Defined.
 
@@ -280,7 +280,7 @@ Instance CoqSetoid_coeq_ob {X Y : Setoid'} (f g : SetoidHom X Y) : Setoid' :=
 Proof.
   solve_equiv.
     now apply coeq_step.
-    apply coeq_sym. assumption.
+    now apply coeq_sym.
     eapply coeq_trans; eauto.
 Defined.
 
@@ -291,7 +291,7 @@ Instance CoqSetoid_coeq_mor
 {
   func := fun y : Y => y
 }.
-Proof. do 2 red. intros. constructor. assumption. Defined.
+Proof. now constructor. Defined.
 
 #[refine]
 #[export]
@@ -445,7 +445,7 @@ Definition CoqSetoid_curry_fun
 Proof.
   intro z. destruct f as [f Hf]; do 2 red in Hf; cbn in *.
   split with (fun x : X => f (z, x)). do 2 red. intros.
-  apply Hf. cbn; split; [easy | assumption].
+  now apply Hf.
 Defined.
 
 #[export]
@@ -455,7 +455,7 @@ Instance CoqSetoid_curry
 Proof.
   split with (CoqSetoid_curry_fun f). do 2 red. intros.
   setoidhom f; unfold CoqSetoid_curry_fun; cbn in *. intro x'.
-  apply f_pres_equiv. cbn. split; [assumption | easy].
+  now apply f_pres_equiv.
 Defined.
 
 #[refine]

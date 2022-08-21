@@ -24,10 +24,9 @@ Proof.
   }
   split; red; destruct x; try destruct y; try destruct z.
     now exists eq_refl.
-    intros [-> [H1 H2]]. exists eq_refl. cbn in *.
-      split; symmetry; assumption.
+    intros [-> [H1 H2]]. now exists eq_refl.
     intros [-> [Hl1 Hr1]] [-> [Hl2 Hr2]]. exists eq_refl. cbn in *.
-      split; rewrite ?Hl1, ?Hr1; assumption.
+      now rewrite ?Hl1, ?Hr1.
 Defined.
 
 #[export]

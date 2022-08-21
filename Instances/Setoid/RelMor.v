@@ -181,11 +181,11 @@ Proof.
     exists (inr y); eauto.
     eapply Proper_g; eauto. repeat red in Proper_y.
     destruct (H x a) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
-      eapply Proper_y; eauto. simpl. assumption.
+      now eapply Proper_y; eauto.
       inversion H'2.
     destruct (H0 x b) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
       inversion H'2.
-      eapply Proper_y; eauto. simpl. assumption.
+      now eapply Proper_y; eauto.
     destruct (H x a) as [_ H']. apply H'. exists (inl a). eauto.
     destruct (H0 x b) as [_ H']. apply H'. exists (inr b). eauto.
 Defined.

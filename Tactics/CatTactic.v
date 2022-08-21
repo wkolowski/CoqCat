@@ -96,7 +96,7 @@ Lemma cat_reflect :
     expDenoteHL (flatten (simplify e2)) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite !flatten_correct, !simplify_correct in H. assumption.
+  now intros; rewrite !flatten_correct, !simplify_correct in H.
 Qed.
 
 Ltac reify mor :=

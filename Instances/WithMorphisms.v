@@ -30,7 +30,7 @@ Instance WithIso (C : Cat) : Cat :=
 }.
 Proof.
   - intros. destruct X as [f f_iso], X0 as [g g_iso].
-    exists (f .> g). apply isIso_comp; assumption.
+    exists (f .> g). now apply isIso_comp.
   - unfold Proper, respectful; intros;
     destruct x, y, x0, y0; cbn in *. now rewrite H, H0.
   - intros; destruct f, g, h; cat.
