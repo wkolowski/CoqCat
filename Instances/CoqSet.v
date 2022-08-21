@@ -92,7 +92,7 @@ Lemma CoqSet_terminal_ob :
 Proof.
   unfold isSingleton, isTerminal; intros. cat.
   compute. destruct (constructive_indefinite_description _ _).
-  destruct a. erewrite e. reflexivity.
+  destruct a. apply e.
 Qed.
 
 Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
@@ -214,12 +214,12 @@ Instance HasEqualizers_CoqSet : HasEqualizers CoqSet :=
 Proof.
   - cbn; intros X Y f f' g g' Hf Hg.
     replace {x : X | f x = g x} with {x : X | f' x = g' x}.
-    + constructor. cbn. reflexivity.
-    + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
+    + constructor. now cbn.
+    + f_equal. extensionality x. now rewrite Hf, Hg.
   - intros X Y f g [x Heq]; cbn. assumption.
   - cbn; intros X Y f f' g g' Hf Hg.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    + f_equal. extensionality x. rewrite Hf, Hg. reflexivity.
+    + f_equal. extensionality x. now rewrite Hf, Hg.
     +
 Abort.
 
@@ -237,7 +237,7 @@ Proof.
     {
       f_equal. extensionality x. rewrite H, H0. trivial.
     }
-    rewrite H1 in *. constructor. reflexivity.
+    rewrite H1 in *. now constructor.
   - intros X Y f g [x Heq]; cbn. assumption.
   - intros. cbn in *.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
@@ -263,10 +263,10 @@ Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
   curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
 }.
 Proof.
-  proper. extensionality a. rewrite H. reflexivity.
+  proper. extensionality a. now rewrite H.
   do 2 red; cbn; split; intros.
-    destruct x; cbn. reflexivity.
-    extensionality x'. rewrite <- H. simpl. reflexivity.
+    now destruct x; cbn.
+    extensionality x'. now rewrite <- H.
 Defined.
 
 #[export]

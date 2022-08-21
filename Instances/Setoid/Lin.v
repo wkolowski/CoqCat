@@ -44,7 +44,7 @@ Instance LinCat : Cat :=
   id := ProsId
 }.
 Proof. 
-  (* Proper *) proper. rewrite H, H0. reflexivity.
+  (* Proper *) proper. now rewrite H, H0.
   (* Category laws *) all: lin.
 Defined.
 
@@ -92,14 +92,14 @@ Instance Lin_prod_Pros (X Y : Lin) : Pros :=
     (fst p1 == fst p2 /\ snd p1 ≤ snd p2)
 }.
 Proof. 
-  (* Proper *) proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
+  (* Proper *) proper. destruct H, H0. now rewrite H, H0, H1, H2.
   (* Reflexivity *) lin.
   (* Transitivity *) destruct 1, 1; destruct H, H0.
     left. split; eauto. intro.
       assert (fst c == fst b); try rewrite H3 in H; eauto.
     left. split; rewrite <- H0; auto.
     left. split; rewrite H; auto.
-    right. split; try rewrite H, H0; eauto. reflexivity.
+    right. split; [| eauto]. now rewrite H, H0.
 Defined.
 
 #[refine]

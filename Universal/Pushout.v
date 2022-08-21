@@ -174,9 +174,9 @@ Proof.
   red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
     init.
     repeat split.
-      rewrite H2. reflexivity.
-      rewrite H3. reflexivity.
-      intros. apply H4. cat; [rewrite H5 | rewrite H6]; reflexivity.
+      now rewrite H2.
+      now rewrite H3.
+      intros. apply H4. now cat; [rewrite H5 | rewrite H6].
 Qed.
 
 Lemma isPushout_isCoproduct :
@@ -189,11 +189,11 @@ Lemma isPushout_isCoproduct :
 Proof.
   red; intros. repeat split.
     init.
-    edestruct H, H1. rewrite <- H3. reflexivity.
-    edestruct H, H1. rewrite <- H4. reflexivity.
+    edestruct H, H1. now rewrite <- H3.
+    edestruct H, H1. now rewrite <- H4.
     intros. edestruct H. apply H3. cat.
-      rewrite H1. reflexivity.
-      rewrite H5. reflexivity.
+      now rewrite H1.
+      now rewrite H5.
 Qed.
 
 Lemma isCoequalizer_isPushout :

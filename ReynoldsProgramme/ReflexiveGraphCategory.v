@@ -110,10 +110,10 @@ Instance CoqSetFunRel : ReflexiveGraphCategory :=
   I A := eq;
 }.
 Proof.
-  reflexivity.
-  reflexivity.
-  reflexivity.
-  trivial.
+  easy.
+  easy.
+  easy.
+  easy.
   auto.
   cbn. intros. apply proof_irrelevance.
   cbn. intros. apply JMeq_pi.

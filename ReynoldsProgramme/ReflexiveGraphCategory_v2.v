@@ -72,9 +72,9 @@ Instance CoqSetFunRel : ReflexiveGraphCategory :=
     Box (forall x x', R x x' -> S (f x) (g x'));
 }.
 Proof.
-  reflexivity.
-  reflexivity.
-  reflexivity.
+  easy.
+  easy.
+  easy.
   constructor. trivial.
   constructor. congruence.
   intros * [] []. constructor. auto.

@@ -100,7 +100,7 @@ Instance Reloid_init : Reloid :=
   carrier := CoqSetoid_init;
   rel := fun _ _ => True
 }.
-Proof. proper. reflexivity. Defined.
+Proof. now proper. Defined.
 
 #[refine]
 #[export]
@@ -151,7 +151,7 @@ Instance Reloid_prodOb (X Y : Reloid) : Reloid :=
   rel := fun p p' => @rel X (fst p) (fst p') /\ @rel Y (snd p) (snd p')
 }.
 Proof.
-  proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
+  proper. destruct H, H0. now rewrite H, H0, H1, H2.
 Defined.
 
 #[refine]
@@ -248,6 +248,6 @@ Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
   copair := Reloid_copair;
 }.
 Proof.
-  proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold isCoproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  proper. now destruct x1; rewrite ?H, ?H0.
+  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
 Defined.

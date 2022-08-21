@@ -58,11 +58,11 @@ Lemma simplifyExp_correct :
     expDenote env (simplifyExp e) == expDenote env e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    reflexivity.
-    destruct (simplifyExp e1), (simplifyExp e2); cbn in *;
-      rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r; try reflexivity.
-    destruct (simplifyExp e); cbn in *; rewrite ?neutr_l; reflexivity.
+    easy.
+    easy.
+    now destruct (simplifyExp e1), (simplifyExp e2); cbn in *;
+      rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r.
+    now destruct (simplifyExp e); cbn in *; rewrite ?neutr_l.
 Qed.
 
 Fixpoint expDenoteL {X : ComMon} (env : nat -> X) (l : list nat) : X :=
@@ -76,8 +76,8 @@ Lemma expDenoteL_app :
     expDenoteL env (l1 ++ l2) == op (expDenoteL env l1) (expDenoteL env l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    rewrite neutr_l. reflexivity.
-    rewrite <- assoc, IHt1. reflexivity.
+    now rewrite neutr_l.
+    now rewrite <- assoc, IHt1.
 Qed.
 
 Fixpoint flatten {X : ComMon} (e : exp X) : list nat :=
@@ -93,10 +93,10 @@ Lemma flatten_correct :
     expDenoteL env (flatten e) == expDenote env e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    rewrite neutr_r. reflexivity.
-    rewrite expDenoteL_app. rewrite IHe1, IHe2. reflexivity.
-    rewrite ?expDenoteL_hom, ?IHe. reflexivity.
+    easy.
+    now rewrite neutr_r.
+    now rewrite expDenoteL_app, IHe1, IHe2.
+    now rewrite ?expDenoteL_hom, ?IHe.
 Qed.
 
 Lemma expDenoteL_Permutation :
@@ -104,10 +104,10 @@ Lemma expDenoteL_Permutation :
     Permutation l1 l2 -> expDenoteL env l1 == expDenoteL env l2.
 Proof.
   induction 1; cbn.
-    reflexivity.
-    rewrite IHPermutation. reflexivity.
-    rewrite !assoc. rewrite (com (env y)). reflexivity.
-    rewrite IHPermutation1, IHPermutation2. reflexivity.
+    easy.
+    now rewrite IHPermutation.
+    now rewrite !assoc, (com (env y)).
+    now rewrite IHPermutation1, IHPermutation2.
 Qed.
 
 (* TOOD: fix *) Lemma sort_correct :
@@ -116,7 +116,7 @@ Qed.
 Proof.
 (*
   intros. apply expDenoteL_Permutation. apply (perm_Permutation).
-  rewrite <- sort_perm. reflexivity.
+  now rewrite <- sort_perm.
 Qed.
 *)
 Admitted.
@@ -208,7 +208,7 @@ Lemma flat_reflect_goal :
     flatten (simplifyExp e1) = flatten (simplifyExp e2) ->
       expDenote env e1 == expDenote env e2.
 Proof.
-  intros. apply simplify_correct. unfold simplify. rewrite H. reflexivity.
+  intros. apply simplify_correct. unfold simplify. now rewrite H.
 Qed.
 
 Lemma flat_reflect_hyp :
@@ -270,20 +270,20 @@ Qed.
 Goal forall (X : ComMon) (a b b' c : X),
   b == b' -> op a (op b c) == op (op a b') c.
 Proof.
-  reflect_cmon'. reflexivity.
+  now reflect_cmon'.
 Qed.
 
 Goal forall (X : ComMon) (a a' b b' c c' : X),
   op a b == op a b' -> op (op a b) c == op b' (op a c).
 Proof.
   reflect_cmon'. rewrite ?assoc. rewrite (com b').
-  rewrite !H. reflect_cmon'. reflexivity.
+  rewrite !H. now reflect_cmon'.
 Qed.
 
 Goal forall (X : ComMon) (a a' b b' c c' : X),
   a == b -> b == c -> c == a -> op b (op a c) == op a (op neutr (op b c)).
 Proof.
-  reflect_cmon'. reflexivity.
+  now reflect_cmon'.
 Qed.
 
 Inductive formula (X : ComMon) : Type :=
@@ -613,7 +613,7 @@ Proof.
     | 0 => @neutr N
     | S n' => op (q tt) (f n')
     end;
-    Proper_func := ltac: (formulaer; subst; reflexivity)
+    Proper_func := ltac: (formulaer; subst; easy)
   |}.
   pose f2 : SgrHom MonListUnit N :=
   {|
@@ -627,13 +627,13 @@ Proof.
       | 0 => @neutr N
       | S n' => op (q tt) (f n')
       end).
-    formulaer. subst. reflexivity.
+    formulaer. now subst.
   Defined.
   Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SgrHom MonListUnit N.
     exists (f1 N q). induction x as [| x']. simpl.
       mon.
-      simpl. intro. rewrite <- assoc. rewrite -> IHx'. reflexivity.
+      simpl. intro. now rewrite <- assoc, -> IHx'.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.

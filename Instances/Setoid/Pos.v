@@ -145,6 +145,7 @@ Instance HasCoproducts_Pos : HasCoproducts PosCat :=
 }.
 Proof.
   proper. destruct x1; proper.
-  repeat split; cbn; try reflexivity.
+  repeat split; cbn.
+    1-2: easy.
     destruct x; pos.
 Defined.

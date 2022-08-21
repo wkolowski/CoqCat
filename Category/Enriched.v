@@ -38,9 +38,9 @@ Proof.
   intros X Y. exact (wut _ X Y).
   cbn. intros.
     split with (fun p => SetoidComp (fst p) (snd p)). proper.
-      destruct H, x, y. cbn in *. rewrite H, H0. reflexivity.
+      destruct H, x, y. cbn in *. now rewrite H, H0.
   intros. cbn. exists (fun _ => id X). proper.
-  cbn. reflexivity.
-  cbn. reflexivity.
-  cbn. reflexivity.
+  easy.
+  easy.
+  easy.
 Defined.

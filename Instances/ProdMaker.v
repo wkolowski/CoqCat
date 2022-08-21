@@ -83,7 +83,7 @@ Instance ProdMakerComp
   pmhom := h .> h'
 }.
 Proof.
-  all: assocr; pm; reflexivity.
+  all: now assocr; pm.
 Defined.
 
 #[refine]
@@ -92,7 +92,7 @@ Instance ProdMakerId {C : Cat} {A B : Ob C} (P : ProdMakerOb C A B) : ProdMakerH
 {
   pmhom := id P
 }.
-Proof. all: pm; reflexivity. Defined.
+Proof. all: now pm. Defined.
 
 #[refine]
 #[export]

@@ -40,9 +40,9 @@ Lemma simplify_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; cbn; try reflexivity.
-    destruct (simplify e1); destruct (simplify e2); cbn in *;
-    try rewrite <- IHe1; try rewrite <- IHe2; cat.
+  induction e; cbn; [easy | easy |].
+  now destruct (simplify e1); destruct (simplify e2); cbn in *;
+  rewrite <- ?IHe1, <- ?IHe2.
 Qed.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
@@ -78,8 +78,8 @@ Lemma expDenoteHL_comp_app :
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
 Proof.
   induction l1; cbn; intros.
-    rewrite comp_id_l. reflexivity.
-    assocr. rewrite IHl1. reflexivity.
+    now rewrite comp_id_l.
+    now assocr; rewrite IHl1.
 Qed.
 
 Lemma flatten_correct :
@@ -87,7 +87,7 @@ Lemma flatten_correct :
     expDenoteHL (flatten e) == expDenote e.
 Proof.
   induction e; cat.
-    rewrite <- expDenoteHL_comp_app, IHe1, IHe2. reflexivity.
+  now rewrite <- expDenoteHL_comp_app, IHe1, IHe2.
 Qed.
 
 Lemma cat_reflect :
@@ -125,14 +125,14 @@ Lemma test_id_l :
   forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
     id X .> f == f.
 Proof.
-  reflect_cat. try reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_id_r :
   forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
     f .> id Y == f.
 Proof.
-  reflect_cat. try reflexivity.
+  now reflect_cat.
 Qed.
 
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
@@ -204,7 +204,7 @@ Lemma simplify'_correct :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenote (simplify' e) == expDenote e.
 Proof.
-  induction e; cbn; try reflexivity.
-    destruct (simplify' e1); destruct (simplify' e2); cbn in *;
-    try rewrite <- IHe1; try rewrite <- IHe2; cat.
+  induction e; cbn; [easy | easy |].
+  now destruct (simplify' e1); destruct (simplify' e2); cbn in *;
+  rewrite <- IHe1, <- IHe2.
 Qed.

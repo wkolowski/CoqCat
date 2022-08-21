@@ -38,7 +38,7 @@ Instance ReifyId (C : Cat) (X : Ob C) : Reify (id X) | 0 :=
   reify := Id X
 }.
 Proof.
-  cbn. reflexivity.
+  now cbn.
 Defined.
 
 #[refine]
@@ -50,7 +50,7 @@ Instance ReifyComp
   reify := Comp (reify f) (reify g)
 }.
 Proof.
-  cbn. rewrite !reify_spec. reflexivity.
+  now cbn; rewrite !reify_spec.
 Defined.
 
 #[refine]
@@ -62,7 +62,7 @@ Instance ReifyFmap
   reify := Fmap F (reify f)
 }.
 Proof.
-  cbn. rewrite reify_spec. reflexivity.
+  now cbn; rewrite reify_spec.
 Defined.
 
 #[refine]
@@ -72,7 +72,7 @@ Instance ReifyVar (C : Cat) (X Y : Ob C) (f : Hom X Y) : Reify f | 1 :=
   reify := Var f
 }.
 Proof.
-  cbn. reflexivity.
+  easy.
 Defined.
 
 Class Simplify {C : Cat} {X Y : Ob C} (e : exp C X Y) : Type :=
@@ -89,7 +89,7 @@ Instance NoSimplify (C : Cat) (X Y : Ob C) (e : exp C X Y) : Simplify e | 100 :=
 {
   simplify := e
 }.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -100,7 +100,7 @@ Instance SimplifyCompIdL
   simplify := simplify e
 }.
 Proof.
-  cbn. rewrite simplify_spec. rewrite comp_id_l. reflexivity.
+  now cbn; rewrite simplify_spec.
 Defined.
 
 #[refine]
@@ -112,7 +112,7 @@ Instance SimplifyCompIdR
   simplify := simplify e
 }.
 Proof.
-  cbn. rewrite simplify_spec. rewrite comp_id_r. reflexivity.
+  now cbn; rewrite simplify_spec.
 Defined.
 
 #[refine]
@@ -124,7 +124,7 @@ Instance SimplifyCompRec
   simplify := Comp (simplify e1) (simplify e2)
 }.
 Proof.
-  cbn. rewrite !simplify_spec. reflexivity.
+  now cbn; rewrite !simplify_spec.
 Defined.
 
 #[refine]
@@ -134,7 +134,7 @@ Instance SimplifyFmapId (C D : Cat) (X : Ob C) (F : Functor C D) : Simplify (Fma
   simplify := Id (fob F X)
 }.
 Proof.
-  cbn. rewrite fmap_id. reflexivity.
+  now cbn; rewrite fmap_id.
 Defined.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
@@ -171,8 +171,8 @@ Lemma expDenoteHL_Hmap_Happ :
     expDenoteHL (Hmap F (l1 +++ l2)) == expDenoteHL (Hmap F l1 +++ Hmap F l2).
 Proof.
   induction l1; cbn; intros.
-    reflexivity.
-    rewrite IHl1. reflexivity.
+    easy.
+    now rewrite IHl1.
 Qed.
 
 Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp C X Y) : HomList X Y :=
@@ -188,15 +188,15 @@ Lemma expDenoteHL_app :
     expDenoteHL (l1 +++ l2) == expDenoteHL l1 .> expDenoteHL l2.
 Proof.
   induction l1; cbn; intros.
-    rewrite comp_id_l. reflexivity.
-    assocr. rewrite IHl1. reflexivity.
+    now rewrite comp_id_l.
+    now assocr; rewrite IHl1.
 Qed.
 
 Lemma Hmap_Hmap :
   forall {C D E : Cat} {X Y : Ob C} {F : Functor C D} {G : Functor D E} (l : HomList X Y),
     Hmap G (Hmap F l) = Hmap (FunctorComp F G) l.
 Proof.
-  induction l as [| h t]; cbn; rewrite ?IHl; reflexivity.
+  now induction l as [| h t]; cbn; rewrite ?IHl.
 Qed.
 
 Lemma expDenoteHL_Hmap_flatten :
@@ -204,10 +204,10 @@ Lemma expDenoteHL_Hmap_flatten :
     expDenoteHL (Hmap F (flatten e)) == expDenote (Fmap F e).
 Proof.
   induction e; cbn.
-  - rewrite fmap_id. reflexivity.
-  - rewrite comp_id_r. reflexivity.
-  - rewrite expDenoteHL_Hmap_Happ, expDenoteHL_app, IHe1, IHe2, fmap_comp; cbn. reflexivity.
-  - rewrite Hmap_Hmap, (IHe (FunctorComp F0 F)); cbn. reflexivity.
+  - now rewrite fmap_id.
+  - now rewrite comp_id_r.
+  - now rewrite expDenoteHL_Hmap_Happ, expDenoteHL_app, IHe1, IHe2, fmap_comp; cbn.
+  - now rewrite Hmap_Hmap, (IHe (FunctorComp F0 F)); cbn.
 Qed.
 
 Lemma expDenoteHL_fmap :
@@ -215,8 +215,8 @@ Lemma expDenoteHL_fmap :
     expDenoteHL (Hmap F l) == fmap F (expDenoteHL l).
 Proof.
   induction l as [| h t]; cbn.
-    rewrite fmap_id. reflexivity.
-    rewrite fmap_comp, IHl. reflexivity.
+    now rewrite fmap_id.
+    now rewrite fmap_comp, IHl.
 Qed.
 
 Lemma flatten_correct :
@@ -224,8 +224,8 @@ Lemma flatten_correct :
     expDenoteHL (flatten e) == expDenote e.
 Proof.
   induction e; cat.
-    rewrite expDenoteHL_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteHL_fmap, IHe. reflexivity.
+    now rewrite expDenoteHL_app, IHe1, IHe2.
+    now rewrite expDenoteHL_fmap, IHe.
 Qed.
 
 Lemma cat_reflect :
@@ -262,37 +262,37 @@ Variables
 Lemma test_id_l :
   id X .> f == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_id_r :
   f .> id Y == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_comp_id_l_many :
   id X .> id X .> f == f.
 Proof.
-  repeat reflect_cat. reflexivity.
+  now repeat reflect_cat.
 Qed.
 
 Lemma test_comp_id_r_many :
   f .> id Y .> id Y == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_fmap_id :
   fmap F (id X) == id (fob F X).
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_assoc :
   (f .> g) .> h == f .> (g .> h).
 Proof.
-  flat_reflect_cat. reflexivity.
+  now flat_reflect_cat.
 Qed.
 
 Goal
@@ -300,7 +300,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
 Proof.
-  flat_reflect_cat. reflexivity.
+  now flat_reflect_cat.
 Qed.
 
 Goal
@@ -308,7 +308,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f == f' ->
       ((f .> (g .> h)) .> i) .> j == f' .> g .> h .> i .> j.
 Proof.
-  flat_reflect_cat. rewrite H. reflexivity.
+  flat_reflect_cat. now rewrite H.
 Qed.
 
 Goal
@@ -316,7 +316,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T), f .> g == f' .> g' ->
       ((f .> (g .> h)) .> i) .> j == f' .> (g' .> h) .> i .> j.
 Proof.
-  flat_reflect_cat. assocl. rewrite H. flat_reflect_cat. reflexivity.
+  flat_reflect_cat. assocl. rewrite H. now flat_reflect_cat.
 Qed.
 
 Goal
@@ -324,7 +324,7 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       f == f .> id _ .> id _.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 End Test.

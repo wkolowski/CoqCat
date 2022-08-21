@@ -35,7 +35,7 @@ Lemma factorize_equiv' :
     e1 == e2 <-> e1 .> equalize == e2 .> equalize.
 Proof.
   split.
-  - intros ->; reflexivity.
+  - now intros ->.
   - apply factorize_equiv.
 Qed.
 

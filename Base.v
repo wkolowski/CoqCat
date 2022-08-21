@@ -122,8 +122,7 @@ Lemma setoid_split :
 Proof.
   intros.
   subst.
-  replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
-  reflexivity.
+  now replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
 Qed.
 
 (** Some setoid instances. *)

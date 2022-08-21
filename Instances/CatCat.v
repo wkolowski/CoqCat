@@ -50,10 +50,9 @@ Instance HasTerm_CAT : HasTerm CAT :=
 Proof.
   cbn; intros X F.
   esplit. Unshelve. all: cycle 1.
-  - intros A. destruct (fob F A). reflexivity.
+  - intros A. now destruct (fob F A).
   - cbn; intros A B f.
-    setoid_rewrite Eqdep_dec.UIP_refl_unit.
-    reflexivity.
+    now setoid_rewrite Eqdep_dec.UIP_refl_unit.
 Defined.
 
 #[refine]
@@ -88,14 +87,14 @@ Lemma pair_eq :
   forall {A B : Type} (a : A) (b : B) (p : A * B),
     a = fst p -> b = snd p -> (a, b) = p.
 Proof.
-  intros A B a b []; cbn; intros [] []; reflexivity.
+  now intros A B a b []; cbn; intros [] [].
 Defined.
 
 Lemma pair_eq' :
   forall {A B : Type} (x y : A * B),
     fst x = fst y -> snd x = snd y -> x = y.
 Proof.
-  intros A B [] []; cbn; intros [] []; reflexivity.
+  now intros A B [] []; cbn; intros [] [].
 Defined.
 
 #[refine]
@@ -110,14 +109,13 @@ Instance HasProducts_CAT : HasProducts CAT :=
 Proof.
   - cbn; intros C D E F G [p q] H I [r s].
     esplit. Unshelve. all: cycle 1.
-    + intros A. cbn. destruct (p A), (r A). reflexivity.
+    + now intros A; cbn; destruct (p A), (r A).
     + cbn; intros A B f.
       rewrite <- q, <- s; clear q s.
-      destruct (p A), (p B), (r A), (r B); cbn.
-      reflexivity.
+      now destruct (p A), (p B), (r A), (r B); cbn.
   - intros C D X F G; repeat split; cbn.
-    + exists (fun _ => eq_refl); cbn. reflexivity.
-    + exists (fun _ => eq_refl); cbn. reflexivity.
+    + now exists (fun _ => eq_refl); cbn.
+    + now exists (fun _ => eq_refl); cbn.
     + intros FG [[p q] [r s]].
       esplit. Unshelve. all: cycle 1.
       * intros A. apply pair_eq; cbn; [apply p | apply r].
@@ -126,11 +124,11 @@ Proof.
         -- rewrite <- q; clear q s.
            generalize (p A), (p B), (r A), (r B).
            destruct (fob FG A), (fob FG B); cbn.
-           intros [] [] [] []; cbn; reflexivity.
+           now intros [] [] [] []; cbn.
         -- rewrite <- s; clear q s.
            generalize (p A), (p B), (r A), (r B).
            destruct (fob FG A), (fob FG B); cbn.
-           intros [] [] [] []; cbn; reflexivity.
+           now intros [] [] [] []; cbn.
 Defined.
 
 Definition CoprodCatHom {C D : Cat} (X Y : Ob C + Ob D) : Type :=
@@ -230,24 +228,24 @@ Proof.
   - cbn; intros C D E F G [p q] H I [r s].
     esplit. Unshelve. all: cycle 1.
     + intros [A | A]; cbn.
-      * destruct (p A). reflexivity.
-      * destruct (r A). reflexivity.
+      * now destruct (p A).
+      * now destruct (r A).
     + intros [X | X] [Y | Y] f; cbn in *.
-      * rewrite <- q; clear q. destruct (p X), (p Y); cbn. reflexivity.
+      * rewrite <- q; clear q. now destruct (p X), (p Y); cbn.
       * contradiction.
       * contradiction.
-      * rewrite <- s; clear s. destruct (r X), (r Y); cbn. reflexivity.
+      * rewrite <- s; clear s. now destruct (r X), (r Y); cbn.
   - intros C D E F G; repeat split; cbn in *.
-    + exists (fun _ => eq_refl); cbn. reflexivity.
-    + exists (fun _ => eq_refl); cbn. reflexivity.
+    + now exists (fun _ => eq_refl); cbn.
+    + now exists (fun _ => eq_refl); cbn.
     + intros FG [[p q] [r s]].
       esplit. Unshelve. all: cycle 1.
       * intros [X | X]; [apply p | apply r].
       * intros [X | X] [Y | Y] f; cbn in *.
-        -- rewrite <- q. reflexivity.
+        -- now rewrite <- q.
         -- contradiction.
         -- contradiction.
-        -- rewrite <- s. reflexivity.
+        -- now rewrite <- s.
 Defined.
 
 #[refine]
@@ -261,9 +259,9 @@ Proof.
     + cbn. intros [F X] [G Y] [f g]; cbn in *.
       exact (component f X .> fmap G g).
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
-      rewrite H1, H2. reflexivity.
+      now rewrite H1, H2.
     + intros [F X] [G Y] [H Z] [[α H1] f] [[β H2] g]; cbn in *.
-      cat. rewrite H2, fmap_comp, !comp_assoc, <- H2. reflexivity.
+      cat. now rewrite H2, fmap_comp, !comp_assoc, <- H2.
     + intros [F X]; cbn. functor.
   - cbn; intros D E C. intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.

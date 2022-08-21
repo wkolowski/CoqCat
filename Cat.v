@@ -33,18 +33,14 @@ Lemma id_unique_left :
   forall (C : Cat) (A : Ob C) (idA : Hom A A),
     (forall (B : Ob C) (f : Hom A B), idA .> f == f) -> idA == id A.
 Proof.
-  intros.
-  rewrite <- (H _ (id A)), comp_id_r.
-  reflexivity.
+  now intros; rewrite <- (H _ (id A)), comp_id_r.
 Qed.
 
 Lemma id_unique_right :
   forall (C : Cat) (B : Ob C) (idB : Hom B B),
     (forall (A : Ob C) (f : Hom A B), f .> idB == f) -> idB == id B.
 Proof.
-  intros.
-  rewrite <- (H _ (id B)), comp_id_l.
-  reflexivity.
+  now intros; rewrite <- (H _ (id B)), comp_id_l.
 Qed.
 
 #[global] Hint Resolve id_unique_left id_unique_right : core.
@@ -89,9 +85,9 @@ Lemma simplify_correct :
   forall {C : Cat} {X Y : Ob C} (e : exp X Y),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; cbn; try reflexivity.
-    destruct (simplify e1); destruct (simplify e2); cbn in *;
-    rewrite <- ?IHe1, <- ?IHe2, ?comp_id_l, ?comp_id_r; reflexivity.
+  induction e; cbn; [easy | easy |].
+  destruct (simplify e1); destruct (simplify e2); cbn in *;
+  now rewrite <- ?IHe1, <- ?IHe2, ?comp_id_l, ?comp_id_r.
 Qed.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
@@ -127,8 +123,8 @@ Lemma expDenoteHL_comp_app :
     expDenoteHL l1 .> expDenoteHL l2 == expDenoteHL (l1 +++ l2).
 Proof.
   induction l1; cbn; intros.
-    rewrite comp_id_l. reflexivity.
-    rewrite comp_assoc, IHl1. reflexivity.
+    now rewrite comp_id_l.
+    now rewrite comp_assoc, IHl1.
 Qed.
 
 Lemma expDenoteHL_flatten :
@@ -136,8 +132,8 @@ Lemma expDenoteHL_flatten :
     expDenoteHL (flatten e) == expDenote e.
 Proof.
   induction e; cbn; rewrite <- ?expDenoteHL_comp_app, ?comp_id_r.
-    1-2: reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
+    1-2: easy.
+    now rewrite IHe1, IHe2.
 Qed.
 
 Lemma cat_reflect :
@@ -263,7 +259,7 @@ Lemma Dual_Dual :
 Proof.
   destruct C. unfold Dual. apply cat_split; cbn; trivial.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
-    intros. rewrite H. reflexivity.
+    intros. now rewrite H.
     apply H. extensionality A. extensionality B. apply JMeq_eq.
       destruct (HomSetoid0 A B). apply setoid_split; trivial.
 Qed.
@@ -302,12 +298,12 @@ Definition isAut {C : Cat} {A : Ob C} (f : Hom A A) : Prop :=
 Lemma isMono_Dual :
   forall [C : Cat] [A B : Ob C] (f : @Hom (Dual C) A B),
     @isMono (Dual C) A B f = @isEpi C B A f.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 Lemma isEpi_Dual :
   forall [C : Cat] [A B : Ob C] (f : @Hom (Dual C) A B),
     @isEpi (Dual C) A B f = @isMono C B A f.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 Lemma isBi_Dual :
   forall (C : Cat) (A B : Ob C) (f : @Hom (Dual C) A B),
@@ -322,12 +318,12 @@ Qed.
 Lemma isSec_Dual :
   forall [C : Cat] [A B : Ob C] (f : @Hom (Dual C) A B),
     @isSec (Dual C) A B f <-> @isRet C B A f.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 Lemma isRet_Dual :
   forall [C : Cat] [A B : Ob C] (f : @Hom (Dual C) A B),
     @isRet (Dual C) A B f <-> @isSec C B A f.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 Lemma isIso_Dual :
   forall [C : Cat] [A B : Ob C] (f : @Hom (Dual C) A B),
@@ -347,7 +343,7 @@ Proof.
     destruct H as [g [inv1 inv2]]. exists g. cat; auto.
       assert (eq1 : y .> f .> g == g) by (rewrite H0; cat).
       assert (eq2 : y .> f .> g == y) by (rewrite comp_assoc, inv1; cat).
-      rewrite <- eq1, eq2. reflexivity.
+      now rewrite <- eq1, eq2.
     cat.
 Qed.
 
@@ -362,7 +358,7 @@ Lemma isMono_isSec :
 Proof.
   intros; unfold isSec, isMono in *; intros X h1 h2 eq. destruct H as (g, H).
   assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g).
-    rewrite eq; reflexivity.
+    now rewrite eq.
     rewrite !comp_assoc, H in eq2. cat.
 Qed.
 
@@ -372,7 +368,7 @@ Lemma isEpi_isRet :
 Proof.
   intros. unfold isRet, isEpi in *. intros X h1 h2 eq. destruct H as (g, H).
   assert (eq2 : g .> (f .> h1) == g .> (f .> h2)).
-    rewrite eq; reflexivity.
+    now rewrite eq.
     rewrite <- 2 comp_assoc, H in eq2. cat.
 Qed.
 
@@ -400,8 +396,8 @@ Proof.
   intros [[g1 H1] [g2 H2]].
   exists (g2 .> f .> g1).
   split.
-  - rewrite H2, comp_id_l, H1. reflexivity.
-  - rewrite 2!comp_assoc, <- (comp_assoc f g1), H1, comp_id_l, H2. reflexivity.
+  - now rewrite H2, comp_id_l, H1.
+  - now rewrite 2!comp_assoc, <- (comp_assoc f g1), H1, comp_id_l, H2.
 Defined.
 
 Lemma isIso_iff_isSec_isEpi :
@@ -433,12 +429,12 @@ Defined.
 Lemma isMono_char :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isMono f <-> forall X : Ob C, injectiveS (fun g : Hom X A => g .> f).
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 Lemma isEpi_char :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isEpi f <-> forall X : Ob C, injectiveS (fun g : Hom B X => f .> g).
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 #[global] Hint Resolve isMono_char isEpi_char : core.
 
@@ -512,8 +508,7 @@ Lemma isSec_comp :
 Proof.
   intros C X Y Z f g [h1 eq1] [h2 eq2].
   exists (h2 .> h1).
-  rewrite comp_assoc, <- (comp_assoc g h2), eq2, comp_id_l, eq1.
-  reflexivity.
+  now rewrite comp_assoc, <- (comp_assoc g h2), eq2, comp_id_l, eq1.
 Defined.
 
 Lemma isRet_comp :
@@ -522,8 +517,7 @@ Lemma isRet_comp :
 Proof.
   intros C X Y Z f g [h1 eq1] [h2 eq2].
   exists (h2 .> h1).
-  rewrite comp_assoc, <- (comp_assoc h1 f), eq1, comp_id_l, eq2.
-  reflexivity.
+  now rewrite comp_assoc, <- (comp_assoc h1 f), eq1, comp_id_l, eq2.
 Defined.
 
 #[global] Hint Resolve isBi_comp isSec_comp isRet_comp : core.
@@ -550,8 +544,7 @@ Lemma isMono_prop :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isMono (f .> g) -> isMono f.
 Proof.
-  unfold isMono; intros. apply H. rewrite <- !comp_assoc.
-  rewrite H0. reflexivity.
+  unfold isMono; intros. apply H. now rewrite <- !comp_assoc, H0.
 Defined.
 
 Lemma isEpi_prop :
@@ -559,7 +552,7 @@ Lemma isEpi_prop :
     isEpi (f .> g) -> isEpi g.
 Proof.
   unfold isEpi; intros. apply H.
-  rewrite !comp_assoc. rewrite H0. reflexivity.
+  now rewrite !comp_assoc, H0.
 Defined.
 
 Lemma isSec_prop :
@@ -975,8 +968,8 @@ Instance BiComp
 }.
 Proof.
   proper.
-  intros. rewrite !fmap_comp, !bimap_comp. reflexivity.
-  intros. rewrite 2 fmap_id, bimap_id. reflexivity.
+  now intros; rewrite !fmap_comp, !bimap_comp.
+  now intros; rewrite 2 fmap_id, bimap_id.
 Defined.
 
 #[refine]
@@ -1064,7 +1057,7 @@ Lemma transport_transport :
   forall {A : Type} (P : A -> Type) {x y z : A} (p : x = y) (q : y = z) (u : P x),
     transport P q (transport P p u) = transport P (eq_trans p q) u.
 Proof.
-  intros A P x y z [] [] u; cbn; reflexivity.
+  now intros A P x y z [] [] u; cbn.
 Defined.
 
 #[refine]
@@ -1081,12 +1074,12 @@ Instance CATHomSetoid {C D : Cat} : Setoid (Functor C D) :=
 |}.
 Proof.
   split; red.
-  - intros F. exists (fun _ => eq_refl); cbn. reflexivity.
+  - now intros F; exists (fun _ => eq_refl); cbn.
   - intros F G [p q]. exists (fun A => eq_sym (p A)).
-    intros A B f. rewrite <- q; clear q. destruct (p A), (p B); cbn. reflexivity.
+    intros A B f; rewrite <- q; clear q. now destruct (p A), (p B); cbn.
   - intros F G H [p1 q1] [p2 q2]. exists (fun X => eq_trans (p1 X) (p2 X)).
     intros A B f. rewrite <- q2, <- q1; clear q1 q2.
-    destruct (p2 B), (p1 B), (p2 A), (p1 A); cbn. reflexivity.
+    now destruct (p2 B), (p1 B), (p2 A), (p1 A); cbn.
 Defined.
 
 #[refine]
@@ -1103,16 +1096,14 @@ Proof.
   - cbn; intros A B C F G [p q] H I [r s].
     unfold FunctorComp; cbn.
     esplit. Unshelve. all: cycle 1.
-    + intros X. clear q s. destruct (p X), (r (fob F X)). reflexivity.
+    + intros X. clear q s. now destruct (p X), (r (fob F X)).
     + intros X Y f. cbn.
       rewrite <- q, <- s; clear q s.
-      destruct (p X), (p Y), (r (fob F X)), (r (fob F Y)); cbn.
-      reflexivity.
+      now destruct (p X), (p Y), (r (fob F X)), (r (fob F Y)); cbn.
   - cbn; intros A B C D F G H.
-    exists (fun X => eq_refl).
-    cbn; reflexivity.
-  - intros A B F. exists (fun _ => eq_refl). cbn. reflexivity.
-  - intros A B F. exists (fun _ => eq_refl). cbn. reflexivity.
+    now exists (fun X => eq_refl).
+  - now intros A B F; exists (fun _ => eq_refl).
+  - now intros A B F; exists (fun _ => eq_refl).
 Defined.
 
 (** We also need to define the product of two categories, as this is needed
@@ -1128,8 +1119,7 @@ Instance ProdCatSetoid {C D : Cat} (X Y : Ob C * Ob D) : Setoid (ProdCatHom X Y)
   equiv := fun f g : ProdCatHom X Y => fst f == fst g /\ snd f == snd g
 }.
 Proof.
-  split; red; intros; split; try destruct H; try destruct H0;
-  try rewrite H; try rewrite H1; try rewrite H0; auto; reflexivity.
+  now split; red; intros; split; try destruct H; try destruct H0; rewrite ?H, ?H0, ?H1.
 Defined.
 
 #[refine]
@@ -1148,8 +1138,8 @@ Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
 }.
 Proof.
   (* Proper *) proper; my_simpl.
-    rewrite H, H0. reflexivity.
-    rewrite H1, H2. reflexivity.
+    now rewrite H, H0.
+    now rewrite H1, H2.
   (* Category laws *) all: cat.
 Defined.
 
@@ -1174,7 +1164,7 @@ Instance NatTransSetoid {C D : Cat} (F G : Functor C D) : Setoid (NatTrans F G) 
     forall X : Ob C, component alfa X == component beta X
 }.
 Proof.
-  split; red; intros; try rewrite H; try rewrite H0; reflexivity.
+  now split; red; intros; rewrite ?H, ?H0.
 Defined.
 
 #[refine]

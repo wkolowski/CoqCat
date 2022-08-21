@@ -25,7 +25,7 @@ Lemma inv_involutive :
 Proof.
   intros.
   assert (op (inv (inv g)) (op (inv g) g) == g).
-    rewrite assoc, inv_l, neutr_l. reflexivity.
+    now rewrite assoc, inv_l, neutr_l.
     rewrite inv_l , neutr_r in H. assumption.
 Qed.
 
@@ -34,7 +34,7 @@ Lemma neutr_unique_l :
     (forall g : G, op e g == g) -> e == neutr.
 Proof.
   intros.
-  assert (op e neutr == e). rewrite neutr_r. reflexivity.
+  assert (op e neutr == e). now rewrite neutr_r.
   assert (op e neutr == neutr). apply H.
   rewrite H0 in H1. assumption.
 Defined.
@@ -44,7 +44,7 @@ Lemma neutr_unique_r :
     (forall g : G, op g e == g) -> e == neutr.
 Proof.
   intros.
-  assert (op neutr e == e). rewrite neutr_l. reflexivity.
+  assert (op neutr e == e). now rewrite neutr_l.
   assert (op neutr e == neutr). apply H. 
   rewrite H0 in H1. assumption.
 Defined.
@@ -59,10 +59,10 @@ Proof.
     intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
     rewrite neutr_l. auto.
   assert (op (op a b) (inv (op a b)) == op (op a b) (op (inv b) (inv a))).
-    rewrite H, H0. reflexivity.
+    now rewrite H, H0.
   assert (op (inv (op a b)) (op (op a b) (inv (op a b))) ==
     op (inv (op a b)) (op (op a b) (op (inv b) (inv a)))).
-    rewrite H1. reflexivity.
+    now rewrite H1.
   repeat (rewrite assoc, inv_l, neutr_l in H2). assumption.
 Defined.
 
@@ -72,10 +72,10 @@ Lemma inv_neutr :
 Proof.
   intros.
   assert (op (inv neutr) neutr == neutr).
-    rewrite inv_l. reflexivity.
+    now rewrite inv_l.
   assert (op (inv neutr) neutr == inv neutr).
-    rewrite neutr_r. reflexivity.
-  rewrite <- H0, H. reflexivity.
+    now rewrite neutr_r.
+  now rewrite <- H0, H.
 Defined.
 
 #[global] Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
@@ -138,19 +138,19 @@ Lemma simplify_correct :
     expDenote (simplify e) == expDenote e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    reflexivity.
-    rewrite IHe1, IHe2. reflexivity.
+    easy.
+    easy.
+    now rewrite IHe1, IHe2.
     destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
-      rewrite pres_neutr. reflexivity.
-      rewrite pres_op. reflexivity.
-      rewrite pres_inv. reflexivity.
+      now rewrite pres_neutr.
+      now rewrite pres_op.
+      now rewrite pres_inv.
     destruct (simplify e); cbn in *; try rewrite <- IHe.
-      rewrite inv_neutr. reflexivity.
-      reflexivity.
-      rewrite inv_op. reflexivity.
-      reflexivity.
-      rewrite inv_involutive. reflexivity.
+      now rewrite inv_neutr.
+      easy.
+      now rewrite inv_op.
+      easy.
+      now rewrite inv_involutive.
 Qed.
 
 Fixpoint expDenoteL {X : Grp} (l : list X) : X :=
@@ -164,8 +164,8 @@ Lemma expDenoteL_app :
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    rewrite neutr_l. reflexivity.
-    rewrite <- assoc. rewrite IHt1. reflexivity.
+    now rewrite neutr_l.
+    now rewrite <- assoc, IHt1.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -173,8 +173,8 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; cbn.
-    rewrite pres_neutr. reflexivity.
-    rewrite pres_op, IHt; reflexivity.
+    now rewrite pres_neutr.
+    now rewrite pres_op, IHt.
 Qed.
 
 Lemma expDenoteL_inv :
@@ -182,9 +182,8 @@ Lemma expDenoteL_inv :
     expDenoteL (map inv l) == inv (expDenoteL (rev l)).
 Proof.
   induction l as [| h t]; cbn.
-    rewrite inv_neutr. reflexivity.
-    rewrite expDenoteL_app, inv_op; cbn. rewrite neutr_r.
-      rewrite IHt. reflexivity.
+    now rewrite inv_neutr.
+    now rewrite expDenoteL_app, inv_op; cbn; rewrite neutr_r, IHt.
 Qed.
 
 Fixpoint flatten {X : Grp} (e : exp X) : list X :=
@@ -201,11 +200,11 @@ Lemma flatten_correct :
     expDenoteL (flatten e) == expDenote e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    rewrite neutr_r. reflexivity.
-    rewrite expDenoteL_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteL_hom, IHe. reflexivity.
-    rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe. reflexivity.
+    easy.
+    now rewrite neutr_r.
+    now rewrite expDenoteL_app, IHe1, IHe2.
+    now rewrite expDenoteL_hom, IHe.
+    now rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe.
 Qed.
 
 Lemma grp_reflect :
@@ -241,7 +240,7 @@ Instance ReifyVar (X : Grp) (x : X) : Reify x | 1 :=
 {
   reify := Var x
 }.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -250,7 +249,7 @@ Instance ReifyOp (X : Grp) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op 
   reify := Op (reify a) (reify b)
 }.
 Proof.
-  cbn. rewrite !reify_spec. reflexivity.
+  now cbn; rewrite !reify_spec.
 Defined.
 
 #[refine]
@@ -260,7 +259,7 @@ Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x) : Reify (f
   reify := Mor f (reify x)
 }.
 Proof.
-  cbn. rewrite reify_spec. reflexivity.
+  now cbn; rewrite reify_spec.
 Defined.
 
 #[refine]
@@ -270,7 +269,7 @@ Instance ReifyId (X : Grp) : Reify neutr | 0 :=
   reify := Id
 }.
 Proof.
-  cbn. reflexivity.
+  easy.
 Defined.
 
 #[refine]
@@ -280,7 +279,7 @@ Instance ReifyInv (X : Grp) (x : X) (Rx : Reify x) : Reify (inv x) :=
   reify := Inv (reify x)
 }.
 Proof.
-  cbn. rewrite reify_spec. reflexivity.
+  now cbn; rewrite reify_spec.
 Defined.
 
 Ltac reflect_grp := cbn; intros;
@@ -332,7 +331,7 @@ Ltac grphoms' := grphoms_template grphom'.
 
 Ltac grp := intros; try (cat; fail); repeat
 match goal with
-| |- _ == _ => reflect_grp; reflexivity
+| |- _ == _ => now reflect_grp
 | |- Equivalence _ => solve_equiv
 | |- Proper _ _ => proper
 (*| |- (_, _) = (_, _) => f_equal*)
@@ -354,41 +353,41 @@ Variable h : GrpHom X X.
 (** Associativity *)
 Goal op a (op b c) == op (op a b) c.
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 (** Homomorphism *)
 Goal f (op a b) == op (f a) (f b).
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 (** Neutral element *)
 Goal f neutr == neutr.
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 Goal
   op (h (h neutr)) (op (h a) (h (op b c))) ==
   op (h a) (op (h b) (h c)).
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 Goal inv (op a b) == op (inv b) (inv a).
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 Goal inv (inv a) == a.
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 Goal f (inv (op a b)) == op (inv (f b)) (inv (f a)).
 Proof.
-  reflect_grp. reflexivity.
+  now reflect_grp.
 Qed.
 
 End test.
@@ -481,7 +480,7 @@ Proof. grp. Defined.
 Definition Grp_prodOb_inv (X Y : Grp) : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
 Proof.
   exists (fun p : X * Y => (inv (fst p), inv (snd p))).
-  proper. destruct H. rewrite H, H0. split; reflexivity.
+  proper. destruct H. now rewrite H, H0.
 Defined.
 
 #[refine]

@@ -48,8 +48,8 @@ Lemma expDenoteHL_comp_app :
     expDenoteHL (l1 +++ l2) == expDenoteHL l1 .> expDenoteHL l2.
 Proof.
   intros. funelim (Happ l1 l2); simp Happ expDenoteHL.
-    rewrite comp_id_l. reflexivity.
-    rewrite H, comp_assoc. reflexivity.
+    now rewrite comp_id_l.
+    now rewrite H, comp_assoc.
 Qed.
 
 Lemma flatten_correct :
@@ -57,9 +57,9 @@ Lemma flatten_correct :
     expDenoteHL (flatten e) == expDenote e.
 Proof.
   intros. funelim (flatten e); simp flatten expDenoteHL expDenote.
-    reflexivity.
-    rewrite comp_id_r. reflexivity.
-    rewrite expDenoteHL_comp_app, H, H0. reflexivity.
+    easy.
+    now rewrite comp_id_r.
+    now rewrite expDenoteHL_comp_app, H, H0.
 Qed.
 
 Lemma cat_reflect :
@@ -67,7 +67,7 @@ Lemma cat_reflect :
     expDenoteHL (flatten e1) == expDenoteHL (flatten e2) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. rewrite <- flatten_correct, H, flatten_correct. reflexivity.
+  now intros; rewrite <- flatten_correct, H, flatten_correct.
 Qed.
 
 Ltac reify mor :=
@@ -96,21 +96,21 @@ Lemma test_id_l :
   forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
     id X .> f == f.
 Proof.
-  reflect_cat. simp expDenoteHL. try reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_id_r :
   forall (C : Cat) (X Y : Ob C) (f : Hom X Y),
     f .> id Y == f.
 Proof.
-  reflect_cat. try reflexivity.
+  now reflect_cat.
 Qed.
 
 Goal forall (C : Cat) (X Y Z W V T: Ob C) (f : Hom X Y) (g : Hom Y Z)
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
 Proof.
-  intros. reflect_cat. reflexivity.
+  now intros; reflect_cat.
 Qed.
 
 Goal
@@ -134,5 +134,5 @@ Goal
     (h : Hom Z W) (i : Hom W V) (j : Hom V T),
       f == f .> id _ .> id _.
 Proof.
-  intros. reflect_cat. reflexivity.
+  now intros; reflect_cat.
 Qed.

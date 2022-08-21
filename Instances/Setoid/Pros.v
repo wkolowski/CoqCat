@@ -177,7 +177,7 @@ Instance Pros_prodOb (X Y : Pros) : Pros :=
   leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
-  proper. destruct H, H0. rewrite H, H0, H1, H2. reflexivity.
+  proper. destruct H, H0. now rewrite H, H0, H1, H2.
   all: pros.
 Defined.
 
@@ -260,6 +260,7 @@ Instance HasCoproducts_Pros : HasCoproducts ProsCat :=
 }.
 Proof.
   proper. destruct x1; proper.
-  repeat split; cbn; try reflexivity.
+  repeat split; cbn.
+    1-2: easy.
     destruct x; pros.
 Defined.

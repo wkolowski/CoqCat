@@ -97,7 +97,7 @@ Proof.
       (fpair (curry (uncurry (id (expOb (term C) Y)))) (delete (expOb (term C) Y))
         .> eval) .> curry (X := term C) outl)
     with (curry (uncurry (id (expOb (term C) Y)))).
-    + rewrite computation_rule. reflexivity.
+    + now rewrite computation_rule.
     + rewrite !curry_uncurry. admit.
   - rewrite <- comp_assoc, <- fpair_pre, delete_unique, comp_id_r.
     admit.

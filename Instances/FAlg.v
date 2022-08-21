@@ -51,9 +51,8 @@ Proof. apply Setoid_kernel_equiv. Defined.
 Definition FAlgComp
   {C : Cat} {F : Functor C C} {X Y Z : FAlg F} (f : FAlgHom X Y) (g : FAlgHom Y Z) : FAlgHom X Z.
 Proof.
-  falg. exists (f .> g). rewrite <- comp_assoc. rewrite f_cond.
-  rewrite comp_assoc. rewrite g_cond. rewrite fmap_comp.
-  rewrite comp_assoc. reflexivity.
+  falg. exists (f .> g).
+  now rewrite <- comp_assoc, f_cond, comp_assoc, g_cond, fmap_comp, comp_assoc.
 Defined.
 
 Definition FAlgId {C : Cat} {F : Functor C C} {X : FAlg F} : FAlgHom X X.

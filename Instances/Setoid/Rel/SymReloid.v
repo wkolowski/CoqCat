@@ -192,6 +192,6 @@ Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
   copair := SymReloid_copair;
 }.
 Proof.
-  proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold isCoproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  proper. destruct x1; now rewrite ?H, ?H0.
+  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
 Defined.

@@ -59,8 +59,8 @@ Lemma denoteHL_Happ :
     denoteHL (l1 +++ l2) == denoteHL l1 .> denoteHL l2.
 Proof.
   intros. funelim (Happ l1 l2); simp Happ denoteHL.
-    rewrite comp_id_l. reflexivity.
-    rewrite H, comp_assoc. reflexivity.
+    now rewrite comp_id_l.
+    now rewrite H, comp_assoc.
 Qed.
 
 Lemma denoteHL_Hfmap :
@@ -68,8 +68,8 @@ Lemma denoteHL_Hfmap :
     denoteHL (Hfmap F l) == fmap F (denoteHL l).
 Proof.
   intros. funelim (Hfmap F l); simp Hfmap denoteHL.
-    rewrite fmap_id. reflexivity.
-    rewrite fmap_comp, H. reflexivity.
+    now rewrite fmap_id.
+    now rewrite fmap_comp, H.
 Qed.
 
 Lemma flatten_correct :
@@ -77,10 +77,10 @@ Lemma flatten_correct :
     denoteHL (flatten e) == denote e.
 Proof.
   intros. funelim (flatten e); simp flatten denoteHL denote.
-    reflexivity.
-    rewrite comp_id_r. reflexivity.
-    rewrite denoteHL_Happ, H, H0. reflexivity.
-    rewrite denoteHL_Hfmap, H. reflexivity.
+    easy.
+    now rewrite comp_id_r.
+    now rewrite denoteHL_Happ, H, H0.
+    now rewrite denoteHL_Hfmap, H.
 Qed.
 
 Lemma cat_reflect :
@@ -88,7 +88,7 @@ Lemma cat_reflect :
     denoteHL (flatten e1) == denoteHL (flatten e2) ->
       denote e1 == denote e2.
 Proof.
-  intros. rewrite <- flatten_correct, H, flatten_correct. reflexivity.
+  now intros; rewrite <- flatten_correct, H, flatten_correct.
 Qed.
 
 Ltac reify mor :=
@@ -129,50 +129,50 @@ Variables
 Lemma test_id_l :
   id X .> f == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_id_r :
   f .> id Y == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_comp_id_l_many :
   id X .> id X .> f == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_comp_id_r_many :
   f .> id Y .> id Y == f.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_fmap_id :
   fmap F (id X) == id (fob F X).
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Lemma test_assoc :
   (f .> g) .> h == f .> (g .> h).
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Goal
   ((f .> (g .> h)) .> i) .> j == f .> g .> h .> i .> j.
 Proof.
-  reflect_cat. reflexivity.
+  now reflect_cat.
 Qed.
 
 Goal
   f == f' ->
     ((f .> (g .> h)) .> i) .> j == f' .> g .> h .> i .> j.
 Proof.
-  intro. rewrite <- H. reflect_cat. reflexivity.
+  intro. rewrite <- H. now reflect_cat.
 Qed.
 
 Goal

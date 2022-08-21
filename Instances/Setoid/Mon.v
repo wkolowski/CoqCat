@@ -68,15 +68,15 @@ Lemma simplify_correct :
     expDenote (simplify e) == expDenote e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    reflexivity.
-    destruct (simplify e1), (simplify e2); cbn in *;
-      rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r; try reflexivity.
+    easy.
+    easy.
+    now destruct (simplify e1), (simplify e2); cbn in *;
+      rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r.
     destruct (simplify e); cbn in *; rewrite <- IHe.
-      rewrite pres_neutr. reflexivity.
-      reflexivity.
-      rewrite pres_op. reflexivity.
-      rewrite IHe. reflexivity.
+      now rewrite pres_neutr.
+      easy.
+      now rewrite pres_op.
+      now rewrite IHe.
 Qed.
 
 Fixpoint expDenoteL {X : Mon} (l : list X) : X :=
@@ -90,8 +90,8 @@ Lemma expDenoteL_app :
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    rewrite neutr_l. reflexivity.
-    rewrite <- assoc, IHt1. reflexivity.
+    now rewrite neutr_l.
+    now rewrite <- assoc, IHt1.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -99,8 +99,8 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; cbn.
-    rewrite pres_neutr. reflexivity.
-    rewrite pres_op, IHt. reflexivity.
+    now rewrite pres_neutr.
+    now rewrite pres_op, IHt.
 Qed.
 
 Fixpoint flatten {X : Mon} (e : exp X) : list X :=
@@ -116,10 +116,10 @@ Lemma flatten_correct :
     expDenoteL (flatten e) == expDenote e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    rewrite neutr_r. reflexivity.
-    rewrite expDenoteL_app. rewrite IHe1, IHe2. reflexivity.
-    rewrite expDenoteL_hom. rewrite IHe. reflexivity.
+    easy.
+    now rewrite neutr_r.
+    now rewrite expDenoteL_app, IHe1, IHe2.
+    now rewrite expDenoteL_hom, IHe.
 Qed.
 
 Lemma mon_reflect :
@@ -145,7 +145,7 @@ Instance ReifyVar (X : Mon) (x : X) : Reify x | 1 :=
 {
   reify := Var x
 }.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -154,7 +154,7 @@ Instance ReifyOp (X : Mon) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op 
   reify := Op (reify a) (reify b)
 }.
 Proof.
-  cbn. rewrite !reify_spec. reflexivity.
+  now cbn; rewrite !reify_spec.
 Defined.
 
 #[refine]
@@ -164,7 +164,7 @@ Instance ReifyHom (X Y : Mon) (f : MonHom X Y) (x : X) (Rx : Reify x) : Reify (f
   reify := Mor f (reify x)
 }.
 Proof.
-  cbn. rewrite reify_spec. reflexivity.
+  now cbn; rewrite reify_spec.
 Defined.
 
 #[refine]
@@ -174,7 +174,7 @@ Instance ReifyId (X : Mon) : Reify neutr | 0 :=
   reify := Id
 }.
 Proof.
-  cbn. reflexivity.
+  now cbn.
 Defined.
 
 Ltac reflect_mon := cbn; intros;
@@ -226,7 +226,7 @@ Ltac monhoms' := monhoms_template monhom'.
 
 Ltac mon := intros; try (reflect_mon; try reflexivity; fail); repeat
 match goal with
-| |- _ == _ => reflect_mon; reflexivity
+| |- _ == _ => now reflect_mon
 | |- Equivalence _ => solve_equiv
 | |- Proper _ _ => proper
 | |- (_, _) = (_, _) => f_equal
@@ -237,28 +237,28 @@ Goal
   forall (X : Mon) (a b c : X),
     op a (op b c) == op (op a b) c.
 Proof.
-  reflect_mon. reflexivity.
+  now reflect_mon.
 Qed.
 
 Goal
   forall (X : Mon) (f : MonHom X X) (a b : X),
     f (op a b) == op (f a) (f b).
 Proof.
-  reflect_mon. reflexivity.
+  now reflect_mon.
 Qed.
 
 Goal
   forall (X : Mon) (f : MonHom X X) (a b c : X),
     op (f (f neutr)) (op (f a) (f (op b c))) == op (f a) (op (f b) (f c)).
 Proof.
-  reflect_mon. reflexivity.
+  now reflect_mon.
 Qed.
 
 Goal
   forall (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z),
     g (f neutr) == neutr.
 Proof.
-  reflect_mon. reflexivity.
+  now reflect_mon.
 Qed.
 
 (* TODO : improve reflection *)
@@ -267,7 +267,7 @@ Lemma flat_reflect_goal :
     flatten (simplify e1) = flatten (simplify e2) ->
       expDenote e1 == expDenote e2.
 Proof.
-  intros. apply mon_reflect. rewrite H. reflexivity.
+  intros. apply mon_reflect. now rewrite H.
 Qed.
 
 Lemma flat_reflect_hyp :
@@ -517,13 +517,13 @@ Proof.
       | 0 => @neutr N
       | S n' => op (q tt) (f n')
       end).
-    proper. subst. reflexivity.
+    now proper; subst.
   Defined.
   Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SgrHom MonListUnit N.
     exists (f1 N q). induction x as [| x']. simpl.
       mon.
-      simpl. intro. rewrite <- assoc. rewrite -> IHx'. reflexivity.
+      now cbn; intro; rewrite <- assoc, -> IHx'.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.

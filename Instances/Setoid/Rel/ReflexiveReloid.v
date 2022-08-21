@@ -106,7 +106,7 @@ Instance ReflexiveReloid_prodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
   reloid := Reloid_prodOb X Y;
 }.
 Proof.
-  split; cbn; reflexivity.
+  easy.
 Defined.
 
 #[refine]
@@ -156,7 +156,7 @@ Instance ReflexiveReloid_coprodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
 {
   reloid := Reloid_coprodOb X Y;
 }.
-Proof. intros []; cbn; reflexivity. Defined.
+Proof. now intros []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -198,6 +198,6 @@ Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
   copair := ReflexiveReloid_copair;
 }.
 Proof.
-  proper. destruct x1; rewrite ?H, ?H0; reflexivity.
-  unfold isCoproduct. cat. destruct x; rewrite ?H, ?H0; reflexivity.
+  proper. now destruct x1; rewrite ?H, ?H0.
+  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
 Defined.

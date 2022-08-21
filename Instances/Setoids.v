@@ -33,7 +33,7 @@ Proof.
   destruct (H x) as [a eq].
   rewrite (Proper_func g x), (Proper_func h x).
     apply H0.
-    all: rewrite eq; reflexivity.
+    all: now rewrite eq.
 Defined.
 
 Lemma CoqSetoid_isSec :
@@ -279,7 +279,7 @@ Instance CoqSetoid_coeq_ob {X Y : Setoid'} (f g : SetoidHom X Y) : Setoid' :=
 }.
 Proof.
   solve_equiv.
-    apply coeq_step. reflexivity.
+    now apply coeq_step.
     apply coeq_sym. assumption.
     eapply coeq_trans; eauto.
 Defined.
@@ -325,7 +325,7 @@ Instance CoqSetoid_indexedProdOb {J : Set} (A : J -> Setoid') : Setoid' :=
   |}
 }.
 Proof.
-  split; red; intros; try rewrite H; try rewrite H0; reflexivity.
+  now split; red; intros; rewrite ?H, ?H0.
 Defined.
 
 #[export]
@@ -354,8 +354,7 @@ Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
 }.
 Proof.
   cbn; intros; eauto.
-  unfold isIndexedProduct; red; cbn; split; intros;
-  try reflexivity; eauto.
+  now unfold isIndexedProduct; red; cbn; split; intros.
 Defined.
 
 #[refine]
@@ -372,10 +371,10 @@ Instance CoqSetoid_indexedCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 Proof.
   split; red; destruct x; try destruct y; try destruct z;
   cbn; intros.
-    split; auto. constructor. reflexivity.
+    split; auto. now constructor.
     destruct H; subst. split; auto. inversion H0; subst.
       constructor. apply inj_pair2 in H.
-      rewrite H1, <- H. reflexivity.
+      now rewrite H1, <- H.
     destruct H, H0; split.
       rewrite H, H0. auto.
       subst. eapply (JMequiv_trans (eq_refl) (JMeq_refl) H1 H2).
@@ -402,7 +401,7 @@ Instance CoqSetoid_cotuple
 Proof.
   proper.
   destruct x, y. cbn in *. destruct H; subst. inversion H0.
-  apply inj_pair2 in H. subst. rewrite H1. reflexivity.
+  apply inj_pair2 in H. subst. now rewrite H1.
 Defined.
 
 #[refine]
@@ -446,7 +445,7 @@ Definition CoqSetoid_curry_fun
 Proof.
   intro z. destruct f as [f Hf]; do 2 red in Hf; cbn in *.
   split with (fun x : X => f (z, x)). do 2 red. intros.
-  apply Hf. cbn; split; [reflexivity | assumption].
+  apply Hf. cbn; split; [easy | assumption].
 Defined.
 
 #[export]
@@ -456,7 +455,7 @@ Instance CoqSetoid_curry
 Proof.
   split with (CoqSetoid_curry_fun f). do 2 red. intros.
   setoidhom f; unfold CoqSetoid_curry_fun; cbn in *. intro x'.
-  apply f_pres_equiv. cbn. split; [assumption | reflexivity].
+  apply f_pres_equiv. cbn. split; [assumption | easy].
 Defined.
 
 #[refine]

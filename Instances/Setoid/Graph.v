@@ -74,7 +74,7 @@ Instance GraphHomSetoid (X Y : Graph) : Setoid (GraphHom X Y) :=
     (forall e : edges X, fed f e == fed g e)
 }.
 Proof.
-  solve_equiv; intro; rewrite ?H, ?H2, ?H0, ?H1; try reflexivity.
+  now solve_equiv; intro; rewrite ?H, ?H2, ?H0, ?H1.
 Defined.
 
 #[refine]
@@ -89,8 +89,8 @@ Proof.
   match goal with
   | H : forall _, _ = _ |- _ => try rewrite H; clear H
   end.
-    rewrite g_pres_src, f_pres_src. reflexivity.
-    rewrite g_pres_tgt, f_pres_tgt. reflexivity.
+    now rewrite g_pres_src, f_pres_src.
+    now rewrite g_pres_tgt, f_pres_tgt.
 Defined.
 
 #[refine]
@@ -113,7 +113,7 @@ Instance GraphCat : Cat :=
   id := GraphId;
 }.
 Proof.
-  proper. my_simpl; intros; rewrite ?H, ?H0, ?H1, ?H2; reflexivity.
+  now proper; my_simpl; intros; rewrite ?H, ?H0, ?H1, ?H2.
   all: graph.
 Defined.
 

@@ -14,7 +14,7 @@ Instance FunCat (C D : Cat) : Cat :=
   id := NatTransId
 }.
 Proof.
-  (* Proper *) do 3 red; cbn; intros. rewrite H, H0. reflexivity.
+  (* Proper *) do 3 red; cbn; intros. now rewrite H, H0.
   (* Category laws *) all: cat.
 Defined.
 
@@ -27,8 +27,8 @@ Instance FunCat_prodOb {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Fu
 }.
 Proof.
   proper.
-  intros. rewrite 2 fmap_comp, ProductFunctor_fmap_comp. reflexivity.
-  intros. rewrite 2 fmap_id, ProductFunctor_fmap_id. reflexivity.
+  intros. now rewrite 2 fmap_comp, ProductFunctor_fmap_comp.
+  intros. now rewrite 2 fmap_id, ProductFunctor_fmap_id.
 Defined.
 
 #[refine]
@@ -92,8 +92,8 @@ Instance FunCat_coprodOb {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) 
 }.
 Proof.
   proper.
-  intros. rewrite 2 fmap_comp, CoproductFunctor_fmap_comp. reflexivity.
-  intros. rewrite 2 fmap_id, CoproductFunctor_fmap_id. reflexivity.
+  intros. now rewrite 2 fmap_comp, CoproductFunctor_fmap_comp.
+  intros. now rewrite 2 fmap_id, CoproductFunctor_fmap_id.
 Defined.
 
 #[refine]

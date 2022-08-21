@@ -55,7 +55,7 @@ Instance SimplifyOp
   simplify := Op (simplify e1) (simplify e2)
 }.
 Proof.
-  cbn. rewrite !simplify_spec. reflexivity.
+  now cbn; rewrite !simplify_spec.
 Defined.
 
 #[refine]
@@ -72,7 +72,7 @@ Instance SimplifyMor
 }.
 Proof.
   destruct S, f, func0; cbn in *. destruct simplify0; cbn in *;
-  rewrite <- simplify_spec0, ?pres_op0; reflexivity.
+  now rewrite <- simplify_spec0, ?pres_op0.
 Defined.
 
 #[refine]
@@ -82,7 +82,7 @@ Instance SimplifyOther {X : Sgr} (e : exp X) : Simplify e | 100 :=
   simplify := e
 }.
 Proof.
-  reflexivity.
+  easy.
 Defined.
 
 Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
@@ -96,8 +96,8 @@ Lemma expDenoteNel_nel_app :
     expDenoteNel (nel_app l1 l2) == op (expDenoteNel l1) (expDenoteNel l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    reflexivity.
-    rewrite IHt1, assoc. reflexivity.
+    easy.
+    now rewrite IHt1, assoc.
 Qed.
 
 Lemma expDenoteNel_hom :
@@ -105,8 +105,8 @@ Lemma expDenoteNel_hom :
     expDenoteNel (nel_map f l) == f (expDenoteNel l).
 Proof.
   induction l as [| h t]; cbn.
-    reflexivity.
-    rewrite pres_op, IHt. reflexivity.
+    easy.
+    now rewrite pres_op, IHt.
 Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
@@ -121,9 +121,9 @@ Lemma flatten_correct :
     expDenoteNel (flatten e) == expDenote e.
 Proof.
   induction e; cbn.
-    reflexivity.
-    rewrite expDenoteNel_nel_app, IHe1, IHe2. reflexivity.
-    rewrite expDenoteNel_hom, IHe. reflexivity.
+    easy.
+    now rewrite expDenoteNel_nel_app, IHe1, IHe2.
+    now rewrite expDenoteNel_hom, IHe.
 Qed.
 
 Lemma sgr_reflect :
@@ -150,7 +150,7 @@ Instance ReifyVar (X : Sgr) (x : X) : Reify x | 1 :=
 {
   reify := Var x
 }.
-Proof. reflexivity. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -159,7 +159,7 @@ Instance ReifyOp (X : Sgr) (a b : X) (Ra : Reify a) (Rb : Reify b) : Reify (@op 
   reify := Op (reify a) (reify b)
 }.
 Proof.
-  cbn. rewrite !reify_spec. reflexivity.
+  now cbn; rewrite !reify_spec.
 Defined.
 
 #[refine]
@@ -169,7 +169,7 @@ Instance ReifyMor (X Y : Sgr) (f : SgrHom X Y) (x : X) (Rx : Reify x) : Reify (f
   reify := Mor f (reify x)
 }.
 Proof.
-  cbn. rewrite !reify_spec. reflexivity.
+  now cbn; rewrite !reify_spec.
 Defined.
 
 Ltac reflect_sgr := cbn; intros;
@@ -213,7 +213,7 @@ end; sgr_simpl.
 
 Ltac sgr := intros; try (reflect_sgr; try reflexivity; fail); repeat
 match goal with
-| |- _ == _ => reflect_sgr; reflexivity
+| |- _ == _ => now reflect_sgr
 | |- Equivalence _ => solve_equiv
 | |- Proper _ _ => proper
 | _ => sgr_simpl || sgrobs || sgrhoms || cat
@@ -223,14 +223,14 @@ Goal
   forall (X : Sgr) (a b c : X),
     op a (op b c) == op (op a b) c.
 Proof.
-  reflect_sgr. reflexivity.
+  now reflect_sgr.
 Qed.
 
 Goal
   forall (X : Sgr) (f : SgrHom X X) (a b : X),
     f (op a b) == op (f a) (f b).
 Proof.
-  reflect_sgr. reflexivity.
+  now reflect_sgr.
 Qed.
 
 #[refine]
@@ -317,7 +317,7 @@ Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
   op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
-  proper. destruct H, H0. rewrite H, H0, H1, H2. split; reflexivity.
+  proper. destruct H, H0. now rewrite H, H0, H1, H2.
   sgr.
 Defined.
 
@@ -553,19 +553,19 @@ Proof.
   proper. induction x as [| h t].
     destruct y, x0, y0, a, s, s0, s1; cbn in *; repeat
     match goal with | |- op _ _ == op _ _ => apply WHUUUT end; solve_equiv.
-  intros. rewrite app_nel_assoc. reflexivity.
+  intros. now rewrite app_nel_assoc.
 Defined.
 
 Definition Sgr_finl (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_finl X Y).
-  simpl. unfold fpeq4; cbn. reflexivity.
+  simpl. now unfold fpeq4; cbn.
 Defined.
 
 Definition Sgr_finr (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
 Proof.
   red. exists (Sgr_freeprod_setoid_finr X Y).
-  cbn; unfold fpeq4; cbn. reflexivity.
+  now cbn; unfold fpeq4; cbn.
 Defined.
 
 Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A) (l : nel (X + Y)) : nel A :=
@@ -626,7 +626,7 @@ Instance Simplify_wut_eq (X : SgrWut) : Simplify (Op (Var wut) (Var wut)) | 11 :
   simplify := Var wut
 }.
 Proof.
-  cbn. rewrite wut_eq. reflexivity.
+  now cbn; rewrite wut_eq.
 Defined.
 
 (*
@@ -636,7 +636,7 @@ Instance Reify_wut_eq (X : SgrWut) : Reify (op wut wut) :=
   reify := Var wut
 }.
 Proof.
-  cbn. rewrite wut_eq. reflexivity.
+  now cbn; rewrite wut_eq.
 Defined.
 *)
 
@@ -651,7 +651,7 @@ Goal
   forall (X : SgrWut) (a b c : X),
     op a (op b c) == op (op a b) c.
 Proof.
-  reflect_sgr2. reflexivity.
+  now reflect_sgr2.
 Qed.
 
 Goal
@@ -682,8 +682,7 @@ Proof.
   reflect_sgr2.
   reflect_sgr3.
   rewrite <- reify_spec. rewrite <- simplify_correct2. cbn.
-  instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).
-  cbn. reflexivity.
+  now instantiate (1 := SimplifyOp (SimplifyOther _) (Simplify_wut_eq X)).
 Qed.
 
 Axiom troll : forall (X : Sgr) (x : X), op x x == x.
@@ -695,7 +694,7 @@ Instance Simplify_troll (X : Sgr) (x : X) : Simplify (Op (Var x) (Var x)) | 1 :=
   simplify := Var x
 }.
 Proof.
-  cbn. rewrite troll. reflexivity.
+  now cbn; rewrite troll.
 Defined.
 
 Goal
@@ -705,7 +704,7 @@ Proof.
   intros.
   reflect_sgr.
   reflect_sgr2.
-  reflect_sgr3. try reflexivity.
+  now reflect_sgr3.
 Qed.
 
 (* Does it work recursively? *)
@@ -713,7 +712,7 @@ Goal
   forall (X : Sgr) (x : X),
     op (op x x) (op x x) == x.
 Proof.
-  reflect_sgr3. reflexivity.
+  now reflect_sgr3.
 Qed.
 
 (* TODO: Note to self: class-based Simplify could work, but the instance

@@ -34,7 +34,8 @@ Defined.
 
 Definition SliceId {C : Cat} {Y : Ob C} (X : SliceOb C Y) : SliceHom X X.
 Proof.
-  red. exists (id X). rewrite comp_id_l. reflexivity.
+  red. exists (id X).
+  now rewrite comp_id_l.
 Defined.
 
 #[refine]
@@ -49,7 +50,7 @@ Instance Slice (C : Cat) (Y : Ob C) : Cat :=
 }.
 Proof.
   unfold Proper, respectful; intros.
-    destruct x, y, x0, y0; cbn in *. rewrite H, H0. reflexivity.
+  1: now destruct x, y, x0, y0; cbn in *; rewrite H, H0.
   all: (cat; repeat
   match goal with
   | f : SliceHom _ _ |- _ => destruct f; cbn in *
