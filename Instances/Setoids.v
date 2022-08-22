@@ -20,9 +20,8 @@ Lemma CoqSetoid_isMono :
     isMono f <-> injectiveS f.
 Proof.
   unfold isMono, injectiveS; split; intros.
-    specialize (H _ (const Y a) (const Y a')). cbn in H.
-      apply H; auto. exact (f a).
-    cbn. intro. apply H. apply H0.
+  - specialize (H X (const X a) (const X a')). now cbn in H; apply H.
+  - cbn; intros x. apply H, H0.
 Defined.
 
 Lemma CoqSetoid_isEpi :
@@ -353,8 +352,8 @@ Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
   tuple := @CoqSetoid_tuple
 }.
 Proof.
-  cbn; intros; eauto.
-  now unfold isIndexedProduct; red; cbn; split; intros.
+  cbn; intros; easy.
+  now unfold isIndexedProduct; red; cbn.
 Defined.
 
 #[refine]
@@ -371,12 +370,12 @@ Instance CoqSetoid_indexedCoprodOb {J : Set} (A : J -> Setoid') : Setoid' :=
 Proof.
   split; red; destruct x; try destruct y; try destruct z;
   cbn; intros.
-    split; auto. now constructor.
+    easy.
     destruct H; subst. split; auto. inversion H0; subst.
       constructor. apply inj_pair2 in H.
       now rewrite H1, <- H.
     destruct H, H0; split.
-      rewrite H, H0. auto.
+      now rewrite H, H0.
       subst. eapply (JMequiv_trans (eq_refl) (JMeq_refl) H1 H2).
 Defined.
 
@@ -413,7 +412,8 @@ Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.
-  cbn; intros; eauto. setoid.
+  cbn; intros; easy.
+  setoid.
 Defined.
 
 #[refine]

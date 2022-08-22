@@ -215,7 +215,7 @@ Lemma flat_reflect_hyp :
     expDenote env e1 == expDenote env e2 ->
       flatten (simplifyExp e1) == flatten (simplifyExp e2).
 Proof.
-  induction e1; destruct e2; cbn; intros; auto.
+  now induction e1; destruct e2; cbn; intros.
 Qed.
 
 Lemma flat_reflect_hyp' :
@@ -249,7 +249,7 @@ end.
   forall (A : Type) (h h' : A),
     [h] = [h'] -> forall l : list A, cons h l = cons h' l.
 Proof.
-  inversion 1. subst. auto.
+  now inversion 1.
 Qed. *)
 
 Goal forall (X : ComMon) (a b c : X),

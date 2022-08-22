@@ -16,7 +16,7 @@ Instance CoqSet : Cat :=
 |}.
 Proof.
   (* Equivalence *) solve_equiv.
-  (* Composition is proper *) proper. rewrite H, H0. auto.
+  (* Composition is proper *) proper. now rewrite H, H0.
   (* Category laws *) all: cat.
 Defined.
 
@@ -25,9 +25,8 @@ Lemma CoqSet_isMono_inj :
     isMono f <-> injective f.
 Proof.
   unfold isMono, injective; cbn; split; intros.
-    change (x = y) with ((fun _ => x) x = (fun _ => y) x).
-      apply H. auto.
-    apply H. apply H0.
+  - now apply (H A (fun _ => x) (fun _ => y)).
+  - apply H, H0.
 Defined.
 
 Lemma CoqSet_isRet_sur :
@@ -108,8 +107,8 @@ Instance HasProducts_CoqSet : HasProducts CoqSet :=
 }.
 Proof.
   all: unfold CoqSet_fpair.
-  (* Proper *) proper. rewrite H, H0. auto.
-  (* Product law *) red; cat. rewrite H, H0. destruct (y x). auto.
+  (* Proper *) proper. now rewrite H, H0.
+  (* Product law *) red; cat. rewrite H, H0. now destruct (y x).
 Defined.
 
 (* Beware! Requires functional extensionality. *)
@@ -124,8 +123,8 @@ Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) cat. extensionality j. auto.
-  (* Universal property *) red; cat. extensionality a. auto.
+  (* Proper *) cat. now extensionality j.
+  (* Universal property *) red; cat. now extensionality a.
 Defined.
 
 Definition CoqSet_coprodOb := sum.
@@ -174,8 +173,8 @@ Lemma CoqSet_counterexample1 :
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold injective, not; cbn; split; intros.
-    destruct x, y; auto.
-    specialize (H true false eq_refl). discriminate H.
+    now destruct x, y.
+    now specialize (H true false eq_refl).
 Qed.
 
 Lemma CoqSet_counterexample2 :
@@ -184,7 +183,7 @@ Lemma CoqSet_counterexample2 :
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold surjective, not; cbn; split; intros.
-    exists tt. destruct b. auto.
+    exists tt. now destruct b.
     destruct (H false). inversion H0.
 Qed.
 
@@ -234,14 +233,14 @@ Proof.
   - intros. cbn in *.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     {
-      f_equal. extensionality x. rewrite H, H0. trivial.
+      f_equal. extensionality x. now rewrite H, H0.
     }
     rewrite H1 in *. now constructor.
   - now intros X Y f g [x Heq]; cbn.
   - intros. cbn in *.
     assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
     {
-      f_equal. extensionality x. rewrite H, H0. trivial.
+      f_equal. extensionality x. now rewrite H, H0.
     }
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).

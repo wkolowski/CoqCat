@@ -10,7 +10,7 @@ Instance WithMono (C : Cat) : Cat :=
 }.
 Proof.
   destruct 1 as [f f_mon], 1 as [g g_mon].
-    exists (f .> g). apply isMono_comp; auto.
+    exists (f .> g). now apply isMono_comp.
   repeat (red || split).
     destruct C, x as [f1 f1_mon], y as [g1 g1_mon]; cbn in *;
     destruct x as [f2 f2_mon], y as [g2 g2_mon]; cbn in *; intros.

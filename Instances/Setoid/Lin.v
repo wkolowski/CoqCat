@@ -95,10 +95,10 @@ Proof.
   (* Proper *) proper. destruct H, H0. now rewrite H, H0, H1, H2.
   (* Reflexivity *) lin.
   (* Transitivity *) destruct 1, 1; destruct H, H0.
-    left. split; eauto. intro.
+    left. split; [eauto |]. intro.
       assert (fst c == fst b); try rewrite H3 in H; eauto.
-    left. split; rewrite <- H0; auto.
-    left. split; rewrite H; auto.
+    left. now rewrite <- H0.
+    left. now rewrite H.
     right. split; [| eauto]. now rewrite H, H0.
 Defined.
 
@@ -154,7 +154,7 @@ TODO: Instance HasProducts_Lin : HasProducts LinCat :=
   fpair := @Pros_fpair
 }.
 Proof.
-  all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); auto.
+  all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); easy.
 Defined.
 *)
 
@@ -232,5 +232,5 @@ Definition Lin_copair
 Proof.
   exists (CoqSetoid_copair f g). cbn. destruct f, g.
   destruct a, a'; intros; cbn.
-    try apply l; try apply l0; auto.
+    try apply l; try apply l0; easy.
 Abort.

@@ -43,7 +43,7 @@ Instance HasBiproducts_Dual (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Du
   HasCoproducts_HasBiproducts := HasCoproducts_Dual hp;
 }.
 Proof.
-  simpl. intros. rewrite isProduct_isCoproduct. trivial.
+  now cbn; intros; rewrite isProduct_isCoproduct.
 Defined.
 
 #[refine]

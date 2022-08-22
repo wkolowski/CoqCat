@@ -25,8 +25,8 @@ Lemma Discrete_char_iso :
     isIso f.
 Proof.
   unfold isIso; cbn; intros. assert (g : x' = x).
-    rewrite f. trivial.
-    exists g. auto.
+    now rewrite f.
+    now exists g.
 Defined.
 
 #[refine]
@@ -39,9 +39,9 @@ Instance Two : Cat :=
 }.
 Proof.
   (* Equivalence *) solve_equiv.
-  (* Composition *) destruct A, B, C; cbn; tauto.
+  (* Composition *) now destruct A, B, C.
   (* Proper *) proper.
   (* Assoc *) cat.
-  (* Id *) destruct A; cbn; tauto.
+  (* Id *) now destruct A.
   (* Id laws *) all: cat.
 Defined.

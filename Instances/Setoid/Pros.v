@@ -101,8 +101,9 @@ Lemma Pros_isMono_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
     isMono f <-> injectiveS f.
 Proof.
-  unfold isMono, injective; split; red; intros.
-    cbn in H.
+  unfold isMono, injectiveS; split; intros.
+  - admit.
+  - admit.
 Abort.
 
 Lemma Pros_isEpi_sur :
@@ -114,13 +115,12 @@ Abort.
 
 Lemma Pros_isSec_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
-    isSec f <-> injective f.
+    isSec f <-> injectiveS f.
 Proof.
-  unfold isSec, injective; split; intros.
-    destruct H as [g g_inv]. proshoms.
-      replace x with (g (f x)); auto.
-      replace y with (g (f y)); auto.
-      rewrite H0. auto.
+  unfold isSec, injectiveS; split; intros.
+  - destruct H as [g g_inv]. proshoms.
+    now rewrite <- (g_inv a), <- (g_inv a'), H0.
+  - 
 Abort.
 
 #[refine]

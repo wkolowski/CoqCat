@@ -275,7 +275,7 @@ Lemma flat_reflect_hyp :
     expDenote e1 == expDenote e2 ->
       flatten (simplify e1) = flatten (simplify e2).
 Proof.
-  induction e1. destruct e2; cbn; intros; auto.
+  induction e1. destruct e2; cbn; intros.
 Admitted.
 
 Lemma flat_reflect_hyp' :
@@ -297,7 +297,7 @@ Lemma cons_nil_all :
   forall (A : Type) (h h' : A),
     [h] = [h'] -> forall l : list A, cons h l = cons h' l.
 Proof.
-  inversion 1. subst. auto.
+  now inversion 1.
 Qed.
 
 Goal
@@ -310,9 +310,7 @@ Proof.
     change (expDenote (reify x) == expDenote (reify y)) in H;
       apply flat_reflect_hyp in H; cbn in H
   end.
-  assert (forall l, cons b l = cons b' l). apply cons_nil_all. auto.
-  assert (exists l1 l2, [a; b'; c] = l1 ++ [b] ++ l2).
-    do 2 eexists. eauto.
+  now inversion H; subst.
 Abort.
 
 #[refine]

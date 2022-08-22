@@ -54,10 +54,9 @@ Lemma inv_op :
     inv (op a b) == op (inv b) (inv a).
 Proof.
   intros.
-  assert (forall x y : G, op (op x y) (inv (op x y)) == neutr). auto.
+  assert (forall x y : G, op (op x y) (inv (op x y)) == neutr) by easy.
   assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr).
-    intros. rewrite <- assoc. rewrite (assoc y _). rewrite inv_r.
-    rewrite neutr_l. auto.
+    now intros; rewrite <- assoc, (assoc y _), inv_r, neutr_l.
   assert (op (op a b) (inv (op a b)) == op (op a b) (op (inv b) (inv a))).
     now rewrite H, H0.
   assert (op (inv (op a b)) (op (op a b) (inv (op a b))) ==
@@ -422,7 +421,7 @@ Instance GrpCat : Cat :=
 }.
 Proof.
   (* Proper *) proper; repeat red; intros; destruct x, y, x0, y0; cat;
-    eapply (@Proper_comp MonCat); auto.
+    now eapply (@Proper_comp MonCat).
   (* Category laws *) all: grp.
 Defined.
 
@@ -544,7 +543,7 @@ Proof. grp. Defined.
 Definition AutComp
   (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
 Proof.
-  red. exists (f .> g). destruct f, g; cbn. apply isIso_comp; auto.
+  red. exists (f .> g). destruct f, g; cbn. now apply isIso_comp.
 Defined.
 
 Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.

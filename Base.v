@@ -198,8 +198,8 @@ Lemma nel_app_assoc :
     nel_app x (nel_app y z) = nel_app (nel_app x y) z.
 Proof.
   induction x as [h | h t]; cbn; intros.
-    trivial.
-    rewrite IHt. trivial.
+    easy.
+    now rewrite IHt.
 Qed.
 
 Fixpoint nel_map {A B : Type} (f : A -> B) (l : nel A) : nel B :=

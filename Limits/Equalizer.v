@@ -54,7 +54,7 @@ Proof.
   repeat split.
     red. exists (factorize1 E2 e2 H0). split.
       assert (Heq : (factorize2 E1 e1 H .> e2) .> f == (factorize2 E1 e1 H .> e2) .> g).
-        rewrite eq2'. trivial.
+        now rewrite eq2'.
         destruct (H1 E1 (factorize2 E1 e1 H .> e2) Heq).
           rewrite <- (unique1 (factorize2 E1 e1 H .> factorize1 E2 e2 H0)).
             auto.

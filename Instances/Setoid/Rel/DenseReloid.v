@@ -88,7 +88,7 @@ Instance DenseReloid_term : DenseReloid :=
   reloid := Reloid_term
 }.
 Proof.
-  split. cbn. eauto.
+  now cbn.
 Defined.
 
 #[refine]
@@ -119,7 +119,7 @@ Proof.
   destruct
     (X_rel_is_dense c c1) as [z1 [Hz1 Hz1']],
     (Y_rel_is_dense c0 c2) as [z2 [Hz2 Hz2']]; auto.
-  exists (z1, z2). eauto.
+  now exists (z1, z2).
 Defined.
 
 #[refine]
@@ -199,7 +199,7 @@ Instance DenseReloid_copair
   func := Reloid_copair f g
 }.
 Proof.
-  proper. destruct x, y; try apply pres_rel; intuition eauto.
+  proper. now destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]

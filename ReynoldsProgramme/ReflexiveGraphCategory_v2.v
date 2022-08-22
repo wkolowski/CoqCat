@@ -75,7 +75,7 @@ Proof.
   easy.
   easy.
   easy.
-  constructor. trivial.
+  now constructor.
   constructor. congruence.
   intros * [] []. constructor. auto.
 Defined.
@@ -117,10 +117,10 @@ Instance SetoidFunRel : ReflexiveGraphCategory :=
 }.
 Proof.
   intros. destruct f, X, Y. cbn in *. unfold SetoidId, SetoidComp. cbn. f_equal.
-    admit.
   admit.
   admit.
-  constructor. trivial.
+  admit.
+  now constructor.
   constructor. intros. destruct X, Y, f. cbn in *. now apply Proper_func.
   intros * [] []. constructor. cbn. auto.
 Admitted.

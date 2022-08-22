@@ -72,7 +72,7 @@ Defined.
 
 Definition ApartoidId (X : Apartoid) : ApartoidHom X X.
 Proof.
-  red. exists (fun x : X => x). auto.
+  now exists (fun x : X => x).
 Defined.
 
 Ltac apartoid_simpl := repeat (red || split || cbn in * || intros).
@@ -174,11 +174,11 @@ Instance Apartoid_term : Apartoid :=
   carrier := unit;
   neq := fun _ _ => False
 }.
-Proof. all: auto. Defined.
+Proof. all: easy. Defined.
 
 Definition Apartoid_delete (X : Apartoid) : ApartoidHom X Apartoid_term.
 Proof.
-  red; cbn. exists (fun _ => tt). auto.
+  red; cbn. now exists (fun _ => tt).
 Defined.
 
 #[refine]

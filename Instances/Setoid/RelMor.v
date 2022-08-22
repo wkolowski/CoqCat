@@ -49,7 +49,7 @@ Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
     forall (x : X) (y : Y), P x y <-> Q x y
 }.
 Proof.
-  solve_equiv; intro; edestruct H; try edestruct H0; eauto.
+  solve_equiv; intro; edestruct H; try edestruct H0; auto.
 Defined.
 
 #[refine]
@@ -176,9 +176,9 @@ Proof.
   | p : _ + _ |- _ => destruct p
   | H : False |- _ => inversion H
   end.
-    exists (inl y). eauto.
+    now exists (inl y).
     eapply Proper_f; eauto.
-    exists (inr y); eauto.
+    now exists (inr y).
     eapply Proper_g; eauto. repeat red in Proper_y.
     destruct (H x a) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
       now eapply Proper_y; eauto.
@@ -186,8 +186,8 @@ Proof.
     destruct (H0 x b) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
       inversion H'2.
       now eapply Proper_y; eauto.
-    destruct (H x a) as [_ H']. apply H'. exists (inl a). eauto.
-    destruct (H0 x b) as [_ H']. apply H'. exists (inr b). eauto.
+    destruct (H x a) as [_ H']. apply H'. now exists (inl a).
+    destruct (H0 x b) as [_ H']. apply H'. now exists (inr b).
 Defined.
 
 Definition SetoidRel_coprodOb := SetoidRel_prodOb.
@@ -246,16 +246,16 @@ Proof.
   | p : _ + _ |- _ => destruct p
   | H : False |- _ => inversion H
   end.
-    exists (inl x); eauto.
+    now exists (inl x).
     eapply Proper_f; eauto.
-    exists (inr x); eauto.
+    now exists (inr x).
     eapply Proper_g; eauto.
     destruct (H a y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
-      eapply (Proper_y (inl a) (inl p1)); eauto.
+      now eapply (Proper_y (inl a) (inl p1)).
       inversion Hp1.
     destruct (H0 b y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
       inversion Hp1.
-      eapply (Proper_y (inr b) (inr p2)); eauto.
-    destruct (H a y0). apply H3. exists (inl a); eauto.
-    destruct (H0 b y0). apply H3. exists (inr b); eauto.
+      now eapply (Proper_y (inr b) (inr p2)).
+    destruct (H a y0). apply H3. now exists (inl a).
+    destruct (H0 b y0). apply H3. now exists (inr b).
 Defined.

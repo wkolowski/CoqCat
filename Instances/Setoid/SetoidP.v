@@ -20,7 +20,7 @@ Instance SetP : Cat :=
 }.
 Proof.
   (* Equivalence *) solve_equiv.
-  (* Proper *) proper. rewrite H. destruct (y x1); auto.
+  (* Proper *) proper. rewrite H. now destruct (y x1).
   (* Category laws *) all: cat; try destruct (f x); cat.
 Defined.
 
@@ -81,10 +81,10 @@ Instance HasProducts_SetP : HasProducts SetP :=
 }.
 Proof.
   all: unfold SetP_fpair; repeat (red || split); cbn; intros; cat.
-    rewrite H, H0. auto.
-    destruct (f x), (g x); auto.
-    destruct (f x), (g x); auto.
-    rewrite H, H0; destruct (y x); try destruct s; auto.
+    now rewrite H, H0.
+    now destruct (f x), (g x).
+    now destruct (f x), (g x).
+    now rewrite H, H0; destruct (y x); try destruct s.
 Defined.
 
 Definition SetP_copair
@@ -105,6 +105,6 @@ Instance HasCoproducts_SetP : HasCoproducts SetP :=
 }.
 Proof.
   (* codiag is proper *) proper. unfold SetP_copair.
-    destruct x1; try rewrite H; try rewrite H0; auto.
+    now destruct x1; rewrite ?H, ?H0.
   (* Coproduct laws *) red; cat; destruct x; cat.
 Defined.

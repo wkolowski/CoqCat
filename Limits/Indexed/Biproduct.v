@@ -35,5 +35,5 @@ Instance HasIndexedBiproducts_Dual
   indexedCoproduct := HasIndexedCoproducts_Dual C hp;
 }.
 Proof.
-  intros. simpl. rewrite isProduct_isCoproduct. trivial.
+  now cbn; intros; rewrite isProduct_isCoproduct.
 Defined.

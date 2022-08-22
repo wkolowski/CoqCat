@@ -185,7 +185,7 @@ Instance ReflexiveReloid_copair
   func := Reloid_copair f g
 }.
 Proof.
-  proper. destruct x, y; try apply pres_rel; intuition eauto.
+  proper. now destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]

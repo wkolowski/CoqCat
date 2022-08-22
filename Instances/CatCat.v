@@ -232,8 +232,8 @@ Proof.
       * now destruct (r A).
     + intros [X | X] [Y | Y] f; cbn in *.
       * rewrite <- q; clear q. now destruct (p X), (p Y); cbn.
-      * contradiction.
-      * contradiction.
+      * easy.
+      * easy.
       * rewrite <- s; clear s. now destruct (r X), (r Y); cbn.
   - intros C D E F G; repeat split; cbn in *.
     + now exists (fun _ => eq_refl); cbn.
@@ -243,8 +243,8 @@ Proof.
       * intros [X | X]; [apply p | apply r].
       * intros [X | X] [Y | Y] f; cbn in *.
         -- now rewrite <- q.
-        -- contradiction.
-        -- contradiction.
+        -- easy.
+        -- easy.
         -- now rewrite <- s.
 Defined.
 

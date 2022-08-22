@@ -206,8 +206,7 @@ Instance Reloid_coprodOb (X Y : Reloid) : Reloid :=
   end
 }.
 Proof.
-  proper. destruct x, x0, y, y0; intuition eauto;
-  rewrite <- ?H, <- ?H0; auto; rewrite ?H, ?H0; auto.
+  proper. now destruct x, x0, y, y0; rewrite ?H, ?H0 in *.
 Defined.
 
 #[refine]
@@ -235,7 +234,7 @@ Instance Reloid_copair
   func := CoqSetoid_copair f g
 }.
 Proof.
-  proper. destruct x, y; try apply pres_rel; intuition eauto.
+  proper. now destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]

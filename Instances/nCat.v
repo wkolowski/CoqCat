@@ -10,8 +10,7 @@ Instance N (n : nat) : Cat :=
 }.
 Proof.
   (* Equiv *) solve_equiv.
-  (* composition *) destruct A, B, C. simpl. intros.
-    eapply le_trans; eauto.
+  (* composition *) destruct A, B, C. simpl. intros. eapply le_trans; eauto.
   (* Proper *) proper.
   (* Category laws *) all: cat.
 Defined.

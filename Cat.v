@@ -261,7 +261,7 @@ Proof.
   assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
     intros. now rewrite H.
     apply H. extensionality A. extensionality B. apply JMeq_eq.
-      destruct (HomSetoid0 A B). apply setoid_split; trivial.
+      destruct (HomSetoid0 A B). now apply setoid_split.
 Qed.
 *)
 
@@ -270,7 +270,7 @@ Axiom Dual_Dual : forall (C : Cat), Dual (Dual C) = C.
 Lemma duality_principle :
   forall P : Cat -> Prop,
     (forall C : Cat, P C) -> (forall C : Cat, P (Dual C)).
-Proof. trivial. Qed.
+Proof. easy. Qed.
 
 (** ** Kinds of morphisms and their properties *)
 
@@ -339,12 +339,10 @@ Lemma isIso_inv_unique :
   forall {C : Cat} {A B : Ob C} (f : Hom A B),
     isIso f <-> exists!! g : Hom B A, f .> g == id A /\ g .> f == id B.
 Proof.
-  unfold isIso; split; intros.
-    destruct H as [g [inv1 inv2]]. exists g. cat; auto.
-      assert (eq1 : y .> f .> g == g) by (rewrite H0; cat).
-      assert (eq2 : y .> f .> g == y) by (rewrite comp_assoc, inv1; cat).
-      now rewrite <- eq1, eq2.
-    cat.
+  unfold isIso; split; intros; [| cat].
+  destruct H as (g & inv1 & inv2).
+  exists g. split; [easy |]. intros y [_ H2].
+  now rewrite <- comp_id_l, <- H2, comp_assoc, inv1, comp_id_r.
 Qed.
 
 #[global] Hint Resolve
@@ -820,7 +818,7 @@ Lemma full_faithful_refl_isSec :
 Proof.
   unfold full, faithful; do 6 intro; intros T_full T_faithful.
   destruct 1 as [Tg Tg_sec], (T_full Y X Tg) as [g eq]. red.
-  exists g. apply T_faithful. rewrite fmap_comp, fmap_id, eq. auto.
+  exists g. apply T_faithful. now rewrite fmap_comp, fmap_id, eq.
 Defined.
 
 Lemma full_faithful_refl_isRet :
@@ -829,7 +827,7 @@ Lemma full_faithful_refl_isRet :
 Proof.
   unfold full, faithful; do 6 intro; intros T_full T_faithful.
   destruct 1 as [Tg Tg_ret], (T_full Y X Tg) as [g eq]. red.
-  exists g. apply T_faithful. rewrite fmap_comp, fmap_id, eq. auto.
+  exists g. apply T_faithful. now rewrite fmap_comp, fmap_id, eq.
 Defined.
 
 #[global] Hint Resolve full_faithful_refl_isSec full_faithful_refl_isRet : core.
@@ -839,9 +837,8 @@ Lemma full_faithful_refl_isIso :
     full T -> faithful T -> isIso (fmap T f) -> isIso f.
 Proof.
   intros. rewrite isIso_iff_isSec_isRet in *. destruct H1. split.
-    eapply full_faithful_refl_isSec; auto.
-    eapply full_faithful_refl_isRet; auto.
-    (* TODO : cat should work here *)
+    now eapply full_faithful_refl_isSec.
+    now eapply full_faithful_refl_isRet.
 Defined.
 
 (** ** Identity, composition, constant and Hom functors *)
@@ -1201,7 +1198,7 @@ Lemma natural_isomorphism_char :
     natural_isomorphism α <-> forall X : Ob C, isIso (component α X).
 Proof.
   unfold natural_isomorphism; split; cbn; intros.
-    destruct H as [β [Η1 Η2]]. red. exists (component β X). auto.
+    destruct H as [β [Η1 Η2]]. red. now exists (component β X).
     red in H. destruct α as [component_α natural_α]; cbn in *.
     assert (component_β : {f : forall X : Ob C, Hom (fob G X) (fob F X) |
     (forall X : Ob C, component_α X .> f X == id (fob F X) /\

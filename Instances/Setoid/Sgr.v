@@ -335,12 +335,12 @@ Instance Sgr_sum (X Y : Sgr) : Sgr :=
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
-  proper. repeat
+  proper. now repeat
   match goal with
   | H : match ?x with _ => _ end |- _ => destruct x
   | |- match ?x with _ => _ end => destruct x
   | H : False |- _ => inversion H
-  end; auto.
+  end.
   destruct x, y, z; sgr.
 Defined.
 
