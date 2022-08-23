@@ -27,8 +27,8 @@ Instance FunCat_prodOb {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Fu
 }.
 Proof.
   proper.
-  intros. now rewrite 2 fmap_comp, ProductFunctor_fmap_comp.
-  intros. now rewrite 2 fmap_id, ProductFunctor_fmap_id.
+  now intros; rewrite 2 fmap_comp, ProductFunctor_fmap_comp.
+  now intros; rewrite 2 fmap_id, ProductFunctor_fmap_id.
 Defined.
 
 #[refine]
@@ -39,7 +39,7 @@ Instance FunCat_outl
   component := fun _ : Ob C => outl
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap. fpair.
+  intros. cbn. unfold ProductFunctor_fmap. now rewrite fpair_outl.
 Defined.
 
 #[refine]
@@ -50,7 +50,7 @@ Instance FunCat_outr
   component := fun _ : Ob C => outr
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap. fpair.
+  intros. cbn. unfold ProductFunctor_fmap. now rewrite fpair_outr.
 Defined.
 
 #[refine]
@@ -62,8 +62,7 @@ Instance FunCat_fpair
   component := fun X : Ob C => fpair (component α X) (component β X)
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap.
-  destruct α, β; cbn in *. fpair.
+  intros. cbn. unfold ProductFunctor_fmap. fpair; apply natural.
 Defined.
 
 #[refine]

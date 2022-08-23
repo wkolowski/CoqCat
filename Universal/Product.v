@@ -309,10 +309,10 @@ Defined.
 Lemma ProductFunctor_fmap_comp_l :
   forall
     {C : Cat} {hp : HasProducts C}
-    {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-      ProductFunctor_fmap (f .> g) (id Z)
+    {X Y Z A : Ob C} (f : Hom X Y) (g : Hom Y Z),
+      ProductFunctor_fmap (f .> g) (id A)
         ==
-      ProductFunctor_fmap f (id Z) .> ProductFunctor_fmap g (id Z).
+      ProductFunctor_fmap f (id A) .> ProductFunctor_fmap g (id A).
 Proof.
   intros. rewrite <- ProductFunctor_fmap_comp.
   fpair.
@@ -321,10 +321,10 @@ Defined.
 Lemma ProductFunctor_fmap_comp_r :
   forall
     {C : Cat} {hp : HasProducts C}
-    {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-      ProductFunctor_fmap (id Z) (f .> g)
+    {X Y Z A : Ob C} (f : Hom X Y) (g : Hom Y Z),
+      ProductFunctor_fmap (id A) (f .> g)
         ==
-      ProductFunctor_fmap (id Z) f .> ProductFunctor_fmap (id Z) g.
+      ProductFunctor_fmap (id A) f .> ProductFunctor_fmap (id A) g.
 Proof.
   intros. rewrite <- ProductFunctor_fmap_comp.
   fpair.
