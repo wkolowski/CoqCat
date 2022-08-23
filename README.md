@@ -67,5 +67,5 @@
 
 ## Tips for future me
 * If Coq doesn't see that some morphism is `Proper`, put the corresponding theorem in context using `pose`, eg. `pose (P := fpair_Proper)`. This likely has something to do with registering morphisms as `Proper`. I should read the docs...
-* Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but no with the pairing (I think pairing is a property, not structure).
+* Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but not with the pairing (I think pairing is a property, not structure).
 * Coherences for dependent stuff can be stated by lifting standard equivalences to heterogenous ones. Coherence for objects can be stated using these heterogenous equivalences on their identity morphisms.

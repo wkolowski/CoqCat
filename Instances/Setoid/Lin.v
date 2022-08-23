@@ -126,7 +126,6 @@ Proof.
   destruct x, y; cbn.
   destruct (leq_total c c1), (leq_total c1 c),
     (leq_total c0 c2), (leq_total c2 c0); eauto.
-    assert (c0 == c2) by eauto. rewrite H3.
 Abort.
 
 (* TODO : products of linear orders suck because of constructivity *)

@@ -119,10 +119,7 @@ Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) 
 #[export]
 Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
 Proof.
-  unfold Proper, respectful, uncurry. intros.
-  cut (x ×' id Y == y ×' id Y).
-    intro H'. rewrite H'. reflexivity.
-    apply Proper_ProductFunctor_fmap; [assumption | reflexivity].
+  now unfold uncurry; intros x y H; do 2 f_equiv.
 Qed.
 
 Lemma curry_uncurry :

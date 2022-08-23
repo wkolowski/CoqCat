@@ -28,8 +28,7 @@ Proof.
       destruct (is_product _ _ _ (create (init C)) (create X)) as [[H1 H2] H3].
         rewrite <- H3.
           rewrite <- fpair_pre. apply Proper_fpair.
-            assert (create (init C) == id (init C)). init.
-              rewrite H. cat.
+            setoid_replace (create (init C)) with (id (init C)) by init. cat.
             destruct d, HasProducts_Distributive. cbn in *.
             do 2 red in is_product.
 Abort.

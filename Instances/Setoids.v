@@ -40,9 +40,8 @@ Lemma CoqSetoid_isSec :
     isSec f -> injectiveS f.
 Proof.
   unfold isSec, injectiveS; intros.
-  destruct H as [g H]. cbn in *. cut (g (f a) == g (f a')).
-    now intros; rewrite !H in H1.
-    setoid.
+  destruct H as [g H]. cbn in *.
+  now rewrite <- (H a), <- (H a'), H0.
 Defined.
 
 Lemma CoqSetoid_isRet :

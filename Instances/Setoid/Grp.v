@@ -23,30 +23,21 @@ Lemma inv_involutive :
   forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
-  intros.
-  assert (op (inv (inv g)) (op (inv g) g) == g).
-    now rewrite assoc, inv_l, neutr_l.
-    now rewrite inv_l , neutr_r in H.
+  now intros; rewrite <- neutr_l, <- (inv_l (inv g)), <- assoc, inv_l, neutr_r.
 Qed.
 
 Lemma neutr_unique_l :
   forall (G : Grp) (e : G),
     (forall g : G, op e g == g) -> e == neutr.
 Proof.
-  intros.
-  assert (op e neutr == e). now rewrite neutr_r.
-  assert (op e neutr == neutr). apply H.
-  now rewrite H0 in H1.
+  now intros; rewrite <- (neutr_r e), H.
 Defined.
 
 Lemma neutr_unique_r :
   forall (G : Grp) (e : G),
     (forall g : G, op g e == g) -> e == neutr.
 Proof.
-  intros.
-  assert (op neutr e == e). now rewrite neutr_l.
-  assert (op neutr e == neutr). apply H. 
-  now rewrite H0 in H1.
+  now intros; rewrite <- (neutr_l e), H.
 Defined.
 
 Lemma inv_op :
@@ -69,12 +60,7 @@ Lemma inv_neutr :
   forall G : Grp,
     inv neutr == neutr.
 Proof.
-  intros.
-  assert (op (inv neutr) neutr == neutr).
-    now rewrite inv_l.
-  assert (op (inv neutr) neutr == inv neutr).
-    now rewrite neutr_r.
-  now rewrite <- H0, H.
+  now intros; rewrite <- (neutr_l (inv neutr)), inv_r.
 Defined.
 
 #[global] Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
@@ -136,20 +122,10 @@ Lemma simplify_correct :
   forall (X : Grp) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; cbn.
-    easy.
-    easy.
-    now rewrite IHe1, IHe2.
-    destruct (simplify e); cbn in *; rewrite <- IHe; try reflexivity.
-      now rewrite pres_neutr.
-      now rewrite pres_op.
-      now rewrite pres_inv.
-    destruct (simplify e); cbn in *; try rewrite <- IHe.
-      now rewrite inv_neutr.
-      easy.
-      now rewrite inv_op.
-      easy.
-      now rewrite inv_involutive.
+  induction e; cbn; [easy | easy | | |].
+  - now rewrite IHe1, IHe2.
+  - now destruct (simplify e); cbn in *; rewrite <- IHe, ?pres_neutr, ?pres_op, ?pres_inv.
+  - now destruct (simplify e); cbn in *; rewrite <- IHe, ?inv_neutr, ?inv_op, ?inv_involutive.
 Qed.
 
 Fixpoint expDenoteL {X : Grp} (l : list X) : X :=

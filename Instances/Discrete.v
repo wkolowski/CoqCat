@@ -24,9 +24,8 @@ Lemma Discrete_char_iso :
   forall (X : Set) (x x' : X) (f : @Hom (Discrete X) x x'),
     isIso f.
 Proof.
-  unfold isIso; cbn; intros. assert (g : x' = x).
-    now rewrite f.
-    now exists g.
+  unfold isIso; cbn; intros X x x' ->.
+  now exists eq_refl.
 Defined.
 
 #[refine]

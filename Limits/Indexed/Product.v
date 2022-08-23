@@ -73,21 +73,13 @@ Proof.
          (u2 Q (fun j : J => (q j .> g' j))).
   split.
   - destruct (H0 P p) as [eq_id uniq_id].
-    assert (i_is_id : u2 P p == id P).
-    {
-      apply uniq_id. cat.
-    }
-    rewrite <- i_is_id. symmetry. apply uniq_id. intro. cat.
-    rewrite <- eq2. rewrite <- comp_assoc. rewrite <- eq1. cat.
-    rewrite iso1. cat.
+    rewrite <- (uniq_id (id P)); [| cat].
+    symmetry. apply uniq_id. intros j.
+    now rewrite comp_assoc, <- eq2, <- comp_assoc, <- eq1, comp_assoc, iso1, comp_id_r.
   - destruct (H1 Q q) as [eq_id uniq_id].
-    assert (i_is_id : u1 Q q == id Q).
-    {
-      apply uniq_id. cat.
-    }
-    rewrite <- i_is_id. symmetry. apply uniq_id. cat.
-    rewrite <- eq1. rewrite <- comp_assoc. rewrite <- eq2. cat.
-    rewrite iso2. cat.
+    rewrite <- (uniq_id (id Q)); [| cat].
+    symmetry. apply uniq_id. intros j.
+    now rewrite comp_assoc, <- eq1, <- comp_assoc, <- eq2, comp_assoc, iso2, comp_id_r.
 Defined.
 
 Lemma small_and_indexed_products :

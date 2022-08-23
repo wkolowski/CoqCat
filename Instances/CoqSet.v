@@ -206,26 +206,6 @@ Defined.
 Instance HasEqualizers_CoqSet : HasEqualizers CoqSet :=
 {
   eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
-  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) =>
-    fun (x : {x : X | f x = g x}) => proj1_sig x;
-}.
-Proof.
-  - cbn; intros X Y f f' g g' Hf Hg.
-    replace {x : X | f x = g x} with {x : X | f' x = g' x}.
-    + constructor. now cbn.
-    + f_equal. extensionality x. now rewrite Hf, Hg.
-  - now intros X Y f g [x Heq].
-  - cbn; intros X Y f f' g g' Hf Hg.
-    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    + f_equal. extensionality x. now rewrite Hf, Hg.
-    +
-Abort.
-
-#[refine]
-#[export]
-Instance HasEqualizers_CoqSet' : HasEqualizers CoqSet :=
-{
-  eq_ob := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
   eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
   factorize := @CoqSet_factorize;
 }.
@@ -244,12 +224,6 @@ Proof.
     }
     assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
       (fun x : {x : X | f' x = g' x} => proj1_sig x)).
-Abort.
-
-#[refine]
-#[export]
-Instance HasCoequalizers_CoqSet : HasCoequalizers CoqSet := {}.
-Proof.
 Abort.
 
 #[refine]

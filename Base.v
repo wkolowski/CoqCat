@@ -8,6 +8,14 @@ Export ListNotations.
 
 #[global] Set Universe Polymorphism.
 
+(** * JMeq *)
+
+Lemma eq_JMeq :
+  forall (A : Type) (x y : A), x = y -> JMeq x y.
+Proof.
+  now intros A x y [].
+Qed.
+
 (** * Setoids *)
 
 (** Uniqueness up to a custom equivalence relation, using setoids. *)

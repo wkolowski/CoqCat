@@ -131,9 +131,7 @@ Lemma expDenoteHL_flatten :
   forall (C : Cat) (X Y : Ob C) (e : exp X Y),
     expDenoteHL (flatten e) == expDenote e.
 Proof.
-  induction e; cbn; rewrite <- ?expDenoteHL_comp_app, ?comp_id_r.
-    1-2: easy.
-    now rewrite IHe1, IHe2.
+  now induction e; cbn; rewrite <- ?expDenoteHL_comp_app, ?comp_id_r, ?IHe1, ?IHe2.
 Qed.
 
 Lemma cat_reflect :
@@ -252,20 +250,15 @@ Proof.
   f_equal; apply proof_irrelevance.
 Qed.
 
-(*
 Lemma Dual_Dual :
   forall C : Cat,
     Dual (Dual C) = C.
 Proof.
-  destruct C. unfold Dual. apply cat_split; cbn; trivial.
-  assert (forall (A : Type) (x y : A), x = y -> JMeq x y).
-    intros. now rewrite H.
-    apply H. extensionality A. extensionality B. apply JMeq_eq.
-      destruct (HomSetoid0 A B). now apply setoid_split.
+  intros []; apply cat_split; cbn; trivial.
+  apply eq_JMeq; extensionality A; extensionality B; apply JMeq_eq.
+  destruct (HomSetoid0 A B).
+  now apply setoid_split.
 Qed.
-*)
-
-Axiom Dual_Dual : forall (C : Cat), Dual (Dual C) = C.
 
 Lemma duality_principle :
   forall P : Cat -> Prop,
@@ -339,8 +332,8 @@ Lemma isIso_inv_unique :
   forall {C : Cat} {A B : Ob C} (f : Hom A B),
     isIso f <-> exists!! g : Hom B A, f .> g == id A /\ g .> f == id B.
 Proof.
-  unfold isIso; split; intros; [| cat].
-  destruct H as (g & inv1 & inv2).
+  unfold isIso; split; [| cat].
+  intros (g & inv1 & inv2).
   exists g. split; [easy |]. intros y [_ H2].
   now rewrite <- comp_id_l, <- H2, comp_assoc, inv1, comp_id_r.
 Qed.
@@ -354,20 +347,18 @@ Lemma isMono_isSec :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isSec f -> isMono f.
 Proof.
-  intros; unfold isSec, isMono in *; intros X h1 h2 eq. destruct H as (g, H).
-  assert (eq2 : (h1 .> f) .> g == (h2 .> f) .> g).
-    now rewrite eq.
-    rewrite !comp_assoc, H in eq2. cat.
+  unfold isSec, isMono.
+  intros C A B f [g Hfg] X h1 h2 Heq.
+  now rewrite <- comp_id_r, <- Hfg, <- comp_assoc, Heq, comp_assoc, Hfg, comp_id_r.
 Qed.
 
 Lemma isEpi_isRet :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isRet f -> isEpi f.
 Proof.
-  intros. unfold isRet, isEpi in *. intros X h1 h2 eq. destruct H as (g, H).
-  assert (eq2 : g .> (f .> h1) == g .> (f .> h2)).
-    now rewrite eq.
-    rewrite <- 2 comp_assoc, H in eq2. cat.
+  unfold isRet, isEpi.
+  intros C A B f [g Hgf] X h1 h2 Heq.
+  now rewrite <- comp_id_l, <- Hgf, comp_assoc, Heq, <- comp_assoc, Hgf, comp_id_l.
 Qed.
 
 Lemma isSec_isIso :
@@ -1210,7 +1201,8 @@ Proof.
         intros. destruct (H' X), (H' Y). cbn in *. cat. clear H'.
         assert (
         x .> component_α X .> x .> fmap F g .> component_α Y .> x0 ==
-        x .> component_α X .> fmap G g .> x0 .> component_α Y .> x0). cat.
+        x .> component_α X .> fmap G g .> x0 .> component_α Y .> x0).
+          rewrite !comp_assoc.
           rewrite <- (comp_assoc (component_α X) x).
           rewrite <- (comp_assoc x0 (component_α Y)).
           rewrite <- (comp_assoc (fmap F g) _).
