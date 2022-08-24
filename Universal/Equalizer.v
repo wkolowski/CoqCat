@@ -72,12 +72,6 @@ Proof.
   now rewrite factorize_equiv', factorize_equalize, comp_id_l.
 Defined.
 
-Lemma isMono_equalize :
-  isMono equalize.
-Proof.
-  now intros X h1 h2 Heq; rewrite factorize_equiv'.
-Qed.
-
 Lemma factorize_pre :
   forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (H : e2 .> f == e2 .> g),
     exists H' : (e1 .> e2) .> f == (e1 .> e2) .> g,
@@ -86,6 +80,12 @@ Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite !comp_assoc, H.
   - now rewrite factorize_equiv', factorize_equalize, comp_assoc, factorize_equalize.
+Qed.
+
+Lemma isMono_equalize :
+  isMono equalize.
+Proof.
+  now intros X h1 h2 Heq; rewrite factorize_equiv'.
 Qed.
 
 End isEqualizer.
@@ -153,21 +153,41 @@ Proof.
   now intros; rewrite factorize_equiv', !factorize_equalize.
 Qed.
 
-Lemma isEqualizer_epi_is_iso :
+Lemma isIso_equalize :
   forall
     (E : Ob C) (equalize : Hom E X)
     (factorize : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
       isEqualizer C f g E equalize factorize -> isEpi equalize -> isIso equalize.
 Proof.
   intros * HisEq HisEpi; red.
-  assert (Hfg : id X .> f == id X .> g).
-  {
-    apply HisEpi.
-    rewrite !comp_id_l.
-    apply equalize_ok.
-  }
+  assert (Hfg : id X .> f == id X .> g) by (rewrite !comp_id_l; apply HisEpi, equalize_ok).
   exists (factorize _ (id X) Hfg).
   now rewrite factorize_equiv', comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
 Qed.
 
 End Traditional.
+
+Class HasEqualizers (C : Cat) : Type :=
+{
+  eq_ob :
+    forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
+  equalize :
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+  factorize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
+      e' .> f == e' .> g -> Hom E' (eq_ob f g);
+  HasEqualizers_isEqualizer :>
+    forall {X Y : Ob C} (f g : Hom X Y),
+      isEqualizer C f g (eq_ob f g) (equalize f g) (@factorize _ _ f g)
+  (*Proper_eq_ob :
+    forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+  Proper_equalize :
+    forall (X Y : Ob C) (f f' g g' : Hom X Y),
+      f == f' -> g == g' ->
+        JMequiv (equalize f g) (equalize f' g'); *)
+}.
+
+Arguments eq_ob     [C _ X Y] _ _.
+Arguments equalize    [C _ X Y] _ _.
+Arguments factorize [C _ X Y f g E' e'] _.
