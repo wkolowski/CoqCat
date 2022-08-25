@@ -268,7 +268,7 @@ Lemma small_and_indexed_product's :
                 then pA else pB)
         (tuple := fun (X : Ob C) (f : forall j : bool, Hom X (if j then A else B)) =>
                     t X (f true) (f false)),
-          f true = A /\ f false = B /\ indexed_product' C P p tuple.
+          indexed_product' C P p tuple.
 Proof.
   split.
   - unfold isProduct, indexed_product', setoid_unique; cat.
@@ -277,7 +277,7 @@ Proof.
     + destruct (H _ (f true) (f false)) as [[] uniq].
       apply uniq. rewrite !H0. cat.
   - unfold isProduct, indexed_product', setoid_unique.
-    intros (_ & _ & H) X f g.
+    intros H X f g.
     pose
     (
       wut := fun j : bool =>

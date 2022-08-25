@@ -137,6 +137,16 @@ Qed.
 
 #[refine]
 #[export]
+Instance Setoid_forall
+  {A : Type} {B : A -> Type} (H : forall x : A, Setoid (B x))
+  : Setoid (forall x : A, B x) :=
+{
+  equiv := fun f g => forall x : A, f x == g x;
+}.
+Proof. solve_equiv. Defined.
+
+#[refine]
+#[export]
 Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
 {|
   equiv := fun a a' : A => f a = f a'
