@@ -188,6 +188,7 @@ Proof.
   intros * []; constructor; cat.
 Qed.
 
+(*
 Class HasProducts (C : Cat) : Type :=
 {
   product : Ob C -> Ob C -> Ob C;
@@ -202,6 +203,28 @@ Arguments product {C HasProducts} _ _.
 Arguments outl   {C HasProducts A B}.
 Arguments outr   {C HasProducts A B}.
 Arguments fpair  {C HasProducts A B X} _ _.
+*)
+
+Class HasProducts' (C : Cat) (product : Ob C -> Ob C -> Ob C) : Type :=
+{
+  outl : forall {A B : Ob C}, Hom (product A B) A;
+  outr : forall {A B : Ob C}, Hom (product A B) B;
+  fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (product A B);
+  HasProducts'_isProduct :>
+    forall {A B : Ob C}, isProduct C (product A B) outl outr (@fpair A B)
+}.
+
+Arguments outl   {C product HasProducts' A B}.
+Arguments outr   {C product HasProducts' A B}.
+Arguments fpair  {C product HasProducts' A B X} _ _.
+
+Class HasProducts (C : Cat) : Type :=
+{
+  product : Ob C -> Ob C -> Ob C;
+  HasProducts_HasProducts' :> HasProducts' C product;
+}.
+
+Arguments product {C HasProducts} _ _.
 
 Ltac fpair := intros; try split;
 repeat match goal with

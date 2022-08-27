@@ -3,6 +3,24 @@ From Cat.Universal Require Import Initial Terminal.
 
 Set Implicit Arguments.
 
+Class isZero
+  (C : Cat) (Z : Ob C)
+  (create : forall X : Ob C, Hom Z X)
+  (delete : forall X : Ob C, Hom X Z)
+  : Prop :=
+{
+  isInitial_isZero :> isInitial Z create;
+  isTerminal_isZero :> isTerminal Z delete;
+}.
+
+Lemma isZero_Dual :
+  forall
+    (C : Cat) (X : Ob C)
+    (create : forall X' : Ob C, Hom X X')
+    (delete : forall X' : Ob C, Hom X' X),
+      @isZero (Dual C) X delete create <-> @isZero C X create delete.
+Proof. firstorder. Defined.
+
 Class HasZero (C : Cat) : Type :=
 {
   zero : Ob C;

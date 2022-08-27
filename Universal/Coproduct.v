@@ -83,52 +83,6 @@ Qed.
 
 End isCoproduct.
 
-Class HasCoproducts (C : Cat) : Type :=
-{
-  coproduct : forall (A B : Ob C), Ob C;
-  finl     : forall {A B : Ob C}, Hom A (coproduct A B);
-  finr     : forall {A B : Ob C}, Hom B (coproduct A B);
-  copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  HasCoproducts_isCoproduct :>
-    forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
-}.
-
-Arguments coproduct {C HasCoproducts} _ _.
-Arguments finl     {C HasCoproducts A B}.
-Arguments finr     {C HasCoproducts A B}.
-Arguments copair   {C HasCoproducts A B P} _ _.
-
-Ltac coprod := intros; try split;
-repeat match goal with
-| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite copair_post, copair_id
-| |- context [copair _ _ .> _] => rewrite <- copair_post
-| |- context [finl .> copair _ _] => rewrite finl_copair
-| |- context [finr .> copair _ _] => rewrite finr_copair
-| |- context [copair finl finr] => rewrite copair_id
-| |- ?x == ?x => reflexivity
-| |- copair _ _ == copair _ _ => apply Proper_copair
-| |- context [id _ .> _] => rewrite comp_id_l
-| |- context [_ .> id _] => rewrite comp_id_r
-| |- copair _ _ == id (coproduct _ _) => rewrite <- copair_id; apply Proper_copair
-| |- ?f .> ?g == ?f .> ?g' => f_equiv
-| |- ?f .> ?g == ?f' .> ?g => f_equiv
-| _ => rewrite ?comp_assoc; auto
-end.
-
-Lemma copair_comp :
-  forall
-    (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
-    (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
-      copair (h1 .> f) (h2 .> g) == copair (h1 .> finl) (h2 .> finr) .> copair f g.
-Proof. coprod. Qed.
-
-Lemma copair_post_id :
-  forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
-    copair (finl .> f) (finr .> f) == f.
-Proof.
-  now intros; rewrite copair_equiv', finl_copair, finr_copair.
-Qed.
-
 Lemma isCoproduct_uiso :
   forall
     (C : Cat) (A B : Ob C)
@@ -236,6 +190,75 @@ Proof.
   - now rewrite finr_copair.
   - now rewrite finl_copair.
   - now rewrite copair_equiv'.
+Qed.
+
+(*
+Class HasCoproducts (C : Cat) : Type :=
+{
+  coproduct : forall (A B : Ob C), Ob C;
+  finl     : forall {A B : Ob C}, Hom A (coproduct A B);
+  finr     : forall {A B : Ob C}, Hom B (coproduct A B);
+  copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
+  HasCoproducts_isCoproduct :>
+    forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
+}.
+
+Arguments coproduct {C HasCoproducts} _ _.
+Arguments finl     {C HasCoproducts A B}.
+Arguments finr     {C HasCoproducts A B}.
+Arguments copair   {C HasCoproducts A B P} _ _.
+*)
+
+Class HasCoproducts' (C : Cat) (coproduct : Ob C -> Ob C -> Ob C) : Type :=
+{
+  finl     : forall {A B : Ob C}, Hom A (coproduct A B);
+  finr     : forall {A B : Ob C}, Hom B (coproduct A B);
+  copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
+  HasCoproducts'_isCoproduct :>
+    forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
+}.
+
+Arguments finl     {C coproduct HasCoproducts' A B}.
+Arguments finr     {C coproduct HasCoproducts' A B}.
+Arguments copair   {C coproduct HasCoproducts' A B P} _ _.
+
+Class HasCoproducts (C : Cat) : Type :=
+{
+  coproduct : forall (A B : Ob C), Ob C;
+  HasCoproducts'_HasCoproducts :> HasCoproducts' C coproduct;
+}.
+
+Arguments coproduct {C HasCoproducts} _ _.
+
+Ltac coprod := intros; try split;
+repeat match goal with
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite copair_post, copair_id
+| |- context [copair _ _ .> _] => rewrite <- copair_post
+| |- context [finl .> copair _ _] => rewrite finl_copair
+| |- context [finr .> copair _ _] => rewrite finr_copair
+| |- context [copair finl finr] => rewrite copair_id
+| |- ?x == ?x => reflexivity
+| |- copair _ _ == copair _ _ => apply Proper_copair
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
+| |- copair _ _ == id (coproduct _ _) => rewrite <- copair_id; apply Proper_copair
+| |- ?f .> ?g == ?f .> ?g' => f_equiv
+| |- ?f .> ?g == ?f' .> ?g => f_equiv
+| _ => rewrite ?comp_assoc; auto
+end.
+
+Lemma copair_comp :
+  forall
+    (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
+    (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
+      copair (h1 .> f) (h2 .> g) == copair (h1 .> finl) (h2 .> finr) .> copair f g.
+Proof. coprod. Qed.
+
+Lemma copair_post_id :
+  forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
+    copair (finl .> f) (finr .> f) == f.
+Proof.
+  now intros; rewrite copair_equiv', finl_copair, finr_copair.
 Qed.
 
 Lemma coproduct_comm :
