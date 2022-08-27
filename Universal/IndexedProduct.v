@@ -83,38 +83,6 @@ Qed.
 
 End isIndexedProduct.
 
-Class HasIndexedProducts (C : Cat) : Type :=
-{
-  indexedProduct :
-    forall {J : Set} (A : J -> Ob C), Ob C;
-  proj :
-    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
-  tuple :
-    forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
-      Hom X (indexedProduct A);
-  HasIndexedProducts_isIndexedProduct :>
-    forall {J : Set} {A : J -> Ob C},
-      isIndexedProduct C (indexedProduct A) (@proj J A) (@tuple J A)
-}.
-
-Arguments indexedProduct {C _ J} _.
-Arguments proj          {C _ J A} _.
-Arguments tuple         {C _ J A X} _.
-
-Lemma tuple_comp :
-  forall
-    {C : Cat} {hip : HasIndexedProducts C}
-    {X : Ob C} {J : Set} {A B : J -> Ob C}
-    (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom (A j) (B j)),
-      tuple (fun j : J => f j .> g j)
-        ==
-      tuple f .> tuple (fun j : J => proj j .> g j).
-Proof.
-  intros.
-  rewrite <- tuple_pre, tuple_equiv'; intros j.
-  now rewrite !tuple_out, <- comp_assoc, tuple_out.
-Qed.
-
 Lemma isIndexedProduct_iso_unique :
   forall
     (C : Cat) (J : Set) (A : J -> Ob C)
@@ -264,3 +232,41 @@ Proof.
   assert (h : {h : forall j : J, Hom P (A (f (g j))) |
   (forall j : J, h j = p (f (g j)))}).
 Abort.
+
+Class HasIndexedProducts'
+  (C : Cat) (indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C) : Type :=
+{
+  proj :
+    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
+  tuple :
+    forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
+      Hom X (indexedProduct A);
+  HasIndexedProducts_isIndexedProduct :>
+    forall {J : Set} {A : J -> Ob C},
+      isIndexedProduct C (indexedProduct A) (@proj J A) (@tuple J A)
+}.
+
+Arguments proj  {C _ _ J A} _.
+Arguments tuple {C _ _ J A X} _.
+
+Class HasIndexedProducts (C : Cat) : Type :=
+{
+  indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
+  HasIndexedProducts'_HasIndexedProducts :> HasIndexedProducts' C (@indexedProduct);
+}.
+
+Arguments indexedProduct {C _ J} _.
+
+Lemma tuple_comp :
+  forall
+    {C : Cat} {hip : HasIndexedProducts C}
+    {X : Ob C} {J : Set} {A B : J -> Ob C}
+    (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom (A j) (B j)),
+      tuple (fun j : J => f j .> g j)
+        ==
+      tuple f .> tuple (fun j : J => proj j .> g j).
+Proof.
+  intros.
+  rewrite <- tuple_pre, tuple_equiv'; intros j.
+  now rewrite !tuple_out, <- comp_assoc, tuple_out.
+Qed.
