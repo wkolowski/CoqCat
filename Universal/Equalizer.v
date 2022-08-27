@@ -169,25 +169,25 @@ End Traditional.
 
 Class HasEqualizers (C : Cat) : Type :=
 {
-  eq_ob :
+  equalizer :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
   equalize :
-    forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
   factorize :
     forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
-      e' .> f == e' .> g -> Hom E' (eq_ob f g);
+      e' .> f == e' .> g -> Hom E' (equalizer f g);
   HasEqualizers_isEqualizer :>
     forall {X Y : Ob C} (f g : Hom X Y),
-      isEqualizer C f g (eq_ob f g) (equalize f g) (@factorize _ _ f g)
-  (*Proper_eq_ob :
+      isEqualizer C f g (equalizer f g) (equalize f g) (@factorize _ _ f g)
+  (*Proper_equalizer :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+      f == f' -> g == g' -> JMequiv (id (equalizer f g)) (id (equalizer f' g'));
   Proper_equalize :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
       f == f' -> g == g' ->
         JMequiv (equalize f g) (equalize f' g'); *)
 }.
 
-Arguments eq_ob     [C _ X Y] _ _.
+Arguments equalizer     [C _ X Y] _ _.
 Arguments equalize    [C _ X Y] _ _.
 Arguments factorize [C _ X Y f g E' e'] _.

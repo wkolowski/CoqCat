@@ -3,20 +3,20 @@ From Cat.Limits Require Export Initial Terminal Product Coproduct.
 
 Definition isExponential
   {C : Cat} {hp : HasProducts C} (X Y : Ob C)
-  (E : Ob C) (eval : Hom (prodOb E X) Y)
-  (curry : forall E2 : Ob C, Hom (prodOb E2 X) Y -> Hom E2 E)
+  (E : Ob C) (eval : Hom (product E X) Y)
+  (curry : forall E2 : Ob C, Hom (product E2 X) Y -> Hom E2 E)
   : Prop :=
-    forall (E' : Ob C) (eval' : Hom (prodOb E' X) Y),
+    forall (E' : Ob C) (eval' : Hom (product E' X) Y),
       setoid_unique (fun u : Hom E' E =>
         ProductFunctor_fmap u (id X) .> eval == eval') (curry E' eval').
 
 Lemma isExponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E1 : Ob C) (eval1 : Hom (prodOb E1 X) Y)
-    (curry1 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (prodOb E2 X) Y)
-    (curry2 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E2),
+    (E1 : Ob C) (eval1 : Hom (product E1 X) Y)
+    (curry1 : forall Z : Ob C, Hom (product Z X) Y -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 X) Y)
+    (curry2 : forall Z : Ob C, Hom (product Z X) Y -> Hom Z E2),
       isExponential X Y E1 eval1 curry1 ->
       isExponential X Y E2 eval2 curry2 ->
         exists !! f : Hom E1 E2, isIso f /\ f ×' id X .> eval2 == eval1.
@@ -51,10 +51,10 @@ Arguments isExponential_uiso {C hp X Y E1 eval1 curry1 E2 eval2 curry2} _ _.
 Lemma isExponential_iso :
   forall
     (C : Cat) (hp : HasProducts C) (X Y : Ob C)
-    (E1 : Ob C) (eval1 : Hom (prodOb E1 X) Y)
-    (curry1 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (prodOb E2 X) Y)
-    (curry2 : forall Z : Ob C, Hom (prodOb Z X) Y -> Hom Z E2),
+    (E1 : Ob C) (eval1 : Hom (product E1 X) Y)
+    (curry1 : forall Z : Ob C, Hom (product Z X) Y -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 X) Y)
+    (curry2 : forall Z : Ob C, Hom (product Z X) Y -> Hom Z E2),
       isExponential X Y E1 eval1 curry1 ->
       isExponential X Y E2 eval2 curry2 ->
         E1 ~ E2.
@@ -65,8 +65,8 @@ Qed.
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
-  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  eval : forall {X Y : Ob C}, Hom (product (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (product Z X) Y -> Hom Z (expOb X Y);
   Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
   is_exponential : forall X Y : Ob C, isExponential X Y (expOb X Y) eval (@curry X Y)
 }.
@@ -84,7 +84,7 @@ Context
   [X Y Z : Ob C].
 
 Lemma universal_property :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
   intros.
@@ -96,7 +96,7 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+  forall {E : Ob C} (f : Hom (product E X) Y),
     curry f ×' id X .> eval == f.
 Proof.
   intros E f.
@@ -105,7 +105,7 @@ Proof.
 Qed.
 
 Lemma uniqueness_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     g ×' id X .> eval == f -> g == curry f.
 Proof.
   intros.
@@ -114,7 +114,7 @@ Proof.
   assumption.
 Qed.
 
-Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (product X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
 Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
@@ -137,7 +137,7 @@ End Exponential.
 Lemma uncurry_curry :
   forall
     {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
-    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+    (X Y Z : Ob C) (f : Hom (product X Y) Z),
       uncurry (curry f) == f.
 Proof.
   destruct he; cbn; intros. do 2 red in is_exponential0.
@@ -226,11 +226,11 @@ Module Universal.
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
-  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  eval : forall {X Y : Ob C}, Hom (product (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (product Z X) Y -> Hom Z (expOb X Y);
   Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
   universal :
-    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    forall {X Y E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
       curry f == g <-> g ×' id X .> eval == f
 }.
 
@@ -247,7 +247,7 @@ Context
   [X Y Z : Ob C].
 
 Lemma universal_property :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
   intros.
@@ -255,7 +255,7 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+  forall {E : Ob C} (f : Hom (product E X) Y),
     curry f ×' id X .> eval == f.
 Proof.
   intros E f.
@@ -264,7 +264,7 @@ Proof.
 Qed.
 
 Lemma uniqueness_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     g ×' id X .> eval == f -> g == curry f.
 Proof.
   intros.
@@ -273,7 +273,7 @@ Proof.
   assumption.
 Qed.
 
-Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (product X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
 Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
@@ -299,7 +299,7 @@ End Exponential.
 Lemma uncurry_curry :
   forall
     {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
-    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+    (X Y Z : Ob C) (f : Hom (product X Y) Z),
       uncurry (curry f) == f.
 Proof.
   intros C hp he X Y Z f.
@@ -392,14 +392,14 @@ Module Rules.
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
-  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  eval : forall {X Y : Ob C}, Hom (product (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (product Z X) Y -> Hom Z (expOb X Y);
   Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z);
   he_comp :
-    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y),
+    forall {X Y E : Ob C} (f : Hom (product E X) Y),
       curry f ×' id X .> eval == f;
   he_unique :
-    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+    forall {X Y E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
       g ×' id X .> eval == f -> g == curry f;
 }.
 
@@ -416,7 +416,7 @@ Context
   [X Y Z : Ob C].
 
 Lemma universal_property :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
   split.
@@ -425,7 +425,7 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+  forall {E : Ob C} (f : Hom (product E X) Y),
     curry f ×' id X .> eval == f.
 Proof.
   intros E f.
@@ -433,14 +433,14 @@ Proof.
 Qed.
 
 Lemma uniqueness_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     g ×' id X .> eval == f -> g == curry f.
 Proof.
   intros f.
   apply he_unique.
 Qed.
 
-Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (product X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
 Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
@@ -467,7 +467,7 @@ End Exponential.
 Lemma uncurry_curry :
   forall
     {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
-    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+    (X Y Z : Ob C) (f : Hom (product X Y) Z),
       uncurry (curry f) == f.
 Proof.
   intros C hp he X Y Z f.
@@ -553,11 +553,11 @@ Module Rules2.
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval : forall {X Y : Ob C}, Hom (prodOb (expOb X Y) X) Y;
-  curry : forall {X Y Z : Ob C}, Hom (prodOb Z X) Y -> Hom Z (expOb X Y);
+  eval : forall {X Y : Ob C}, Hom (product (expOb X Y) X) Y;
+  curry : forall {X Y Z : Ob C}, Hom (product Z X) Y -> Hom Z (expOb X Y);
   (* Proper_curry :> forall X Y Z : Ob C, Proper (equiv ==> equiv) (@curry X Y Z); *)
   he_comp :
-    forall {X Y E : Ob C} (f : Hom (prodOb E X) Y),
+    forall {X Y E : Ob C} (f : Hom (product E X) Y),
       curry f ×' id X .> eval == f;
   he_equiv :
     forall {X Y E : Ob C} (f g : Hom E (expOb X Y)),
@@ -587,7 +587,7 @@ Proof.
 Defined.
 
 Lemma universal_property :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     curry f == g <-> g ×' id X .> eval == f.
 Proof.
   split.
@@ -596,7 +596,7 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y),
+  forall {E : Ob C} (f : Hom (product E X) Y),
     curry f ×' id X .> eval == f.
 Proof.
   intros E f.
@@ -604,7 +604,7 @@ Proof.
 Qed.
 
 Lemma uniqueness_rule :
-  forall {E : Ob C} (f : Hom (prodOb E X) Y) (g : Hom E (expOb X Y)),
+  forall {E : Ob C} (f : Hom (product E X) Y) (g : Hom E (expOb X Y)),
     g ×' id X .> eval == f -> g == curry f.
 Proof.
   intros E f g Heq.
@@ -613,7 +613,7 @@ Proof.
   assumption.
 Qed.
 
-Definition uncurry (f : Hom X (expOb Y Z)) : Hom (prodOb X Y) Z := f ×' (id Y) .> eval.
+Definition uncurry (f : Hom X (expOb Y Z)) : Hom (product X Y) Z := f ×' (id Y) .> eval.
 
 #[export]
 Instance Proper_uncurry : Proper (equiv ==> equiv) uncurry.
@@ -639,7 +639,7 @@ End Exponential.
 Lemma uncurry_curry :
   forall
     {C : Cat} {hp : HasProducts C} (he : HasExponentials C)
-    (X Y Z : Ob C) (f : Hom (prodOb X Y) Z),
+    (X Y Z : Ob C) (f : Hom (product X Y) Z),
       uncurry (curry f) == f.
 Proof.
   intros C hp he X Y Z f.

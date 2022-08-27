@@ -145,9 +145,9 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_prodOb (X Y : Reloid) : Reloid :=
+Instance Reloid_product (X Y : Reloid) : Reloid :=
 {
-  carrier := CoqSetoid_prodOb X Y;
+  carrier := CoqSetoid_product X Y;
   rel := fun p p' => @rel X (fst p) (fst p') /\ @rel Y (snd p) (snd p')
 }.
 Proof.
@@ -156,7 +156,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) X :=
+Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_product X Y) X :=
 {
   func := CoqSetoid_outl X Y
 }.
@@ -164,7 +164,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_prodOb X Y) Y :=
+Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_product X Y) Y :=
 {
   func := CoqSetoid_outr X Y
 }.
@@ -174,7 +174,7 @@ Proof. reloid. Defined.
 #[export]
 Instance Reloid_fpair (X Y A : Reloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
-  : ReloidHom A (Reloid_prodOb X Y) :=
+  : ReloidHom A (Reloid_product X Y) :=
 {
   func := CoqSetoid_fpair f g
 }.
@@ -184,7 +184,7 @@ Proof. reloid. Defined.
 #[export]
 Instance HasProducts_Reloid : HasProducts ReloidCat :=
 {
-  prodOb := Reloid_prodOb;
+  product := Reloid_product;
   outl := Reloid_outl;
   outr := Reloid_outr;
   fpair := Reloid_fpair;
@@ -195,9 +195,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_coprodOb (X Y : Reloid) : Reloid :=
+Instance Reloid_coproduct (X Y : Reloid) : Reloid :=
 {
-  carrier := CoqSetoid_coprodOb X Y;
+  carrier := CoqSetoid_coproduct X Y;
   rel := fun p p' =>
   match p, p' with
   | inl x, inl x' => rel x x'
@@ -211,7 +211,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Reloid_finl (X Y : Reloid) : ReloidHom X (Reloid_coprodOb X Y) :=
+Instance Reloid_finl (X Y : Reloid) : ReloidHom X (Reloid_coproduct X Y) :=
 {
   func := CoqSetoid_finl X Y;
 }.
@@ -219,7 +219,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance Reloid_finr (X Y : Reloid) : ReloidHom Y (Reloid_coprodOb X Y) :=
+Instance Reloid_finr (X Y : Reloid) : ReloidHom Y (Reloid_coproduct X Y) :=
 {
   func := CoqSetoid_finr X Y;
 }.
@@ -229,7 +229,7 @@ Proof. reloid. Defined.
 #[export]
 Instance Reloid_copair
   (X Y A : Reloid) (f : ReloidHom X A) (g : ReloidHom Y A)
-  : ReloidHom (Reloid_coprodOb X Y) A :=
+  : ReloidHom (Reloid_coproduct X Y) A :=
 {
   func := CoqSetoid_copair f g
 }.
@@ -241,7 +241,7 @@ Defined.
 #[export]
 Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
 {
-  coprodOb := Reloid_coprodOb;
+  coproduct := Reloid_coproduct;
   finl := Reloid_finl;
   finr := Reloid_finr;
   copair := Reloid_copair;

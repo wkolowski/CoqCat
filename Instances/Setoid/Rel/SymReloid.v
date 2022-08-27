@@ -101,15 +101,15 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_prodOb (X Y : SymReloid) : SymReloid :=
+Instance SymReloid_product (X Y : SymReloid) : SymReloid :=
 {
-  reloid := Reloid_prodOb X Y;
+  reloid := Reloid_product X Y;
 }.
 Proof. split; sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_outl (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) X :=
+Instance SymReloid_outl (X Y : SymReloid) : ReloidHom (SymReloid_product X Y) X :=
 {
   func := Reloid_outl X Y
 }.
@@ -117,7 +117,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_outr (X Y : SymReloid) : ReloidHom (SymReloid_prodOb X Y) Y :=
+Instance SymReloid_outr (X Y : SymReloid) : ReloidHom (SymReloid_product X Y) Y :=
 {
   func := Reloid_outr X Y
 }.
@@ -127,7 +127,7 @@ Proof. sreloid. Defined.
 #[export]
 Instance SymReloid_fpair
   (X Y A : SymReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
-  : ReloidHom A (SymReloid_prodOb X Y) :=
+  : ReloidHom A (SymReloid_product X Y) :=
 {
   func := Reloid_fpair f g
 }.
@@ -137,7 +137,7 @@ Proof. sreloid. Defined.
 #[export]
 Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
 {
-  prodOb := SymReloid_prodOb;
+  product := SymReloid_product;
   outl := SymReloid_outl;
   outr := SymReloid_outr;
   fpair := SymReloid_fpair;
@@ -148,15 +148,15 @@ Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_coprodOb (X Y : SymReloid) : SymReloid :=
+Instance SymReloid_coproduct (X Y : SymReloid) : SymReloid :=
 {
-  reloid := Reloid_coprodOb X Y;
+  reloid := Reloid_coproduct X Y;
 }.
 Proof. intros [] []; cbn; intuition. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_finl (X Y : SymReloid) : ReloidHom X (SymReloid_coprodOb X Y) :=
+Instance SymReloid_finl (X Y : SymReloid) : ReloidHom X (SymReloid_coproduct X Y) :=
 {
   func := Reloid_finl X Y;
 }.
@@ -164,7 +164,7 @@ Proof. sreloid. Defined.
 
 #[refine]
 #[export]
-Instance SymReloid_finr (X Y : SymReloid) : ReloidHom Y (SymReloid_coprodOb X Y) :=
+Instance SymReloid_finr (X Y : SymReloid) : ReloidHom Y (SymReloid_coproduct X Y) :=
 {
   func := Reloid_finr X Y;
 }.
@@ -174,7 +174,7 @@ Proof. sreloid. Defined.
 #[export]
 Instance SymReloid_copair
   (X Y A : SymReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
-  : ReloidHom (SymReloid_coprodOb X Y) A :=
+  : ReloidHom (SymReloid_coproduct X Y) A :=
 {
   func := Reloid_copair f g
 }.
@@ -186,7 +186,7 @@ Defined.
 #[export]
 Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
 {
-  coprodOb := SymReloid_coprodOb;
+  coproduct := SymReloid_coproduct;
   finl := SymReloid_finl;
   finr := SymReloid_finr;
   copair := SymReloid_copair;

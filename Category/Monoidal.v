@@ -37,12 +37,12 @@ Instance Monoidal_HasTerm_HasProducts
 }.
 Proof.
   all: cbn; intros.
-  exact (proj1_sig (prodOb_assoc' hp X Y Z)).
-  exact (proj2_sig (prodOb_assoc' hp X Y Z)).
-  exact (proj1_sig (prodOb_term_l' C ht hp X)).
-  exact (proj2_sig (prodOb_term_l' C ht hp X)).
-  exact (proj1_sig (prodOb_term_r' C X ht hp)).
-  exact (proj2_sig (prodOb_term_r' C X ht hp)).
+  exact (proj1_sig (product_assoc' hp X Y Z)).
+  exact (proj2_sig (product_assoc' hp X Y Z)).
+  exact (proj1_sig (product_term_l' C ht hp X)).
+  exact (proj2_sig (product_term_l' C ht hp X)).
+  exact (proj1_sig (product_term_r' C X ht hp)).
+  exact (proj2_sig (product_term_r' C X ht hp)).
   cbn. fpair.
   cbn. fpair.
 Defined.
@@ -58,12 +58,12 @@ Instance Monoidal_HasInit_HasCoproducts
 }.
 Proof.
   all: cbn; intros.
-  exact (proj1_sig (coprodOb_assoc' hp X Y Z)).
-  exact (proj2_sig (coprodOb_assoc' hp X Y Z)).
-  exact (proj1_sig (coprodOb_init_l' C hi hp X)).
-  exact (proj2_sig (coprodOb_init_l' C hi hp X)).
-  exact (proj1_sig (coprodOb_init_r' C hi hp X)).
-  exact (proj2_sig (coprodOb_init_r' C hi hp X)).
+  exact (proj1_sig (coproduct_assoc' hp X Y Z)).
+  exact (proj2_sig (coproduct_assoc' hp X Y Z)).
+  exact (proj1_sig (coproduct_init_l' C hi hp X)).
+  exact (proj2_sig (coproduct_init_l' C hi hp X)).
+  exact (proj1_sig (coproduct_init_r' C hi hp X)).
+  exact (proj2_sig (coproduct_init_r' C hi hp X)).
   cbn. copair. init.
   cbn. copair.
 Defined.

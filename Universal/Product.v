@@ -84,55 +84,6 @@ Qed.
 
 End isProduct.
 
-Class HasProducts (C : Cat) : Type :=
-{
-  prodOb : Ob C -> Ob C -> Ob C;
-  outl : forall {A B : Ob C}, Hom (prodOb A B) A;
-  outr : forall {A B : Ob C}, Hom (prodOb A B) B;
-  fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (prodOb A B);
-  HasProducts_isProduct :>
-    forall {A B : Ob C}, isProduct C (prodOb A B) outl outr (@fpair A B)
-}.
-
-Arguments prodOb {C HasProducts} _ _.
-Arguments outl   {C HasProducts A B}.
-Arguments outr   {C HasProducts A B}.
-Arguments fpair  {C HasProducts A B X} _ _.
-
-Ltac fpair := intros; try split;
-repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
-| |- context [fpair _ _ .> outl] => rewrite fpair_outl
-| |- context [fpair _ _ .> outr] => rewrite fpair_outr
-| |- context [fpair outl outr] => rewrite fpair_id
-| |- ?x == ?x => reflexivity
-| |- fpair _ _ == _ => apply fpair_equiv
-| |- _ == fpair _ _ => apply fpair_equiv
-| |- context [id _ .> _] => rewrite comp_id_l
-| |- context [_ .> id _] => rewrite comp_id_r
-| |- ?f .> ?g == ?f .> ?g' => f_equiv
-| |- ?f .> ?g == ?f' .> ?g => f_equiv
-| _ => rewrite <- ?comp_assoc; auto
-end.
-
-Lemma fpair_comp :
-  forall
-    (C : Cat) (hp : HasProducts C)
-    (A X Y X' Y' : Ob C) (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
-      fpair (f .> h1) (g .> h2) == fpair f g .> fpair (outl .> h1) (outr .> h2).
-Proof.
-  intros; rewrite fpair_equiv'.
-  now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
-Qed.
-
-Lemma fpair_pre_id :
-  forall (C : Cat) (hp : HasProducts C) (A X Y : Ob C) (f : Hom A (prodOb X Y)),
-    fpair (f .> outl) (f .> outr) == f.
-Proof.
-  now intros; rewrite fpair_equiv', fpair_outl, fpair_outr.
-Qed.
-
 Lemma isProduct_uiso :
   forall
     (C : Cat) (X Y : Ob C)
@@ -237,18 +188,67 @@ Proof.
   intros * []; constructor; cat.
 Qed.
 
-Lemma prodOb_comm :
+Class HasProducts (C : Cat) : Type :=
+{
+  product : Ob C -> Ob C -> Ob C;
+  outl : forall {A B : Ob C}, Hom (product A B) A;
+  outr : forall {A B : Ob C}, Hom (product A B) B;
+  fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (product A B);
+  HasProducts_isProduct :>
+    forall {A B : Ob C}, isProduct C (product A B) outl outr (@fpair A B)
+}.
+
+Arguments product {C HasProducts} _ _.
+Arguments outl   {C HasProducts A B}.
+Arguments outr   {C HasProducts A B}.
+Arguments fpair  {C HasProducts A B X} _ _.
+
+Ltac fpair := intros; try split;
+repeat match goal with
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
+| |- context [fpair _ _ .> outl] => rewrite fpair_outl
+| |- context [fpair _ _ .> outr] => rewrite fpair_outr
+| |- context [fpair outl outr] => rewrite fpair_id
+| |- ?x == ?x => reflexivity
+| |- fpair _ _ == _ => apply fpair_equiv
+| |- _ == fpair _ _ => apply fpair_equiv
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
+| |- ?f .> ?g == ?f .> ?g' => f_equiv
+| |- ?f .> ?g == ?f' .> ?g => f_equiv
+| _ => rewrite <- ?comp_assoc; auto
+end.
+
+Lemma fpair_comp :
+  forall
+    (C : Cat) (hp : HasProducts C)
+    (A X Y X' Y' : Ob C) (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
+      fpair (f .> h1) (g .> h2) == fpair f g .> fpair (outl .> h1) (outr .> h2).
+Proof.
+  intros; rewrite fpair_equiv'.
+  now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
+Qed.
+
+Lemma fpair_pre_id :
+  forall (C : Cat) (hp : HasProducts C) (A X Y : Ob C) (f : Hom A (product X Y)),
+    fpair (f .> outl) (f .> outr) == f.
+Proof.
+  now intros; rewrite fpair_equiv', fpair_outl, fpair_outr.
+Qed.
+
+Lemma product_comm :
   forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
-    prodOb X Y ~ prodOb Y X.
+    product X Y ~ product Y X.
 Proof.
   intros.
   exists (fpair outr outl), (fpair outr outl).
   fpair.
 Qed.
 
-Lemma prodOb_assoc :
+Lemma product_assoc :
   forall (C : Cat) (hp : HasProducts C) (X Y Z : Ob C),
-    prodOb X (prodOb Y Z) ~ prodOb (prodOb X Y) Z.
+    product X (product Y Z) ~ product (product X Y) Z.
 Proof.
   intros.
   exists (fpair (fpair outl (outr .> outl)) (outr .> outr)),
@@ -256,9 +256,9 @@ Proof.
   fpair.
 Defined.
 
-Lemma prodOb_assoc' :
+Lemma product_assoc' :
   forall (C : Cat) (hp : HasProducts C) (X Y Z : Ob C),
-    {f : Hom (prodOb (prodOb X Y) Z) (prodOb X (prodOb Y Z)) | isIso f}.
+    {f : Hom (product (product X Y) Z) (product X (product Y Z)) | isIso f}.
 Proof.
   intros.
   exists (fpair (outl .> outl) (fpair (outl .> outr) outr)),
@@ -269,7 +269,7 @@ Defined.
 Definition ProductFunctor_fmap
   {C : Cat} {hp : HasProducts C}
   {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
-  : Hom (prodOb X X') (prodOb Y Y') :=
+  : Hom (product X X') (product Y Y') :=
     fpair (outl .> f) (outr .> g).
 
 #[export]
@@ -278,7 +278,7 @@ Instance Proper_ProductFunctor_fmap :
     Proper
       ((@equiv _ (HomSetoid X Y))  ==>
       (@equiv _ (HomSetoid X' Y'))  ==>
-      (@equiv _ (HomSetoid (prodOb X X') (prodOb Y Y'))))
+      (@equiv _ (HomSetoid (product X X') (product Y Y'))))
       (@ProductFunctor_fmap C hp X X' Y Y').
 Proof.
   unfold Proper, respectful, ProductFunctor_fmap.
@@ -287,7 +287,7 @@ Qed.
 
 Lemma ProductFunctor_fmap_id :
   forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
-    ProductFunctor_fmap (id X) (id Y) == id (prodOb X Y).
+    ProductFunctor_fmap (id X) (id Y) == id (product X Y).
 Proof.
   unfold ProductFunctor_fmap.
   fpair.
@@ -332,10 +332,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_prodOb C C) C :=
+Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_product C C) C :=
 {
-  fob := fun P : Ob (CAT_prodOb C C) => prodOb (fst P) (snd P);
-  fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) => ProductFunctor_fmap (fst f) (snd f)
+  fob := fun P : Ob (CAT_product C C) => product (fst P) (snd P);
+  fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
   proper. apply Proper_ProductFunctor_fmap; cat.
@@ -350,10 +350,10 @@ Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
 #[export]
 Instance ProductBifunctor {C : Cat} {hp : HasProducts C} : Bifunctor C C C :=
 {
-  biob := fun X Y : Ob C => prodOb X Y;
+  biob := fun X Y : Ob C => product X Y;
   bimap :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => fpair (outl .> f) (outr .> g);
 }.
 Proof.
-  all: fpair.
+  all: now fpair.
 Defined.

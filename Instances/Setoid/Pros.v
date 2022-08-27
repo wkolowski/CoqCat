@@ -171,9 +171,9 @@ Proof. pros. Defined.
 
 #[refine]
 #[export]
-Instance Pros_prodOb (X Y : Pros) : Pros :=
+Instance Pros_product (X Y : Pros) : Pros :=
 {
-  carrier := CoqSetoid_prodOb X Y;
+  carrier := CoqSetoid_product X Y;
   leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
@@ -181,18 +181,18 @@ Proof.
   all: pros.
 Defined.
 
-Definition Pros_outl (X Y : Pros) : ProsHom (Pros_prodOb X Y) X.
+Definition Pros_outl (X Y : Pros) : ProsHom (Pros_product X Y) X.
 Proof.
   red. exists (CoqSetoid_outl X Y). pros.
 Defined.
 
-Definition Pros_outr (X Y : Pros) : ProsHom (Pros_prodOb X Y) Y.
+Definition Pros_outr (X Y : Pros) : ProsHom (Pros_product X Y) Y.
 Proof.
   red. exists (CoqSetoid_outr X Y). pros.
 Defined.
 
 Definition Pros_fpair
-  {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B) : ProsHom X (Pros_prodOb A B).
+  {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B) : ProsHom X (Pros_product A B).
 Proof.
   red. exists (CoqSetoid_fpair f g). pros.
 Defined.
@@ -201,7 +201,7 @@ Defined.
 #[export]
 Instance HasProducts_Pros : HasProducts ProsCat :=
 {
-  prodOb := Pros_prodOb;
+  product := Pros_product;
   outl := Pros_outl;
   outr := Pros_outr;
   fpair := @Pros_fpair
@@ -216,9 +216,9 @@ Definition thin (C : Cat) : Prop :=
 
 #[refine]
 #[export]
-Instance Pros_coprodOb (X Y : Pros) : Pros :=
+Instance Pros_coproduct (X Y : Pros) : Pros :=
 {
-  carrier := CoqSetoid_coprodOb X Y;
+  carrier := CoqSetoid_coproduct X Y;
   leq := fun a b : X + Y =>
     match a, b with
     | inl x, inl x' => x ≤ x'
@@ -233,18 +233,18 @@ Proof.
   destruct a, b; destruct c1; pros.
 Defined.
 
-Definition Pros_finl (X Y : Pros) : ProsHom X (Pros_coprodOb X Y).
+Definition Pros_finl (X Y : Pros) : ProsHom X (Pros_coproduct X Y).
 Proof.
   red. exists (CoqSetoid_finl X Y). pros.
 Defined.
 
-Definition Pros_finr (X Y : Pros) : ProsHom Y (Pros_coprodOb X Y).
+Definition Pros_finr (X Y : Pros) : ProsHom Y (Pros_coproduct X Y).
 Proof.
   red. exists (CoqSetoid_finr X Y). pros.
 Defined.
 
 Definition Pros_copair
-  (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pros_coprodOb A B) X.
+  (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pros_coproduct A B) X.
 Proof.
   red. exists (CoqSetoid_copair f g). destruct a, a'; pros.
 Defined.
@@ -253,7 +253,7 @@ Defined.
 #[export]
 Instance HasCoproducts_Pros : HasCoproducts ProsCat :=
 {
-  coprodOb := Pros_coprodOb;
+  coproduct := Pros_coproduct;
   finl := Pros_finl;
   finr := Pros_finr;
   copair := Pros_copair

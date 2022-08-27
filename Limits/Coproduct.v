@@ -142,16 +142,16 @@ End Traditional.
 
 Class HasCoproducts (C : Cat) : Type :=
 {
-  coprodOb : Ob C -> Ob C -> Ob C;
-  finl : forall A B : Ob C, Hom A (coprodOb A B);
-  finr : forall A B : Ob C, Hom B (coprodOb A B);
-  copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coprodOb A B) X;
+  coproduct : Ob C -> Ob C -> Ob C;
+  finl : forall A B : Ob C, Hom A (coproduct A B);
+  finr : forall A B : Ob C, Hom B (coproduct A B);
+  copair : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (coproduct A B) X;
   Proper_copair :> forall (A B X : Ob C), Proper (equiv ==> equiv ==> equiv) (@copair A B X);
   is_coproduct :
-    forall A B : Ob C, isCoproduct C (coprodOb A B) (finl A B) (finr A B) (@copair A B)
+    forall A B : Ob C, isCoproduct C (coproduct A B) (finl A B) (finr A B) (@copair A B)
 }.
 
-Arguments coprodOb {C HasCoproducts} _ _.
+Arguments coproduct {C HasCoproducts} _ _.
 Arguments finl  {C HasCoproducts A B}.
 Arguments finr  {C HasCoproducts A B}.
 Arguments copair   {C HasCoproducts A B X} _ _.
@@ -191,10 +191,10 @@ Qed.
 
 Lemma copair_id :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
-    copair finl finr == id (coprodOb X Y).
+    copair finl finr == id (coproduct X Y).
 Proof.
   destruct hp; cbn; intros. do 2 red in is_coproduct0.
-  destruct (is_coproduct0 X Y (coprodOb0 X Y) (finl0 X Y) (finr0 X Y)) as [_ H3].
+  destruct (is_coproduct0 X Y (coproduct0 X Y) (finl0 X Y) (finr0 X Y)) as [_ H3].
   apply H3. cat.
 Qed.
 
@@ -218,15 +218,15 @@ repeat match goal with
 | |- copair _ _ == copair _ _ => apply Proper_copair
 | |- context [id _ .> _] => rewrite comp_id_l
 | |- context [_ .> id _] => rewrite comp_id_r
-| |- copair _ _ == id (coprodOb _ _) => rewrite <- copair_id; apply Proper_copair
+| |- copair _ _ == id (coproduct _ _) => rewrite <- copair_id; apply Proper_copair
 | |- ?f .> ?g == ?f .> ?g' => f_equiv
 | |- ?f .> ?g == ?f' .> ?g => f_equiv
 | _ => rewrite ?comp_assoc; auto
 end.
 
-Lemma coprodOb_comm :
+Lemma coproduct_comm :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
-    coprodOb X Y ~ coprodOb Y X.
+    coproduct X Y ~ coproduct Y X.
 Proof.
   intros.
   red. exists (copair finr finl).
@@ -234,9 +234,9 @@ Proof.
   copair.
 Qed.
 
-Lemma coprodOb_assoc :
+Lemma coproduct_assoc :
   forall (C : Cat) (hp : HasCoproducts C) (X Y Z : Ob C),
-    coprodOb X (coprodOb Y Z) ~ coprodOb (coprodOb X Y) Z.
+    coproduct X (coproduct Y Z) ~ coproduct (coproduct X Y) Z.
 Proof.
   intros.
   red. exists (copair (finl .> finl) (copair (finr .> finl) finr)).
@@ -244,9 +244,9 @@ Proof.
   copair.
 Qed.
 
-Lemma coprodOb_assoc' :
+Lemma coproduct_assoc' :
   forall (C : Cat) (hp : HasCoproducts C) (X Y Z : Ob C),
-    {f : Hom (coprodOb (coprodOb X Y) Z) (coprodOb X (coprodOb Y Z)) | isIso f}.
+    {f : Hom (coproduct (coproduct X Y) Z) (coproduct X (coproduct Y Z)) | isIso f}.
 Proof.
   intros.
   exists (copair (copair finl (finl .> finr)) (finr .> finr)).
@@ -257,7 +257,7 @@ Defined.
 Definition CoproductFunctor_fmap
   {C : Cat} {hp : HasCoproducts C}
   {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
-  : Hom (coprodOb X X') (coprodOb Y Y')
+  : Hom (coproduct X X') (coproduct Y Y')
   := (copair (f .> finl) (g .> finr)).
 
 #[export]
@@ -266,7 +266,7 @@ Instance Proper_CoproductFunctor_fmap :
     Proper
       ((@equiv _ (HomSetoid X Y))  ==>
       (@equiv _ (HomSetoid X' Y'))  ==>
-      (@equiv _ (HomSetoid (coprodOb X X') (coprodOb Y Y'))))
+      (@equiv _ (HomSetoid (coproduct X X') (coproduct Y Y'))))
       (@CoproductFunctor_fmap C hp X X' Y Y').
 Proof.
   unfold Proper, respectful, CoproductFunctor_fmap. copair.
@@ -274,7 +274,7 @@ Qed.
 
 Lemma CoproductFunctor_fmap_id :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
-    CoproductFunctor_fmap (id X) (id Y) == id (coprodOb X Y).
+    CoproductFunctor_fmap (id X) (id Y) == id (coproduct X Y).
 Proof.
   intros; unfold CoproductFunctor_fmap. copair.
 Defined.
@@ -314,10 +314,10 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_prodOb C C) C :=
+Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_product C C) C :=
 {
-  fob := fun P : Ob (CAT_prodOb C C) => coprodOb (fst P) (snd P);
-  fmap := fun (X Y : Ob (CAT_prodOb C C)) (f : Hom X Y) => CoproductFunctor_fmap (fst f) (snd f)
+  fob := fun P : Ob (CAT_product C C) => coproduct (fst P) (snd P);
+  fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
   proper. apply Proper_CoproductFunctor_fmap; cat.
@@ -332,7 +332,7 @@ Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
 #[export]
 Instance CoproductBifunctor {C : Cat} {hp : HasCoproducts C} : Bifunctor C C C :=
 {
-  biob := @coprodOb C hp;
+  biob := @coproduct C hp;
   bimap :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.
@@ -343,7 +343,7 @@ Defined.
 #[export]
 Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
 {
-  coprodOb := @prodOb C hp;
+  coproduct := @product C hp;
   finl := @outl C hp;
   finr := @outr C hp;
   copair := @fpair C hp;
@@ -354,7 +354,7 @@ Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual
 #[export]
 Instance HasProducts_Dual (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
 {
-  prodOb := @coprodOb C hp;
+  product := @coproduct C hp;
   outl := @finl C hp;
   outr := @finr C hp;
   fpair := @copair C hp;

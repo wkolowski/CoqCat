@@ -20,9 +20,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_prodOb {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Functor C D :=
+Instance FunCat_product {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Functor C D :=
 {
-  fob := fun X : Ob C => prodOb (fob F X) (fob G X);
+  fob := fun X : Ob C => product (fob F X) (fob G X);
   fmap := fun (X Y : Ob C) (f : Hom X Y) => ProductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
@@ -34,7 +34,7 @@ Defined.
 #[refine]
 #[export]
 Instance FunCat_outl
-  {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) F :=
+  {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_product F G) F :=
 {
   component := fun _ : Ob C => outl
 }.
@@ -45,7 +45,7 @@ Defined.
 #[refine]
 #[export]
 Instance FunCat_outr
-  {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_prodOb F G) G :=
+  {C D : Cat} {hp : HasProducts D} {F G : Functor C D} : NatTrans (FunCat_product F G) G :=
 {
   component := fun _ : Ob C => outr
 }.
@@ -57,7 +57,7 @@ Defined.
 #[export]
 Instance FunCat_fpair
   {C D : Cat} {hp : HasProducts D} {F G H : Functor C D}
-  (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_prodOb G H) :=
+  (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_product G H) :=
 {
   component := fun X : Ob C => fpair (component α X) (component β X)
 }.
@@ -69,7 +69,7 @@ Defined.
 #[export]
 Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunCat C D) :=
 {
-  prodOb := FunCat_prodOb;
+  product := FunCat_product;
   outl := @FunCat_outl C D hp;
   outr := @FunCat_outr C D hp;
   fpair := fun (G H F : Functor C D) (α : @Hom (FunCat C D) F G) (β : @Hom (FunCat C D) F H) =>
@@ -83,9 +83,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_coprodOb {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) : Functor C D :=
+Instance FunCat_coproduct {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) : Functor C D :=
 {
-  fob := fun X : Ob C => coprodOb (fob F X) (fob G X);
+  fob := fun X : Ob C => coproduct (fob F X) (fob G X);
   fmap := fun (X Y : Ob C) (f : Hom X Y) =>
     CoproductFunctor_fmap (fmap F f) (fmap G f)
 }.
@@ -98,7 +98,7 @@ Defined.
 #[refine]
 #[export]
 Instance FunCat_finl
-  {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans F (FunCat_coprodOb F G) :=
+  {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans F (FunCat_coproduct F G) :=
 {
   component := fun _ : Ob C => finl
 }.
@@ -109,7 +109,7 @@ Defined.
 #[refine]
 #[export]
 Instance FunCat_finr
-  {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans G (FunCat_coprodOb F G) :=
+  {C D : Cat} {hp : HasCoproducts D} {F G : Functor C D} : NatTrans G (FunCat_coproduct F G) :=
 {
   component := fun _ : Ob C => finr
 }.
@@ -121,7 +121,7 @@ Defined.
 #[export]
 Instance FunCat_copair
   {C D : Cat} {hp : HasCoproducts D} {F G H : Functor C D}
-  (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_coprodOb F G) H :=
+  (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_coproduct F G) H :=
 {
   component := fun X : Ob C => copair (component α X) (component β X)
 }.
@@ -135,7 +135,7 @@ Defined.
 Instance HasCoproducts_FunCat
   {C D : Cat} {hp : HasCoproducts D} : HasCoproducts (FunCat C D) :=
 {
-  coprodOb := FunCat_coprodOb;
+  coproduct := FunCat_coproduct;
   finl := @FunCat_finl C D hp;
   finr := @FunCat_finr C D hp;
   copair := fun (F G H : Functor C D)

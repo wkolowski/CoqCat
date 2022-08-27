@@ -88,9 +88,9 @@ Proof. pos. Defined.
 
 #[refine]
 #[export]
-Instance Pos_prodOb (X Y : Pos) : Pos :=
+Instance Pos_product (X Y : Pos) : Pos :=
 {
-  pros := Pros_prodOb X Y
+  pros := Pros_product X Y
 }.
 Proof. pos. Defined.
 
@@ -98,7 +98,7 @@ Proof. pos. Defined.
 #[export]
 Instance HasProducts_Pos : HasProducts PosCat :=
 {
-  prodOb := Pos_prodOb;
+  product := Pos_product;
   outl := Pros_outl;
   outr := Pros_outr;
   fpair := @Pros_fpair
@@ -110,26 +110,26 @@ Defined.
 
 #[refine]
 #[export]
-Instance Pos_coprodOb (X Y : Pos) : Pos :=
+Instance Pos_coproduct (X Y : Pos) : Pos :=
 {
-  pros := Pros_coprodOb X Y;
+  pros := Pros_coproduct X Y;
 }.
 Proof.
   destruct x, y; pos.
 Defined.
 
-Definition Pos_finl (X Y : Pos) : ProsHom X (Pos_coprodOb X Y).
+Definition Pos_finl (X Y : Pos) : ProsHom X (Pos_coproduct X Y).
 Proof.
   red. exists (Pros_finl X Y). pos.
 Defined.
 
-Definition Pos_finr (X Y : Pos) : ProsHom Y (Pos_coprodOb X Y).
+Definition Pos_finr (X Y : Pos) : ProsHom Y (Pos_coproduct X Y).
 Proof.
   red. exists (Pros_finr X Y). pos.
 Defined.
 
 Definition Pos_copair
-  (A B X : Pos) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pos_coprodOb A B) X.
+  (A B X : Pos) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pos_coproduct A B) X.
 Proof.
   red. exists (Pros_copair f g). destruct a, a'; pos.
 Defined.
@@ -138,7 +138,7 @@ Defined.
 #[export]
 Instance HasCoproducts_Pos : HasCoproducts PosCat :=
 {
-  coprodOb := Pos_coprodOb;
+  coproduct := Pos_coproduct;
   finl := Pos_finl;
   finr := Pos_finr;
   copair := Pos_copair

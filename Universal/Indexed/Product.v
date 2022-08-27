@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Universal Require Import Product.
+From Cat.Universal Require Import Product Initial Terminal.
 
 Set Implicit Arguments.
 
@@ -85,19 +85,19 @@ End isIndexedProduct.
 
 Class HasIndexedProducts (C : Cat) : Type :=
 {
-  indexedProdOb :
+  indexedProduct :
     forall {J : Set} (A : J -> Ob C), Ob C;
   proj :
-    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProdOb A) (A j);
+    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
   tuple :
     forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
-      Hom X (indexedProdOb A);
+      Hom X (indexedProduct A);
   HasIndexedProducts_isIndexedProduct :>
     forall {J : Set} {A : J -> Ob C},
-      isIndexedProduct C (indexedProdOb A) (@proj J A) (@tuple J A)
+      isIndexedProduct C (indexedProduct A) (@proj J A) (@tuple J A)
 }.
 
-Arguments indexedProdOb {C _ J} _.
+Arguments indexedProduct {C _ J} _.
 Arguments proj          {C _ J A} _.
 Arguments tuple         {C _ J A X} _.
 
@@ -228,16 +228,16 @@ Lemma nullary_prod :
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
       isTerminal T delete -> isIndexedProduct C T p tuple.
 Proof.
-  unfold isTerminal; red; cat.
-  rewrite H, (H _ h).
-  reflexivity.
+  unfold isTerminal; split; intros.
+  - easy.
+  - apply H.
 Qed.
 
 Lemma unary_prod_exists :
   forall (C : Cat) (A : unit -> Ob C),
     isIndexedProduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
 Proof.
-  red; cat.
+  split; cat.
 Qed.
 
 (* Dependent type bullshit. This is harder than I thought. *)
@@ -252,7 +252,7 @@ Lemma isIndexedProduct_comm :
       (forall j : J, p' j = p (f j)) ->
         bijective f -> isIndexedProduct C P p tuple -> isIndexedProduct C P p' tuple'.
 Proof.
-  unfold bijective, injective, surjective, isIndexedProduct.
+  unfold bijective, injective, surjective.
   destruct 2 as [inj sur]; intros.
   assert (g : {g : J -> J |
     (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
@@ -261,8 +261,6 @@ Proof.
       destruct (constructive_indefinite_description _ (sur j)). auto.
       destruct (constructive_indefinite_description _ (sur (f j))). auto.
   destruct g as [g [g_inv1 g_inv2]].
-  assert (h : {h : forall j : J, Hom X (A (f (g j))) |
-  (forall j : J, h j = f0 (g j))}).
-    exists (fun j : J => f0 (g j)). auto.
-  destruct h as [h eq].
+  assert (h : {h : forall j : J, Hom P (A (f (g j))) |
+  (forall j : J, h j = p (f (g j)))}).
 Abort.

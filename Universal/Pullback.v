@@ -91,18 +91,18 @@ End isPullback.
 
 Class HasPullbacks (C : Cat) : Type :=
 {
-  pullbackOb : forall {A B X : Ob C}, Hom A X -> Hom B X -> Ob C;
-  pullL : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (pullbackOb f g) A;
-  pullR : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (pullbackOb f g) B;
+  pullback : forall {A B X : Ob C}, Hom A X -> Hom B X -> Ob C;
+  pullL : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (pullback f g) A;
+  pullR : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (pullback f g) B;
   factor :
     forall {A B X : Ob C} (f : Hom A X) (g : Hom B X) {P : Ob C} (pullL : Hom P A) (pullR : Hom P B),
-      pullL .> f == pullR .> g -> Hom P (pullbackOb f g);
+      pullL .> f == pullR .> g -> Hom P (pullback f g);
   HasPullbacks_isPullback :>
     forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
-      isPullback C f g (pullbackOb f g) (pullL f g) (pullR f g) (@factor A B X f g);
-  (* Proper_pullbackOb :
+      isPullback C f g (pullback f g) (pullL f g) (pullR f g) (@factor A B X f g);
+  (* Proper_pullback :
     forall (A B X : Ob C) (f f' : Hom A X) (g g' : Hom B X),
-      f == f' -> g == g' -> JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
+      f == f' -> g == g' -> JMequiv (id (pullback f g)) (id (pullback f' g'));
   Proper_pullL :
     forall (A B X : Ob C) (f f' : Hom A X) (g g' : Hom B X),
       f == f' -> g == g' -> JMequiv (pullL f g) (pullL f' g');
@@ -111,7 +111,7 @@ Class HasPullbacks (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (pullR f g) (pullR f' g'); *)
 }.
 
-Arguments pullbackOb [C _ A B X] _ _.
+Arguments pullback [C _ A B X] _ _.
 Arguments pullL      [C _ A B X] _ _.
 Arguments pullR      [C _ A B X] _ _.
 Arguments factor     [C _ A B X f g P pullL pullR] _.
@@ -226,7 +226,7 @@ Lemma isPullback_isEqualizer :
   (factorize : forall (E' : Ob C) (e : Hom E' A), e .> f == e .> g -> Hom E' E),
     isEqualizer C f g E e factorize ->
 (*     isEqualizer C f g E e2 factorize -> *)
-    isPullback C f g (prodOb E E) (outl .> e) (outr .> e)
+    isPullback C f g (product E E) (outl .> e) (outr .> e)
       (fun (E' : Ob C) (e1 e2 : Hom E' A) (H : e1 .> f == e2 .> g) =>
         fpair e1 e2).
         (* fpair (factorize E' e1 equalize_ok) (factorize E' e2 equalize_ok)). *)

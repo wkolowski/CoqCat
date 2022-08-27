@@ -136,13 +136,13 @@ End Traditional.
 
 Class HasEqualizers (C : Cat) : Type :=
 {
-  eq_ob :
+  equalizer :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-  Proper_eq_ob :
+  Proper_equalizer :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+      f == f' -> g == g' -> JMequiv (id (equalizer f g)) (id (equalizer f' g'));
   eq_mor :
-    forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
   eq_mor_ok :
     forall (X Y : Ob C) (f g : Hom X Y),
       eq_mor f g .> f == eq_mor f g .> g;
@@ -152,7 +152,7 @@ Class HasEqualizers (C : Cat) : Type :=
         JMequiv (eq_mor f g) (eq_mor f' g');
   factorize :
     forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
-      e' .> f == e' .> g -> Hom E' (eq_ob f g);
+      e' .> f == e' .> g -> Hom E' (equalizer f g);
   (* Proper_factorize :
     forall
       (X Y E' : Ob C) (f f' g g' : Hom X Y) (e' : Hom E' X)
@@ -160,10 +160,10 @@ Class HasEqualizers (C : Cat) : Type :=
         f == f' -> g == g' -> JMequiv (factorize H) (factorize H'); *)
   is_equalizer :
     forall (X Y : Ob C) (f g : Hom X Y),
-      isEqualizer C f g (eq_ob f g) (eq_mor f g) (@factorize _ _ f g)
+      isEqualizer C f g (equalizer f g) (eq_mor f g) (@factorize _ _ f g)
 }.
 
-Arguments eq_ob     [C _ X Y] _ _.
+Arguments equalizer     [C _ X Y] _ _.
 Arguments eq_mor    [C _ X Y] _ _.
 Arguments factorize [C _ X Y f g E' e'] _.
 
@@ -177,7 +177,7 @@ Context
 Lemma universal :
   forall
     [E' : Ob C] [e' : Hom E' X] (H : e' .> f == e' .> g)
-    (h : Hom E' (eq_ob f g)),
+    (h : Hom E' (equalizer f g)),
       factorize H == h <-> h .> eq_mor f g == e'.
 Proof.
   intros.
@@ -215,7 +215,7 @@ End HasEqualizers.
 
 Lemma factorize_eq_mor' :
   forall [C : Cat] (he : HasEqualizers C) [X Y : Ob C] (f g : Hom X Y),
-    factorize (proj1 (is_equalizer X Y f g)) == id (eq_ob f g).
+    factorize (proj1 (is_equalizer X Y f g)) == id (equalizer f g).
 Proof.
   intros. destruct he; cbn in *.
   edestruct is_equalizer0, s. cat.
@@ -223,7 +223,7 @@ Defined.
 
 Lemma factorize_eq_mor'' :
   forall [C : Cat] (he : HasEqualizers C) [X Y : Ob C] (f g : Hom X Y),
-    factorize (eq_mor_ok X Y f g) == id (eq_ob f g).
+    factorize (eq_mor_ok X Y f g) == id (equalizer f g).
 Proof.
   intros.
   apply universal.
@@ -236,10 +236,10 @@ TODO Lemma factorize_comp :
   forall
     (C : Cat) (he : HasEqualizers C)
     (X Y A : Ob C) (f g : Hom X Y)
-    (h1 : Hom (eq_ob f g) A) (h2 : Hom A X)
+    (h1 : Hom (equalizer f g) A) (h2 : Hom A X)
     (H : h1 .> h2 .> f == h1 .> h2 .> g),
       factorize f g _ (h1 .> h2) H ==
-(*      id (eq_ob f g).*)
+(*      id (equalizer f g).*)
 Proof.
   intros. destruct he; cbn in *.
   destruct (is_equalizer0 _ _ f g).
@@ -251,13 +251,13 @@ Module Universal.
 
 Class HasEqualizers (C : Cat) : Type :=
 {
-  eq_ob :
+  equalizer :
     forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
-  Proper_eq_ob :
+  Proper_equalizer :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (eq_ob f g)) (id (eq_ob f' g'));
+      f == f' -> g == g' -> JMequiv (id (equalizer f g)) (id (equalizer f' g'));
   eq_mor :
-    forall {X Y : Ob C} (f g : Hom X Y), Hom (eq_ob f g) X;
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
   eq_mor_ok :
     forall (X Y : Ob C) (f g : Hom X Y),
       eq_mor f g .> f == eq_mor f g .> g;
@@ -267,7 +267,7 @@ Class HasEqualizers (C : Cat) : Type :=
         JMequiv (eq_mor f g) (eq_mor f' g');
   factorize :
     forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
-      e' .> f == e' .> g -> Hom E' (eq_ob f g);
+      e' .> f == e' .> g -> Hom E' (equalizer f g);
   (* Proper_factorize :
     forall
       (X Y E' : Ob C) (f f' g g' : Hom X Y) (e' : Hom E' X)
@@ -277,11 +277,11 @@ Class HasEqualizers (C : Cat) : Type :=
     forall
       {X Y : Ob C} [f g : Hom X Y]
       [E' : Ob C] [e' : Hom E' X] (H : e' .> f == e' .> g)
-      (h : Hom E' (eq_ob f g)),
+      (h : Hom E' (equalizer f g)),
         factorize H == h <-> h .> eq_mor f g == e'
 }.
 
-Arguments eq_ob     [C _ X Y] _ _.
+Arguments equalizer     [C _ X Y] _ _.
 Arguments eq_mor    [C _ X Y] _ _.
 Arguments factorize [C _ X Y f g E' e'] _.
 
@@ -322,8 +322,8 @@ Module UniversalEquiv.
 #[export]
 Instance to (C : Cat) (heq : HasEqualizers C) : Universal.HasEqualizers C :=
 {
-  eq_ob := @eq_ob C heq;
-  Proper_eq_ob := @Proper_eq_ob C heq;
+  equalizer := @equalizer C heq;
+  Proper_equalizer := @Proper_equalizer C heq;
   eq_mor := @eq_mor C heq;
   Proper_eq_mor := @Proper_eq_mor C heq;
   eq_mor_ok := @eq_mor_ok C heq;
@@ -335,8 +335,8 @@ Instance to (C : Cat) (heq : HasEqualizers C) : Universal.HasEqualizers C :=
 #[export]
 Instance from (C : Cat) (heq : Universal.HasEqualizers C) : HasEqualizers C :=
 {
-  eq_ob := @Universal.eq_ob C heq;
-  Proper_eq_ob := @Universal.Proper_eq_ob C heq;
+  equalizer := @Universal.equalizer C heq;
+  Proper_equalizer := @Universal.Proper_equalizer C heq;
   eq_mor := @Universal.eq_mor C heq;
   Proper_eq_mor := @Universal.Proper_eq_mor C heq;
   eq_mor_ok := @Universal.eq_mor_ok C heq;

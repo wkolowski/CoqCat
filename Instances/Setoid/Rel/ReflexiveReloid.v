@@ -101,9 +101,9 @@ Proof. rreloid. Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_prodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
+Instance ReflexiveReloid_product (X Y : ReflexiveReloid) : ReflexiveReloid :=
 {
-  reloid := Reloid_prodOb X Y;
+  reloid := Reloid_product X Y;
 }.
 Proof.
   easy.
@@ -112,7 +112,7 @@ Defined.
 #[refine]
 #[export]
 Instance ReflexiveReloid_outl
-  (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_prodOb X Y) X :=
+  (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_product X Y) X :=
 {
   func := Reloid_outl X Y
 }.
@@ -121,7 +121,7 @@ Proof. rreloid. Defined.
 #[refine]
 #[export]
 Instance ReflexiveReloid_outr
-  (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_prodOb X Y) Y :=
+  (X Y : ReflexiveReloid) : ReloidHom (ReflexiveReloid_product X Y) Y :=
 {
   func := Reloid_outr X Y
 }.
@@ -131,7 +131,7 @@ Proof. rreloid. Defined.
 #[export]
 Instance ReflexiveReloid_fpair
   (X Y A : ReflexiveReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
-  : ReloidHom A (ReflexiveReloid_prodOb X Y) :=
+  : ReloidHom A (ReflexiveReloid_product X Y) :=
 {
   func := Reloid_fpair f g
 }.
@@ -141,7 +141,7 @@ Proof. rreloid. Defined.
 #[export]
 Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
 {
-  prodOb := ReflexiveReloid_prodOb;
+  product := ReflexiveReloid_product;
   outl := ReflexiveReloid_outl;
   outr := ReflexiveReloid_outr;
   fpair := ReflexiveReloid_fpair;
@@ -152,16 +152,16 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReflexiveReloid_coprodOb (X Y : ReflexiveReloid) : ReflexiveReloid :=
+Instance ReflexiveReloid_coproduct (X Y : ReflexiveReloid) : ReflexiveReloid :=
 {
-  reloid := Reloid_coprodOb X Y;
+  reloid := Reloid_coproduct X Y;
 }.
 Proof. now intros []; cbn. Defined.
 
 #[refine]
 #[export]
 Instance ReflexiveReloid_finl
-  (X Y : ReflexiveReloid) : ReloidHom X (ReflexiveReloid_coprodOb X Y) :=
+  (X Y : ReflexiveReloid) : ReloidHom X (ReflexiveReloid_coproduct X Y) :=
 {
   func := Reloid_finl X Y;
 }.
@@ -170,7 +170,7 @@ Proof. rreloid. Defined.
 #[refine]
 #[export]
 Instance ReflexiveReloid_finr
-  (X Y : ReflexiveReloid) : ReloidHom Y (ReflexiveReloid_coprodOb X Y) :=
+  (X Y : ReflexiveReloid) : ReloidHom Y (ReflexiveReloid_coproduct X Y) :=
 {
   func := Reloid_finr X Y;
 }.
@@ -180,7 +180,7 @@ Proof. rreloid. Defined.
 #[export]
 Instance ReflexiveReloid_copair
   (X Y A : ReflexiveReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
-  : ReloidHom (ReflexiveReloid_coprodOb X Y) A :=
+  : ReloidHom (ReflexiveReloid_coproduct X Y) A :=
 {
   func := Reloid_copair f g
 }.
@@ -192,7 +192,7 @@ Defined.
 #[export]
 Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
 {
-  coprodOb := ReflexiveReloid_coprodOb;
+  coproduct := ReflexiveReloid_coproduct;
   finl := ReflexiveReloid_finl;
   finr := ReflexiveReloid_finr;
   copair := ReflexiveReloid_copair;

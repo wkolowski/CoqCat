@@ -29,7 +29,7 @@ Class HasBiproducts (C : Cat) : Type :=
 {
   HasProducts_HasBiproducts :> HasProducts C;
   HasCoproducts_HasBiproducts :> HasCoproducts C;
-  isProduct_isCoproduct : forall X Y : Ob C, prodOb X Y = coprodOb X Y
+  isProduct_isCoproduct : forall X Y : Ob C, product X Y = coproduct X Y
 }.
 
 Coercion HasProducts_HasBiproducts : HasBiproducts >-> HasProducts.
@@ -50,7 +50,7 @@ Defined.
 #[export]
 Instance BiproductBifunctor {C : Cat} {hp : HasBiproducts C} : Bifunctor C C C :=
 {
-  biob := @coprodOb C hp;
+  biob := @coproduct C hp;
   bimap :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.

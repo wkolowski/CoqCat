@@ -57,7 +57,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_outl (X Y : Cat) : Functor (CAT_prodOb X Y) X :=
+Instance CAT_outl (X Y : Cat) : Functor (CAT_product X Y) X :=
 {
   fob := fst;
   fmap := fun _ _ => fst
@@ -66,7 +66,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_outr (X Y : Cat) : Functor (CAT_prodOb X Y) Y :=
+Instance CAT_outr (X Y : Cat) : Functor (CAT_product X Y) Y :=
 {
   fob := snd;
   fmap := fun _ _ => snd
@@ -76,7 +76,7 @@ Proof. all: cat. Defined.
 #[refine]
 #[export]
 Instance CAT_fpair
-  (X Y A : Cat) (F : Functor A X) (G : Functor A Y) : Functor A (CAT_prodOb X Y) :=
+  (X Y A : Cat) (F : Functor A X) (G : Functor A Y) : Functor A (CAT_product X Y) :=
 {
   fob := fun X : Ob A => (fob F X, fob G X);
   fmap := fun _ _ f => (fmap F f, fmap G f)
@@ -101,7 +101,7 @@ Defined.
 #[export]
 Instance HasProducts_CAT : HasProducts CAT :=
 {
-  prodOb := CAT_prodOb;
+  product := CAT_product;
   outl := CAT_outl;
   outr := CAT_outr;
   fpair := CAT_fpair
@@ -154,7 +154,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_coprodOb (C : Cat) (D : Cat) : Cat :=
+Instance CAT_coproduct (C : Cat) (D : Cat) : Cat :=
 {
   Ob := Ob C + Ob D;
   Hom := CoprodCatHom;
@@ -177,7 +177,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_finl (X Y : Cat) : Functor X (CAT_coprodOb X Y) :=
+Instance CAT_finl (X Y : Cat) : Functor X (CAT_coproduct X Y) :=
 {
   fob := inl;
   fmap := fun _ _ f => f
@@ -186,7 +186,7 @@ Proof. all: cat. Defined.
 
 #[refine]
 #[export]
-Instance CAT_finr (X Y : Cat) : Functor Y (CAT_coprodOb X Y) :=
+Instance CAT_finr (X Y : Cat) : Functor Y (CAT_coproduct X Y) :=
 {
   fob := inr;
   fmap := fun _ _ f => f
@@ -196,7 +196,7 @@ Proof. all: cat. Defined.
 #[refine]
 #[export]
 Instance CAT_copair
-  (C D E : Cat) (F : Functor C E) (G : Functor D E) : Functor (CAT_coprodOb C D) E :=
+  (C D E : Cat) (F : Functor C E) (G : Functor D E) : Functor (CAT_coproduct C D) E :=
 {
   fob := fun X : Ob C + Ob D =>
     match X with
@@ -219,7 +219,7 @@ Defined.
 #[export]
 Instance HasCoproducts_CAT : HasCoproducts CAT :=
 {
-  coprodOb := CAT_coprodOb;
+  coproduct := CAT_coproduct;
   finl := CAT_finl;
   finr := CAT_finr;
   copair := CAT_copair

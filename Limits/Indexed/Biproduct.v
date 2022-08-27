@@ -16,23 +16,23 @@ End Traditional.
 
 Class HasIndexedBiproducts (C : Cat) : Type :=
 {
-  indexedProduct :> HasIndexedProducts C;
-  indexedCoproduct :> HasIndexedCoproducts C;
+  HasIndexedProducts_HasIndexedBiproducts :> HasIndexedProducts C;
+  HasIndexedCoproducts_HasIndexedBiproducts :> HasIndexedCoproducts C;
   isProduct_isCoproduct :
     forall (J : Set) (A : J -> Ob C),
-      @indexedProdOb C indexedProduct J A = @indexedCoprodOb C indexedCoproduct J A
+      indexedProduct A = indexedCoproduct A;
 }.
 
-Coercion indexedProduct : HasIndexedBiproducts >-> HasIndexedProducts.
-Coercion indexedCoproduct : HasIndexedBiproducts >-> HasIndexedCoproducts.
+Coercion HasIndexedProducts_HasIndexedBiproducts : HasIndexedBiproducts >-> HasIndexedProducts.
+Coercion HasIndexedCoproducts_HasIndexedBiproducts : HasIndexedBiproducts >-> HasIndexedCoproducts.
 
 #[refine]
 #[export]
 Instance HasIndexedBiproducts_Dual
   (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
 {
-  indexedProduct := HasIndexedProducts_Dual C hp;
-  indexedCoproduct := HasIndexedCoproducts_Dual C hp;
+  HasIndexedProducts_HasIndexedBiproducts := HasIndexedProducts_Dual C hp;
+  HasIndexedCoproducts_HasIndexedBiproducts := HasIndexedCoproducts_Dual C hp;
 }.
 Proof.
   now cbn; intros; rewrite isProduct_isCoproduct.

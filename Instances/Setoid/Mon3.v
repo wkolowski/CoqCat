@@ -370,24 +370,24 @@ Proof. mon. Defined.
 
 #[refine]
 #[export]
-Instance Mon_prodOb (X Y : Mon) : Mon :=
+Instance Mon_product (X Y : Mon) : Mon :=
 {
-  sgr := Sgr_prodOb X Y;
+  sgr := Sgr_product X Y;
   neutr := (neutr, neutr);
 }.
 Proof. all: destruct a; mon. Defined.
 
-Definition Mon_outl (X Y : Mon) : Hom (Mon_prodOb X Y) X.
+Definition Mon_outl (X Y : Mon) : Hom (Mon_product X Y) X.
 Proof.
   mon_simpl. exists (Sgr_outl X Y). mon.
 Defined.
 
-Definition Mon_outr (X Y : Mon) : Hom (Mon_prodOb X Y) Y.
+Definition Mon_outr (X Y : Mon) : Hom (Mon_product X Y) Y.
 Proof.
   mon_simpl. exists (Sgr_outr X Y). mon.
 Defined.
 
-Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_prodOb A B).
+Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_product A B).
 Proof.
   exists (Sgr_fpair f g). mon.
 Defined.
@@ -396,7 +396,7 @@ Defined.
 #[export]
 Instance HasProducts_Mon : HasProducts MonCat :=
 {
-  prodOb := Mon_prodOb;
+  product := Mon_product;
   outl := Mon_outl;
   outr := Mon_outr;
   fpair := Mon_fpair

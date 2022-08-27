@@ -101,15 +101,15 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_prodOb (X Y : TransReloid) : TransReloid :=
+Instance TransReloid_product (X Y : TransReloid) : TransReloid :=
 {
-  reloid := Reloid_prodOb X Y;
+  reloid := Reloid_product X Y;
 }.
 Proof. split; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_outl (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) X :=
+Instance TransReloid_outl (X Y : TransReloid) : ReloidHom (TransReloid_product X Y) X :=
 {
   func := Reloid_outl X Y
 }.
@@ -117,7 +117,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_outr (X Y : TransReloid) : ReloidHom (TransReloid_prodOb X Y) Y :=
+Instance TransReloid_outr (X Y : TransReloid) : ReloidHom (TransReloid_product X Y) Y :=
 {
   func := Reloid_outr X Y
 }.
@@ -127,7 +127,7 @@ Proof. treloid. Defined.
 #[export]
 Instance TransReloid_fpair
   (X Y A : TransReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
-  : ReloidHom A (TransReloid_prodOb X Y) :=
+  : ReloidHom A (TransReloid_product X Y) :=
 {
   func := Reloid_fpair f g
 }.
@@ -137,7 +137,7 @@ Proof. treloid. Defined.
 #[export]
 Instance HasProducts_TransReloid : HasProducts TransReloidCat :=
 {
-  prodOb := TransReloid_prodOb;
+  product := TransReloid_product;
   outl := TransReloid_outl;
   outr := TransReloid_outr;
   fpair := TransReloid_fpair;
@@ -148,15 +148,15 @@ Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_coprodOb (X Y : TransReloid) : TransReloid :=
+Instance TransReloid_coproduct (X Y : TransReloid) : TransReloid :=
 {
-  reloid := Reloid_coprodOb X Y;
+  reloid := Reloid_coproduct X Y;
 }.
 Proof. intros [] [] []; cbn; treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_finl (X Y : TransReloid) : ReloidHom X (TransReloid_coprodOb X Y) :=
+Instance TransReloid_finl (X Y : TransReloid) : ReloidHom X (TransReloid_coproduct X Y) :=
 {
   func := Reloid_finl X Y;
 }.
@@ -164,7 +164,7 @@ Proof. treloid. Defined.
 
 #[refine]
 #[export]
-Instance TransReloid_finr (X Y : TransReloid) : ReloidHom Y (TransReloid_coprodOb X Y) :=
+Instance TransReloid_finr (X Y : TransReloid) : ReloidHom Y (TransReloid_coproduct X Y) :=
 {
   func := Reloid_finr X Y;
 }.
@@ -174,7 +174,7 @@ Proof. treloid. Defined.
 #[export]
 Instance TransReloid_copair
   (X Y A : TransReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
-  : ReloidHom (TransReloid_coprodOb X Y) A :=
+  : ReloidHom (TransReloid_coproduct X Y) A :=
 {
   func := Reloid_copair f g
 }.
@@ -186,7 +186,7 @@ Defined.
 #[export]
 Instance HasCoproducts_TransReloid : HasCoproducts TransReloidCat :=
 {
-  coprodOb := TransReloid_coprodOb;
+  coproduct := TransReloid_coproduct;
   finl := TransReloid_finl;
   finr := TransReloid_finr;
   copair := TransReloid_copair;

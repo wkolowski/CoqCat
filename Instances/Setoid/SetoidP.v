@@ -74,7 +74,7 @@ end.
 #[export]
 Instance HasProducts_SetP : HasProducts SetP :=
 {
-  prodOb := sumprod;
+  product := sumprod;
   outl := SetP_outl;
   outr := SetP_outr;
   fpair := SetP_fpair
@@ -98,7 +98,7 @@ end.
 #[export]
 Instance HasCoproducts_SetP : HasCoproducts SetP :=
 {
-  coprodOb := sum;
+  coproduct := sum;
   finl := fun (A B : Set) (a : A) => Some (inl a);
   finr := fun (A B : Set) (b : B) => Some (inr b);
   copair := SetP_copair

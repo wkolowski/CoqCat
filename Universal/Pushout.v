@@ -26,20 +26,20 @@ Class isPushout
 
 Class HasPushouts (C : Cat) : Type :=
 {
-  pushoutOb : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
-  pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushoutOb f g);
-  pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushoutOb f g);
+  pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
+  pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushout f g);
+  pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushout f g);
   cofactor :
     forall
       {A B X : Ob C} (f : Hom X A) (g : Hom X B)
       {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
-        f .> pushl' == g .> pushr' -> Hom (pushoutOb f g) P;
+        f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
   HasPushouts_isPushout :>
     forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
-      isPushout C f g (pushoutOb f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
-  (* Proper_pushoutOb :
+      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
+  (* Proper_pushout :
     forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
+      f == f' -> g == g' -> JMequiv (id (pushout f g)) (id (pushout f' g'));
   Proper_pushl :
     forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
       f == f' -> g == g' -> JMequiv (pushl f g) (pushl f' g');
@@ -48,7 +48,7 @@ Class HasPushouts (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (pushr f g) (pushr f' g'); *)
 }.
 
-Arguments pushoutOb {C HasPushouts A B X} _ _.
+Arguments pushout {C HasPushouts A B X} _ _.
 Arguments pushl     {C HasPushouts A B X f g}.
 Arguments pushr     {C HasPushouts A B X f g}.
 Arguments cofactor  {C HasPushouts A B X f g P pushl' pushr'} _.

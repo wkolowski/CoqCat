@@ -452,7 +452,7 @@ Instance HasZero_Grp : HasZero GrpCat :=
 }.
 Proof. grp. Defined.
 
-Definition Grp_prodOb_inv (X Y : Grp) : SetoidHom (Mon_prodOb X Y) (Mon_prodOb X Y).
+Definition Grp_product_inv (X Y : Grp) : SetoidHom (Mon_product X Y) (Mon_product X Y).
 Proof.
   exists (fun p : X * Y => (inv (fst p), inv (snd p))).
   proper. destruct H. now rewrite H, H0.
@@ -460,24 +460,24 @@ Defined.
 
 #[refine]
 #[export]
-Instance Grp_prodOb (X Y : Grp) : Grp :=
+Instance Grp_product (X Y : Grp) : Grp :=
 {
-  mon := Mon_prodOb X Y;
-  inv := Grp_prodOb_inv X Y
+  mon := Mon_product X Y;
+  inv := Grp_product_inv X Y
 }.
 Proof. all: destruct x; grp. Defined.
 
-Definition Grp_outl (X Y : Grp) : Hom (Grp_prodOb X Y) X.
+Definition Grp_outl (X Y : Grp) : Hom (Grp_product X Y) X.
 Proof.
   grp_simpl. exists (Mon_outl X Y). grp.
 Defined.
 
-Definition Grp_outr (X Y : Grp) : Hom (Grp_prodOb X Y) Y.
+Definition Grp_outr (X Y : Grp) : Hom (Grp_product X Y) Y.
 Proof.
   grp_simpl. exists (Mon_outr X Y). grp.
 Defined.
 
-Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_prodOb A B).
+Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_product A B).
 Proof.
   grp_simpl. exists (Mon_fpair f g). split; grp.
 Defined.
@@ -486,7 +486,7 @@ Defined.
 #[export]
 Instance HasProducts_Grp : HasProducts GrpCat :=
 {
-  prodOb := Grp_prodOb;
+  product := Grp_product;
   outl := Grp_outl;
   outr := Grp_outr;
   fpair := Grp_fpair

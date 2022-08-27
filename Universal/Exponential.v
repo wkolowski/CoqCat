@@ -3,12 +3,12 @@ From Cat.Universal Require Export Product. (* Initial Terminal Product Coproduct
 
 Class isExponential
   {C : Cat} {hp : HasProducts C} (A B : Ob C)
-  (E : Ob C) (eval : Hom (prodOb E A) B)
-  (curry : forall {E2 : Ob C}, Hom (prodOb E2 A) B -> Hom E2 E)
+  (E : Ob C) (eval : Hom (product E A) B)
+  (curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E)
   : Prop :=
 {
   exp_comp :
-    forall {E' : Ob C} (f : Hom (prodOb E' A) B),
+    forall {E' : Ob C} (f : Hom (product E' A) B),
       curry f ×' id A .> eval == f;
   exp_equiv :
     forall {E' : Ob C} (f g : Hom E' E),
@@ -21,8 +21,8 @@ Class isExponential
 Lemma exp_equiv' :
   forall
     {C : Cat} {hp : HasProducts C} {A B : Ob C}
-    {E : Ob C} {eval : Hom (prodOb E A) B}
-    {curry : forall {E2 : Ob C}, Hom (prodOb E2 A) B -> Hom E2 E}
+    {E : Ob C} {eval : Hom (product E A) B}
+    {curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E}
     {isExp : isExponential A B E eval (@curry)}
     {E' : Ob C} (h1 h2 : Hom E' E),
         h1 == h2 <-> h1 ×' id A .> eval == h2 ×' id A .> eval.
@@ -34,18 +34,18 @@ Qed.
 
 Definition uncurry
   {C : Cat} {hp : HasProducts C} {A B : Ob C}
-  {E : Ob C} {eval : Hom (prodOb E A) B}
-  {curry : forall {E2 : Ob C}, Hom (prodOb E2 A) B -> Hom E2 E}
+  {E : Ob C} {eval : Hom (product E A) B}
+  {curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E}
   {isExp : isExponential A B E eval (@curry)}
   [E' : Ob C] (f : Hom E' E)
-  : Hom (prodOb E' A) B := f ×' (id A) .> eval.
+  : Hom (product E' A) B := f ×' (id A) .> eval.
 
 Section Exponential.
 
 Context
   {C : Cat} {hp : HasProducts C} {A B : Ob C}
-  {E : Ob C} {eval : Hom (prodOb E A) B}
-  {curry : forall {E2 : Ob C}, Hom (prodOb E2 A) B -> Hom E2 E}
+  {E : Ob C} {eval : Hom (product E A) B}
+  {curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E}
   {isE : isExponential A B E eval (@curry)}
   [E' Z : Ob C].
 
@@ -65,7 +65,7 @@ Proof.
 Qed.
 
 Lemma universal_property :
-  forall (f : Hom (prodOb E' A) B) (g : Hom E' E),
+  forall (f : Hom (product E' A) B) (g : Hom E' E),
     curry f == g <-> g ×' id A .> eval == f.
 Proof.
   split.
@@ -74,14 +74,14 @@ Proof.
 Qed.
 
 Lemma computation_rule :
-  forall f : Hom (prodOb E A) B,
+  forall f : Hom (product E A) B,
     curry f ×' id A .> eval == f.
 Proof.
   now intros f; rewrite exp_comp.
 Qed.
 
 Lemma uniqueness_rule :
-  forall (f : Hom (prodOb E' A) B) (g : Hom E' E),
+  forall (f : Hom (product E' A) B) (g : Hom E' E),
     g ×' id A .> eval == f -> g == curry f.
 Proof.
   now intros; rewrite exp_equiv', exp_comp.
@@ -95,7 +95,7 @@ Proof.
 Qed.
 
 Lemma uncurry_curry :
-  forall f : Hom (prodOb E' A) B,
+  forall f : Hom (product E' A) B,
     uncurry (curry f) == f.
 Proof.
   now unfold uncurry; intros f; rewrite exp_comp.
@@ -112,8 +112,8 @@ End Exponential.
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
-  eval  : forall {A B : Ob C}, Hom (prodOb (expOb A B) A) B;
-  curry : forall {A B : Ob C} {Z : Ob C}, Hom (prodOb Z A) B -> Hom Z (expOb A B);
+  eval  : forall {A B : Ob C}, Hom (product (expOb A B) A) B;
+  curry : forall {A B : Ob C} {Z : Ob C}, Hom (product Z A) B -> Hom Z (expOb A B);
   HasExponentials_isExponential :>
     forall {A B : Ob C}, isExponential A B (expOb A B) (@eval A B) (@curry A B);
 }.
@@ -157,10 +157,10 @@ end.
 Lemma isExponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (A B : Ob C)
-    (E1 : Ob C) (eval1 : Hom (prodOb E1 A) B)
-    (curry1 : forall Z : Ob C, Hom (prodOb Z A) B -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (prodOb E2 A) B)
-    (curry2 : forall Z : Ob C, Hom (prodOb Z A) B -> Hom Z E2),
+    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
+    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
+    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
       isExponential A B E1 eval1 curry1 ->
       isExponential A B E2 eval2 curry2 ->
         exists !! f : Hom E1 E2, isIso f /\ f ×' id A .> eval2 == eval1.
@@ -180,10 +180,10 @@ Arguments isExponential_uiso {C hp A B E1 eval1 curry1 E2 eval2 curry2} _ _.
 Lemma isExponential_iso :
   forall
     (C : Cat) (hp : HasProducts C) (A B : Ob C)
-    (E1 : Ob C) (eval1 : Hom (prodOb E1 A) B)
-    (curry1 : forall Z : Ob C, Hom (prodOb Z A) B -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (prodOb E2 A) B)
-    (curry2 : forall Z : Ob C, Hom (prodOb Z A) B -> Hom Z E2),
+    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
+    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
+    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
       isExponential A B E1 eval1 curry1 ->
       isExponential A B E2 eval2 curry2 ->
         E1 ~ E2.

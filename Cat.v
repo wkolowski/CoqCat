@@ -1112,7 +1112,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CAT_prodOb (C : Cat) (D : Cat) : Cat :=
+Instance CAT_product (C : Cat) (D : Cat) : Cat :=
 {
   Ob := Ob C * Ob D;
   Hom := ProdCatHom;

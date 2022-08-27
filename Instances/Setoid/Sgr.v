@@ -290,9 +290,9 @@ Proof. sgr. Defined.
 
 #[refine]
 #[export]
-Instance Sgr_prodOb (X Y : Sgr) : Sgr :=
+Instance Sgr_product (X Y : Sgr) : Sgr :=
 {
-  setoid := CoqSetoid_prodOb X Y;
+  setoid := CoqSetoid_product X Y;
   op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
@@ -300,18 +300,18 @@ Proof.
   sgr.
 Defined.
 
-Definition Sgr_outl (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) X.
+Definition Sgr_outl (X Y : Sgr) : SgrHom (Sgr_product X Y) X.
 Proof.
   exists (CoqSetoid_outl X Y). sgr.
 Defined.
 
-Definition Sgr_outr (X Y : Sgr) : SgrHom (Sgr_prodOb X Y) Y.
+Definition Sgr_outr (X Y : Sgr) : SgrHom (Sgr_product X Y) Y.
 Proof.
   exists (CoqSetoid_outr X Y). sgr.
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
-    : SgrHom X (Sgr_prodOb A B).
+    : SgrHom X (Sgr_product A B).
 Proof.
   exists (CoqSetoid_fpair f g). split; sgr.
 Defined.
@@ -320,7 +320,7 @@ Defined.
 #[export]
 Instance HasProducts_Sgr : HasProducts SgrCat :=
 {
-  prodOb := Sgr_prodOb;
+  product := Sgr_product;
   outl := Sgr_outl;
   outr := Sgr_outr;
   fpair := Sgr_fpair
@@ -331,7 +331,7 @@ Proof. all: sgr. Defined.
 #[export]
 Instance Sgr_sum (X Y : Sgr) : Sgr :=
 {
-  setoid := CoqSetoid_coprodOb X Y
+  setoid := CoqSetoid_coproduct X Y
 }.
 Proof.
   destruct 1 as [x | y], 1 as [x' | y']; cat.
@@ -410,7 +410,7 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 {
   carrier := nel (X + Y);
   setoid := Setoid_kernel_equiv
-    (@CoqSetoid_nel (CoqSetoid_coprodOb X Y)) (@normalize X Y)
+    (@CoqSetoid_nel (CoqSetoid_coproduct X Y)) (@normalize X Y)
 }.
 
 Definition Sgr_freeprod_setoid_finl

@@ -86,7 +86,7 @@ Proof. lin. Defined.
 #[export]
 Instance Lin_prod_Pros (X Y : Lin) : Pros :=
 {
-  carrier := CoqSetoid_prodOb X Y;
+  carrier := CoqSetoid_product X Y;
   leq := fun p1 p2 : X * Y =>
     (fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2) \/
     (fst p1 == fst p2 /\ snd p1 ≤ snd p2)
@@ -147,7 +147,7 @@ Abort.
 #[export]
 TODO: Instance HasProducts_Lin : HasProducts LinCat :=
 {
-  prodOb := Lin_prod;
+  product := Lin_prod;
   outl := Pros_outl;
   outr := Pros_outr;
   fpair := @Pros_fpair
@@ -172,7 +172,7 @@ end.
 #[export]
 Instance Lin_Pros_coprod (X Y : Lin) : Pros :=
 {
-  carrier := CoqSetoid_coprodOb X Y;
+  carrier := CoqSetoid_coproduct X Y;
   leq := fun p1 p2 : X + Y =>
     match p1, p2 with
     | inl x, inl x' => leq x x'
@@ -191,13 +191,13 @@ Defined.
 
 #[refine]
 #[export]
-Instance Lin_coprodOb (X Y : Lin) : Lin :=
+Instance Lin_coproduct (X Y : Lin) : Lin :=
 {
   pos :=
   {|
     pros :=
     {|
-      carrier := CoqSetoid_coprodOb X Y;
+      carrier := CoqSetoid_coproduct X Y;
       leq := fun p1 p2 : X + Y =>
         match p1, p2 with
         | inl x, inl x' => leq x x'
@@ -216,18 +216,18 @@ Proof.
   end; my_simpl; try f_equal; lin').
 Defined.
 
-Definition Lin_finl (X Y : Lin) : ProsHom X (Lin_coprodOb X Y).
+Definition Lin_finl (X Y : Lin) : ProsHom X (Lin_coproduct X Y).
 Proof.
   red. exists (CoqSetoid_finl X Y). lin.
 Defined.
 
-Definition Lin_finr (X Y : Lin) : ProsHom Y (Lin_coprodOb X Y).
+Definition Lin_finr (X Y : Lin) : ProsHom Y (Lin_coproduct X Y).
 Proof.
   red. exists (CoqSetoid_finr X Y). lin.
 Defined.
 
 Definition Lin_copair
-  (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coprodOb A B) X.
+  (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coproduct A B) X.
 Proof.
   exists (CoqSetoid_copair f g). cbn. destruct f, g.
   destruct a, a'; intros; cbn.

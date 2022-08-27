@@ -12,9 +12,9 @@ Coercion HasTerm_CartesianClosed : CartesianClosed >-> HasTerm.
 Coercion HasProducts_CartesianClosed : CartesianClosed >-> HasProducts.
 Coercion HasExponentials_CartesianClosed  : CartesianClosed >-> HasExponentials.
 
-Lemma prodOb_term_l :
+Lemma product_term_l :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
-    prodOb (term C) X ~ X.
+    product (term C) X ~ X.
 Proof.
   symmetry.
   red. exists (fpair (delete X) (id X)).
@@ -22,32 +22,32 @@ Proof.
   fpair. term.
 Defined.
 
-Lemma prodOb_term_l' :
+Lemma product_term_l' :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
-    {f : Hom (prodOb (term C) X) X | isIso f}.
+    {f : Hom (product (term C) X) X | isIso f}.
 Proof.
   intros. exists outr.
   red. exists (fpair (delete X) (id X)). fpair. term.
 Defined.
 
-Lemma prodOb_term_r :
+Lemma product_term_r :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
-    prodOb X (term C) ~ X.
+    product X (term C) ~ X.
 Proof.
-  intros. rewrite prodOb_comm. apply prodOb_term_l.
+  intros. rewrite product_comm. apply product_term_l.
 Defined.
 
-Lemma prodOb_term_r' :
+Lemma product_term_r' :
   forall (C : Cat) (X : Ob C) (ht : HasTerm C) (hp : HasProducts C),
-    {f : Hom (prodOb X (term C)) X | isIso f}.
+    {f : Hom (product X (term C)) X | isIso f}.
 Proof.
   intros. exists outl.
   red. exists (fpair (id X) (delete X)). fpair. term.
 Defined.
 
-Lemma coprodOb_init_l :
+Lemma coproduct_init_l :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    coprodOb (init C) X ~ X.
+    coproduct (init C) X ~ X.
 Proof.
   intros.
   red. exists (copair (create X) (id X)).
@@ -55,9 +55,9 @@ Proof.
   copair. init.
 Defined.
 
-Lemma coprodOb_init_l' :
+Lemma coproduct_init_l' :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    {f : Hom (coprodOb (init C) X) X | isIso f}.
+    {f : Hom (coproduct (init C) X) X | isIso f}.
 Proof.
   intros.
   exists (copair (create X) (id X)).
@@ -65,16 +65,16 @@ Proof.
   copair. init.
 Defined.
 
-Lemma coprodOb_init_r :
+Lemma coproduct_init_r :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    coprodOb X (init C) ~ X.
+    coproduct X (init C) ~ X.
 Proof.
-  intros. rewrite coprodOb_comm. apply coprodOb_init_l.
+  intros. rewrite coproduct_comm. apply coproduct_init_l.
 Qed.
 
-Lemma coprodOb_init_r' :
+Lemma coproduct_init_r' :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
-    {f : Hom (coprodOb X (init C)) X | isIso f}.
+    {f : Hom (coproduct X (init C)) X | isIso f}.
 Proof.
   intros.
   exists (copair (id X) (create X)).

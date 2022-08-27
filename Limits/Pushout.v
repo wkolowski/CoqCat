@@ -15,12 +15,12 @@ Definition isPushout
 
 Class HasPushouts (C : Cat) : Type :=
 {
-  pushoutOb : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
-  pushoutObProper :
+  pushout : forall {X Y A : Ob C}, Hom A X -> Hom A Y -> Ob C;
+  pushoutProper :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
-      f == f' -> g == g' -> JMequiv (id (pushoutOb f g)) (id (pushoutOb f' g'));
-  pushl : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom X (pushoutOb f g);
-  pushr : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom Y (pushoutOb f g);
+      f == f' -> g == g' -> JMequiv (id (pushout f g)) (id (pushout f' g'));
+  pushl : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom X (pushout f g);
+  pushr : forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y), Hom Y (pushout f g);
   Proper_pushl :
     forall (X Y A : Ob C) (f f' : Hom A X) (g g' : Hom A Y),
       f == f' -> g == g' -> JMequiv (pushl f g) (pushl f' g');
@@ -29,13 +29,13 @@ Class HasPushouts (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (pushr f g) (pushr f' g');
   cofactor :
     forall {X Y A : Ob C} (f : Hom A X) (g : Hom A Y) {P : Ob C} (pushl : Hom X P) (pushr : Hom Y P),
-      f .> pushl == g .> pushr -> Hom (pushoutOb f g) P;
+      f .> pushl == g .> pushr -> Hom (pushout f g) P;
   is_pushout :
     forall (X Y A : Ob C) (f : Hom A X) (g : Hom A Y),
-      isPushout C f g (pushoutOb f g) (pushl f g) (pushr f g) (@cofactor X Y A f g)
+      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor X Y A f g)
 }.
 
-Arguments pushoutOb [C _ X Y A] _ _.
+Arguments pushout [C _ X Y A] _ _.
 Arguments pushl     [C _ X Y A] _ _.
 Arguments pushr     [C _ X Y A] _ _.
 Arguments cofactor  [C _ X Y A f g P pushl pushr] _.

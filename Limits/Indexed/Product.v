@@ -317,14 +317,14 @@ End Equational.
 
 Class HasIndexedProducts (C : Cat) : Type :=
 {
-  indexedProdOb :
+  indexedProduct :
     forall J : Set, (J -> Ob C) -> Ob C;
   indexedProj :
     forall (J : Set) (A : J -> Ob C) (j : J),
-      Hom (indexedProdOb J A) (A j);
+      Hom (indexedProduct J A) (A j);
   tuple :
     forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom X (A j)),
-      Hom X (indexedProdOb J A);
+      Hom X (indexedProduct J A);
   Proper_tuple :
     forall
       (J : Set) (A : J -> Ob C) (X : Ob C)
@@ -332,10 +332,10 @@ Class HasIndexedProducts (C : Cat) : Type :=
         (forall j : J, f j == g j) -> tuple J A X f == tuple J A X g;
   is_indexed_product :
     forall (J : Set) (A : J -> Ob C),
-      isIndexedProduct C (indexedProdOb J A) (indexedProj J A) (tuple J A)
+      isIndexedProduct C (indexedProduct J A) (indexedProj J A) (tuple J A)
 }.
 
-Arguments indexedProdOb [C _ J] _.
+Arguments indexedProduct [C _ J] _.
 Arguments indexedProj   [C _ J A] _.
 Arguments tuple         [C _ J A X] _.
 
@@ -366,7 +366,7 @@ Qed.
 
 Lemma tuple_id :
   forall (J : Set) (X : J -> Ob C),
-    tuple (@indexedProj C hp J X) == id (indexedProdOb X).
+    tuple (@indexedProj C hp J X) == id (indexedProduct X).
 Proof.
   intros. edestruct is_indexed_product. apply H0. cat.
 Qed.

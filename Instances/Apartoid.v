@@ -192,7 +192,7 @@ Proof. apartoid. Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_prodOb (X Y : Apartoid) : Apartoid :=
+Instance Apartoid_product (X Y : Apartoid) : Apartoid :=
 {
   carrier := prod X Y;
   neq := fun (p1 : prod X Y) (p2 : prod X Y) =>
@@ -205,19 +205,19 @@ Proof.
     destruct (neq_cotrans _ _ c4 H); auto.
 Defined.
 
-Definition Apartoid_outl (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) X.
+Definition Apartoid_outl (X Y : Apartoid) : ApartoidHom (Apartoid_product X Y) X.
 Proof.
   red. exists fst. apartoid.
 Defined.
 
-Definition Apartoid_outr (X Y : Apartoid) : ApartoidHom (Apartoid_prodOb X Y) Y.
+Definition Apartoid_outr (X Y : Apartoid) : ApartoidHom (Apartoid_product X Y) Y.
 Proof.
   red. exists snd. apartoid.
 Defined.
 
 Definition Apartoid_fpair
   (A B X : Apartoid) (f : ApartoidHom X A) (g : ApartoidHom X B)
-  : ApartoidHom X (Apartoid_prodOb A B).
+  : ApartoidHom X (Apartoid_product A B).
 Proof.
   red. exists (fun x : X => (f x, g x)). apartoid.
 Defined.
@@ -226,7 +226,7 @@ Defined.
 #[export]
 Instance HasProducts_Apartoid : HasProducts ApartoidCat :=
 {
-  prodOb := Apartoid_prodOb;
+  product := Apartoid_product;
   outl := Apartoid_outl;
   outr := Apartoid_outr;
   fpair := Apartoid_fpair
@@ -238,7 +238,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_coprodOb (X Y : Apartoid) : Apartoid :=
+Instance Apartoid_coproduct (X Y : Apartoid) : Apartoid :=
 {
     carrier := X + Y;
     neq := fun p1 p2 : X + Y =>
@@ -257,20 +257,20 @@ Proof.
 Defined.
 
 Definition Apartoid_finl
-  (X Y : Apartoid) : ApartoidHom X (Apartoid_coprodOb X Y).
+  (X Y : Apartoid) : ApartoidHom X (Apartoid_coproduct X Y).
 Proof.
   red. exists inl. apartoid.
 Defined.
 
 Definition Apartoid_finr
-  (X Y : Apartoid) : ApartoidHom Y (Apartoid_coprodOb X Y).
+  (X Y : Apartoid) : ApartoidHom Y (Apartoid_coproduct X Y).
 Proof.
   red. exists inr. apartoid.
 Defined.
 
 Definition Apartoid_copair
   (A B X : Apartoid) (f : ApartoidHom A X) (g : ApartoidHom B X)
-  : ApartoidHom (Apartoid_coprodOb A B) X.
+  : ApartoidHom (Apartoid_coproduct A B) X.
 Proof.
   red. exists (fun p : A + B =>
     match p with
@@ -284,7 +284,7 @@ Defined.
 #[export]
 Instance HasCoproducts_Apartoid : HasCoproducts ApartoidCat :=
 {
-  coprodOb := Apartoid_coprodOb;
+  coproduct := Apartoid_coproduct;
   finl := Apartoid_finl;
   finr := Apartoid_finr;
   copair := Apartoid_copair
@@ -296,7 +296,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_indexedProdOb {J : Set} (A : J -> Apartoid) : Apartoid :=
+Instance Apartoid_indexedProduct {J : Set} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := forall j : J, A j;
   neq := fun f g : forall j : J, A j => exists j : J, f j # g j
@@ -310,7 +310,7 @@ Proof.
 Defined.
 
 Definition Apartoid_indexedProj
-  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProdOb A) (A j).
+  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
   intro. apply H. simpl. now exists j.
@@ -319,7 +319,7 @@ Defined.
 Definition Apartoid_tuple
   {J : Set} {A : J -> Apartoid} {X : Apartoid}
   (f : forall j : J, ApartoidHom X (A j))
-  : ApartoidHom X (Apartoid_indexedProdOb A).
+  : ApartoidHom X (Apartoid_indexedProduct A).
 Proof.
   red. exists (fun (x : X) (j : J) => f j x). cbn; intros.
   intro. destruct H0 as [j H']. destruct (f j) as [fj Hfj]; cbn in *.
@@ -330,7 +330,7 @@ Defined.
 #[export]
 Instance HasIndexedProducts_Apartoid : HasIndexedProducts ApartoidCat :=
 {
-  indexedProdOb := @Apartoid_indexedProdOb;
+  indexedProduct := @Apartoid_indexedProduct;
   indexedProj := @Apartoid_indexedProj;
   tuple := @Apartoid_tuple;
 }.
@@ -345,7 +345,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
+Instance Apartoid_equalizer {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 {
   carrier := {x : X | ~ (f x) # (g x)};
   neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
@@ -354,7 +354,7 @@ Instance Apartoid_eq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 Proof. all: apartoid. Defined.
 
 Definition Apartoid_eq_mor
-  {X Y : Apartoid} (f g : ApartoidHom X Y) : ApartoidHom (Apartoid_eq_ob f g) X.
+  {X Y : Apartoid} (f g : ApartoidHom X Y) : ApartoidHom (Apartoid_equalizer f g) X.
 Proof.
   red; cbn. exists (@proj1_sig _ _). apartoid.
 Defined.
@@ -362,7 +362,7 @@ Defined.
 Lemma trick
   (X Y E' : Apartoid) (f g : Hom X Y)
   (e' : Hom E' X) (H : e' .> f == e' .> g)
-  : E' -> Apartoid_eq_ob f g.
+  : E' -> Apartoid_equalizer f g.
 Proof.
   intro arg. red; cbn in *. exists (e' arg). apartoid.
 Defined.
@@ -370,7 +370,7 @@ Defined.
 Lemma trick2
   (X Y E' : Apartoid) (f g : Hom X Y)
   (e' : Hom E' X) (H : e' .> f == e' .> g)
-  : ApartoidHom E' (Apartoid_eq_ob f g).
+  : ApartoidHom E' (Apartoid_equalizer f g).
 Proof.
   exists (trick X Y E' f g e' H). apartoid.
 Defined.
@@ -380,7 +380,7 @@ Defined.
 #[export]
 Instance HasEqualizers_Apartoid : HasEqualizers ApartoidCat :=
 {
-  eq_ob := @Apartoid_eq_ob;
+  equalizer := @Apartoid_equalizer;
   eq_mor := @Apartoid_eq_mor;
 }.
 Proof.
@@ -412,7 +412,7 @@ Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y 
 (* TODO: finish *)
 #[refine]
 #[export]
-Instance Apartoid_coeq_ob {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
+Instance Apartoid_coequalizer {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
 {
   carrier := Y;
   neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
@@ -436,7 +436,7 @@ Abort.
 (* TODO: make this more dependent (change JMeq to some lifted heterogenous apartness... *)
 #[refine]
 #[export]
-Instance Apartoid_indexedCoprodOb {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
+Instance Apartoid_indexedCoproduct {J : Apartoid} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := {j : J & A j};
   neq := fun p1 p2 : {j : J & A j} => projT1 p1 # projT1 p2
@@ -446,7 +446,7 @@ Proof.
 Defined.
 
 Definition Apartoid_indexedCoproj
-  {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoprodOb A).
+  {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoproduct A).
 Proof.
   red; cbn in *. exists (fun a : A j => existT _ j a); cbn.
   intros; intro. eapply neq_irrefl. eauto.
@@ -455,7 +455,7 @@ Defined.
 Definition Apartoid_indexedCopair
   {J : Apartoid} {A : J -> Apartoid}
   {X : Apartoid} (f : forall j : J, ApartoidHom (A j) X)
-  : ApartoidHom (Apartoid_indexedCoprodOb A) X.
+  : ApartoidHom (Apartoid_indexedCoproduct A) X.
 Proof.
   red; cbn. exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
   destruct x as [j a], x' as [j' a']; cbn; do 2 intro.

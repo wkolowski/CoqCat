@@ -68,14 +68,14 @@ End Equational.
 
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
-  indexedCoprodOb :
+  indexedCoproduct :
     forall J : Set, (J -> Ob C) -> Ob C;
   indexedCoproj :
     forall (J : Set) (A : J -> Ob C) (j : J),
-      Hom (A j) (indexedCoprodOb J A);
+      Hom (A j) (indexedCoproduct J A);
   cotuple :
     forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
-      Hom (indexedCoprodOb J A) X;
+      Hom (indexedCoproduct J A) X;
   Proper_cotuple :
     forall
       (J : Set) (A : J -> Ob C) (X : Ob C)
@@ -83,10 +83,10 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
         (forall j : J, f j == g j) -> cotuple J A X f == cotuple J A X g;
   is_indexed_coproduct :
     forall (J : Set) (A : J -> Ob C),
-      isIndexedCoproduct C (indexedCoprodOb J A) (indexedCoproj J A) (cotuple J A)
+      isIndexedCoproduct C (indexedCoproduct J A) (indexedCoproj J A) (cotuple J A)
 }.
 
-Arguments indexedCoprodOb [C _ J] _.
+Arguments indexedCoproduct [C _ J] _.
 Arguments indexedCoproj   [C _ J A] _.
 Arguments cotuple         [C _ J A X] _.
 
@@ -116,7 +116,7 @@ Qed.
 
 Lemma cotuple_id :
   forall (J : Set) (X : J -> Ob C),
-    cotuple (@indexedCoproj C hp J X) == id (indexedCoprodOb X).
+    cotuple (@indexedCoproj C hp J X) == id (indexedCoproduct X).
 Proof.
   intros. edestruct is_indexed_coproduct. apply H0. cat.
 Qed.
@@ -141,7 +141,7 @@ End HasIndexedCoproducts.
 Instance HasIndexedProducts_Dual
   (C : Cat) (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
 {
-  indexedProdOb := @indexedCoprodOb C hp;
+  indexedProduct := @indexedCoproduct C hp;
   indexedProj := @indexedCoproj C hp;
   tuple := @cotuple C hp;
   Proper_tuple := @Proper_cotuple C hp;
@@ -152,7 +152,7 @@ Instance HasIndexedProducts_Dual
 Instance HasIndexedCoproducts_Dual
   (C : Cat) (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
 {
-  indexedCoprodOb := @indexedProdOb C hp;
+  indexedCoproduct := @indexedProduct C hp;
   indexedCoproj := @indexedProj C hp;
   cotuple := @tuple C hp;
   Proper_cotuple := @Proper_tuple C hp;

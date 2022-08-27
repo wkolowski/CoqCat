@@ -15,13 +15,13 @@ Definition isCoequalizer
 
 Class HasCoequalizers (C : Cat) : Type :=
 {
-  coeq_ob :
+  coequalizer :
     forall {X Y : Ob C} (f g : Hom X Y), Ob C;
-  Proper_coeq_ob :
+  Proper_coequalizer :
     forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (coeq_ob f g)) (id (coeq_ob f' g'));
+      f == f' -> g == g' -> JMequiv (id (coequalizer f g)) (id (coequalizer f' g'));
   coeq_mor :
-    forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coeq_ob f g);
+    forall {X Y : Ob C} (f g : Hom X Y), Hom Y (coequalizer f g);
   coeq_mor_ok :
     forall (X Y : Ob C) (f g : Hom X Y),
       f .> coeq_mor f g == g .> coeq_mor f g;
@@ -30,7 +30,7 @@ Class HasCoequalizers (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (coeq_mor f g) (coeq_mor f' g');
   cofactorize :
     forall {X Y : Ob C} (f g : Hom X Y) (Q' : Ob C) (q2 : Hom Y Q'),
-      f .> q2 == g .> q2 -> Hom (coeq_ob f g) Q';
+      f .> q2 == g .> q2 -> Hom (coequalizer f g) Q';
   (* TODO: Proper_cofactorize :
     forall
       (X Y Q' : Ob C) (f f' g g' : Hom X Y) (q2 : Hom Y Q')
@@ -38,10 +38,10 @@ Class HasCoequalizers (C : Cat) : Type :=
         f == f' -> g == g' -> JMequiv (cofactorize f g Q' q2 H) (cofactorize f' g' Q' q2 H'); *)
   is_coequalizer :
     forall (X Y : Ob C) (f g : Hom X Y),
-      isCoequalizer C f g (coeq_ob f g) (coeq_mor f g) (cofactorize f g)
+      isCoequalizer C f g (coequalizer f g) (coeq_mor f g) (cofactorize f g)
 }.
 
-Arguments coeq_ob     [C _ X Y] _ _.
+Arguments coequalizer     [C _ X Y] _ _.
 Arguments coeq_mor    [C _ X Y] _ _.
 Arguments cofactorize [C _ X Y f g Q' q2] _.
 
@@ -49,14 +49,14 @@ Arguments cofactorize [C _ X Y f g Q' q2] _.
 #[export]
 Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
 {
-  coeq_ob := fun X Y : Ob (Dual C) => @eq_ob C he Y X;
+  coequalizer := fun X Y : Ob (Dual C) => @equalizer C he Y X;
   coeq_mor := fun X Y : Ob (Dual C) => @eq_mor C he Y X;
   cofactorize := fun X Y : Ob (Dual C) => @factorize C he Y X;
   is_coequalizer := fun X Y : Ob (Dual C) => @is_equalizer C he Y X
 }.
 Proof.
   all: cbn; intros.
-  - destruct (Proper_eq_ob Y X f f' g g' H H0). auto.
+  - destruct (Proper_equalizer Y X f f' g g' H H0). auto.
   - apply eq_mor_ok.
   - destruct (Proper_eq_mor Y X f f' g g' H H0). auto.
 Defined.
@@ -65,14 +65,14 @@ Defined.
 #[export]
 Instance HasEqualizers_Dual (C : Cat) (he : HasCoequalizers C) : HasEqualizers (Dual C) :=
 {
-  eq_ob := fun X Y : Ob (Dual C) => @coeq_ob C he Y X;
+  equalizer := fun X Y : Ob (Dual C) => @coequalizer C he Y X;
   eq_mor := fun X Y : Ob (Dual C) => @coeq_mor C he Y X;
   factorize := fun X Y : Ob (Dual C) => @cofactorize C he Y X;
   is_equalizer := fun X Y : Ob (Dual C) => @is_coequalizer C he Y X
 }.
 Proof.
   all: cbn; intros.
-  - destruct (Proper_coeq_ob Y X f f' g g' H H0). auto.
+  - destruct (Proper_coequalizer Y X f f' g g' H H0). auto.
   - apply coeq_mor_ok.
   - destruct (Proper_coeq_mor Y X f f' g g' H H0). auto.
 Defined.
@@ -206,7 +206,7 @@ Qed.
 
 Lemma cofactorize_eq_mor :
   forall (C : Cat) (he : HasCoequalizers C) (X Y : Ob C) (f g : Hom X Y),
-    cofactorize (proj1 (is_coequalizer X Y f g)) == id (coeq_ob f g).
+    cofactorize (proj1 (is_coequalizer X Y f g)) == id (coequalizer f g).
 Proof.
   intros. destruct he; cbn in *.
   edestruct is_coequalizer0, s. cat.

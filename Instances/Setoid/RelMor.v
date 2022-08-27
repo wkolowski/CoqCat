@@ -108,7 +108,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_prodOb (X Y : Setoid') : Setoid' :=
+Instance SetoidRel_product (X Y : Setoid') : Setoid' :=
 {
   carrier := X + Y;
   setoid :=
@@ -125,7 +125,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_outl (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) X :=
+Instance SetoidRel_outl (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) X :=
 {
   rel := fun (p : X + Y) (x : X) =>
     match p with
@@ -137,7 +137,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_outr (X Y : Setoid') : SetoidRel (SetoidRel_prodOb X Y) Y :=
+Instance SetoidRel_outr (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) Y :=
 {
   rel := fun (p : X + Y) (y : Y) =>
     match p with
@@ -150,7 +150,7 @@ Proof. rel. Defined.
 #[refine]
 #[export]
 Instance SetoidRel_fpair
-  (A B X : Setoid') (R : SetoidRel X A) (S : SetoidRel X B) : SetoidRel X (SetoidRel_prodOb A B) :=
+  (A B X : Setoid') (R : SetoidRel X A) (S : SetoidRel X B) : SetoidRel X (SetoidRel_product A B) :=
 {
   rel := fun (x : X) (p : A + B) =>
     match p with
@@ -164,7 +164,7 @@ Proof. rel. Defined.
 #[export]
 Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
 {
-  prodOb := SetoidRel_prodOb;
+  product := SetoidRel_product;
   outl := SetoidRel_outl;
   outr := SetoidRel_outr;
   fpair := SetoidRel_fpair
@@ -190,11 +190,11 @@ Proof.
     destruct (H0 x b) as [_ H']. apply H'. now exists (inr b).
 Defined.
 
-Definition SetoidRel_coprodOb := SetoidRel_prodOb.
+Definition SetoidRel_coproduct := SetoidRel_product.
 
 #[refine]
 #[export]
-Instance SetoidRel_finl (X Y : Setoid') : SetoidRel X (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_finl (X Y : Setoid') : SetoidRel X (SetoidRel_coproduct X Y) :=
 {
   rel := fun (x : X) (p : X + Y) =>
     match p with
@@ -206,7 +206,7 @@ Proof. rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_finr (X Y : Setoid') : SetoidRel Y (SetoidRel_coprodOb X Y) :=
+Instance SetoidRel_finr (X Y : Setoid') : SetoidRel Y (SetoidRel_coproduct X Y) :=
 {
   rel := fun (y : Y) (p : X + Y) =>
     match p with
@@ -220,7 +220,7 @@ Proof. rel. Defined.
 #[export]
 Instance SetoidRel_copair
   (A B X : Setoid') (R : SetoidRel A X) (S : SetoidRel B X)
-  : SetoidRel (SetoidRel_coprodOb A B) X :=
+  : SetoidRel (SetoidRel_coproduct A B) X :=
 {
   rel := fun (p : A + B) (x : X) =>
     match p with
@@ -234,7 +234,7 @@ Proof. rel. Defined.
 #[export]
 Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
 {
-  coprodOb := SetoidRel_coprodOb;
+  coproduct := SetoidRel_coproduct;
   finl := SetoidRel_finl;
   finr := SetoidRel_finr;
   copair := SetoidRel_copair;

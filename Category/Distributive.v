@@ -3,7 +3,7 @@ From Cat.Limits Require Import Initial Terminal Product Coproduct.
 Definition distr
   {C : Cat} {hi : HasInit C} {ht : HasTerm C}
   {hp : HasProducts C} {hc : HasCoproducts C} (X Y Z : Ob C)
-  : Hom (coprodOb (prodOb X Y) (prodOb X Z)) (prodOb X (coprodOb Y Z))
+  : Hom (coproduct (product X Y) (product X Z)) (product X (coproduct Y Z))
   := copair (fpair outl (outr .> finl)) (fpair outl (outr .> finr)).
 
 Class Distributive (C : Cat) : Type :=
@@ -15,9 +15,9 @@ Class Distributive (C : Cat) : Type :=
   isIso_distr : forall X Y Z : Ob C, isIso (distr X Y Z)
 }.
 
-(* TODO *) Lemma distr_prodOb_init :
+(* TODO *) Lemma distr_product_init :
   forall (C : Cat) (d : Distributive C) (X : Ob C),
-    prodOb (init C) X ~ init C.
+    product (init C) X ~ init C.
 Proof.
   intros. symmetry.
   red. exists (create _).

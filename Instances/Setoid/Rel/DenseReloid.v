@@ -110,9 +110,9 @@ Proof. dreloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_prodOb (X Y : DenseReloid) : DenseReloid :=
+Instance DenseReloid_product (X Y : DenseReloid) : DenseReloid :=
 {
-  reloid := Reloid_prodOb X Y
+  reloid := Reloid_product X Y
 }.
 Proof.
   split. destruct x, y, 1. dreloid.
@@ -124,7 +124,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_outl (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) X :=
+Instance DenseReloid_outl (X Y : DenseReloid) : ReloidHom (DenseReloid_product X Y) X :=
 {
   func := Reloid_outl X Y
 }.
@@ -132,7 +132,7 @@ Proof. reloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_outr (X Y : DenseReloid) : ReloidHom (DenseReloid_prodOb X Y) Y :=
+Instance DenseReloid_outr (X Y : DenseReloid) : ReloidHom (DenseReloid_product X Y) Y :=
 {
   func := Reloid_outr X Y
 }.
@@ -142,7 +142,7 @@ Proof. reloid. Defined.
 #[export]
 Instance DenseReloid_fpair
   (X Y A : DenseReloid) (f : ReloidHom A X) (g : ReloidHom A Y)
-  : ReloidHom A (DenseReloid_prodOb X Y) :=
+  : ReloidHom A (DenseReloid_product X Y) :=
 {
   func := Reloid_fpair f g
 }.
@@ -152,7 +152,7 @@ Proof. reloid. Defined.
 #[export]
 Instance HasProducts_DenseReloid : HasProducts DenseReloidCat :=
 {
-  prodOb := DenseReloid_prodOb;
+  product := DenseReloid_product;
   outl := DenseReloid_outl;
   outr := DenseReloid_outr;
   fpair := DenseReloid_fpair;
@@ -163,9 +163,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_coprodOb (X Y : DenseReloid) : DenseReloid :=
+Instance DenseReloid_coproduct (X Y : DenseReloid) : DenseReloid :=
 {
-  reloid := Reloid_coprodOb X Y
+  reloid := Reloid_coproduct X Y
 }.
 Proof.
   split. destruct x, y; intro; cbn in H; intuition eauto;
@@ -176,7 +176,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_finl (X Y : DenseReloid) : ReloidHom X (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_finl (X Y : DenseReloid) : ReloidHom X (DenseReloid_coproduct X Y) :=
 {
   func := Reloid_finl X Y
 }.
@@ -184,7 +184,7 @@ Proof. dreloid. Defined.
 
 #[refine]
 #[export]
-Instance DenseReloid_finr (X Y : DenseReloid) : ReloidHom Y (DenseReloid_coprodOb X Y) :=
+Instance DenseReloid_finr (X Y : DenseReloid) : ReloidHom Y (DenseReloid_coproduct X Y) :=
 {
   func := Reloid_finr X  Y
 }.
@@ -194,7 +194,7 @@ Proof. dreloid. Defined.
 #[export]
 Instance DenseReloid_copair
   (X Y A : DenseReloid) (f : ReloidHom X A) (g : ReloidHom Y A)
-  : ReloidHom (DenseReloid_coprodOb X Y) A :=
+  : ReloidHom (DenseReloid_coproduct X Y) A :=
 {
   func := Reloid_copair f g
 }.
@@ -206,7 +206,7 @@ Defined.
 #[export]
 Instance HasCoproducts_DenseReloid : HasCoproducts DenseReloidCat :=
 {
-  coprodOb := DenseReloid_coprodOb;
+  coproduct := DenseReloid_coproduct;
   finl := DenseReloid_finl;
   finr := DenseReloid_finr;
   copair := DenseReloid_copair;

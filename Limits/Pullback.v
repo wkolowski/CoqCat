@@ -16,12 +16,12 @@ Definition isPullback
 
 Class HasPullbacks (C : Cat) : Type :=
 {
-  pullbackOb : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
-  pullbackObProper :
+  pullback : forall {X Y A : Ob C}, Hom X A -> Hom Y A -> Ob C;
+  pullbackProper :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
-      f == f' -> g == g' -> JMequiv (id (pullbackOb f g)) (id (pullbackOb f' g'));
-  pullL : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) X;
-  pullR : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullbackOb f g) Y;
+      f == f' -> g == g' -> JMequiv (id (pullback f g)) (id (pullback f' g'));
+  pullL : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullback f g) X;
+  pullR : forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A), Hom (pullback f g) Y;
   Proper_pullL :
     forall (X Y A : Ob C) (f f' : Hom X A) (g g' : Hom Y A),
       f == f' -> g == g' -> JMequiv (pullL f g) (pullL f' g');
@@ -30,13 +30,13 @@ Class HasPullbacks (C : Cat) : Type :=
       f == f' -> g == g' -> JMequiv (pullR f g) (pullR f' g');
   factor :
     forall {X Y A : Ob C} (f : Hom X A) (g : Hom Y A) {P : Ob C} (pullL : Hom P X) (pullR : Hom P Y),
-      pullL .> f == pullR .> g -> Hom P (pullbackOb f g);
+      pullL .> f == pullR .> g -> Hom P (pullback f g);
   is_pullback :
     forall (X Y A : Ob C) (f : Hom X A) (g : Hom Y A),
-      isPullback C f g (pullbackOb f g) (pullL f g) (pullR f g) (@factor X Y A f g)
+      isPullback C f g (pullback f g) (pullL f g) (pullR f g) (@factor X Y A f g)
 }.
 
-Arguments pullbackOb [C _ X Y A] _ _.
+Arguments pullback [C _ X Y A] _ _.
 Arguments pullL      [C _ X Y A] _ _.
 Arguments pullR      [C _ X Y A] _ _.
 Arguments factor     [C _ X Y A f g P pullL pullR] _.
@@ -142,7 +142,7 @@ Qed.
     e .> f == e .> g -> Hom E' E),
     isEqualizer C f g E e1 factorize ->
     isEqualizer C f g E e2 factorize ->
-    isPullback C f g (prodOb E E) (outl .> e1) (outr .> e2)
+    isPullback C f g (product E E) (outl .> e1) (outr .> e2)
       (fun (E' : Ob C) (e1 : Hom E' X) (e2 : Hom E' X) _ =>
         fpair (factorize E' e1) (factorize E' e2)).
 Proof.
