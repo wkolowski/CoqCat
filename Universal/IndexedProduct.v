@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Universal Require Import Product Initial Terminal.
+From Cat.Universal Require Import Product Terminal.
 
 Set Implicit Arguments.
 

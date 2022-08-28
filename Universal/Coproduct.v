@@ -127,7 +127,8 @@ Lemma isCoproduct_copair_equiv :
     (copair1 copair2 : forall (A : Ob C) (f : Hom X A) (g : Hom Y A), Hom P A),
       isCoproduct C P finl finr copair1 ->
       isCoproduct C P finl finr copair2 ->
-        forall (A : Ob C) (f : Hom X A) (g : Hom Y A), copair1 A f g == copair2 A f g.
+        forall (A : Ob C) (f : Hom X A) (g : Hom Y A),
+          copair1 A f g == copair2 A f g.
 Proof.
   now intros; rewrite copair_equiv', !finl_copair, !finr_copair.
 Qed.

@@ -90,6 +90,8 @@ Qed.
 
 End isEqualizer.
 
+(* TODO: equalize_comp *)
+
 Section Traditional.
 
 Context

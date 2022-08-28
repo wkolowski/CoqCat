@@ -87,3 +87,46 @@ Proof.
   exists (create0 X).
   apply create_equiv.
 Qed.
+
+Module wut. (* TODO: are separate lemmas for Has* needed? *)
+
+Lemma HasInit_uiso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 ~~ @init C hi2.
+Proof.
+  unfold uniquely_isomorphic, isIso.
+  intros.
+  exists (create (init C)).
+  split.
+  - exists (create (init C)).
+    now split; apply create_equiv.
+  - now intros y _; apply create_equiv.
+Qed.
+
+Lemma HasInit_iso :
+  forall (C : Cat) (hi1 hi2 : HasInit C),
+    @init C hi1 ~ @init C hi2.
+Proof.
+  intros. destruct (HasInit_uiso hi1 hi2). cat.
+Qed.
+
+Lemma iso_to_init_is_init :
+  forall (C : Cat) (hi : HasInit C),
+    forall {X : Ob C} (f : Hom X (init C)), isIso f ->
+      isInitial C X (fun Y : Ob C => f .> create Y).
+Proof.
+  intros C hi X f (g & Hfg & Hgf) Y h1 h2.
+  now rewrite <- comp_id_l, <- Hfg, comp_assoc, (create_equiv (g .> h2)),
+    <- comp_assoc, Hfg, comp_id_l.
+Defined.
+
+Lemma mor_to_init_is_ret :
+  forall (C : Cat) (hi : HasInit C) (X : Ob C) (f : Hom X (init C)),
+    isRet f.
+Proof.
+  unfold isRet; intros.
+  exists (create X).
+  now apply create_equiv.
+Qed.
+
+End wut.

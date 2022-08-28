@@ -37,15 +37,6 @@ Class HasPushouts (C : Cat) : Type :=
   HasPushouts_isPushout :>
     forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
       isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
-  (* Proper_pushout :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (id (pushout f g)) (id (pushout f' g'));
-  Proper_pushl :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (pushl f g) (pushl f' g');
-  Proper_pushr :
-    forall (A B X : Ob C) (f f' : Hom X A) (g g' : Hom X B),
-      f == f' -> g == g' -> JMequiv (pushr f g) (pushr f' g'); *)
 }.
 
 Arguments pushout {C HasPushouts A B X} _ _.

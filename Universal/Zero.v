@@ -13,6 +13,14 @@ Class isZero
   isTerminal_isZero :> isTerminal C Z delete;
 }.
 
+Definition mediate
+  {C : Cat} {Z : Ob C}
+  {create : forall X : Ob C, Hom Z X}
+  {delete : forall X : Ob C, Hom X Z}
+  {isZ : isZero C Z create delete}
+  (X Y : Ob C) : Hom X Y :=
+    delete X .> create Y.
+
 Class HasZero (C : Cat) : Type :=
 {
   zero : Ob C;
@@ -24,9 +32,6 @@ Arguments zero _ {_}.
 
 Coercion HasInit'_HasZero : HasZero >-> HasInit'.
 Coercion HasTerm'_HasZero : HasZero >-> HasTerm'.
-
-Definition mediate {C : Cat} {hz : HasZero C} (X Y : Ob C) : Hom X Y :=
-  delete X .> create Y.
 
 #[export]
 Instance HasInit_HasZero {C : Cat} (hz : HasZero C) : HasInit C :=

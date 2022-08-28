@@ -109,6 +109,43 @@ Qed.
 
 End Exponential.
 
+Lemma isExponential_uiso :
+  forall
+    (C : Cat) (hp : HasProducts C) (A B : Ob C)
+    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
+    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
+    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
+      isExponential A B E1 eval1 curry1 ->
+      isExponential A B E2 eval2 curry2 ->
+        exists !! f : Hom E1 E2, isIso f /\ f ×' id A .> eval2 == eval1.
+Proof.
+  intros.
+  exists (curry2 E1 eval1).
+  repeat split.
+  - exists (curry1 E2 eval2).
+    now rewrite !exp_equiv', !ProductFunctor_fmap_comp_l, !comp_assoc, !exp_comp,
+      !ProductFunctor_fmap_id, !comp_id_l.
+  - now rewrite exp_comp.
+  - now intros; rewrite exp_equiv', exp_comp.
+Qed.
+
+Arguments isExponential_uiso {C hp A B E1 eval1 curry1 E2 eval2 curry2} _ _.
+
+Lemma isExponential_iso :
+  forall
+    (C : Cat) (hp : HasProducts C) (A B : Ob C)
+    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
+    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
+    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
+    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
+      isExponential A B E1 eval1 curry1 ->
+      isExponential A B E2 eval2 curry2 ->
+        E1 ~ E2.
+Proof.
+  intros. destruct (isExponential_uiso H H0). cat.
+Qed.
+
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
   expOb : Ob C -> Ob C -> Ob C;
@@ -154,43 +191,6 @@ match goal with
 | |- ?x == ?x => reflexivity
 end.
 
-Lemma isExponential_uiso :
-  forall
-    (C : Cat) (hp : HasProducts C) (A B : Ob C)
-    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
-    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
-    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
-      isExponential A B E1 eval1 curry1 ->
-      isExponential A B E2 eval2 curry2 ->
-        exists !! f : Hom E1 E2, isIso f /\ f ×' id A .> eval2 == eval1.
-Proof.
-  intros.
-  exists (curry2 E1 eval1).
-  repeat split.
-  - exists (curry1 E2 eval2).
-    now rewrite !exp_equiv', !ProductFunctor_fmap_comp_l, !comp_assoc, !exp_comp,
-      !ProductFunctor_fmap_id, !comp_id_l.
-  - now rewrite exp_comp.
-  - now intros; rewrite exp_equiv', exp_comp.
-Qed.
-
-Arguments isExponential_uiso {C hp A B E1 eval1 curry1 E2 eval2 curry2} _ _.
-
-Lemma isExponential_iso :
-  forall
-    (C : Cat) (hp : HasProducts C) (A B : Ob C)
-    (E1 : Ob C) (eval1 : Hom (product E1 A) B)
-    (curry1 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E1)
-    (E2 : Ob C) (eval2 : Hom (product E2 A) B)
-    (curry2 : forall Z : Ob C, Hom (product Z A) B -> Hom Z E2),
-      isExponential A B E1 eval1 curry1 ->
-      isExponential A B E2 eval2 curry2 ->
-        E1 ~ E2.
-Proof.
-  intros. destruct (isExponential_uiso H H0). cat.
-Qed.
-
 Lemma HasExponentials_unique :
   forall
     {C : Cat} {hp : HasProducts C}
@@ -199,6 +199,8 @@ Lemma HasExponentials_unique :
 Proof.
   intros. eapply isExponential_iso; typeclasses eauto.
 Qed.
+
+(* TODO: bifunctor *)
 
 #[refine]
 #[export]

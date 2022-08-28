@@ -156,7 +156,7 @@ Proof.
   now intros; rewrite <- fpair_outr, fpair_id, comp_id_l.
 Qed.
 
-Lemma iso_to_prod :
+Lemma iso_to_prod : (* TODO: dual *)
   forall
     (C : Cat) (X Y : Ob C)
     (P Q : Ob C) (outl : Hom P X) (outr : Hom P Y)

@@ -1,4 +1,5 @@
 From Cat Require Import Cat.
+From Cat.Universal Require Import Initial.
 
 Class isIndexedCoproduct
   (C : Cat) {J : Set} {A : J -> Ob C}
@@ -79,6 +80,24 @@ Proof.
 Qed.
 
 End isIndexedCoproduct.
+
+Lemma nullary_coprod :
+  forall
+    (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
+    (create : forall X : Ob C, Hom I X)
+    (p : forall j : Empty_set, Hom (A j) I)
+    (cotuple : forall (X : Ob C) (f : forall j : Empty_set, Hom (A j) X), Hom I X),
+      isInitial C I create -> isIndexedCoproduct C I p cotuple.
+Proof.
+  now split; intros; [| apply create_equiv].
+Qed.
+
+Lemma unary_coprod_exists :
+  forall (C : Cat) (A : unit -> Ob C),
+    isIndexedCoproduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
+Proof.
+  split; cat.
+Qed.
 
 Class HasIndexedCoproducts'
   (C : Cat) (indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C) : Type :=

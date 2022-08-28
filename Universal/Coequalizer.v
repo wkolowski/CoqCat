@@ -91,8 +91,6 @@ Qed.
 
 End isCoequalizer.
 
-Section Traditional.
-
 Lemma isCoequalizer_uiso :
   forall
     [C : Cat] [A B : Ob C] [f g : Hom A B]
@@ -169,8 +167,6 @@ Lemma isCoequalizer_equiv_cofactorize :
 Proof.
   now intros; rewrite cofactorize_equiv', !coequalize_cofactorize.
 Qed.
-
-End Traditional.
 
 Class HasCoequalizers (C : Cat) : Type :=
 {

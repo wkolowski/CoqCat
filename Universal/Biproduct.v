@@ -25,21 +25,6 @@ Lemma isBiproduct_Dual :
       isBiproduct C P outl outr finl finr fpair copair.
 Proof. firstorder. Qed.
 
-(* Class HasBiproducts (C : Cat) : Type :=
-{
-  biproduct : Ob C -> Ob C -> Ob C;
-  bioutl    : forall {A B : Ob C}, Hom (biproduct A B) A;
-  bioutr    : forall {A B : Ob C}, Hom (biproduct A B) B;
-  bipair    : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (biproduct A B);
-  biinl      : forall {A B : Ob C}, Hom A (biproduct A B);
-  biinr      : forall {A B : Ob C}, Hom B (biproduct A B);
-  bicopair  : forall {A B X : Ob C} (f : Hom A X) (g : Hom B X), Hom (biproduct A B) X;
-  HasBiproducts_isProduct :>
-    forall {A B : Ob C}, isProduct C (biproduct A B) bioutl bioutr (@bipair A B);
-  HasBiproducts_isCoproduct :>
-    forall {A B : Ob C}, isCoproduct C (biproduct A B) biinl biinr (@bicopair A B);
-}. *)
-
 Class HasBiproducts (C : Cat) : Type :=
 {
   biproduct : Ob C -> Ob C -> Ob C;
