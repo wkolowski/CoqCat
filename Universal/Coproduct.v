@@ -192,29 +192,12 @@ Proof.
   - now rewrite copair_equiv'.
 Qed.
 
-(*
-Class HasCoproducts (C : Cat) : Type :=
-{
-  coproduct : forall (A B : Ob C), Ob C;
-  finl     : forall {A B : Ob C}, Hom A (coproduct A B);
-  finr     : forall {A B : Ob C}, Hom B (coproduct A B);
-  copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  HasCoproducts_isCoproduct :>
-    forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
-}.
-
-Arguments coproduct {C HasCoproducts} _ _.
-Arguments finl     {C HasCoproducts A B}.
-Arguments finr     {C HasCoproducts A B}.
-Arguments copair   {C HasCoproducts A B P} _ _.
-*)
-
 Class HasCoproducts' (C : Cat) (coproduct : Ob C -> Ob C -> Ob C) : Type :=
 {
   finl     : forall {A B : Ob C}, Hom A (coproduct A B);
   finr     : forall {A B : Ob C}, Hom B (coproduct A B);
   copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  HasCoproducts'_isCoproduct :>
+  isCoproduct_HasCoproducts' :>
     forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
 }.
 
@@ -229,6 +212,8 @@ Class HasCoproducts (C : Cat) : Type :=
 }.
 
 Arguments coproduct {C HasCoproducts} _ _.
+
+Coercion HasCoproducts'_HasCoproducts : HasCoproducts >-> HasCoproducts'.
 
 Ltac coprod := intros; try split;
 repeat match goal with

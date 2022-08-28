@@ -176,16 +176,9 @@ Class HasEqualizers (C : Cat) : Type :=
   factorize :
     forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
       e' .> f == e' .> g -> Hom E' (equalizer f g);
-  HasEqualizers_isEqualizer :>
+  isEqualizer_HasEqualizers :>
     forall {X Y : Ob C} (f g : Hom X Y),
       isEqualizer C f g (equalizer f g) (equalize f g) (@factorize _ _ f g)
-  (*Proper_equalizer :
-    forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' -> JMequiv (id (equalizer f g)) (id (equalizer f' g'));
-  Proper_equalize :
-    forall (X Y : Ob C) (f f' g g' : Hom X Y),
-      f == f' -> g == g' ->
-        JMequiv (equalize f g) (equalize f' g'); *)
 }.
 
 Arguments equalizer     [C _ X Y] _ _.

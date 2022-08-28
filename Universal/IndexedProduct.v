@@ -194,7 +194,7 @@ Lemma nullary_prod :
     (T : Ob C) (delete : forall X : Ob C, Hom X T)
     (p : forall j : Empty_set, Hom T (A j))
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
-      isTerminal T delete -> isIndexedProduct C T p tuple.
+      isTerminal C T delete -> isIndexedProduct C T p tuple.
 Proof.
   unfold isTerminal; split; intros.
   - easy.

@@ -9,53 +9,36 @@ Class isZero
   (delete : forall X : Ob C, Hom X Z)
   : Prop :=
 {
-  isInitial_isZero :> isInitial Z create;
-  isTerminal_isZero :> isTerminal Z delete;
+  isInitial_isZero :> isInitial C Z create;
+  isTerminal_isZero :> isTerminal C Z delete;
 }.
-
-Lemma isZero_Dual :
-  forall
-    (C : Cat) (X : Ob C)
-    (create : forall X' : Ob C, Hom X X')
-    (delete : forall X' : Ob C, Hom X' X),
-      @isZero (Dual C) X delete create <-> @isZero C X create delete.
-Proof. firstorder. Defined.
 
 Class HasZero (C : Cat) : Type :=
 {
   zero : Ob C;
-  HasZero_HasInit' :> HasInit' zero;
-  HasZero_HasTerm' :> HasTerm' zero;
+  HasInit'_HasZero :> HasInit' C zero;
+  HasTerm'_HasZero :> HasTerm' C zero;
 }.
 
 Arguments zero _ {_}.
 
-Coercion HasZero_HasInit' : HasZero >-> HasInit'.
-Coercion HasZero_HasTerm' : HasZero >-> HasTerm'.
+Coercion HasInit'_HasZero : HasZero >-> HasInit'.
+Coercion HasTerm'_HasZero : HasZero >-> HasTerm'.
 
 Definition mediate {C : Cat} {hz : HasZero C} (X Y : Ob C) : Hom X Y :=
   delete X .> create Y.
 
-#[refine]
 #[export]
-Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
+Instance HasInit_HasZero {C : Cat} (hz : HasZero C) : HasInit C :=
 {
-  term := init C;
+  init := zero C;
 }.
-Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact create.
-  - red; cbn; intros; apply create_equiv.
-Defined.
 
-#[refine]
 #[export]
-Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
+Instance HasTerm_HasZero {C : Cat} (hz : HasZero C) : HasTerm C :=
 {
-  init := term C;
+  term := zero C;
 }.
-Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact delete.
-  - red; cbn; intros; apply delete_equiv.
-Defined.
+
+Coercion HasInit_HasZero : HasZero >-> HasInit.
+Coercion HasTerm_HasZero : HasZero >-> HasTerm.

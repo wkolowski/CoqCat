@@ -47,20 +47,23 @@ Class HasBiproducts (C : Cat) : Type :=
   HasCoproducts'_HasBiproducts :> HasCoproducts' C biproduct;
 }.
 
-(* Coercion HasProducts'_HasBiproducts : HasBiproducts >-> HasProducts. *)
-(* Coercion HasCoproducts'_HasBiproducts : HasBiproducts >-> HasCoproducts. *)
+Coercion HasProducts'_HasBiproducts : HasBiproducts >-> HasProducts'.
+Coercion HasCoproducts'_HasBiproducts : HasBiproducts >-> HasCoproducts'.
 
-(*
-#[refine]
 #[export]
-Instance HasBiproducts_Dual (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
+Instance HasProducts_HasBiproducts {C : Cat} (hb : HasBiproducts C) : HasProducts C :=
 {
-  HasProducts'_HasBiproducts := HasProducts_Dual hp;
-  HasCoproducts'_HasBiproducts := HasCoproducts_Dual hp;
+  product := biproduct;
 }.
-Proof.
-  now cbn; intros; rewrite isProduct_isCoproduct.
-Defined.
+
+#[export]
+Instance HasCoproducts_HasBiproducts {C : Cat} (hb : HasBiproducts C) : HasCoproducts C :=
+{
+  coproduct := biproduct;
+}.
+
+Coercion HasProducts_HasBiproducts : HasBiproducts >-> HasProducts.
+Coercion HasCoproducts_HasBiproducts : HasBiproducts >-> HasCoproducts.
 
 #[refine]
 #[export]
@@ -71,6 +74,5 @@ Instance BiproductBifunctor {C : Cat} {hp : HasBiproducts C} : Bifunctor C C C :
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.
 Proof.
-  unfold Proper, respectful. all: copair.
+  all: coprod.
 Defined.
-*)

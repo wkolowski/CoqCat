@@ -69,34 +69,34 @@ Definition isColimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
 
 Definition isColimit
   {J C : Cat} {F : Functor J C}
-  (colimitOb : Cocone F)
-  (colimitMor : forall K : Cocone F, CoconeHom colimitOb K)
-  : Prop := @isInitial (CoconeCat F) colimitOb colimitMor.
+  (colimit : Cocone F)
+  (colimitMor : forall K : Cocone F, CoconeHom colimit K)
+  : Prop := @isInitial (CoconeCat F) colimit colimitMor.
 
 Definition allShapedColimits
   {J C : Cat}
-  (colimitOb : forall (F : Functor J C), Cocone F)
-  (colimitMor : forall {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
+  (colimit : forall (F : Functor J C), Cocone F)
+  (colimitMor : forall {F : Functor J C} (K : Cocone F), CoconeHom (colimit F) K)
   : Prop :=
-    forall F : Functor J C, @isColimit J C F (colimitOb F) (@colimitMor F).
+    forall F : Functor J C, @isColimit J C F (colimit F) (@colimitMor F).
 
 Definition allColimits
   {C : Cat}
-  (colimitOb : forall {J : Cat} (F : Functor J C), Cocone F)
-  (colimitMor : forall {J : Cat} {F : Functor J C} (K : Cocone F), CoconeHom (colimitOb F) K)
+  (colimit : forall {J : Cat} (F : Functor J C), Cocone F)
+  (colimitMor : forall {J : Cat} {F : Functor J C} (K : Cocone F), CoconeHom (colimit F) K)
   : Prop :=
     forall (J : Cat) (F : Functor J C),
-      @allShapedColimits J C (@colimitOb J) (@colimitMor J).
+      @allShapedColimits J C (@colimit J) (@colimitMor J).
 
 Class HasColimits (C : Cat) : Type :=
 {
-  colimitOb  : forall {J : Cat} (F : Functor J C), Cocone F;
-  colimitMor : forall {J : Cat} (F : Functor J C) (K : Cocone F), CoconeHom (colimitOb F) K;
+  colimit  : forall {J : Cat} (F : Functor J C), Cocone F;
+  colimitMor : forall {J : Cat} (F : Functor J C) (K : Cocone F), CoconeHom (colimit F) K;
   (* Proper? *)
-  ok : allColimits (@colimitOb) (@colimitMor);
+  ok : allColimits (@colimit) (@colimitMor);
 }.
 
-Arguments colimitOb  [C _ J] _.
+Arguments colimit  [C _ J] _.
 Arguments colimitMor [C _ J F] _.
 
 (* TODO : natural conditions for (co)limits *)

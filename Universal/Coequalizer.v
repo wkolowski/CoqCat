@@ -181,74 +181,11 @@ Class HasCoequalizers (C : Cat) : Type :=
   cofactorize :
     forall {A B : Ob C} (f g : Hom A B) (Q' : Ob C) (q2 : Hom B Q'),
       f .> q2 == g .> q2 -> Hom (coequalizer f g) Q';
-  HasCoequalizers_isCoequalizer :
+  isCoequalizer_HasCoequalizers :>
     forall {A B : Ob C} (f g : Hom A B),
       isCoequalizer C f g (coequalizer f g) (coequalize  f g) (cofactorize f g)
-  (* Proper_coequalizer :
-    forall (A B : Ob C) (f f' g g' : Hom A B),
-      f == f' -> g == g' -> JMequiv (id (coequalizer f g)) (id (coequalizer f' g'));
-  Proper_coequalize  :
-    forall (A B : Ob C) (f f' g g' : Hom A B),
-      f == f' -> g == g' -> JMequiv (coequalize  f g) (coequalize  f' g');
-  Proper_cofactorize :
-    forall
-      (A B Q' : Ob C) (f f' g g' : Hom A B) (q2 : Hom B Q')
-      (H : f .> q2 == g .> q2) (H' : f' .> q2 == g' .> q2),
-        f == f' -> g == g' -> JMequiv (cofactorize f g Q' q2 H) (cofactorize f' g' Q' q2 H'); *)
 }.
 
 Arguments coequalizer     [C _ A B] _ _.
 Arguments coequalize     [C _ A B] _ _.
 Arguments cofactorize [C _ A B f g Q' q2] _.
-
-(*
-#[refine]
-#[export]
-Instance HasCoequalizers_Dual (C : Cat) (he : HasEqualizers C) : HasCoequalizers (Dual C) :=
-{
-  coequalizer := fun A B : Ob (Dual C) => @equalizer C he B A;
-  coequalize  := fun A B : Ob (Dual C) => @eq_mor C he B A;
-  cofactorize := fun A B : Ob (Dual C) => @factorize C he B A;
-  is_coequalizer := fun A B : Ob (Dual C) => @is_equalizer C he B A
-}.
-Proof.
-  all: cbn; intros.
-  - destruct (Proper_equalizer B A f f' g g' H H0). auto.
-  - apply eq_mor_ok.
-  - destruct (Proper_eq_mor B A f f' g g' H H0). auto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasEqualizers_Dual (C : Cat) (he : HasCoequalizers C) : HasEqualizers (Dual C) :=
-{
-  equalizer := fun A B : Ob (Dual C) => @coequalizer C he B A;
-  eq_mor := fun A B : Ob (Dual C) => @coequalize  C he B A;
-  cofactorize := fun A B : Ob (Dual C) => @cofactorize C he B A;
-  is_equalizer := fun A B : Ob (Dual C) => @is_coequalizer C he B A
-}.
-Proof.
-  all: cbn; intros.
-  - destruct (Proper_coequalizer B A f f' g g' H H0). auto.
-  - apply coequalize _ok.
-  - destruct (Proper_coequalize  B A f f' g g' H H0). auto.
-Defined.
-
-Lemma isEqualizer_Dual :
-  forall
-    (Q : Ob C) (coequalize : Hom B Q)
-    (cofactorize : forall (Q' : Ob C) (q2 : Hom B Q'), f .> q2 == g .> q2 -> Hom Q Q'),
-      @isEqualizer (Dual C) B A f g Q coequalize cofactorize
-        =
-      @isCoequalizer C A B f g Q coequalize cofactorize.
-Proof. reflexivity. Defined.
-
-Lemma isCoequalizer_Dual :
-  forall
-    (E : Ob C) (e : Hom E A)
-    (factorize : forall (Q' : Ob C) (e' : Hom Q' A), e' .> f == e' .> g -> Hom Q Q'),
-      @isCoequalizer (Dual C) B A f g E e cofactorize
-        =
-      @isEqualizer C A B f g E e cofactorize.
-Proof. reflexivity. Defined.
-*)

@@ -65,37 +65,37 @@ Proof. proper. all: cat. Defined.
 
 Definition isLimit
   {J C : Cat} {F : Functor J C}
-  (limitOb : Cone F)
-  (limitMor : forall K : Cone F, ConeHom K limitOb)
-  : Prop := @isTerminal (ConeCat F) limitOb limitMor.
+  (limit : Cone F)
+  (limitMor : forall K : Cone F, ConeHom K limit)
+  : Prop := @isTerminal (ConeCat F) limit limitMor.
 
 Definition isLimit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
   forall K' : Cone F, exists!! _ : ConeHom K' K, True.
 
 Definition allShapedLimits
   {J C : Cat}
-  (limitOb : forall F : Functor J C, Cone F)
-  (limitMor : forall {F : Functor J C} (K : Cone F), ConeHom K (limitOb F))
+  (limit : forall F : Functor J C, Cone F)
+  (limitMor : forall {F : Functor J C} (K : Cone F), ConeHom K (limit F))
   : Prop :=
-    forall F : Functor J C, @isLimit J C F (limitOb F) (@limitMor F).
+    forall F : Functor J C, @isLimit J C F (limit F) (@limitMor F).
 
 Definition allLimits
   {C : Cat}
-  (limitOb  : forall {J : Cat} (F : Functor J C), Cone F)
-  (limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F))
+  (limit  : forall {J : Cat} (F : Functor J C), Cone F)
+  (limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limit F))
   : Prop :=
     forall (J : Cat) (F : Functor J C),
-      @allShapedLimits J C (@limitOb J) (@limitMor J).
+      @allShapedLimits J C (@limit J) (@limitMor J).
 
 Class HasLimits (C : Cat) : Type :=
 {
-  limitOb  : forall {J : Cat} (F : Functor J C), Cone F;
-  limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limitOb F);
+  limit  : forall {J : Cat} (F : Functor J C), Cone F;
+  limitMor : forall {J : Cat} (F : Functor J C) (K : Cone F), ConeHom K (limit F);
   (* Proper? *)
-  ok : allLimits (@limitOb) (@limitMor);
+  ok : allLimits (@limit) (@limitMor);
 }.
 
-Arguments limitOb  [C _ J] _.
+Arguments limit  [C _ J] _.
 Arguments limitMor [C _ J F] _.
 
 (* TODO : natural conditions for (co)limits *)
