@@ -257,6 +257,9 @@ Class HasIndexedProducts (C : Cat) : Type :=
 
 Arguments indexedProduct {C _ J} _.
 
+Coercion HasIndexedProducts'_HasIndexedProducts :
+  HasIndexedProducts >-> HasIndexedProducts'.
+
 Lemma tuple_comp :
   forall
     {C : Cat} {hip : HasIndexedProducts C}

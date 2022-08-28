@@ -105,6 +105,9 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
 
 Arguments indexedCoproduct [C _ J] _.
 
+Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
+  HasIndexedCoproducts >-> HasIndexedCoproducts'.
+
 Lemma cotuple_comp :
   forall
     {C : Cat} {hip : HasIndexedCoproducts C}
@@ -118,27 +121,3 @@ Proof.
   rewrite cotuple_post, cotuple_equiv'; intros j.
   now rewrite !coproj_cotuple, comp_assoc, coproj_cotuple.
 Qed.
-
-(*
-#[export]
-Instance HasIndexedProducts_Dual
-  (C : Cat) (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
-{
-  indexedProduct := @indexedCoproduct C hp;
-  indexedProj := @coproj C hp;
-  tuple := @cotuple C hp;
-  Proper_tuple := @Proper_cotuple C hp;
-  is_indexed_product := @is_indexed_coproduct C hp
-}.
-
-#[export]
-Instance HasIndexedCoproducts_Dual
-  (C : Cat) (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
-{
-  indexedCoproduct := @indexedProduct C hp;
-  coproj := @indexedProj C hp;
-  cotuple := @tuple C hp;
-  Proper_cotuple := @Proper_tuple C hp;
-  is_indexed_coproduct := @is_indexed_product C hp
-}.
-*)

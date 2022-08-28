@@ -7,12 +7,12 @@ Set Implicit Arguments.
 
 Lemma isInitial_Dual :
   forall (C : Cat) (X : Ob C) (delete : forall X' : Ob C, Hom X' X),
-    @isInitial (Dual C) X delete = @isTerminal C X delete.
+    isInitial (Dual C) X delete = isTerminal C X delete.
 Proof. easy. Defined.
 
 Lemma isTerminal_Dual :
   forall (C : Cat) (X : Ob C) (create : forall X' : Ob C, Hom X X'),
-    @isTerminal (Dual C) X create = @isInitial C X create.
+    isTerminal (Dual C) X create = isInitial C X create.
 Proof. easy. Defined.
 
 Lemma isZero_Dual :
@@ -20,7 +20,9 @@ Lemma isZero_Dual :
     (C : Cat) (X : Ob C)
     (create : forall X' : Ob C, Hom X X')
     (delete : forall X' : Ob C, Hom X' X),
-      @isZero (Dual C) X delete create <-> @isZero C X create delete.
+      isZero (Dual C) X delete create
+        <->
+      isZero C X create delete.
 Proof. firstorder. Defined.
 
 #[refine]
@@ -147,9 +149,9 @@ Lemma isEqualizer_Dual :
     (C : Cat) (A B : Ob C) (f g : Hom A B)
     (Q : Ob C) (q : Hom B Q)
     (cofactorize : forall (Q' : Ob C) (q2 : Hom B Q'), f .> q2 == g .> q2 -> Hom Q Q'),
-      @isEqualizer (Dual C) B A f g Q q cofactorize
+      isEqualizer (Dual C) f g Q q cofactorize
         <->
-      @isCoequalizer C A B f g Q q cofactorize.
+      isCoequalizer C f g Q q cofactorize.
 Proof. firstorder. Defined.
 
 Lemma isCoequalizer_Dual :
@@ -157,9 +159,9 @@ Lemma isCoequalizer_Dual :
     (C : Cat) (A B : Ob C) (f g : Hom A B)
     (E : Ob C) (e : Hom E A)
     (factorize : forall (E' : Ob C) (e' : Hom E' A), e' .> f == e' .> g -> Hom E' E),
-      @isCoequalizer (Dual C) B A f g E e factorize
+      isCoequalizer (Dual C) f g E e factorize
         <->
-      @isEqualizer C A B f g E e factorize.
+      isEqualizer C f g E e factorize.
 Proof. firstorder. Defined.
 
 #[refine]
@@ -207,3 +209,70 @@ Lemma isPushout_Dual :
         <->
       isPullback C f g P pullL pullR factor.
 Proof. firstorder. Defined.
+
+Lemma isIndexedCoproduct_Dual :
+  forall
+    (C : Cat) {J : Set} {A : J -> Ob C}
+    (P : Ob C) (proj : forall j : J, Hom P (A j))
+    (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P),
+      isIndexedCoproduct (Dual C) P proj (@tuple)
+        <->
+      isIndexedProduct C P proj (@tuple).
+Proof. firstorder. Defined.
+
+Lemma isIndexedProduct_Dual :
+  forall
+    (C : Cat) {J : Set} {A : J -> Ob C}
+    (P : Ob C) (coproj : forall j : J, Hom (A j) P)
+    (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X),
+      isIndexedProduct (Dual C) P coproj (@cotuple)
+        <->
+      isIndexedCoproduct C P coproj (@cotuple).
+Proof. firstorder. Defined.
+
+Lemma isIndexedBiproduct_Dual :
+  forall
+    (C : Cat) {J : Set} {A : J -> Ob C}
+    (P : Ob C) (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
+    (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
+    (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X),
+      isIndexedBiproduct (Dual C) P coproj proj (@cotuple) (@tuple)
+        <->
+      isIndexedBiproduct C P proj coproj (@tuple) (@cotuple).
+Proof. firstorder. Defined.
+
+#[refine]
+#[export]
+Instance HasIndexedProducts'_Dual
+  {C : Cat} {indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C}
+  (hp : HasIndexedCoproducts' C indexedCoproduct)
+  : HasIndexedProducts' (Dual C) indexedCoproduct :=
+{
+  proj := @coproj C _ hp;
+  tuple := @cotuple C _ hp;
+}.
+Proof.
+  now intros; apply isIndexedProduct_Dual; typeclasses eauto.
+Defined.
+
+#[refine]
+#[export]
+Instance HasIndexedCoproducts'_Dual
+  {C : Cat} {indexedProduct : forall J : Set, (J -> Ob C) -> Ob C}
+  (hp : HasIndexedProducts' C indexedProduct)
+  : HasIndexedCoproducts' (Dual C) indexedProduct :=
+{
+  coproj := @proj C _ hp;
+  cotuple := @tuple C _ hp;
+}.
+Proof.
+  now intros; apply isIndexedCoproduct_Dual; typeclasses eauto.
+Defined.
+
+#[export]
+Instance HasIndexedBiproducts_Dual
+  (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
+{
+  HasIndexedProducts'_HasIndexedBiproducts := HasIndexedProducts'_Dual hp;
+  HasIndexedCoproducts'_HasIndexedBiproducts := HasIndexedCoproducts'_Dual hp;
+}.
