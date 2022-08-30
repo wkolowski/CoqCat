@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Export Initial Terminal Product Coproduct.
+From Cat.Universal Require Export Initial Terminal Product Coproduct.
 From Cat Require Export Instances.Setoid.Pros.
 
 Class Pos : Type :=

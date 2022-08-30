@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct Equalizer Coequalizer.
-From Cat.Limits.Indexed Require Import Product Coproduct.
+From Cat.Universal Require Import
+  Initial Terminal Product Coproduct Equalizer Coequalizer IndexedProduct IndexedCoproduct.
 
 Class Apartoid : Type :=
 {
@@ -154,19 +154,6 @@ Instance HasInit_Apartoid : HasInit ApartoidCat :=
 }.
 Proof. apartoid. Defined.
 
-(* Things can be done this way too. *)
-#[refine]
-#[export]
-Instance HasInit_Apartoid' : HasInit ApartoidCat := {}.
-Proof.
-  refine
-  {|
-    carrier := Empty_set;
-    neq := fun (e : Empty_set) _ => match e with end
-  |}.
-  all: apartoid'. exists (fun e : Empty_set => match e with end). apartoid.
-Defined.
-
 #[refine]
 #[export]
 Instance Apartoid_term : Apartoid :=
@@ -231,10 +218,7 @@ Instance HasProducts_Apartoid : HasProducts ApartoidCat :=
   outr := Apartoid_outr;
   fpair := Apartoid_fpair
 }.
-Proof.
-  (* Proper *) apartoid.
-  (* Product law *) apartoid.
-Defined.
+Proof. apartoid. Defined.
 
 #[refine]
 #[export]
@@ -290,8 +274,10 @@ Instance HasCoproducts_Apartoid : HasCoproducts ApartoidCat :=
   copair := Apartoid_copair
 }.
 Proof.
-  (* Proper *) proper. destruct x1; apartoid.
-  (* Product law *) red; apartoid'. destruct x; apartoid.
+  split; [apartoid | apartoid |].
+  intros P' [h1 h1'] [h2 h2'] Heq1 Heq2 [a | b] H; cbn in H, Heq1, Heq2.
+  - now apply (Heq1 a).
+  - now apply (Heq2 b).
 Defined.
 
 #[refine]
@@ -309,7 +295,7 @@ Proof.
     right. now exists j.
 Defined.
 
-Definition Apartoid_indexedProj
+Definition Apartoid_proj
   {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
@@ -331,16 +317,13 @@ Defined.
 Instance HasIndexedProducts_Apartoid : HasIndexedProducts ApartoidCat :=
 {
   indexedProduct := @Apartoid_indexedProduct;
-  indexedProj := @Apartoid_indexedProj;
+  proj := @Apartoid_proj;
   tuple := @Apartoid_tuple;
 }.
 Proof.
-  (* tuple is proper *) cbn; intros. destruct 1 as [j H'].
-    eapply H. eassumption.
-  (* Product law *) unfold isIndexedProduct; red; split;
-  cbn in *; intros; eauto. destruct 1 as [j H'].
-  red in y. destruct y as [y Hy]; cbn in *.
-  eapply H; eauto.
+  split; cbn in *; intros.
+  - eauto.
+  - intros [j Hj]. apply (H j x). apartoid.
 Defined.
 
 #[refine]
@@ -353,7 +336,7 @@ Instance Apartoid_equalizer {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid 
 }.
 Proof. all: apartoid. Defined.
 
-Definition Apartoid_eq_mor
+Definition Apartoid_equalize
   {X Y : Apartoid} (f g : ApartoidHom X Y) : ApartoidHom (Apartoid_equalizer f g) X.
 Proof.
   red; cbn. exists (@proj1_sig _ _). apartoid.
@@ -381,7 +364,7 @@ Defined.
 Instance HasEqualizers_Apartoid : HasEqualizers ApartoidCat :=
 {
   equalizer := @Apartoid_equalizer;
-  eq_mor := @Apartoid_eq_mor;
+  equalize := @Apartoid_equalize;
 }.
 Proof.
 Abort.
@@ -445,7 +428,7 @@ Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
 Defined.
 
-Definition Apartoid_indexedCoproj
+Definition Apartoid_coproj
   {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoproduct A).
 Proof.
   red; cbn in *. exists (fun a : A j => existT _ j a); cbn.

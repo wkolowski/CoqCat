@@ -7,7 +7,7 @@ Class isTerminal (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop
 
 Arguments delete_equiv {C T delete isTerminal X f} _.
 
-Class HasTerm' (C : Cat) (T : Ob C) : Type :=
+(* Class HasTerm' (C : Cat) (T : Ob C) : Type :=
 {
   delete : forall X : Ob C, Hom X T;
   isTerminal_HasTerm' :> isTerminal C T delete;
@@ -25,7 +25,17 @@ Class HasTerm (C : Cat) : Type :=
 
 Arguments term _ {_}.
 
-Coercion HasTerm'_HasTerm : HasTerm >-> HasTerm'.
+Coercion HasTerm'_HasTerm : HasTerm >-> HasTerm'. *)
+
+Class HasTerm (C : Cat) : Type :=
+{
+  term : Ob C;
+  delete : forall X : Ob C, Hom X term;
+  isTerminal_HasTerm' :> isTerminal C term delete;
+}.
+
+Arguments term   C {_}.
+Arguments delete {C _} _.
 
 Lemma isTerminal_uiso :
   forall

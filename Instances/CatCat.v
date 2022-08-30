@@ -1,5 +1,5 @@
-From Cat Require Import Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct Exponential.
+(* From Cat Require Import Cat.
+From Cat.Universal Require Import Initial Terminal Product Coproduct Exponential.
 From Cat.Instances Require Import Discrete FunCat.
 
 Set Implicit Arguments.
@@ -266,4 +266,4 @@ Proof.
   - cbn; intros D E C. intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.
     + intro X. esplit with (fob := fun d => fob (X, d)).
-Abort.
+Abort. *)

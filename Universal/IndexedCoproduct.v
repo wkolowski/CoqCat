@@ -99,7 +99,7 @@ Proof.
   split; cat.
 Qed.
 
-Class HasIndexedCoproducts'
+(* Class HasIndexedCoproducts'
   (C : Cat) (indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C) : Type :=
 {
   coproj :
@@ -125,7 +125,25 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
 Arguments indexedCoproduct [C _ J] _.
 
 Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
-  HasIndexedCoproducts >-> HasIndexedCoproducts'.
+  HasIndexedCoproducts >-> HasIndexedCoproducts'. *)
+
+Class HasIndexedCoproducts (C : Cat) : Type :=
+{
+  indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;
+  coproj :
+    forall (J : Set) (A : J -> Ob C) (j : J),
+      Hom (A j) (indexedCoproduct J A);
+  cotuple :
+    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
+      Hom (indexedCoproduct J A) X;
+  isIndexedCoproduct_HasIndexedCoproducts' :>
+    forall (J : Set) (A : J -> Ob C),
+      isIndexedCoproduct C (indexedCoproduct J A) (coproj J A) (cotuple J A)
+}.
+
+Arguments indexedCoproduct {C _ J} _.
+Arguments coproj           {C _ J A} _.
+Arguments cotuple          {C _ J A X} _.
 
 Lemma cotuple_comp :
   forall

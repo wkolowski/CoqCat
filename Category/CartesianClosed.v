@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct Exponential.
+From Cat.Universal Require Import Initial Terminal Product Coproduct Exponential.
 
 Class CartesianClosed (C : Cat) : Type :=
 {
@@ -19,15 +19,16 @@ Proof.
   symmetry.
   red. exists (fpair (delete X) (id X)).
   red. exists outr.
-  fpair. term.
+  fpair. apply delete_equiv.
 Defined.
 
 Lemma product_term_l' :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     {f : Hom (product (term C) X) X | isIso f}.
 Proof.
-  intros. exists outr.
-  red. exists (fpair (delete X) (id X)). fpair. term.
+  intros.
+  exists outr, (fpair (delete X) (id X)).
+  fpair; apply delete_equiv.
 Defined.
 
 Lemma product_term_r :
@@ -41,8 +42,9 @@ Lemma product_term_r' :
   forall (C : Cat) (X : Ob C) (ht : HasTerm C) (hp : HasProducts C),
     {f : Hom (product X (term C)) X | isIso f}.
 Proof.
-  intros. exists outl.
-  red. exists (fpair (id X) (delete X)). fpair. term.
+  intros.
+  exists outl, (fpair (id X) (delete X)).
+  fpair; apply delete_equiv.
 Defined.
 
 Lemma coproduct_init_l :
@@ -50,9 +52,8 @@ Lemma coproduct_init_l :
     coproduct (init C) X ~ X.
 Proof.
   intros.
-  red. exists (copair (create X) (id X)).
-  red. exists finr.
-  copair. init.
+  exists (copair (create X) (id X)), finr.
+  coprod; apply create_equiv.
 Defined.
 
 Lemma coproduct_init_l' :
@@ -60,9 +61,8 @@ Lemma coproduct_init_l' :
     {f : Hom (coproduct (init C) X) X | isIso f}.
 Proof.
   intros.
-  exists (copair (create X) (id X)).
-  red. exists finr.
-  copair. init.
+  exists (copair (create X) (id X)), finr.
+  coprod; apply create_equiv.
 Defined.
 
 Lemma coproduct_init_r :
@@ -77,9 +77,8 @@ Lemma coproduct_init_r' :
     {f : Hom (coproduct X (init C)) X | isIso f}.
 Proof.
   intros.
-  exists (copair (id X) (create X)).
-  red. exists finl.
-  copair. init.
+  exists (copair (id X) (create X)), finl.
+  coprod; apply create_equiv.
 Defined.
 
 (* TODO *) Lemma exp_term_dom :
@@ -95,12 +94,11 @@ Proof.
     apply universal_property.
     setoid_replace (
       (fpair (curry (uncurry (id (expOb (term C) Y)))) (delete (expOb (term C) Y))
-        .> eval) .> curry (X := term C) outl)
+        .> eval) .> curry (A := term C) outl)
     with (curry (uncurry (id (expOb (term C) Y)))).
     + now rewrite computation_rule.
     + rewrite !curry_uncurry. admit.
-  - rewrite <- comp_assoc, <- fpair_pre, delete_unique, comp_id_r.
-    admit.
+  -
 Abort.
 
 (* TODO *) Lemma wuuut :
@@ -117,7 +115,7 @@ Proof.
   intros.
   exists (delete _), (curry (delete _)).
   split; cycle 1.
-  - term.
+  - apply delete_equiv.
   - rewrite <- curry_eval.
     symmetry.
     apply universal_property.

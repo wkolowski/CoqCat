@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export Initial Terminal Product Coproduct Equalizer Coequalizer Exponential.
-From Cat.Limits.Indexed Require Import Product Coproduct.
+From Cat.Universal Require Export
+  Initial Terminal Product Coproduct Equalizer Coequalizer Exponential IndexedProduct IndexedCoproduct.
 
 Set Implicit Arguments.
 
@@ -229,7 +229,7 @@ Proof. setoid. Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_eq_mor
+Instance CoqSetoid_equalize
   {X Y : Setoid'} (f g : SetoidHom X Y)
   : SetoidHom (CoqSetoid_equalizer f g) X :=
 {
@@ -252,7 +252,7 @@ Next Obligation. proper. Defined.
 Instance HasEqualizers_CoqSetoid : HasEqualizers CoqSetoid :=
 {
   equalizer := @CoqSetoid_equalizer;
-  eq_mor := @CoqSetoid_eq_mor;
+  equalize := @CoqSetoid_equalize;
 }.
 Proof.
   - cbn; intros X Y f f' g g' Hf Hg.
@@ -284,7 +284,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_coeq_mor
+Instance CoqSetoid_coequalize
   (X Y : Setoid') (f g : SetoidHom X Y) : SetoidHom Y (CoqSetoid_coequalizer f g) :=
 {
   func := fun y : Y => y
@@ -307,7 +307,7 @@ Proof. proper. induction H0; subst; setoid'. Defined.
 Instance HasCoequalizers_CoqSetoid : HasCoequalizers CoqSetoid :=
 {
   coequalizer := @CoqSetoid_coequalizer;
-  coeq_mor := CoqSetoid_coeq_mor
+  coequalize := CoqSetoid_coequalize
 }.
 Proof.
 Abort.
@@ -327,7 +327,7 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_indexedProj
+Instance CoqSetoid_proj
   {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_indexedProduct A) (A j).
 Proof.
   split with (fun (f : forall j : J, A j) => f j). proper.
@@ -347,7 +347,7 @@ Defined.
 Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
 {
   indexedProduct := @CoqSetoid_indexedProduct;
-  indexedProj := @CoqSetoid_indexedProj;
+  proj := @CoqSetoid_proj;
   tuple := @CoqSetoid_tuple
 }.
 Proof.
@@ -380,7 +380,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_indexedCoproj
+Instance CoqSetoid_coproj
   {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_indexedCoproduct A) :=
 {
   func := fun x : A j => existT _ j x
@@ -407,7 +407,7 @@ Defined.
 Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
 {
   indexedCoproduct := @CoqSetoid_indexedCoproduct;
-  indexedCoproj := @CoqSetoid_indexedCoproj;
+  coproj := @CoqSetoid_coproj;
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.

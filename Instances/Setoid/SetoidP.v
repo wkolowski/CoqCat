@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import Initial Terminal Zero Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
 
 #[refine]
 #[export]
@@ -31,7 +31,7 @@ Instance HasInit_SetP : HasInit SetP :=
   init := Empty_set;
   create := fun (X : Ob SetP) (e : Empty_set) => match e with end
 }.
-Proof. cat. Defined.
+Proof. now intros X f g []. Defined.
 
 #[refine]
 #[export]
@@ -40,12 +40,12 @@ Instance HasTerm_SetP : HasTerm SetP :=
   term := Empty_set;
   delete := fun (X : Ob SetP) (x : X) => None
 }.
-Proof. cat; destruct (f x); cat. Defined.
+Proof. now intros X f g x; destruct (f x), (g x). Defined.
 
 #[refine]
 #[export]
 Instance HasZero_SetP : HasZero SetP := {}.
-Proof. cat. Defined.
+Proof. easy. Defined.
 
 Definition SetP_outl (X Y : Set) (p : sumprod X Y) : option X :=
 match p with
@@ -80,11 +80,13 @@ Instance HasProducts_SetP : HasProducts SetP :=
   fpair := SetP_fpair
 }.
 Proof.
-  all: unfold SetP_fpair; repeat (red || split); cbn; intros; cat.
-    now rewrite H, H0.
-    now destruct (f x), (g x).
-    now destruct (f x), (g x).
-    now rewrite H, H0; destruct (y x); try destruct s.
+  split; unfold SetP_fpair; cbn; intros X f g.
+  - now intros x; destruct (f x), (g x); cbn.
+  - now intros x; destruct (f x), (g x); cbn.
+  - intros Heq1 Heq2 x.
+    specialize (Heq1 x); specialize (Heq2 x).
+    unfold SetP_outl, SetP_outr in *.
+    now destruct (f x) as [[] |], (g x) as [[] |]; congruence.
 Defined.
 
 Definition SetP_copair
@@ -104,7 +106,6 @@ Instance HasCoproducts_SetP : HasCoproducts SetP :=
   copair := SetP_copair
 }.
 Proof.
-  (* codiag is proper *) proper. unfold SetP_copair.
-    now destruct x1; rewrite ?H, ?H0.
-  (* Coproduct laws *) red; cat; destruct x; cat.
+  split; unfold SetP_copair; cbn; [easy | easy |].
+  now intros P' h1 h2 Heq1 Heq2 [a | b].
 Defined.

@@ -21,7 +21,7 @@ Definition mediate
   (X Y : Ob C) : Hom X Y :=
     delete X .> create Y.
 
-Class HasZero (C : Cat) : Type :=
+(* Class HasZero (C : Cat) : Type :=
 {
   zero : Ob C;
   HasInit'_HasZero :> HasInit' C zero;
@@ -43,6 +43,16 @@ Instance HasInit_HasZero {C : Cat} (hz : HasZero C) : HasInit C :=
 Instance HasTerm_HasZero {C : Cat} (hz : HasZero C) : HasTerm C :=
 {
   term := zero C;
+}.
+
+Coercion HasInit_HasZero : HasZero >-> HasInit.
+Coercion HasTerm_HasZero : HasZero >-> HasTerm. *)
+
+Class HasZero (C : Cat) : Type :=
+{
+  HasInit_HasZero :> HasInit C;
+  HasTerm_HasZero :> HasTerm C;
+  HasZero_spec : init C = term C;
 }.
 
 Coercion HasInit_HasZero : HasZero >-> HasInit.

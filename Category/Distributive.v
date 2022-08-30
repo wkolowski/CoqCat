@@ -1,4 +1,4 @@
-From Cat.Limits Require Import Initial Terminal Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Product Coproduct.
 
 Definition distr
   {C : Cat} {hi : HasInit C} {ht : HasTerm C}
@@ -19,16 +19,11 @@ Class Distributive (C : Cat) : Type :=
   forall (C : Cat) (d : Distributive C) (X : Ob C),
     product (init C) X ~ init C.
 Proof.
-  intros. symmetry.
-  red. exists (create _).
-  red. exists outl.
-  split.
-    init.
-    rewrite <- fpair_id.
-      destruct (is_product _ _ _ (create (init C)) (create X)) as [[H1 H2] H3].
-        rewrite <- H3.
-          rewrite <- fpair_pre. apply Proper_fpair.
-            setoid_replace (create (init C)) with (id (init C)) by init. cat.
-            destruct d, HasProducts_Distributive. cbn in *.
-            do 2 red in is_product.
+  unfold isomorphic; intros.
+  exists outl, (create _).
+  split; cycle 1.
+  - apply create_equiv.
+  - setoid_replace (create (product (init C) X)) with (fpair (id (init C)) (create X))
+      by apply create_equiv.
+    rewrite <- fpair_pre, fpair_equiv', fpair_outl, fpair_outr. cat.
 Abort.

@@ -7,7 +7,7 @@ Class isInitial (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop 
 
 Arguments create_equiv {C I create isInitial X f} _.
 
-Class HasInit' (C : Cat) (I : Ob C) : Type :=
+(* Class HasInit' (C : Cat) (I : Ob C) : Type :=
 {
   create : forall X : Ob C, Hom I X;
   isInitial_HasInit' :> isInitial C I create;
@@ -25,7 +25,17 @@ Class HasInit (C : Cat) : Type :=
 
 Arguments init _ {_}.
 
-Coercion HasInit'_HasInit : HasInit >-> HasInit'.
+Coercion HasInit'_HasInit : HasInit >-> HasInit'. *)
+
+Class HasInit (C : Cat) : Type :=
+{
+  init : Ob C;
+  create : forall X : Ob C, Hom init X;
+  isInitial_HasInit' :> isInitial C init create;
+}.
+
+Arguments init   _ {_}.
+Arguments create {C _} _.
 
 Lemma isInitial_uiso :
   forall

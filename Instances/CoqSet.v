@@ -1,8 +1,8 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
-From Cat.Limits Require Export
-  Initial Terminal Product Coproduct Equalizer Coequalizer Pullback Exponential.
-From Cat.Limits.Indexed Require Import Product Coproduct.
+From Cat.Universal Require Export
+  Initial Terminal Product Coproduct Equalizer Coequalizer Pullback Exponential
+  IndexedProduct IndexedCoproduct.
 
 #[refine]
 #[export]
@@ -62,7 +62,7 @@ Instance HasInit_CoqSet : HasInit CoqSet :=
   init := Empty_set;
   create := fun (X : Set) (e : Empty_set) => match e with end
 }.
-Proof. cat. Defined.
+Proof. red; cat. Defined.
 
 #[refine]
 #[export]
@@ -71,7 +71,7 @@ Instance HasTerm_CoqSet : HasTerm CoqSet :=
   term := unit;
   delete := fun (X : Set) (x : X) => tt
 }.
-Proof. cat. Defined.
+Proof. red; cat. Defined.
 
 Definition isSingleton (A : Set) : Prop :=
   exists a : A, True /\ forall x y : A, x = y.
@@ -84,13 +84,11 @@ Proof.
   destruct H as [a [_ H]]. exact a.
 Defined.
 
-Lemma CoqSet_terminal_ob :
+Lemma isTerminal_CoqSet :
   forall (A : Set) (H : isSingleton A),
     @isTerminal CoqSet A (isSingleton_delete A H).
 Proof.
-  unfold isSingleton, isTerminal; intros. cat.
-  compute. destruct (constructive_indefinite_description _ _).
-  destruct a. apply e.
+  unfold isSingleton, isTerminal; intros; cat.
 Qed.
 
 Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
@@ -106,9 +104,9 @@ Instance HasProducts_CoqSet : HasProducts CoqSet :=
   fpair := CoqSet_fpair
 }.
 Proof.
-  all: unfold CoqSet_fpair.
-  (* Proper *) proper. now rewrite H, H0.
-  (* Product law *) red; cat. rewrite H, H0. now destruct (y x).
+  split; unfold CoqSet_fpair; cbn; [easy | easy |].
+  intros X f g Heq1 Heq2 x.
+  now apply injective_projections.
 Defined.
 
 (* Beware! Requires functional extensionality. *)
@@ -117,14 +115,14 @@ Defined.
 Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
 {
   indexedProduct := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
-  indexedProj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  proj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  (* Proper *) cat. now extensionality j.
-  (* Universal property *) red; cat. now extensionality a.
+  split; cat.
+  now extensionality a.
 Defined.
 
 Definition CoqSet_coproduct := sum.
@@ -148,8 +146,8 @@ Instance HasCoproducts_CoqSet : HasCoproducts CoqSet :=
   copair := CoqSet_copair
 }.
 Proof.
-  all: repeat red; cat;
-  match goal with | x : _ + _ |- _ => destruct x end; cat.
+  split; cat.
+  now destruct x.
 Defined.
 
 #[refine]
@@ -157,14 +155,14 @@ Defined.
 Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
 {
   indexedCoproduct := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
-  indexedCoproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  coproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
         f (projT1 p) (projT2 p)
 }.
 Proof.
-  all: try red; cat.
+  split; cat.
 Defined.
 
 Lemma CoqSet_counterexample1 :
@@ -190,7 +188,7 @@ Qed.
 Definition CoqSet_equalizer {X Y : Set} (f g : X -> Y) : Set :=
   {x : X | f x = g x}.
 
-Definition CoqSet_eq_mor {X Y : Set} (f g : X -> Y)
+Definition CoqSet_equalize {X Y : Set} (f g : X -> Y)
   (p : {x : X | f x = g x}) : X := proj1_sig p.
 
 Definition CoqSet_factorize
@@ -206,24 +204,15 @@ Defined.
 Instance HasEqualizers_CoqSet : HasEqualizers CoqSet :=
 {
   equalizer := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
-  eq_mor := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
+  equalize := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
   factorize := @CoqSet_factorize;
 }.
 Proof.
-  - intros. cbn in *.
-    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    {
-      f_equal. extensionality x. now rewrite H, H0.
-    }
-    rewrite H1 in *. now constructor.
-  - now intros X Y f g [x Heq]; cbn.
-  - intros. cbn in *.
-    assert ({x : X | f x = g x} = {x : X | f' x = g' x}).
-    {
-      f_equal. extensionality x. now rewrite H, H0.
-    }
-    assert (JMeq (fun x : {x : X | f x = g x} => proj1_sig x)
-      (fun x : {x : X | f' x = g' x} => proj1_sig x)).
+  split; cbn.
+  - now intros []; cbn.
+  - easy.
+  - intros. specialize (H x). destruct (e1 x), (e2 x); cbn in *.
+    f_equal.
 Abort.
 
 #[refine]
@@ -235,10 +224,9 @@ Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
   curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
 }.
 Proof.
-  proper. extensionality a. now rewrite H.
-  do 2 red; cbn; split; intros.
-    now destruct x; cbn.
-    extensionality x'. now rewrite <- H.
+  split; cbn.
+  - intuition.
+  - intros E' f g H x. extensionality a. apply (H (x, a)).
 Defined.
 
 #[export]

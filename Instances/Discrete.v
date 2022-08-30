@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Product Coproduct.
 
 #[refine]
 #[export]

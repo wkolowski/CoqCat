@@ -12,7 +12,7 @@ Class isIndexedBiproduct
   isIndexedCoproduct_isIndexedBiproduct :> isIndexedCoproduct C P coproj (@cotuple);
 }.
 
-Class HasIndexedBiproducts (C : Cat) : Type :=
+(* Class HasIndexedBiproducts (C : Cat) : Type :=
 {
   indexedBiproduct : forall {J : Set} (A : J -> Ob C), Ob C;
   HasIndexedProducts'_HasIndexedBiproducts :> HasIndexedProducts' C (@indexedBiproduct);
@@ -23,4 +23,17 @@ Coercion HasIndexedProducts'_HasIndexedBiproducts
   : HasIndexedBiproducts >-> HasIndexedProducts'.
 
 Coercion HasIndexedCoproducts'_HasIndexedBiproducts
-  : HasIndexedBiproducts >-> HasIndexedCoproducts'.
+  : HasIndexedBiproducts >-> HasIndexedCoproducts'. *)
+
+Class HasIndexedBiproducts (C : Cat) : Type :=
+{
+  HasIndexedProducts_HasIndexedBiproducts :> HasIndexedProducts C;
+  HasIndexedCoproducts_HasIndexedBiproducts :> HasIndexedCoproducts C;
+  HasIndexedBiproducts_spec : @indexedProduct C _ = @indexedCoproduct C _;
+}.
+
+Coercion HasIndexedProducts_HasIndexedBiproducts
+  : HasIndexedBiproducts >-> HasIndexedProducts.
+
+Coercion HasIndexedCoproducts_HasIndexedBiproducts
+  : HasIndexedBiproducts >-> HasIndexedCoproducts.

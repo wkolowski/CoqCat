@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import Product Coproduct Pullback.
+From Cat.Universal Require Import Product Coproduct Pullback.
 
 Set Implicit Arguments.
 

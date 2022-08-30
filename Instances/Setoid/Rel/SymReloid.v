@@ -1,6 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Limits Require Import Initial Terminal Product Coproduct.
-From Cat.Limits.Indexed Require Import Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Product Coproduct IndexedProduct IndexedCoproduct.
 From Cat Require Export Instances.Setoid.Rel.Reloid.
 
 Set Implicit Arguments.

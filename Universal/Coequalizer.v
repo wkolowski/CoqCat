@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-(* From Cat.Limits Require Import Equalizer. *)
+(* From Cat.Universal Require Import Equalizer. *)
 
 Set Implicit Arguments.
 

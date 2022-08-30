@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Limits Require Import Product Coproduct Exponential.
+From Cat.Universal Require Import Product Coproduct Exponential.
 
 Set Implicit Arguments.
 
@@ -76,9 +76,8 @@ Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunC
     @FunCat_fpair C D hp F G H α β
 }.
 Proof.
-  proper. fpair.
-  repeat split; cbn; intros; fpair.
-  destruct H. rewrite H, H0. fpair.
+  split; cbn; intros; fpair.
+  now apply fpair_equiv.
 Defined.
 
 #[refine]
@@ -90,9 +89,9 @@ Instance FunCat_coproduct {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D)
     CoproductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
-  proper.
-  intros. now rewrite 2 fmap_comp, CoproductFunctor_fmap_comp.
-  intros. now rewrite 2 fmap_id, CoproductFunctor_fmap_id.
+  - proper.
+  - now intros; rewrite 2 fmap_comp, CoproductFunctor_fmap_comp.
+  - now intros; rewrite 2 fmap_id, CoproductFunctor_fmap_id.
 Defined.
 
 #[refine]
@@ -103,7 +102,7 @@ Instance FunCat_finl
   component := fun _ : Ob C => finl
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. copair.
+  intros. cbn. unfold CoproductFunctor_fmap. coprod.
 Defined.
 
 #[refine]
@@ -114,7 +113,7 @@ Instance FunCat_finr
   component := fun _ : Ob C => finr
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. copair.
+  intros. cbn. unfold CoproductFunctor_fmap. coprod.
 Defined.
 
 #[refine]
@@ -127,7 +126,7 @@ Instance FunCat_copair
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap.
-  destruct α, β; cbn in *. copair.
+  destruct α, β; cbn in *. coprod.
 Defined.
 
 #[refine]
@@ -143,9 +142,8 @@ Instance HasCoproducts_FunCat
     => @FunCat_copair C D hp F G H α β
 }.
 Proof.
-  proper. copair.
-  repeat split; cbn; intros; copair.
-  destruct H. rewrite H, H0. copair.
+  repeat split; cbn; intros; coprod.
+  now apply copair_equiv.
 Defined.
 
 #[refine]

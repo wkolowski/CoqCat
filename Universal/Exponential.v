@@ -159,6 +159,8 @@ Arguments expOb {C hp HasExponentials} _ _.
 Arguments eval  {C hp HasExponentials A B}.
 Arguments curry {C hp HasExponentials A B Z} _.
 
+#[export] Hint Resolve HasExponentials_isExponential : typeclass_instances.
+
 Lemma curry_comp :
   forall
     {C : Cat} {hp : HasProducts C} {he : HasExponentials C}
