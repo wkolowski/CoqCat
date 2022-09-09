@@ -345,7 +345,7 @@ Instance HasProducts_Sgr : HasProducts SgrCat :=
   outr := Sgr_outr;
   fpair := Sgr_fpair
 }.
-Proof. all: sgr. Defined.
+Proof. split; sgr. Defined.
 
 #[refine]
 #[export]

@@ -85,8 +85,8 @@ Program Instance HasInit_SetoidRel : HasInit SetoidRelCat :=
   init := CoqSetoid_init;
   create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |}
 }.
-Next Obligation. rel. Defined.
-Next Obligation. rel. Defined.
+Next Obligation. easy. Defined.
+Next Obligation. easy. Defined.
 
 #[export]
 Program Instance HasTerm_SetoidRel : HasTerm SetoidRelCat :=
@@ -94,17 +94,17 @@ Program Instance HasTerm_SetoidRel : HasTerm SetoidRelCat :=
   term := CoqSetoid_init;
   delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |}
 }.
-Next Obligation. rel. Defined.
-Next Obligation. rel. Defined.
+Next Obligation. easy. Defined.
+Next Obligation. easy. Defined.
 
 #[refine]
 #[export]
 Instance HasZero_SetoidRel : HasZero SetoidRelCat :=
 {
-  HasZero_HasInit := HasInit_SetoidRel;
-  HasZero_HasTerm := HasTerm_SetoidRel
+  HasInit_HasZero := HasInit_SetoidRel;
+  HasTerm_HasZero := HasTerm_SetoidRel
 }.
-Proof. rel. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -171,23 +171,31 @@ Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
 }.
 Proof.
   (* Proper *) rel.
-  (* Product laws *) red. setoidrel'; repeat
+  (* Product laws *) split; setoidrel'; repeat
   match goal with
   | p : _ + _ |- _ => destruct p
   | H : False |- _ => inversion H
   end.
-    now exists (inl y).
-    eapply Proper_f; eauto.
-    now exists (inr y).
-    eapply Proper_g; eauto. repeat red in Proper_y.
-    destruct (H x a) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
-      now eapply Proper_y; eauto.
-      inversion H'2.
-    destruct (H0 x b) as [H' _]. destruct (H' H1) as [[y0_l | y0_r] [H'1 H'2]].
-      inversion H'2.
-      now eapply Proper_y; eauto.
-    destruct (H x a) as [_ H']. apply H'. now exists (inl a).
-    destruct (H0 x b) as [_ H']. apply H'. now exists (inr b).
+  - eapply Proper_f; [| | eassumption]; easy.
+  - now exists (inl y).
+  - eapply Proper_g; [| | eassumption]; easy.
+  - now exists (inr y).
+  - destruct (H x a) as [[[y0_l | y0_r] [H'1 H'2]] _].
+    + now exists (inl a).
+    + eapply Proper_g; [| | eassumption]; easy.
+    + easy.
+  - destruct (H0 x b) as [[[y0_l | y0_r] [H'1 H'2]] _].
+    + now exists (inr b).
+    + easy.
+    + eapply Proper_g; [| | eassumption]; easy.
+  - destruct (H x a) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+    + now exists (inl a).
+    + eapply Proper_f; [| | eassumption]; easy.
+    + easy.
+  - destruct (H0 x b) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+    + now exists (inr b).
+    + easy.
+    + eapply Proper_f; [| | eassumption]; easy.
 Defined.
 
 Definition SetoidRel_coproduct := SetoidRel_product.
@@ -241,21 +249,29 @@ Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
 }.
 Proof.
   (* copair is proper *) rel.
-  (* Coproduct law *) red; setoidrel'; repeat
+  (* Coproduct law *) split; setoidrel'; repeat
   match goal with
   | p : _ + _ |- _ => destruct p
   | H : False |- _ => inversion H
   end.
-    now exists (inl x).
-    eapply Proper_f; eauto.
-    now exists (inr x).
-    eapply Proper_g; eauto.
-    destruct (H a y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
-      now eapply (Proper_y (inl a) (inl p1)).
-      inversion Hp1.
-    destruct (H0 b y0), (H2 H1) as [[p1 | p2] [Hp1 Hp2]].
-      inversion Hp1.
-      now eapply (Proper_y (inr b) (inr p2)).
-    destruct (H a y0). apply H3. now exists (inl a).
-    destruct (H0 b y0). apply H3. now exists (inr b).
+  - eapply Proper_f; eauto.
+  - now exists (inl x).
+  - eapply Proper_g; eauto.
+  - now exists (inr x).
+  - destruct (H a y) as [[[y0_l | y0_r] [H'1 H'2]] _].
+    + now exists (inl a).
+    + eapply Proper_h2; [| | eassumption]; easy.
+    + easy.
+  - destruct (H0 b y) as [[[y0_l | y0_r] [H'1 H'2]] _].
+    + now exists (inr b).
+    + easy.
+    + eapply Proper_h2; [| | eassumption]; easy.
+  - destruct (H a y) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+    + now exists (inl a).
+    + eapply Proper_h1; [| | eassumption]; easy.
+    + easy.
+  - destruct (H0 b y) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+    + now exists (inr b).
+    + easy.
+    + eapply Proper_h1; [| | eassumption]; easy.
 Defined.

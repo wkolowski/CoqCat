@@ -25,6 +25,7 @@ Lemma isZero_Dual :
       isZero C X create delete.
 Proof. firstorder. Defined.
 
+(*
 #[refine]
 #[export]
 Instance HasInit'_Dual {C : Cat} {term : Ob C} (ht : HasTerm' C term) : HasInit' (Dual C) term :=
@@ -44,25 +45,40 @@ Instance HasTerm'_Dual {C : Cat} {init : Ob C} (hi : HasInit' C init) : HasTerm'
 Proof.
   now rewrite isTerminal_Dual; typeclasses eauto.
 Defined.
+*)
 
+#[refine]
 #[export]
 Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
 {
   init := term C;
+  create := @delete C ht;
 }.
+Proof.
+  now rewrite isInitial_Dual; typeclasses eauto.
+Defined.
 
+#[refine]
 #[export]
 Instance HasTerm_Dual (C : Cat) (hi : HasInit C) : HasTerm (Dual C) :=
 {
   term := init C;
+  delete := @create C hi;
 }.
+Proof.
+  now rewrite isTerminal_Dual; typeclasses eauto.
+Defined.
 
+#[refine]
 #[export]
 Instance HasZero_Dual (C : Cat) (hz : HasZero C) : HasZero (Dual C) :=
 {
-  HasInit'_HasZero := HasInit_Dual hz;
-  HasTerm'_HasZero := HasTerm_Dual hz;
+  HasInit_HasZero := HasInit_Dual hz;
+  HasTerm_HasZero := HasTerm_Dual hz;
 }.
+Proof.
+  now cbn; symmetry; apply HasZero_spec.
+Defined.
 
 Lemma isProduct_Dual :
   forall
@@ -95,20 +111,7 @@ Lemma isBiproduct_Dual :
       isBiproduct C P outl outr finl finr fpair copair.
 Proof. firstorder. Defined.
 
-#[refine]
-#[export]
-Instance HasCoproducts'_Dual
-  {C : Cat} {product : Ob C -> Ob C -> Ob C} (hp : HasProducts' C product)
-  : HasCoproducts' (Dual C) product :=
-{
-  finl := @outl C _ hp;
-  finr := @outr C _ hp;
-  copair := @fpair C _ hp;
-}.
-Proof.
-  now intros; apply isCoproduct_Dual; typeclasses eauto.
-Defined.
-
+(*
 #[refine]
 #[export]
 Instance HasProducts'_Dual
@@ -123,26 +126,57 @@ Proof.
   now intros; apply isProduct_Dual; typeclasses eauto.
 Defined.
 
+#[refine]
+#[export]
+Instance HasCoproducts'_Dual
+  {C : Cat} {product : Ob C -> Ob C -> Ob C} (hp : HasProducts' C product)
+  : HasCoproducts' (Dual C) product :=
+{
+  finl := @outl C _ hp;
+  finr := @outr C _ hp;
+  copair := @fpair C _ hp;
+}.
+Proof.
+  now intros; apply isCoproduct_Dual; typeclasses eauto.
+Defined.
+*)
+
+#[refine]
 #[export]
 Instance HasProducts_Dual (C : Cat) (hp : HasCoproducts C) : HasProducts (Dual C) :=
 {
   product := @coproduct C hp;
-  HasProducts'_HasProducts := HasProducts'_Dual hp;
+  outl := @finl C hp;
+  outr := @finr C hp;
+  fpair := @copair C hp;
 }.
+Proof.
+  now intros; apply isProduct_Dual; typeclasses eauto.
+Defined.
 
+#[refine]
 #[export]
 Instance HasCoproducts_Dual (C : Cat) (hp : HasProducts C) : HasCoproducts (Dual C) :=
 {
   coproduct := @product C hp;
-  HasCoproducts'_HasCoproducts := HasCoproducts'_Dual hp;
+  finl := @outl C hp;
+  finr := @outr C hp;
+  copair := @fpair C hp;
 }.
+Proof.
+  now intros; apply isCoproduct_Dual; typeclasses eauto.
+Defined.
 
+#[refine]
 #[export]
 Instance HasBiproducts_Dual (C : Cat) (hp : HasBiproducts C) : HasBiproducts (Dual C) :=
 {
-  HasProducts'_HasBiproducts := HasProducts'_Dual hp;
-  HasCoproducts'_HasBiproducts := HasCoproducts'_Dual hp;
+  HasProducts_HasBiproducts := HasProducts_Dual hp;
+  HasCoproducts_HasBiproducts := HasCoproducts_Dual hp;
 }.
+Proof.
+  now cbn; symmetry; apply HasBiproducts_spec.
+Defined.
 
 Lemma isEqualizer_Dual :
   forall
@@ -210,15 +244,7 @@ Lemma isPushout_Dual :
       isPullback C f g P pullL pullR factor.
 Proof. firstorder. Defined.
 
-Lemma isIndexedCoproduct_Dual :
-  forall
-    (C : Cat) {J : Set} {A : J -> Ob C}
-    (P : Ob C) (proj : forall j : J, Hom P (A j))
-    (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P),
-      isIndexedCoproduct (Dual C) P proj (@tuple)
-        <->
-      isIndexedProduct C P proj (@tuple).
-Proof. firstorder. Defined.
+(** TODO: pullbacks and pushouts *)
 
 Lemma isIndexedProduct_Dual :
   forall
@@ -228,6 +254,16 @@ Lemma isIndexedProduct_Dual :
       isIndexedProduct (Dual C) P coproj (@cotuple)
         <->
       isIndexedCoproduct C P coproj (@cotuple).
+Proof. firstorder. Defined.
+
+Lemma isIndexedCoproduct_Dual :
+  forall
+    (C : Cat) {J : Set} {A : J -> Ob C}
+    (P : Ob C) (proj : forall j : J, Hom P (A j))
+    (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P),
+      isIndexedCoproduct (Dual C) P proj (@tuple)
+        <->
+      isIndexedProduct C P proj (@tuple).
 Proof. firstorder. Defined.
 
 Lemma isIndexedBiproduct_Dual :
@@ -241,6 +277,7 @@ Lemma isIndexedBiproduct_Dual :
       isIndexedBiproduct C P proj coproj (@tuple) (@cotuple).
 Proof. firstorder. Defined.
 
+(*
 #[refine]
 #[export]
 Instance HasIndexedProducts'_Dual
@@ -268,11 +305,42 @@ Instance HasIndexedCoproducts'_Dual
 Proof.
   now intros; apply isIndexedCoproduct_Dual; typeclasses eauto.
 Defined.
+*)
 
+#[refine]
+#[export]
+Instance HasIndexedProducts_Dual
+  {C : Cat} (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
+{
+  indexedProduct := @indexedCoproduct C hp;
+  proj := @coproj C hp;
+  tuple := @cotuple C hp;
+}.
+Proof.
+  now intros; apply isIndexedProduct_Dual; typeclasses eauto.
+Defined.
+
+#[refine]
+#[export]
+Instance HasIndexedCoproducts_Dual
+  {C : Cat} (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
+{
+  indexedCoproduct := @indexedProduct C hp;
+  coproj := @proj C hp;
+  cotuple := @tuple C hp;
+}.
+Proof.
+  now intros; apply isIndexedCoproduct_Dual; typeclasses eauto.
+Defined.
+
+#[refine]
 #[export]
 Instance HasIndexedBiproducts_Dual
   (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
 {
-  HasIndexedProducts'_HasIndexedBiproducts := HasIndexedProducts'_Dual hp;
-  HasIndexedCoproducts'_HasIndexedBiproducts := HasIndexedCoproducts'_Dual hp;
+  HasIndexedProducts_HasIndexedBiproducts := HasIndexedProducts_Dual hp;
+  HasIndexedCoproducts_HasIndexedBiproducts := HasIndexedCoproducts_Dual hp;
 }.
+Proof.
+  cbn; symmetry; apply HasIndexedBiproducts_spec.
+Defined.

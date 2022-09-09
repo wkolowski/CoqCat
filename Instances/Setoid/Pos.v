@@ -144,8 +144,7 @@ Instance HasCoproducts_Pos : HasCoproducts PosCat :=
   copair := Pos_copair
 }.
 Proof.
-  proper. destruct x1; proper.
-  repeat split; cbn.
+  split; cbn.
     1-2: easy.
     destruct x; pos.
 Defined.

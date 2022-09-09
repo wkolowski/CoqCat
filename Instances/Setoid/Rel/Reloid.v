@@ -116,7 +116,7 @@ Instance HasInit_Reloid : HasInit ReloidCat :=
   init := Reloid_init;
   create := Reloid_create
 }.
-Proof. reloid. Defined.
+Proof. red; reloid. Defined.
 
 #[export]
 Instance Reloid_term : Reloid :=
@@ -140,7 +140,7 @@ Instance HasTerm_Reloid : HasTerm ReloidCat :=
   term := Reloid_term;
   delete := Reloid_delete;
 }.
-Proof. reloid. Defined.
+Proof. red; reloid. Defined.
 
 #[refine]
 #[export]
@@ -189,7 +189,7 @@ Instance HasProducts_Reloid : HasProducts ReloidCat :=
   fpair := Reloid_fpair;
 }.
 Proof.
-  all: unfold isProduct; reloid.
+  split; reloid.
 Defined.
 
 #[refine]
@@ -246,6 +246,5 @@ Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
   copair := Reloid_copair;
 }.
 Proof.
-  proper. now destruct x1; rewrite ?H, ?H0.
-  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
+  split; cat. now destruct x; rewrite ?H, ?H0.
 Defined.

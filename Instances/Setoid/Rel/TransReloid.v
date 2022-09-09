@@ -71,7 +71,7 @@ Instance HasInit_TransReloid : HasInit TransReloidCat :=
   init := TransReloid_init;
   create := TransReloid_create
 }.
-Proof. treloid. Defined.
+Proof. red; treloid. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance HasTerm_TransReloid : HasTerm TransReloidCat :=
   term := TransReloid_term;
   delete := TransReloid_delete;
 }.
-Proof. treloid. Defined.
+Proof. red; treloid. Defined.
 
 #[refine]
 #[export]
@@ -142,7 +142,7 @@ Instance HasProducts_TransReloid : HasProducts TransReloidCat :=
   fpair := TransReloid_fpair;
 }.
 Proof.
-  all: unfold isProduct; reloid.
+  split; reloid.
 Defined.
 
 #[refine]
@@ -191,6 +191,6 @@ Instance HasCoproducts_TransReloid : HasCoproducts TransReloidCat :=
   copair := TransReloid_copair;
 }.
 Proof.
-  proper. now destruct x1; rewrite ?H, ?H0.
-  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
+  split; cat.
+  now destruct x; rewrite ?H, ?H0.
 Defined.

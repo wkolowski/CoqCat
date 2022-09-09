@@ -447,8 +447,8 @@ Proof. grp. Defined.
 #[export]
 Instance HasZero_Grp : HasZero GrpCat :=
 {
-  HasZero_HasInit := HasInit_Grp;
-  HasZero_HasTerm := HasTerm_Grp
+  HasInit_HasZero := HasInit_Grp;
+  HasTerm_HasZero := HasTerm_Grp
 }.
 Proof. grp. Defined.
 

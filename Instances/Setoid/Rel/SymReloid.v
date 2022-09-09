@@ -71,7 +71,7 @@ Instance HasInit_SymReloid : HasInit SymReloidCat :=
   init := SymReloid_init;
   create := SymReloid_create
 }.
-Proof. sreloid. Defined.
+Proof. red; sreloid. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance HasTerm_SymReloid : HasTerm SymReloidCat :=
   term := SymReloid_term;
   delete := SymReloid_delete;
 }.
-Proof. sreloid. Defined.
+Proof. red; sreloid. Defined.
 
 #[refine]
 #[export]
@@ -142,7 +142,7 @@ Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
   fpair := SymReloid_fpair;
 }.
 Proof.
-  all: unfold isProduct; reloid.
+  split; reloid.
 Defined.
 
 #[refine]
@@ -191,6 +191,6 @@ Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
   copair := SymReloid_copair;
 }.
 Proof.
-  proper. destruct x1; now rewrite ?H, ?H0.
-  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
+  split; cat.
+  now destruct x; rewrite ?H, ?H0.
 Defined.

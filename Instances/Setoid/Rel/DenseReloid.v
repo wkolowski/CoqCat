@@ -78,7 +78,7 @@ Instance HasInit_DenseReloid : HasInit DenseReloidCat :=
   init := DenseReloid_init;
   create := DenseReloid_create
 }.
-Proof. dreloid. Defined.
+Proof. red; dreloid. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance DenseReloid_delete (X : DenseReloid) : ReloidHom X DenseReloid_term :=
 {
   func := Reloid_delete X
 }.
-Proof. proper. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -105,7 +105,7 @@ Instance HasTerm_DenseReloid : HasTerm DenseReloidCat :=
   term := DenseReloid_term;
   delete := DenseReloid_delete;
 }.
-Proof. dreloid. Defined.
+Proof. red; dreloid. Defined.
 
 #[refine]
 #[export]
@@ -157,7 +157,7 @@ Instance HasProducts_DenseReloid : HasProducts DenseReloidCat :=
   fpair := DenseReloid_fpair;
 }.
 Proof.
-  all: unfold isProduct; dreloid.
+  split; dreloid.
 Defined.
 
 #[refine]
@@ -211,6 +211,6 @@ Instance HasCoproducts_DenseReloid : HasCoproducts DenseReloidCat :=
   copair := DenseReloid_copair;
 }.
 Proof.
-  proper. now destruct x1; rewrite ?H, ?H0.
-  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
+  split; cat.
+  now destruct x; rewrite ?H, ?H0.
 Defined.

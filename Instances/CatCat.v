@@ -1,4 +1,4 @@
-(* From Cat Require Import Cat.
+From Cat Require Import Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct Exponential.
 From Cat.Instances Require Import Discrete FunCat.
 
@@ -24,7 +24,7 @@ Instance HasInit_CAT : HasInit CAT :=
   create := CAT_create
 }.
 Proof.
-  cbn; intros X F.
+  cbn; intros X F G. cbn.
   exists (fun e : Empty_set => match e with end).
   destruct A.
 Defined.
@@ -48,11 +48,14 @@ Instance HasTerm_CAT : HasTerm CAT :=
   delete := CAT_delete;
 }.
 Proof.
-  cbn; intros X F.
-  esplit. Unshelve. all: cycle 1.
-  - intros A. now destruct (fob F A).
-  - cbn; intros A B f.
-    now setoid_rewrite Eqdep_dec.UIP_refl_unit.
+  cbn; intros X F G.
+  assert (Heq : forall H : Hom X CAT_term, H == CAT_delete X).
+  {
+    intros H. esplit. Unshelve. all: cycle 1.
+    - now cbn; intros A; destruct (fob H A).
+    - cbn; intros A B f. apply Eqdep_dec.UIP_refl_unit.
+  }
+  now rewrite (Heq F), (Heq G).
 Defined.
 
 #[refine]
@@ -107,28 +110,32 @@ Instance HasProducts_CAT : HasProducts CAT :=
   fpair := CAT_fpair
 }.
 Proof.
-  - cbn; intros C D E F G [p q] H I [r s].
-    esplit. Unshelve. all: cycle 1.
-    + now intros A; cbn; destruct (p A), (r A).
-    + cbn; intros A B f.
-      rewrite <- q, <- s; clear q s.
-      now destruct (p A), (p B), (r A), (r B); cbn.
-  - intros C D X F G; repeat split; cbn.
-    + now exists (fun _ => eq_refl); cbn.
-    + now exists (fun _ => eq_refl); cbn.
-    + intros FG [[p q] [r s]].
+  intros C D; split; intros X F G.
+  + now exists (fun _ => eq_refl); cbn.
+  + now exists (fun _ => eq_refl); cbn.
+  + assert (forall H : Hom X (CAT_product C D), H == CAT_fpair (H .> CAT_outl C D) (H .> CAT_outr C D)).
+    {
+      intros H; cbn.
       esplit. Unshelve. all: cycle 1.
-      * intros A. apply pair_eq; cbn; [apply p | apply r].
-      * cbn; intros A B f.
-        apply pair_eq'.
-        -- rewrite <- q; clear q s.
-           generalize (p A), (p B), (r A), (r B).
-           destruct (fob FG A), (fob FG B); cbn.
-           now intros [] [] [] []; cbn.
-        -- rewrite <- s; clear q s.
-           generalize (p A), (p B), (r A), (r B).
-           destruct (fob FG A), (fob FG B); cbn.
-           now intros [] [] [] []; cbn.
+      - now intros A; destruct (fob H A).
+      - cbn; intros A B f.
+        apply prod_eq_intro; cbn.
+        + unfold ProdCatHom; cbn.
+          generalize (fob H A).
+    }
+ intros [p q] [r s].
+    esplit. Unshelve. all: cycle 1.
+    * intros A. apply prod_eq_intro; cbn; [apply p | apply r].
+    * intros A B f; cbn in *.
+      apply prod_eq_intro.
+      -- rewrite <- q; clear q s.
+         generalize (p A), (p B), (r A), (r B).
+         destruct (fob F A), (fob F B); cbn.
+         now intros [] [] [] []; cbn.
+      -- rewrite <- s; clear q s.
+         generalize (p A), (p B), (r A), (r B).
+         destruct (fob FG A), (fob FG B); cbn.
+         now intros [] [] [] []; cbn.
 Defined.
 
 Definition CoprodCatHom {C D : Cat} (X Y : Ob C + Ob D) : Type :=
@@ -266,4 +273,4 @@ Proof.
   - cbn; intros D E C. intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.
     + intro X. esplit with (fob := fun d => fob (X, d)).
-Abort. *)
+Abort.

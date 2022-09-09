@@ -255,7 +255,6 @@ Instance HasEqualizers_CoqSetoid : HasEqualizers CoqSetoid :=
   equalize := @CoqSetoid_equalize;
 }.
 Proof.
-  - cbn; intros X Y f f' g g' Hf Hg.
 Abort.
 
 Inductive CoqSetoid_coeq_equiv {X Y : Setoid'} (f g : SetoidHom X Y) : Y -> Y -> Prop :=
@@ -351,8 +350,7 @@ Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
   tuple := @CoqSetoid_tuple
 }.
 Proof.
-  cbn; intros; easy.
-  now unfold isIndexedProduct; red; cbn.
+  now split; cbn.
 Defined.
 
 #[refine]
@@ -411,7 +409,6 @@ Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.
-  cbn; intros; easy.
   setoid.
 Defined.
 
@@ -466,7 +463,9 @@ Instance HasExponentials_CoqSetoid : HasExponentials CoqSetoid :=
   curry := CoqSetoid_curry
 }.
 Proof.
-  all: red; intros; setoid.
+  split; cbn.
+  - now intros E' [f Hf] [e' a]; cbn.
+  - now intros E' f g H e' a; apply (H (e', a)).
 Defined.
 
 #[export]

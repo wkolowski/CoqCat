@@ -8,6 +8,21 @@ Export ListNotations.
 
 #[global] Set Universe Polymorphism.
 
+(** * Equality *)
+
+Lemma unit_eq_intro :
+  forall x y : unit, x = y.
+Proof.
+  now intros [] [].
+Defined.
+
+Lemma prod_eq_intro :
+  forall {A B : Type} (x y : A * B),
+    fst x = fst y -> snd x = snd y -> x = y.
+Proof.
+  now intros A B [] []; cbn; intros [] [].
+Defined.
+
 (** * JMeq *)
 
 Lemma eq_JMeq :

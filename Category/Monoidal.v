@@ -64,6 +64,6 @@ Proof.
   exact (proj2_sig (coproduct_init_l' C hi hp X)).
   exact (proj1_sig (coproduct_init_r' C hi hp X)).
   exact (proj2_sig (coproduct_init_r' C hi hp X)).
-  cbn. copair. init.
-  cbn. copair.
+  cbn. coprod. apply create_equiv.
+  cbn. coprod.
 Defined.

@@ -325,7 +325,7 @@ Instance HasProducts_Sgr : HasProducts SgrCat :=
   outr := Sgr_outr;
   fpair := Sgr_fpair
 }.
-Proof. all: sgr. Defined.
+Proof. split; sgr. Defined.
 
 #[refine]
 #[export]
@@ -514,11 +514,12 @@ Proof.
 Abort.
 
 (*
+#[refine]
 #[export]
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
 {
   setoid := Sgr_freeprod_setoid X Y;
-  op := app_nel
+  op := nel_app
 }.
 Proof.
   proper. induction x as [| h t].

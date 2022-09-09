@@ -71,7 +71,7 @@ Instance HasInit_ReflexiveReloid : HasInit ReflexiveReloidCat :=
   init := ReflexiveReloid_init;
   create := ReflexiveReloid_create
 }.
-Proof. rreloid. Defined.
+Proof. red; rreloid. Defined.
 
 #[refine]
 #[export]
@@ -79,7 +79,7 @@ Instance ReflexiveReloid_term : ReflexiveReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -87,7 +87,7 @@ Instance ReflexiveReloid_delete (X : ReflexiveReloid) : ReloidHom X ReflexiveRel
 {
   func := Reloid_delete X
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance HasTerm_ReflexiveReloid : HasTerm ReflexiveReloidCat :=
   term := ReflexiveReloid_term;
   delete := ReflexiveReloid_delete;
 }.
-Proof. rreloid. Defined.
+Proof. red; rreloid. Defined.
 
 #[refine]
 #[export]
@@ -146,7 +146,7 @@ Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
   fpair := ReflexiveReloid_fpair;
 }.
 Proof.
-  all: unfold isProduct; reloid.
+  split; reloid.
 Defined.
 
 #[refine]
@@ -197,6 +197,6 @@ Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
   copair := ReflexiveReloid_copair;
 }.
 Proof.
-  proper. now destruct x1; rewrite ?H, ?H0.
-  unfold isCoproduct. cat. now destruct x; rewrite ?H, ?H0.
+  split; cat.
+  now destruct x; rewrite ?H, ?H0.
 Defined.
