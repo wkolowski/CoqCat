@@ -100,6 +100,25 @@ Proof.
   now intros A B [] []; cbn; intros [] [].
 Defined.
 
+Lemma CAT_fpair_unique :
+  forall (X C D : Cat) (F : @Hom CAT X C) (G : @Hom CAT X D) (FG : @Hom CAT X (CAT_product C D)),
+    F == FG .> CAT_outl C D -> G == FG .> CAT_outr C D -> CAT_fpair F G == FG.
+Proof.
+  intros X C D F G FG [p q] [r s].
+  esplit. Unshelve. all: cycle 1; intros.
+  - apply pair_eq; cbn; [apply p | apply r].
+  - cbn in *.
+    apply pair_eq'.
+    + rewrite <- q; clear q s.
+      generalize (p A), (p B), (r A), (r B).
+      destruct (fob FG A), (fob FG B); cbn.
+      now intros [] [] [] []; cbn.
+    + rewrite <- s; clear q s.
+      generalize (p A), (p B), (r A), (r B).
+      destruct (fob FG A), (fob FG B); cbn.
+      now intros [] [] [] []; cbn.
+Qed.
+
 #[refine]
 #[export]
 Instance HasProducts_CAT : HasProducts CAT :=
@@ -111,31 +130,12 @@ Instance HasProducts_CAT : HasProducts CAT :=
 }.
 Proof.
   intros C D; split; intros X F G.
-  + now exists (fun _ => eq_refl); cbn.
-  + now exists (fun _ => eq_refl); cbn.
-  + assert (forall H : Hom X (CAT_product C D), H == CAT_fpair (H .> CAT_outl C D) (H .> CAT_outr C D)).
-    {
-      intros H; cbn.
-      esplit. Unshelve. all: cycle 1.
-      - now intros A; destruct (fob H A).
-      - cbn; intros A B f.
-        apply prod_eq_intro; cbn.
-        + unfold ProdCatHom; cbn.
-          generalize (fob H A).
-    }
- intros [p q] [r s].
-    esplit. Unshelve. all: cycle 1.
-    * intros A. apply prod_eq_intro; cbn; [apply p | apply r].
-    * intros A B f; cbn in *.
-      apply prod_eq_intro.
-      -- rewrite <- q; clear q s.
-         generalize (p A), (p B), (r A), (r B).
-         destruct (fob F A), (fob F B); cbn.
-         now intros [] [] [] []; cbn.
-      -- rewrite <- s; clear q s.
-         generalize (p A), (p B), (r A), (r B).
-         destruct (fob FG A), (fob FG B); cbn.
-         now intros [] [] [] []; cbn.
+  - now exists (fun _ => eq_refl); cbn.
+  - now exists (fun _ => eq_refl); cbn.
+  - intros Hl Hr.
+    transitivity (CAT_fpair (F .> CAT_outl C D) (F .> CAT_outr C D)).
+    + now symmetry; apply CAT_fpair_unique.
+    + now apply CAT_fpair_unique.
 Defined.
 
 Definition CoprodCatHom {C D : Cat} (X Y : Ob C + Ob D) : Type :=
@@ -232,27 +232,13 @@ Instance HasCoproducts_CAT : HasCoproducts CAT :=
   copair := CAT_copair
 }.
 Proof.
-  - cbn; intros C D E F G [p q] H I [r s].
+  intros C D; split; cbn; intros P' F G.
+  - now exists (fun _ => eq_refl).
+  - now exists (fun _ => eq_refl).
+  - intros [p q] [r s].
     esplit. Unshelve. all: cycle 1.
-    + intros [A | A]; cbn.
-      * now destruct (p A).
-      * now destruct (r A).
-    + intros [X | X] [Y | Y] f; cbn in *.
-      * rewrite <- q; clear q. now destruct (p X), (p Y); cbn.
-      * easy.
-      * easy.
-      * rewrite <- s; clear s. now destruct (r X), (r Y); cbn.
-  - intros C D E F G; repeat split; cbn in *.
-    + now exists (fun _ => eq_refl); cbn.
-    + now exists (fun _ => eq_refl); cbn.
-    + intros FG [[p q] [r s]].
-      esplit. Unshelve. all: cycle 1.
-      * intros [X | X]; [apply p | apply r].
-      * intros [X | X] [Y | Y] f; cbn in *.
-        -- now rewrite <- q.
-        -- easy.
-        -- easy.
-        -- now rewrite <- s.
+    + intros [A | A]; [apply p | apply r].
+    + now intros [A | A] [B | B] H; [apply q | | | apply s].
 Defined.
 
 #[refine]

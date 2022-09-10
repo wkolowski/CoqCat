@@ -244,7 +244,31 @@ Lemma isPushout_Dual :
       isPullback C f g P pullL pullR factor.
 Proof. firstorder. Defined.
 
-(** TODO: pullbacks and pushouts *)
+#[refine]
+#[export]
+Instance HasPullbacks_Dual (C : Cat) (hp : HasPushouts C) : HasPullbacks (Dual C) :=
+{
+  pullback := @pushout C hp;
+  pullL := @pushl C hp;
+  pullR := @pushr C hp;
+  factor := @cofactor C hp;
+}.
+Proof.
+  now intros; apply isPullback_Dual; typeclasses eauto.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPushouts_Dual (C : Cat) (hp : HasPullbacks C) : HasPushouts (Dual C) :=
+{
+  pushout := @pullback C hp;
+  pushl := @pullL C hp;
+  pushr := @pullR C hp;
+  cofactor := @factor C hp;
+}.
+Proof.
+  now intros; apply isPushout_Dual; typeclasses eauto.
+Defined.
 
 Lemma isIndexedProduct_Dual :
   forall
