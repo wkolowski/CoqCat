@@ -27,6 +27,10 @@ Notation "f .> g" := (comp f g) (at level 50).
 
 #[global] Hint Resolve comp_assoc comp_id_l comp_id_r : core.
 
+#[global] Hint Rewrite @comp_id_l @comp_id_r @comp_assoc : cat.
+
+Ltac cat_simpl := autorewrite with cat in *.
+
 (** *** The identity is unique *)
 
 Lemma id_unique_left :
@@ -190,7 +194,13 @@ Instance Dual (C : Cat) : Cat :=
   comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
   id := @id C
 |}.
-Proof. all: cat. Defined.
+Proof.
+  - apply HomSetoid.
+  - proper.
+  - now intros; rewrite comp_assoc.
+  - now intros; rewrite comp_id_r.
+  - now intros; rewrite comp_id_l.
+Defined.
 
 (* The following uses the [JMeq_eq] axiom. *)
 Lemma cat_split : forall
@@ -340,14 +350,14 @@ Lemma isSec_isIso :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isIso f -> isSec f.
 Proof.
-  unfold isIso, isSec; cat.
+  unfold isIso, isSec; firstorder.
 Qed.
 
 Lemma isRet_isIso :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isIso f -> isRet f.
 Proof.
-  unfold isIso, isRet; cat.
+  unfold isIso, isRet; firstorder.
 Qed.
 
 #[global] Hint Resolve isMono_isSec isEpi_isRet isSec_isIso isRet_isIso : core.
@@ -356,7 +366,7 @@ Lemma isIso_iff_isSec_isRet :
   forall (C : Cat) (A B : Ob C) (f : Hom A B),
     isIso f <-> isSec f /\ isRet f.
 Proof.
-  split; [cat |].
+  split; [firstorder |].
   intros [[g1 H1] [g2 H2]].
   exists (g2 .> f .> g1).
   split.
@@ -369,7 +379,7 @@ Lemma isIso_iff_isSec_isEpi :
     isIso f <-> isSec f /\ isEpi f.
 Proof.
   split; intros.
-    apply isIso_iff_isSec_isRet in H. cat.
+    apply isIso_iff_isSec_isRet in H. intuition.
     unfold isIso, isSec, isEpi in *. destruct H as [[g eq] H].
       exists g. split; [easy |]. apply H.
       now rewrite <- comp_assoc, eq, comp_id_l, comp_id_r.
@@ -380,7 +390,7 @@ Lemma isIso_iff_isMono_isRet :
     isIso f <-> isMono f /\ isRet f.
 Proof.
   split; intros.
-    apply isIso_iff_isSec_isRet in H. cat.
+    apply isIso_iff_isSec_isRet in H. intuition.
     unfold isIso, isSec, isEpi in *. destruct H as [H [g eq]].
     exists g. split; [| easy].
     apply H. now rewrite comp_assoc, eq, comp_id_l, comp_id_r.
@@ -407,12 +417,12 @@ Proof. easy. Defined.
 Lemma isMono_id :
   forall (C : Cat) (X : Ob C),
     isMono (id X).
-Proof. cat. Defined.
+Proof. now red; intros; cat_simpl. Defined.
 
 Lemma isEpi_id :
   forall (C : Cat) (X : Ob C),
     isEpi (id X).
-Proof. cat. Defined.
+Proof. now red; intros; cat_simpl. Defined.
 
 Lemma isBi_id :
   forall (C : Cat) (X : Ob C),
@@ -447,14 +457,16 @@ Lemma isMono_comp :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isMono f -> isMono g -> isMono (f .> g).
 Proof.
-  unfold isMono. cat. apply H, H0. reflect_cat. cat.
+  unfold isMono; intros * Hf Hg W h1 h2 Heq.
+  now apply Hf, Hg; cat_simpl.
 Defined.
 
 Lemma isEpi_comp :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isEpi f -> isEpi g -> isEpi (f .> g).
 Proof.
-  unfold isEpi. cat.
+  unfold isEpi; intros * Hf Hg W h1 h2 Heq.
+  now apply Hg, Hf; cat_simpl.
 Defined.
 
 #[global] Hint Resolve isMono_comp isEpi_comp : core.
@@ -470,7 +482,7 @@ Lemma isSec_comp :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isSec f -> isSec g -> isSec (f .> g).
 Proof.
-  intros C X Y Z f g [h1 eq1] [h2 eq2].
+  unfold isSec; intros C X Y Z f g [h1 eq1] [h2 eq2].
   exists (h2 .> h1).
   now rewrite comp_assoc, <- (comp_assoc g h2), eq2, comp_id_l, eq1.
 Defined.
@@ -479,7 +491,7 @@ Lemma isRet_comp :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isRet f -> isRet g -> isRet (f .> g).
 Proof.
-  intros C X Y Z f g [h1 eq1] [h2 eq2].
+  unfold isRet; intros C X Y Z f g [h1 eq1] [h2 eq2].
   exists (h2 .> h1).
   now rewrite comp_assoc, <- (comp_assoc h1 f), eq1, comp_id_l, eq2.
 Defined.
@@ -490,7 +502,7 @@ Lemma isIso_comp :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isIso f -> isIso g -> isIso (f .> g).
 Proof.
-  intros. apply isIso_iff_isSec_isRet; cat.
+  intros. apply isIso_iff_isSec_isRet. auto.
 Defined.
 
 #[global] Hint Resolve isIso_comp : core.
@@ -498,7 +510,7 @@ Defined.
 Lemma isAut_comp :
   forall (C : Cat) (X : Ob C) (f : Hom X X) (g : Hom X X),
     isAut f -> isAut g -> isAut (f .> g).
-Proof. cat. Defined.
+Proof. auto. Defined.
 
 #[global] Hint Resolve isAut_comp : core.
 
@@ -508,29 +520,34 @@ Lemma isMono_prop :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isMono (f .> g) -> isMono f.
 Proof.
-  unfold isMono; intros. apply H. now rewrite <- !comp_assoc, H0.
+  unfold isMono; intros * HM W h1 h2 Heq.
+  now apply HM; rewrite <- !comp_assoc, Heq.
 Defined.
 
 Lemma isEpi_prop :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isEpi (f .> g) -> isEpi g.
 Proof.
-  unfold isEpi; intros. apply H.
-  now rewrite !comp_assoc, H0.
+  unfold isEpi; intros * HE W h1 h2 Heq.
+  now apply HE; rewrite !comp_assoc, Heq.
 Defined.
 
 Lemma isSec_prop :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isSec (f .> g) -> isSec f.
 Proof.
-  unfold isSec. destruct 1 as [h eq]. exists (g .> h). rewrite <- eq; cat.
+  unfold isSec; intros * [h Heq].
+  exists (g .> h).
+  now rewrite <- Heq, comp_assoc.
 Defined.
 
 Lemma isRet_prop :
   forall (C : Cat) (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z),
     isRet (f .> g) -> isRet g.
 Proof.
-  unfold isRet. destruct 1 as [h eq]. exists (h .> f). cat.
+  unfold isRet; intros * [h Heq].
+  exists (h .> f).
+  now rewrite <- Heq, comp_assoc.
 Defined.
 
 #[global] Hint Resolve isMono_prop isEpi_prop isSec_prop isRet_prop : core.
@@ -594,7 +611,8 @@ Qed.
 Lemma unique_iso_is_iso :
   forall (C : Cat) (A B : Ob C), A ~~ B -> A ~ B.
 Proof.
-  unfold uniquely_isomorphic, isomorphic; cat.
+  unfold uniquely_isomorphic, isomorphic.
+  now intros * (f & HIso & _); exists f.
 Qed.
 
 #[global] Hint Resolve Dual_isomorphic Dual_uniquely_isomorphic unique_iso_is_iso : core.
@@ -732,12 +750,6 @@ Class Functor (C : Cat) (D : Cat) : Type :=
 Arguments fob  [C D] _ _.
 Arguments fmap [C D] _ [A B] _.
 
-Ltac functor_rw := rewrite fmap_comp || rewrite fmap_id.
-Ltac functor_rw' := rewrite <- fmap_comp || rewrite <- fmap_id.
-Ltac functor_simpl := repeat functor_rw.
-Ltac functor_simpl' := repeat functor_rw'.
-Ltac functor := repeat (split || intros || functor_simpl || cat).
-
 (** ** Kinds of functors and their properties *)
 
 Definition full {C D : Cat} (T : Functor C D) : Prop :=
@@ -760,15 +772,18 @@ Lemma isSec_fmap :
   forall (C D : Cat) (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
     isSec f -> isSec (fmap T f).
 Proof.
-  unfold isSec; intros. destruct H as (g, H). exists (fmap T g).
-  functor_simpl'. now f_equiv.
+  unfold isSec; intros * [g H].
+  exists (fmap T g).
+  now rewrite <- fmap_comp, H, fmap_id.
 Defined.
 
 Lemma isRet_fmap :
   forall (C D : Cat) (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
     isRet f -> isRet (fmap T f).
 Proof.
-  unfold isRet; cat. exists (fmap T x). rewrite <- fmap_comp, e. functor.
+  unfold isRet; intros * [g H].
+  exists (fmap T g).
+  now rewrite <- fmap_comp, H, fmap_id.
 Defined.
 
 #[global] Hint Resolve isSec_fmap isRet_fmap : core.
@@ -776,35 +791,62 @@ Defined.
 Lemma isIso_fmap :
   forall {C D : Cat} (T : Functor C D) {X Y : Ob C} (f : Hom X Y),
     isIso f -> isIso (fmap T f).
-Proof. intros. rewrite isIso_iff_isSec_isRet in *. cat. Defined.
+Proof. intros. rewrite isIso_iff_isSec_isRet in *. intuition. Defined.
 
 Lemma full_faithful_refl_isSec :
   forall {C D : Cat} (T : Functor C D) {X Y : Ob C} (f : Hom X Y),
     full T -> faithful T -> isSec (fmap T f) -> isSec f.
 Proof.
-  unfold full, faithful; do 6 intro; intros T_full T_faithful.
-  destruct 1 as [Tg Tg_sec], (T_full Y X Tg) as [g eq]. red.
-  exists g. apply T_faithful. now rewrite fmap_comp, fmap_id, eq.
+  unfold full, faithful, isSec; intros * T_full T_faithful [Tg Tg_sec].
+  destruct (T_full Y X Tg) as [g Heq].
+  exists g.
+  now apply T_faithful; rewrite fmap_comp, fmap_id, Heq.
 Defined.
 
 Lemma full_faithful_refl_isRet :
   forall {C D : Cat} (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> isRet (fmap T f) -> isRet f.
 Proof.
-  unfold full, faithful; do 6 intro; intros T_full T_faithful.
-  destruct 1 as [Tg Tg_ret], (T_full Y X Tg) as [g eq]. red.
-  exists g. apply T_faithful. now rewrite fmap_comp, fmap_id, eq.
+  unfold isRet, full, faithful; intros * T_full T_faithful [Tg Tg_ret].
+  destruct (T_full Y X Tg) as [g Heq].
+  exists g.
+  now apply T_faithful; rewrite fmap_comp, fmap_id, Heq.
 Defined.
 
 #[global] Hint Resolve full_faithful_refl_isSec full_faithful_refl_isRet : core.
+
+Lemma isSec_fmap_conv :
+  forall {C D : Cat} (T : Functor C D) {X Y : Ob C} (f : Hom X Y),
+    full T -> faithful T -> isSec (fmap T f) <-> isSec f.
+Proof.
+  split; intros.
+  - now eapply full_faithful_refl_isSec.
+  - now eapply isSec_fmap.
+Qed.
+
+Lemma isRet_fmap_conv :
+  forall {C D : Cat} (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
+    full T -> faithful T -> isRet (fmap T f) <-> isRet f.
+Proof.
+  split; intros.
+  - now eapply full_faithful_refl_isRet.
+  - now eapply isRet_fmap.
+Qed.
 
 Lemma full_faithful_refl_isIso :
   forall (C D : Cat) (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
     full T -> faithful T -> isIso (fmap T f) -> isIso f.
 Proof.
-  intros. rewrite isIso_iff_isSec_isRet in *. destruct H1. split.
-    now eapply full_faithful_refl_isSec.
-    now eapply full_faithful_refl_isRet.
+  intros * Hfu Hfa.
+  now rewrite !isIso_iff_isSec_isRet, isSec_fmap_conv, isRet_fmap_conv.
+Defined.
+
+Lemma isIso_fmap_conv :
+  forall (C D : Cat) (T : Functor C D) (X Y : Ob C) (f : Hom X Y),
+    full T -> faithful T -> isIso (fmap T f) <-> isIso f.
+Proof.
+  intros * Hfu Hfa.
+  now rewrite !isIso_iff_isSec_isRet, isSec_fmap_conv, isRet_fmap_conv.
 Defined.
 
 (** ** Identity, composition, constant and Hom functors *)
@@ -817,8 +859,9 @@ Instance FunctorComp {C D E : Cat} (T : Functor C D) (S : Functor D E) : Functor
   fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap S (fmap T f)
 }.
 Proof.
-  (* Proper *) proper.
-  (* Functor laws *) all: functor.
+  - proper.
+  - now intros; rewrite !fmap_comp.
+  - now intros; rewrite !fmap_id.
 Defined.
 
 #[refine]
@@ -829,8 +872,7 @@ Instance FunctorId (C : Cat) : Functor C C :=
   fmap := fun (X Y : Ob C) (f : Hom X Y) => f
 }.
 Proof.
-  (* Proper *) proper.
-  (* Functors laws *) all: functor.
+  all: easy.
 Defined.
 
 #[refine]
@@ -840,7 +882,9 @@ Instance ConstFunctor {D : Cat} (X : Ob D) (C : Cat) : Functor C D :=
   fob := fun _ => X;
   fmap := fun _ _ _ => id X
 }.
-Proof. proper. all: functor. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -849,8 +893,10 @@ Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
   fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
 }.
 Proof.
-  intros A B f. exists (fun g => g .> f). proper.
-  proper. all: cat.
+  - intros A B f. exists (fun g => g .> f). proper.
+  - proper.
+  - now cbn; intros; rewrite comp_assoc.
+  - now cbn; intros; rewrite comp_id_r.
 Defined.
 
 (** ** Contravariant functors *)
@@ -874,7 +920,9 @@ Instance ConstContravariant {D : Cat} (X : Ob D) (C : Cat) : Contravariant C D :
   coob := fun _ => X;
   comap := fun _ _ _ => id X
 }.
-Proof. proper. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -883,8 +931,10 @@ Instance HomContravariant (C : Cat) (X : Ob C) : Contravariant C CoqSetoid :=
   coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
 }.
 Proof.
-  intros Y Z f. exists (fun g => f .> g). proper.
-  proper. all: cat.
+  - intros Y Z f. exists (fun g => f .> g). proper.
+  - proper.
+  - now cbn.
+  - now cbn.
 Defined.
 
 (** ** Bifunctors *)
@@ -930,9 +980,9 @@ Instance BiComp
     bimap (fmap F f) (fmap G g)
 }.
 Proof.
-  proper.
-  now intros; rewrite !fmap_comp, !bimap_comp.
-  now intros; rewrite 2 fmap_id, bimap_id.
+  - proper.
+  - now intros; rewrite !fmap_comp, !bimap_comp.
+  - now intros; rewrite 2 fmap_id, bimap_id.
 Defined.
 
 #[refine]
@@ -942,7 +992,9 @@ Instance ConstBifunctor {E : Cat} (X : Ob E) (C D : Cat) : Bifunctor C D E :=
   biob := fun _ _ => X;
   bimap := fun _ _ _ _ _ _ => id X
 }.
-Proof. proper. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 (** ** Profunctors *)
 
@@ -973,7 +1025,7 @@ Ltac profunctor_simpl := repeat (rewrite dimap_comp || rewrite dimap_id).
 Ltac profunctor := repeat
 match goal with
 | |- context [Proper] => proper
-| _ => cat; try functor_simpl; profunctor_simpl; cat
+| _ => cat; profunctor_simpl; cat
 end.
 
 #[refine]
@@ -983,7 +1035,9 @@ Instance ConstProfunctor {E : Cat} (X : Ob E) (C D : Cat) : Profunctor C D E :=
   diob := fun _ _ => X;
   dimap := fun _ _ _ _ _ _ => id X
 }.
-Proof. all: profunctor. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -994,8 +1048,10 @@ Instance ProComp
   diob := fun (X : Ob C) (Y : Ob D) => diob (fob F X) (fob G Y)
 }.
 Proof.
-  intros ? ? ? ? f g. exact (dimap (fmap F f) (fmap G g)).
-  all: profunctor.
+  - intros * f g. exact (dimap (fmap F f) (fmap G g)).
+  - proper.
+  - now cbn; intros; rewrite !fmap_comp, dimap_comp.
+  - now cbn; intros; rewrite !fmap_id, dimap_id.
 Defined.
 
 #[refine]
@@ -1005,23 +1061,13 @@ Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
   diob := fun X Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |};
 }.
 Proof.
-  intros ? ? ? ? f g. exists (fun h : Hom Y X' => f .> h .> g). proper.
-  all: profunctor.
+  - intros * f g. exists (fun h : Hom Y X' => f .> h .> g). proper.
+  - proper.
+  - now cbn; intros; rewrite !comp_assoc.
+  - now cbn; intros; rewrite comp_id_l, comp_id_r.
 Defined.
 
 (** * The category of categories and functors *)
-
-Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y :=
-match p with
-| eq_refl => u
-end.
-
-Lemma transport_transport :
-  forall {A : Type} (P : A -> Type) {x y z : A} (p : x = y) (q : y = z) (u : P x),
-    transport P q (transport P p u) = transport P (eq_trans p q) u.
-Proof.
-  now intros A P x y z [] [] u; cbn.
-Defined.
 
 #[refine]
 #[export]
@@ -1100,10 +1146,10 @@ Instance CAT_product (C : Cat) (D : Cat) : Cat :=
   id := fun A : Ob C * Ob D => (id (fst A), id (snd A))
 }.
 Proof.
-  (* Proper *) proper; my_simpl.
-    now rewrite H, H0.
-    now rewrite H1, H2.
-  (* Category laws *) all: cat.
+  - proper. now destruct H as [-> ->], H0 as [-> ->].
+  - now cbn; intros; rewrite !comp_assoc.
+  - now cbn; intros; rewrite comp_id_l.
+  - now cbn; intros; rewrite comp_id_r.
 Defined.
 
 (** * Natural transformations *)
@@ -1139,8 +1185,7 @@ Instance NatTransComp
   component := fun X : Ob C => component α X .> component β X
 }.
 Proof.
-  intros. destruct α, β; cbn in *.
-  rewrite !comp_assoc, natural1, <- comp_assoc, natural0. cat.
+  now intros X Y f; rewrite !comp_assoc, natural, <- comp_assoc, natural, comp_assoc.
 Defined.
 
 #[refine]
@@ -1149,7 +1194,9 @@ Instance NatTransId {C D : Cat} (F : Functor C D) : NatTrans F F :=
 {
   component := fun X : Ob C => id (fob F X)
 }.
-Proof. cat. Defined.
+Proof.
+  now intros; rewrite comp_id_l, comp_id_r.
+Defined.
 
 (** ** Natural isomorphisms and representable functors *)
 
@@ -1164,28 +1211,29 @@ Lemma natural_isomorphism_char :
     natural_isomorphism α <-> forall X : Ob C, isIso (component α X).
 Proof.
   unfold natural_isomorphism; split; cbn; intros.
-    destruct H as [β [Η1 Η2]]. red. now exists (component β X).
-    red in H. destruct α as [component_α natural_α]; cbn in *.
+  - destruct H as (β & Η1 & Η2). red. now exists (component β X).
+  - red in H. destruct α as [component_α natural_α]; cbn in *.
     assert (component_β : {f : forall X : Ob C, Hom (fob G X) (fob F X) |
-    (forall X : Ob C, component_α X .> f X == id (fob F X) /\
-      f X .> component_α X == id (fob G X)) /\
+      (forall X : Ob C,
+        component_α X .> f X == id (fob F X)
+          /\
+        f X .> component_α X == id (fob G X))
+      /\
     (forall (X Y : Ob C) (g : Hom X Y), f X .> fmap F g == fmap G g .> f Y)}).
+    {
       pose (H' := fun X : Ob C => constructive_indefinite_description _ (H X)).
       exists (fun X : Ob C => proj1_sig (H' X)). split.
-        intros. split; destruct (H' X); cat.
-        intros. destruct (H' X), (H' Y). cbn in *. cat. clear H'.
-        assert (
-        x .> component_α X .> x .> fmap F g .> component_α Y .> x0 ==
-        x .> component_α X .> fmap G g .> x0 .> component_α Y .> x0).
-          rewrite !comp_assoc.
-          rewrite <- (comp_assoc (component_α X) x).
-          rewrite <- (comp_assoc x0 (component_α Y)).
-          rewrite <- (comp_assoc (fmap F g) _).
-          rewrite <- (comp_assoc _ (fmap G g)).
-          rewrite H2, H1, natural_α. cat.
-        rewrite H3 in H4. rewrite !comp_assoc in H4.
-        rewrite H0 in H4. cat.
-    destruct component_β as [component_β [inverse_α_β natural_β]].
+      - intros. now split; destruct (H' X); cbn.
+      - intros; destruct (H' X), (H' Y); cbn in *; clear H H'.
+        destruct a as [a1 a2], a0 as [b1 b2].
+        rewrite <- comp_id_l, <- comp_id_r, <- a2, <- b1.
+        rewrite !comp_assoc, <- (comp_assoc (fmap F g) _).
+        rewrite <- natural_α.
+        rewrite <- (comp_assoc (component_α X)).
+        rewrite a1, comp_id_l, <- !comp_assoc, a2, comp_id_l.
+        easy.
+    }
+    destruct component_β as (component_β & inverse_α_β & natural_β).
     eexists {| component := component_β; natural := natural_β |}.
     cat; apply inverse_α_β.
 Defined.

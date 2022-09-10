@@ -14,7 +14,9 @@ Instance CAT_create (X : Cat) : Functor CAT_init X :=
   fob := fun e => match e with end;
   fmap := fun e _ _ => match e with end
 }.
-Proof. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -24,9 +26,8 @@ Instance HasInit_CAT : HasInit CAT :=
   create := CAT_create
 }.
 Proof.
-  cbn; intros X F G. cbn.
-  exists (fun e : Empty_set => match e with end).
-  destruct A.
+  intros X F G; cbn in *.
+  now exists (fun e : Empty_set => match e with end).
 Defined.
 
 #[export]
@@ -38,7 +39,9 @@ Instance CAT_delete (X : Cat) : Functor X CAT_term :=
 {
   fob := fun _ => tt;
 }.
-Proof. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -53,7 +56,7 @@ Proof.
   {
     intros H. esplit. Unshelve. all: cycle 1.
     - now cbn; intros A; destruct (fob H A).
-    - cbn; intros A B f. apply Eqdep_dec.UIP_refl_unit.
+    - now cbn; intros A B f; apply Eqdep_dec.UIP_refl_unit.
   }
   now rewrite (Heq F), (Heq G).
 Defined.
@@ -65,7 +68,11 @@ Instance CAT_outl (X Y : Cat) : Functor (CAT_product X Y) X :=
   fob := fst;
   fmap := fun _ _ => fst
 }.
-Proof. all: cat. Defined.
+Proof.
+  - proper. intuition.
+  - easy.
+  - easy.
+Defined.
 
 #[refine]
 #[export]
@@ -74,7 +81,11 @@ Instance CAT_outr (X Y : Cat) : Functor (CAT_product X Y) Y :=
   fob := snd;
   fmap := fun _ _ => snd
 }.
-Proof. all: cat. Defined.
+Proof.
+  - proper. intuition.
+  - easy.
+  - easy.
+Defined.
 
 #[refine]
 #[export]
@@ -84,7 +95,11 @@ Instance CAT_fpair
   fob := fun X : Ob A => (fob F X, fob G X);
   fmap := fun _ _ f => (fmap F f, fmap G f)
 }.
-Proof. all: cat; functor. Defined.
+Proof.
+  - now proper.
+  - now cbn; intros; rewrite !fmap_comp.
+  - now cbn; intros; rewrite !fmap_id.
+Defined.
 
 Lemma pair_eq :
   forall {A B : Type} (a : A) (b : B) (p : A * B),
@@ -154,8 +169,8 @@ Proof.
     + intros f g. exact (f == g).
   - destruct X as [X' | X'], Y as [Y' | Y']; cbn.
     + apply HomSetoid.
-    + cat.
-    + cat.
+    + easy.
+    + easy.
     + apply HomSetoid.
 Defined.
 
@@ -175,11 +190,11 @@ Instance CAT_coproduct (C : Cat) (D : Cat) : Cat :=
 Proof.
   - intros [X | X] [Y | Y] [Z | Z].
     1, 8: exact comp.
-    1-6: cat.
-  - intros [X | X] [Y | Y] [Z | Z]; cat.
-  - intros [X | X] [Y | Y] [Z | Z] [W | W]; cat.
-  - intros [X | X] [Y | Y]; cat.
-  - intros [X | X] [Y | Y]; cat.
+    1-6: easy.
+  - now intros [X | X] [Y | Y] [Z | Z]; cbn; proper.
+  - now intros [X | X] [Y | Y] [Z | Z] [W | W] *; cbn.
+  - now intros [X | X] [Y | Y]; cbn.
+  - now intros [X | X] [Y | Y]; cbn.
 Defined.
 
 #[refine]
@@ -189,7 +204,9 @@ Instance CAT_finl (X Y : Cat) : Functor X (CAT_coproduct X Y) :=
   fob := inl;
   fmap := fun _ _ f => f
 }.
-Proof. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -198,7 +215,9 @@ Instance CAT_finr (X Y : Cat) : Functor Y (CAT_coproduct X Y) :=
   fob := inr;
   fmap := fun _ _ f => f
 }.
-Proof. all: cat. Defined.
+Proof.
+  all: easy.
+Defined.
 
 #[refine]
 #[export]
@@ -214,12 +233,16 @@ Instance CAT_copair
 Proof.
   - intros [A | A] [B | B] f; cbn in *.
     + exact (fmap F f).
-    + destruct f.
-    + destruct f.
+    + easy.
+    + easy.
     + exact (fmap G f).
-  - intros [A | A] [B | B] f g Heq; cbn in *; proper; cat.
-  - intros [X | X] [Y | Y] [Z | Z] f g; cbn in *; proper; cat; functor.
-  - intros [X | X]; cbn in *; proper; cat; functor.
+  - intros [A | A] [B | B] f g Heq; [| easy | easy |].
+    + now rewrite Heq.
+    + now rewrite Heq.
+  - intros [X | X] [Y | Y] [Z | Z] f g; cbn in *; try easy.
+    + now rewrite fmap_comp.
+    + now rewrite fmap_comp.
+  - now intros [X | X]; cbn in *; rewrite fmap_id.
 Defined.
 
 #[refine]
@@ -254,8 +277,8 @@ Proof.
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
       now rewrite H1, H2.
     + intros [F X] [G Y] [H Z] [[α H1] f] [[β H2] g]; cbn in *.
-      cat. now rewrite H2, fmap_comp, !comp_assoc, <- H2.
-    + intros [F X]; cbn. functor.
+      now rewrite comp_assoc, H2, fmap_comp, !comp_assoc, <- H2.
+    + now intros [F X]; cbn; rewrite fmap_id, comp_id_l.
   - cbn; intros D E C. intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.
     + intro X. esplit with (fob := fun d => fob (X, d)).

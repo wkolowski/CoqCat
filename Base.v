@@ -10,6 +10,18 @@ Export ListNotations.
 
 (** * Equality *)
 
+Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y :=
+match p with
+| eq_refl => u
+end.
+
+Lemma transport_transport :
+  forall {A : Type} (P : A -> Type) {x y z : A} (p : x = y) (q : y = z) (u : P x),
+    transport P q (transport P p u) = transport P (eq_trans p q) u.
+Proof.
+  now intros A P x y z [] [] u; cbn.
+Defined.
+
 Lemma unit_eq_intro :
   forall x y : unit, x = y.
 Proof.
@@ -87,7 +99,7 @@ Ltac my_simpl := cbn in *; repeat
 match goal with
 | H : False |- _ => inversion H
 | e : Empty_set |- _ => inversion e
-| x : True |- _ => destruct x
+| x : True |- _ => clear x
 | x : unit |- _ => destruct x
 | |- context [@eq unit ?a ?b] => destruct a, b
 | H : forall _ : unit, _ |- _ => specialize (H tt)

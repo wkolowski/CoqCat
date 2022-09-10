@@ -57,7 +57,8 @@ Defined.
 
 Definition FAlgId {C : Cat} {F : Functor C C} {X : FAlg F} : FAlgHom X X.
 Proof.
-  falg. exists (@id C X). functor.
+  red. exists (@id _ (projT1 X)).
+  now rewrite fmap_id, comp_id_l, comp_id_r.
 Defined.
 
 #[refine]
