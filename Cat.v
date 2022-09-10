@@ -52,9 +52,9 @@ Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=
 | Var  : forall X Y   : Ob C, Hom X Y -> exp X Y
 | Comp : forall X Y Z : Ob C, exp X Y -> exp Y Z -> exp X Z.
 
-Arguments Id [C] _.
-Arguments Var [C X Y] _.
-Arguments Comp [C X Y Z] _ _.
+Arguments Id   {C} _.
+Arguments Var  {C X Y} _.
+Arguments Comp {C X Y Z} _ _.
 
 #[global] Hint Constructors exp : core.
 
@@ -64,31 +64,6 @@ match e with
 | Var f      => f
 | Comp e1 e2 => expDenote e1 .> expDenote e2
 end.
-
-Fixpoint simplify {C : Cat} {X Y : Ob C} (e : exp X Y) {struct e} : exp X Y.
-Proof.
-  destruct e.
-    exact (Id _).
-    exact (Var h). destruct (simplify _ _ _ e1) as [| ? ? f1 | ? ? ? e11 e12]; clear e1.
-      exact (simplify _ _ _ e2).
-      destruct (simplify _ _ _ e2) as [| ? ? f2 | ? ? ? e21 e22]; clear e2.
-        exact (Var f1).
-        exact (Comp (Var f1) (Var f2)).
-        exact (Comp (Var f1) (Comp e21 e22)).
-      destruct (simplify _ _ _ e2) as [| ? ? f2 | ? ? ? e21 e22]; clear e2.
-        exact (Comp e11 e12).
-        exact (Comp (Comp e11 e12) (Var f2)).
-        exact (Comp (Comp e11 e12) (Comp e21 e22)).
-Defined.
-
-Lemma simplify_correct :
-  forall {C : Cat} {X Y : Ob C} (e : exp X Y),
-    expDenote (simplify e) == expDenote e.
-Proof.
-  induction e; cbn; [easy | easy |].
-  destruct (simplify e1); destruct (simplify e2); cbn in *;
-  now rewrite <- ?IHe1, <- ?IHe2, ?comp_id_l, ?comp_id_r.
-Qed.
 
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
 | HomNil  : forall X : Ob C, HomList X X
@@ -136,20 +111,20 @@ Qed.
 
 Lemma cat_reflect :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
-    expDenoteHL (flatten (simplify e1)) ==
-    expDenoteHL (flatten (simplify e2)) ->
+    expDenoteHL (flatten e1) ==
+    expDenoteHL (flatten e2) ->
       expDenote e1 == expDenote e2.
 Proof.
-  now intros; rewrite !expDenoteHL_flatten, !simplify_correct in H.
+  now intros; rewrite !expDenoteHL_flatten in H.
 Qed.
 
 Lemma cat_expand :
   forall (C : Cat) (X Y : Ob C) (e1 e2 : exp X Y),
     expDenote e1 == expDenote e2 ->
-      expDenoteHL (flatten (simplify e1)) ==
-      expDenoteHL (flatten (simplify e2)).
+      expDenoteHL (flatten e1) ==
+      expDenoteHL (flatten e2).
 Proof.
-  now intros; rewrite !expDenoteHL_flatten, !simplify_correct.
+  now intros; rewrite !expDenoteHL_flatten.
 Qed.
 
 Ltac reify mor :=
@@ -254,7 +229,7 @@ Lemma Dual_Dual :
   forall C : Cat,
     Dual (Dual C) = C.
 Proof.
-  intros []; apply cat_split; cbn; trivial.
+  intros []; apply cat_split; cbn; [easy | easy | easy | easy |].
   apply eq_JMeq; extensionality A; extensionality B; apply JMeq_eq.
   destruct (HomSetoid0 A B).
   now apply setoid_split.

@@ -5,10 +5,10 @@ From Cat Require Import Cat.
 Set Implicit Arguments.
 
 Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
-| Id   : forall (C : Cat) (X : Ob C), exp C X X
-| Var  : forall (C : Cat) (X Y : Ob C), Hom X Y -> exp C X Y
-| Comp : forall (C : Cat) (X Y Z : Ob C), exp C X Y -> exp C Y Z -> exp C X Z
-| Fmap : forall (C D : Cat) (X Y : Ob C) (F : Functor C D), exp C X Y -> exp D (fob F X) (fob F Y).
+| Id   : forall (C   : Cat) (X     : Ob C), exp C X X
+| Var  : forall (C   : Cat) (X Y   : Ob C), Hom X Y -> exp C X Y
+| Comp : forall (C   : Cat) (X Y Z : Ob C), exp C X Y -> exp C Y Z -> exp C X Z
+| Fmap : forall (C D : Cat) (X Y   : Ob C) (F : Functor C D), exp C X Y -> exp D (fob F X) (fob F Y).
 
 Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
@@ -17,12 +17,6 @@ Arguments Fmap {C D X Y} _ _.
 
 #[global] Hint Constructors exp : core.
 
-Equations denote {C : Cat} {X Y : Ob C} (e : exp C X Y) : Hom X Y :=
-| Id X       => id X
-| Var f      => f
-| Comp e1 e2 => denote e1 .> denote e2
-| Fmap F e   => fmap F (denote e).
-
 Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
 | HomNil : forall X : Ob C, HomList X X
 | HomCons : forall X Y Z : Ob C, Hom X Y -> HomList Y Z -> HomList X Z.
@@ -30,13 +24,18 @@ Inductive HomList {C : Cat} : Ob C -> Ob C -> Type :=
 Arguments HomNil {C} _.
 Arguments HomCons {C X Y Z} _ _.
 
+Equations denote {C : Cat} {X Y : Ob C} (e : exp C X Y) : Hom X Y :=
+| Id X       => id X
+| Var f      => f
+| Comp e1 e2 => denote e1 .> denote e2
+| Fmap F e   => fmap F (denote e).
+
 Equations denoteHL {C : Cat} {X Y : Ob C} (l : HomList X Y) : Hom X Y :=
 | HomNil X    => id X
 | HomCons h t => h .> denoteHL t.
 
 Equations Happ
-  {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y) (l2 : HomList Y Z)
-  : HomList X Z :=
+  {C : Cat} {X Y Z : Ob C} (l1 : HomList X Y) (l2 : HomList Y Z) : HomList X Z :=
 | HomNil _   , l2 => l2
 | HomCons h t, l2 => HomCons h (Happ t l2).
 

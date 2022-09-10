@@ -1,12 +1,14 @@
+From Equations Require Import Equations.
+
 From Cat Require Import Cat.
 
 Set Implicit Arguments.
 
 Inductive exp : forall C : Cat, Ob C -> Ob C -> Type :=
-| Id   : forall (C : Cat) (X : Ob C), exp C X X
-| Var  : forall (C : Cat) (X Y : Ob C), Hom X Y -> exp C X Y
-| Comp : forall (C : Cat) (X Y Z : Ob C), exp C X Y -> exp C Y Z -> exp C X Z
-| Fmap : forall (C D : Cat) (X Y : Ob C) (F : Functor C D), exp C X Y -> exp D (fob F X) (fob F Y).
+| Id   : forall (C   : Cat) (X     : Ob C), exp C X X
+| Var  : forall (C   : Cat) (X Y   : Ob C), Hom X Y -> exp C X Y
+| Comp : forall (C   : Cat) (X Y Z : Ob C), exp C X Y -> exp C Y Z -> exp C X Z
+| Fmap : forall (C D : Cat) (X Y   : Ob C) (F : Functor C D), exp C X Y -> exp D (fob F X) (fob F Y).
 
 Arguments Id   {C} _.
 Arguments Var  {C X Y} _.
@@ -17,10 +19,10 @@ Arguments Fmap {C D X Y} _ _.
 
 Fixpoint expDenote {C : Cat} {X Y : Ob C} (e : exp C X Y) : Hom X Y :=
 match e with
-| Id X => id X
-| Var f => f
+| Id X       => id X
+| Var f      => f
 | Comp e1 e2 => expDenote e1 .> expDenote e2
-| Fmap F e' => fmap F (expDenote e')
+| Fmap F e'  => fmap F (expDenote e')
 end.
 
 Class Reify {C : Cat} {X Y : Ob C} (f : Hom X Y) : Type :=
@@ -38,7 +40,7 @@ Instance ReifyId (C : Cat) (X : Ob C) : Reify (id X) | 0 :=
   reify := Id X
 }.
 Proof.
-  now cbn.
+  easy.
 Defined.
 
 #[refine]
@@ -177,10 +179,10 @@ Qed.
 
 Fixpoint flatten {C : Cat} {X Y : Ob C} (e : exp C X Y) : HomList X Y :=
 match e with
-| Id X => HomNil X
-| Var f => HomCons f (HomNil _)
+| Id X       => HomNil X
+| Var f      => HomCons f (HomNil _)
 | Comp e1 e2 => flatten e1 +++ flatten e2
-| Fmap F e' => Hmap F (flatten e')
+| Fmap F e'  => Hmap F (flatten e')
 end.
 
 Lemma expDenoteHL_app :
