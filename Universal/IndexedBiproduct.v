@@ -12,6 +12,9 @@ Class isIndexedBiproduct
   isIndexedCoproduct_isIndexedBiproduct :> isIndexedCoproduct C P coproj (@cotuple);
 }.
 
+#[export] Hint Mode isIndexedBiproduct ! ! ! ! ! ! ! ! : core.
+#[export] Hint Mode isIndexedBiproduct ! ! ! - - - - - : core.
+
 (* Class HasIndexedBiproducts (C : Cat) : Type :=
 {
   indexedBiproduct : forall {J : Set} (A : J -> Ob C), Ob C;

@@ -7,6 +7,21 @@ Class isTerminal (C : Cat) (T : Ob C) (delete : forall X : Ob C, Hom X T) : Prop
 
 Arguments equiv_terminal {C T delete isTerminal X f} _.
 
+#[export] Hint Mode isTerminal ! ! ! : core.
+#[export] Hint Mode isTerminal ! - - : core.
+
+Lemma equiv_terminal' :
+  forall
+    {C : Cat} {T : Ob C} {delete : forall X : Ob C, Hom X T}
+    {isT : isTerminal C T delete}
+    {X : Ob C} (h1 h2 : Hom X T),
+      h1 == h2 <-> True.
+Proof.
+  firstorder.
+Qed.
+
+Ltac terminal_simpl := rewrite ?equiv_terminal'.
+
 (* Class HasTerm' (C : Cat) (T : Ob C) : Type :=
 {
   delete : forall X : Ob C, Hom X T;
@@ -51,7 +66,7 @@ Proof.
   repeat split.
   - exists (delete1 T2).
     split; apply equiv_terminal.
-  - now intros; apply equiv_terminal.
+  - intros; now intros; apply equiv_terminal.
 Qed.
 
 Lemma isTerminal_iso :

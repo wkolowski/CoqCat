@@ -22,6 +22,9 @@ Class isPullback
       h1 .> pullL == h2 .> pullL -> h1 .> pullR == h2 .> pullR -> h1 == h2;
 }.
 
+#[export] Hint Mode isPullback ! ! ! ! ! ! ! ! ! ! : core.
+#[export] Hint Mode isPullback ! ! ! ! ! - - - - - : core.
+
 Lemma equiv_pullback' :
   forall
     {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
@@ -88,6 +91,11 @@ Proof.
 Qed.
 
 End isPullback.
+
+Ltac pullback_simpl :=
+  repeat (rewrite
+    ?equiv_pullback', ?factor_pullL, ?factor_pullR, ?factor_id,
+    ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 Class HasPullbacks (C : Cat) : Type :=
 {

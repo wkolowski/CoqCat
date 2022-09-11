@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Universal Require Export Product. (* Initial Terminal Product Coproduct. *)
+From Cat.Universal Require Export Product.
 
 Class isExponential
   {C : Cat} {hp : HasProducts C} (A B : Ob C)
@@ -25,7 +25,7 @@ Lemma equiv_exponential' :
     {curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E}
     {isExp : isExponential A B E eval (@curry)}
     {E' : Ob C} (h1 h2 : Hom E' E),
-        h1 == h2 <-> h1 ×' id A .> eval == h2 ×' id A .> eval.
+      h1 == h2 <-> h1 ×' id A .> eval == h2 ×' id A .> eval.
 Proof.
   split.
   - now intros ->.
@@ -109,6 +109,12 @@ Qed.
 
 End Exponential.
 
+Ltac exponential_simpl :=
+  repeat (rewrite
+    ?equiv_exponential', ?exp_comp, ?curry_uncurry, ?uncurry_curry, ?curry_eval,
+    ?ProductFunctor_fmap_comp_l, ?ProductFunctor_fmap_comp_r, ?ProductFunctor_fmap_id,
+    ?comp_id_l, ?comp_id_r, ?comp_assoc).
+
 Lemma isExponential_uiso :
   forall
     (C : Cat) (hp : HasProducts C) (A B : Ob C)
@@ -180,7 +186,7 @@ Proof.
   now rewrite ProductFunctor_fmap_id, comp_id_l.
 Qed.
 
-Ltac curry := intros; repeat
+Ltac solve_exponential := intros; repeat
 match goal with
 | |- context [Proper] => proper; intros
 | |- context [curry (eval .> (_ .> _))] =>
@@ -212,4 +218,6 @@ Instance ExponentialFunctor
   fob := fun B : Ob C => expOb A B;
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
-Proof. all: curry. Defined.
+Proof.
+  all: solve_exponential.
+Defined.

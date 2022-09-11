@@ -7,6 +7,21 @@ Class isInitial (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop 
 
 Arguments equiv_initial {C I create isInitial X f} _.
 
+#[export] Hint Mode isInitial ! ! ! : core.
+#[export] Hint Mode isInitial ! - - : core.
+
+Lemma equiv_initial' :
+  forall
+    {C : Cat} {I : Ob C} {create : forall X : Ob C, Hom I X}
+    {isI : isInitial C I create}
+    {X : Ob C} (h1 h2 : Hom I X),
+      h1 == h2 <-> True.
+Proof.
+  firstorder.
+Qed.
+
+Ltac initial_simpl := rewrite ?equiv_initial'.
+
 (* Class HasInit' (C : Cat) (I : Ob C) : Type :=
 {
   create : forall X : Ob C, Hom I X;

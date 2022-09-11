@@ -22,27 +22,7 @@ Class isPushout
 }.
 
 #[export] Hint Mode isPushout ! ! ! ! ! ! ! ! ! ! : core.
-#[export] Hint Mode isPushout ! ! ! - - - - - - - : core.
-
-Class HasPushouts (C : Cat) : Type :=
-{
-  pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
-  pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushout f g);
-  pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushout f g);
-  cofactor :
-    forall
-      {A B X : Ob C} (f : Hom X A) (g : Hom X B)
-      {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
-        f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
-  HasPushouts_isPushout :>
-    forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
-      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
-}.
-
-Arguments pushout {C HasPushouts A B X} _ _.
-Arguments pushl     {C HasPushouts A B X f g}.
-Arguments pushr     {C HasPushouts A B X f g}.
-Arguments cofactor  {C HasPushouts A B X f g P pushl' pushr'} _.
+#[export] Hint Mode isPushout ! ! ! ! ! - - - - - : core.
 
 Lemma equiv_pushout' :
   forall
@@ -110,6 +90,31 @@ Proof.
 Qed.
 
 End isPushout.
+
+Ltac pushout_simpl :=
+  repeat (rewrite
+    ?equiv_pushout', ?pushl_cofactor, ?pushr_cofactor, ?cofactor_id,
+    ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
+
+Class HasPushouts (C : Cat) : Type :=
+{
+  pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
+  pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushout f g);
+  pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushout f g);
+  cofactor :
+    forall
+      {A B X : Ob C} (f : Hom X A) (g : Hom X B)
+      {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
+        f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
+  HasPushouts_isPushout :>
+    forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
+      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
+}.
+
+Arguments pushout {C HasPushouts A B X} _ _.
+Arguments pushl     {C HasPushouts A B X f g}.
+Arguments pushr     {C HasPushouts A B X f g}.
+Arguments cofactor  {C HasPushouts A B X f g P pushl' pushr'} _.
 
 Lemma isPushout_uiso :
   forall

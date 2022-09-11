@@ -67,7 +67,7 @@ Proof.
   now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
 Qed.
 
-Lemma cofactorize_coequalize_ok :
+Lemma cofactorize_id :
   cofactorize coequalize_ok == id Q.
 Proof.
   now rewrite equiv_coequalizer', coequalize_cofactorize, comp_id_r.
@@ -90,6 +90,11 @@ Proof.
 Qed.
 
 End isCoequalizer.
+
+Ltac coequalizer_simpl :=
+  repeat (rewrite
+    ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_id,
+    ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Lemma isCoequalizer_uiso :
   forall
@@ -153,7 +158,7 @@ Lemma isCoequalizer_equiv_coequalize :
       isCoequalizer C f g Q coequalize2 cofactorize ->
         coequalize1 == coequalize2.
 Proof.
-  now intros; rewrite <- comp_id_r, <- cofactorize_coequalize_ok, coequalize_cofactorize.
+  now intros; rewrite <- comp_id_r, <- cofactorize_id, coequalize_cofactorize.
 Qed.
 
 Lemma isCoequalizer_equiv_cofactorize :

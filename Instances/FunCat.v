@@ -39,7 +39,8 @@ Instance FunCat_outl
   component := fun _ : Ob C => outl
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap. now rewrite fpair_outl.
+  cbn; unfold ProductFunctor_fmap; intros.
+  now rewrite fpair_outl.
 Defined.
 
 #[refine]
@@ -50,7 +51,8 @@ Instance FunCat_outr
   component := fun _ : Ob C => outr
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap. now rewrite fpair_outr.
+  cbn; unfold ProductFunctor_fmap; intros.
+  now rewrite fpair_outr.
 Defined.
 
 #[refine]
@@ -62,7 +64,8 @@ Instance FunCat_fpair
   component := fun X : Ob C => fpair (component α X) (component β X)
 }.
 Proof.
-  intros. cbn. unfold ProductFunctor_fmap. fpair; apply natural.
+  cbn; unfold ProductFunctor_fmap; intros.
+  solve_product; apply natural.
 Defined.
 
 #[refine]
@@ -76,7 +79,7 @@ Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunC
     @FunCat_fpair C D hp F G H α β
 }.
 Proof.
-  split; cbn; intros; fpair.
+  split; cbn; intros; solve_product.
   now apply equiv_product.
 Defined.
 
@@ -102,7 +105,7 @@ Instance FunCat_finl
   component := fun _ : Ob C => finl
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. coprod.
+  intros. cbn. unfold CoproductFunctor_fmap. solve_coproduct.
 Defined.
 
 #[refine]
@@ -113,7 +116,7 @@ Instance FunCat_finr
   component := fun _ : Ob C => finr
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. coprod.
+  intros. cbn. unfold CoproductFunctor_fmap. solve_coproduct.
 Defined.
 
 #[refine]
@@ -126,7 +129,7 @@ Instance FunCat_copair
 }.
 Proof.
   intros. cbn. unfold CoproductFunctor_fmap.
-  destruct α, β; cbn in *. coprod.
+  destruct α, β; cbn in *. solve_coproduct.
 Defined.
 
 #[refine]
@@ -142,7 +145,7 @@ Instance HasCoproducts_FunCat
     => @FunCat_copair C D hp F G H α β
 }.
 Proof.
-  repeat split; cbn; intros; coprod.
+  repeat split; cbn; intros; solve_coproduct.
   now apply equiv_coproduct.
 Defined.
 

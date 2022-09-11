@@ -39,7 +39,7 @@ Proof.
   - apply equiv_equalizer.
 Qed.
 
-#[global] Lemma Proper_factorize :
+Lemma Proper_factorize :
   forall {E' : Ob C} {e1 e2 : Hom E' A} (H1 : e1 .> f == e1 .> g) (H2 : e2 .> f == e2 .> g),
     e1 == e2 -> factorize H1 == factorize H2.
 Proof.
@@ -66,7 +66,7 @@ Proof.
   now intros; rewrite equiv_equalizer', factorize_equalize.
 Qed.
 
-Lemma factorize_equalize_ok :
+Lemma factorize_id :
   factorize equalize_ok == id E.
 Proof.
   now rewrite equiv_equalizer', factorize_equalize, comp_id_l.
@@ -89,6 +89,11 @@ Proof.
 Qed.
 
 End isEqualizer.
+
+Ltac equalizer_simpl :=
+  repeat (rewrite
+    ?equiv_equalizer', ?factorize_equalize, ?factorize_id,
+    ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 (* TODO: equalize_comp *)
 
@@ -140,7 +145,7 @@ Lemma isEqualizer_equiv_equalize :
       isEqualizer C f g E equalize2 factorize ->
         equalize1 == equalize2.
 Proof.
-  now intros; rewrite <- comp_id_l, <- factorize_equalize_ok, factorize_equalize.
+  now intros; rewrite <- comp_id_l, <- factorize_id, factorize_equalize.
 Qed.
 
 Lemma isEqualizer_equiv_factorize :

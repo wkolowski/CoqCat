@@ -25,5 +25,5 @@ Proof.
   - apply equiv_initial.
   - setoid_replace (create (product (init C) X)) with (fpair (id (init C)) (create X))
       by apply equiv_initial.
-    rewrite <- fpair_pre, equiv_product', fpair_outl, fpair_outr. cat.
+    rewrite fpair_pre, equiv_product', fpair_outl, fpair_outr. cat.
 Abort.

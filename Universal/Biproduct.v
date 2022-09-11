@@ -14,6 +14,9 @@ Class isBiproduct
   isBiproduct_isCoproduct :> isCoproduct C P finl finr (@copair);
 }.
 
+#[export] Hint Mode isBiproduct ! ! ! ! ! ! ! ! ! ! : core.
+#[export] Hint Mode isBiproduct ! ! ! - - - - - - - : core.
+
 Lemma isBiproduct_Dual :
   forall
     (C : Cat) (X Y : Ob C)
@@ -69,5 +72,5 @@ Instance BiproductBifunctor {C : Cat} {hp : HasBiproducts C} : Bifunctor C C C :
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.
 Proof.
-  all: coprod.
+  all: solve_coproduct.
 Defined.

@@ -19,7 +19,7 @@ Proof.
   symmetry.
   red. exists (fpair (delete X) (id X)).
   red. exists outr.
-  fpair. apply equiv_terminal.
+  solve_product; apply equiv_terminal.
 Defined.
 
 Lemma product_term_l' :
@@ -28,7 +28,7 @@ Lemma product_term_l' :
 Proof.
   intros.
   exists outr, (fpair (delete X) (id X)).
-  fpair; apply equiv_terminal.
+  solve_product; apply equiv_terminal.
 Defined.
 
 Lemma product_term_r :
@@ -44,7 +44,7 @@ Lemma product_term_r' :
 Proof.
   intros.
   exists outl, (fpair (id X) (delete X)).
-  fpair; apply equiv_terminal.
+  solve_product; apply equiv_terminal.
 Defined.
 
 Lemma coproduct_init_l :
@@ -53,7 +53,7 @@ Lemma coproduct_init_l :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  coprod; apply equiv_initial.
+  solve_coproduct; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_l' :
@@ -62,7 +62,7 @@ Lemma coproduct_init_l' :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  coprod; apply equiv_initial.
+  solve_coproduct; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_r :
@@ -78,7 +78,7 @@ Lemma coproduct_init_r' :
 Proof.
   intros.
   exists (copair (id X) (create X)), finl.
-  coprod; apply equiv_initial.
+  solve_coproduct; apply equiv_initial.
 Defined.
 
 (* TODO *) Lemma exp_term_dom :

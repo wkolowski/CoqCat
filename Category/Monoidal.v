@@ -43,8 +43,8 @@ Proof.
   exact (proj2_sig (product_term_l' C ht hp X)).
   exact (proj1_sig (product_term_r' C X ht hp)).
   exact (proj2_sig (product_term_r' C X ht hp)).
-  cbn. fpair.
-  cbn. fpair.
+  cbn; solve_product.
+  cbn; solve_product.
 Defined.
 
 #[refine]
@@ -64,6 +64,6 @@ Proof.
   exact (proj2_sig (coproduct_init_l' C hi hp X)).
   exact (proj1_sig (coproduct_init_r' C hi hp X)).
   exact (proj2_sig (coproduct_init_r' C hi hp X)).
-  cbn. coprod. apply equiv_initial.
-  cbn. coprod.
+  cbn. solve_coproduct. apply equiv_initial.
+  cbn. solve_coproduct.
 Defined.

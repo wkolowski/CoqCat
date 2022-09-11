@@ -81,6 +81,15 @@ Qed.
 
 End isIndexedCoproduct.
 
+Ltac indexedCoproduct_simpl := repeat (
+  try setoid_rewrite equiv_indexedCoproduct';
+  try setoid_rewrite coproj_cotuple;
+  try setoid_rewrite cotuple_id;
+  try setoid_rewrite cotuple_post;
+  try setoid_rewrite comp_id_l;
+  try setoid_rewrite comp_id_r;
+  try setoid_rewrite comp_assoc).
+
 Lemma nullary_coproduct :
   forall
     (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)

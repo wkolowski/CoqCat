@@ -9,7 +9,7 @@ Class isIndexedProduct
   (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P)
   : Prop :=
 {
-  tuple_out :
+  tuple_proj :
     forall {X : Ob C} (f : forall j : J, Hom X (A j)) (j : J),
       tuple f .> proj j == f j;
   equiv_indexedProduct :
@@ -50,38 +50,47 @@ Arguments tuple {X} _.
 Proof.
   intros h1 h2 Heq.
   apply equiv_indexedProduct; intros j.
-  now rewrite !tuple_out.
+  now rewrite !tuple_proj.
 Defined.
 
 Lemma tuple_universal :
   forall h : Hom X P,
     tuple f == h <-> forall j : J, f j == h .> proj j.
 Proof.
-  now intros; rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
+  now intros; rewrite equiv_indexedProduct'; setoid_rewrite tuple_proj.
 Qed.
 
 Lemma tuple_unique :
   forall h : Hom X P,
     (forall j : J, h .> proj j == f j) -> h == tuple f.
 Proof.
-  now intros; apply equiv_indexedProduct; setoid_rewrite tuple_out.
+  now intros; apply equiv_indexedProduct; setoid_rewrite tuple_proj.
 Qed.
 
 Lemma tuple_id :
   tuple proj == id P.
 Proof.
-  now rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
+  now rewrite equiv_indexedProduct'; setoid_rewrite tuple_proj.
 Qed.
 
 Lemma tuple_pre :
   forall h : Hom Y X,
-    tuple (fun j => h .> f j) == h .> tuple f.
+    h .> tuple f == tuple (fun j => h .> f j).
 Proof.
   setoid_rewrite equiv_indexedProduct'; intros h j.
-  now rewrite comp_assoc, !tuple_out.
+  now rewrite comp_assoc, !tuple_proj.
 Qed.
 
 End isIndexedProduct.
+
+Ltac indexedProduct_simpl := repeat (
+  try setoid_rewrite equiv_indexedProduct';
+  try setoid_rewrite tuple_proj;
+  try setoid_rewrite tuple_id;
+  try setoid_rewrite tuple_pre;
+  try setoid_rewrite comp_id_l;
+  try setoid_rewrite comp_id_r;
+  try setoid_rewrite <- comp_assoc).
 
 Lemma isIndexedProduct_iso_unique :
   forall
@@ -96,9 +105,9 @@ Lemma isIndexedProduct_iso_unique :
 Proof.
   intros * H1 H2.
   exists (tuple2 _ proj1), (tuple1 _ proj2).
-  rewrite <- !tuple_pre, !equiv_indexedProduct'; split; intros.
-  - now rewrite !tuple_out, comp_id_l.
-  - now rewrite !tuple_out, comp_id_l.
+  rewrite !tuple_pre, !equiv_indexedProduct'; split; intros.
+  - now rewrite !tuple_proj, comp_id_l.
+  - now rewrite !tuple_proj, comp_id_l.
 Qed.
 
 Lemma isIndexedProduct_iso_unique2 :
@@ -137,10 +146,10 @@ Proof.
          (t1 P2 (fun j : J => (p2 j .> g' j))).
   split.
   - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
+    now rewrite comp_assoc, tuple_proj, <- comp_assoc, tuple_proj, comp_assoc,
       iso1, comp_id_l, comp_id_r.
   - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
+    now rewrite comp_assoc, tuple_proj, <- comp_assoc, tuple_proj, comp_assoc,
       iso2, comp_id_l, comp_id_r.
 Defined.
 
@@ -174,7 +183,7 @@ Proof.
         then f
         else g
     ).
-    destruct HP. apply (tuple_out0 _ wut true).
+    destruct HP. apply (tuple_proj0 _ wut true).
     + intros X f g.
     pose
     (
@@ -183,7 +192,7 @@ Proof.
         then f
         else g
     ).
-    destruct HP. apply (tuple_out0 _ wut false).
+    destruct HP. apply (tuple_proj0 _ wut false).
   + intros * H1 H2. destruct HP.
     apply equiv_indexedProduct0. now intros []; cbn.
 Qed.
@@ -224,10 +233,12 @@ Proof.
   destruct 2 as [inj sur]; intros.
   assert (g : {g : J -> J |
     (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
+  {
     exists (fun j : J => proj1_sig (constructive_indefinite_description _ (sur j))).
     split; intros.
       destruct (constructive_indefinite_description _ (sur j)). auto.
       destruct (constructive_indefinite_description _ (sur (f j))). auto.
+  }
   destruct g as [g [g_inv1 g_inv2]].
   assert (h : {h : forall j : J, Hom P (A (f (g j))) |
   (forall j : J, h j = p (f (g j)))}).
@@ -287,6 +298,6 @@ Lemma tuple_comp :
       tuple f .> tuple (fun j : J => proj j .> g j).
 Proof.
   intros.
-  rewrite <- tuple_pre, equiv_indexedProduct'; intros j.
-  now rewrite !tuple_out, <- comp_assoc, tuple_out.
+  rewrite tuple_pre, equiv_indexedProduct'; intros j.
+  now rewrite !tuple_proj, <- comp_assoc, tuple_proj.
 Qed.

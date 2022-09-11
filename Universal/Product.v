@@ -29,7 +29,7 @@ Lemma equiv_product' :
     {fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P}
     {isP : isProduct C P outl outr (@fpair)}
     {X : Ob C} (h1 h2 : Hom X P),
-        h1 == h2 <-> h1 .> outl == h2 .> outl /\ h1 .> outr == h2 .> outr.
+      h1 == h2 <-> h1 .> outl == h2 .> outl /\ h1 .> outr == h2 .> outr.
 Proof.
   split.
   - now intros ->.
@@ -77,12 +77,17 @@ Qed.
 
 Lemma fpair_pre :
   forall h : Hom Y X,
-    fpair (h .> f) (h .> g) == h .> fpair f g.
+    h .> fpair f g == fpair (h .> f) (h .> g).
 Proof.
   now intros h; rewrite equiv_product', !comp_assoc, !fpair_outl, !fpair_outr.
 Qed.
 
 End isProduct.
+
+Ltac product_simpl :=
+  repeat (rewrite
+    ?equiv_product', ?fpair_outl, ?fpair_outr, ?fpair_id, ?fpair_pre,
+    ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Lemma isProduct_uiso :
   forall
@@ -226,10 +231,10 @@ Arguments outl    {C _ A B}.
 Arguments outr    {C _ A B}.
 Arguments fpair   {C _ A B X} _ _.
 
-Ltac fpair := intros; try split;
+Ltac solve_product := intros; try split;
 repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite fpair_pre
 | |- context [fpair _ _ .> outl] => rewrite fpair_outl
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
@@ -243,17 +248,17 @@ repeat match goal with
 | _ => rewrite <- ?comp_assoc; auto
 end.
 
-Ltac prod_simpl :=
+Ltac product_simpl' :=
 repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite fpair_pre
 | |- context [fpair _ _ .> outl] => rewrite fpair_outl
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- context [id _ .> _] => rewrite comp_id_l
 | |- context [_ .> id _] => rewrite comp_id_r
-| H : context [fpair (_ .> outl) (_ .> outr)] |- _ => rewrite fpair_pre, fpair_id in H
-| H : context [_ .> fpair _ _] |- _ => rewrite <- fpair_pre in H
+| H : context [fpair (_ .> outl) (_ .> outr)] |- _ => rewrite <- fpair_pre, fpair_id in H
+| H : context [_ .> fpair _ _] |- _ => rewrite fpair_pre in H
 | H : context [fpair _ _ .> outl] |- _ => rewrite fpair_outl in H
 | H : context [fpair _ _ .> outr] |- _ => rewrite fpair_outr in H
 | H : context [fpair outl outr] |- _ => rewrite fpair_id in H
@@ -285,7 +290,7 @@ Lemma product_comm :
 Proof.
   intros.
   exists (fpair outr outl), (fpair outr outl).
-  fpair.
+  solve_product.
 Qed.
 
 Lemma product_assoc :
@@ -295,7 +300,7 @@ Proof.
   intros.
   exists (fpair (fpair outl (outr .> outl)) (outr .> outr)),
          (fpair (outl .> outl) (fpair (outl .> outr) outr)).
-  fpair.
+  solve_product.
 Defined.
 
 Lemma product_assoc' :
@@ -305,7 +310,7 @@ Proof.
   intros.
   exists (fpair (outl .> outl) (fpair (outl .> outr) outr)),
          (fpair (fpair outl (outr .> outl)) (outr .> outr)).
-  fpair.
+  solve_product.
 Defined.
 
 Definition ProductFunctor_fmap
@@ -324,7 +329,7 @@ Instance Proper_ProductFunctor_fmap :
       (@ProductFunctor_fmap C hp X X' Y Y').
 Proof.
   unfold Proper, respectful, ProductFunctor_fmap.
-  fpair.
+  solve_product.
 Qed.
 
 Lemma ProductFunctor_fmap_id :
@@ -332,7 +337,7 @@ Lemma ProductFunctor_fmap_id :
     ProductFunctor_fmap (id X) (id Y) == id (product X Y).
 Proof.
   unfold ProductFunctor_fmap.
-  fpair.
+  solve_product.
 Defined.
 
 Lemma ProductFunctor_fmap_comp :
@@ -345,7 +350,7 @@ Lemma ProductFunctor_fmap_comp :
       ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.
 Proof.
   unfold ProductFunctor_fmap.
-  fpair.
+  solve_product.
 Defined.
 
 Lemma ProductFunctor_fmap_comp_l :
@@ -395,5 +400,5 @@ Instance ProductBifunctor {C : Cat} {hp : HasProducts C} : Bifunctor C C C :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => fpair (outl .> f) (outr .> g);
 }.
 Proof.
-  all: fpair.
+  all: solve_product.
 Defined.

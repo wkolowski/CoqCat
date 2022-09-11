@@ -76,12 +76,17 @@ Qed.
 
 Lemma copair_post :
   forall {Y : Ob C} {h : Hom P' Y},
-    copair (f .> h) (g .> h) == copair f g .> h.
+    copair f g .> h == copair (f .> h) (g .> h).
 Proof.
   now intros; rewrite equiv_coproduct', <- !comp_assoc, !finl_copair, !finr_copair.
 Qed.
 
 End isCoproduct.
+
+Ltac coproduct_simpl :=
+  repeat (rewrite
+    ?equiv_coproduct', ?finl_copair, ?finr_copair, ?copair_id, ?copair_post,
+    ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 Lemma isCoproduct_uiso :
   forall
@@ -231,17 +236,16 @@ Arguments finl      {C HasCoproducts A B}.
 Arguments finr      {C HasCoproducts A B}.
 Arguments copair    {C HasCoproducts A B P} _ _.
 
-Arguments coproduct {C HasCoproducts} _ _.
-
-Ltac coprod := intros; try split;
+Ltac solve_coproduct := intros; try split;
 repeat match goal with
-| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite copair_post, copair_id
-| |- context [copair _ _ .> _] => rewrite <- copair_post
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_post, copair_id
+| |- context [copair _ _ .> _] => rewrite copair_post
 | |- context [finl .> copair _ _] => rewrite finl_copair
 | |- context [finr .> copair _ _] => rewrite finr_copair
 | |- context [copair finl finr] => rewrite copair_id
 | |- ?x == ?x => reflexivity
-| |- copair _ _ == copair _ _ => apply Proper_copair
+| |- copair _ _ == _ => apply equiv_coproduct
+| |- _ == copair _ _ => apply equiv_coproduct
 | |- context [id _ .> _] => rewrite comp_id_l
 | |- context [_ .> id _] => rewrite comp_id_r
 | |- copair _ _ == id (coproduct _ _) => rewrite <- copair_id; apply Proper_copair
@@ -250,12 +254,30 @@ repeat match goal with
 | _ => rewrite ?comp_assoc; auto
 end.
 
+Ltac coproduct_simpl' :=
+repeat match goal with
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_post, copair_id
+| |- context [copair _ _ .> _] => rewrite copair_post
+| |- context [finl .> copair _ _] => rewrite finl_copair
+| |- context [finr .> copair _ _] => rewrite finr_copair
+| |- context [copair finl finr] => rewrite copair_id
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
+| H : context [copair (finl .> ?x) (finr .> ?x)] |- _ => rewrite <- copair_post, copair_id in H
+| H : context [copair _ _ .> _] |- _ => rewrite copair_post in H
+| H : context [finl .> copair _ _] |- _ => rewrite finl_copair in H
+| H : context [finr .> copair _ _] |- _ => rewrite finr_copair in H
+| H : context [copair finl finr] |- _ => rewrite copair_id in H
+| H : context [id _ .> _] |- _ => rewrite comp_id_l in H
+| H : context [_ .> id _] |- _ => rewrite comp_id_r in H
+end.
+
 Lemma copair_comp :
   forall
     (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
     (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
       copair (h1 .> f) (h2 .> g) == copair (h1 .> finl) (h2 .> finr) .> copair f g.
-Proof. coprod. Qed.
+Proof. solve_coproduct. Qed.
 
 Lemma copair_post_id :
   forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
@@ -269,9 +291,8 @@ Lemma coproduct_comm :
     coproduct X Y ~ coproduct Y X.
 Proof.
   intros.
-  red. exists (copair finr finl).
-  red. exists (copair finr finl).
-  coprod.
+  exists (copair finr finl), (copair finr finl).
+  solve_coproduct.
 Qed.
 
 Lemma coproduct_assoc :
@@ -279,9 +300,9 @@ Lemma coproduct_assoc :
     coproduct X (coproduct Y Z) ~ coproduct (coproduct X Y) Z.
 Proof.
   intros.
-  red. exists (copair (finl .> finl) (copair (finr .> finl) finr)).
-  red. exists (copair (copair finl (finl .> finr)) (finr .> finr)).
-  coprod.
+  exists (copair (finl .> finl) (copair (finr .> finl) finr)),
+         (copair (copair finl (finl .> finr)) (finr .> finr)).
+  solve_coproduct.
 Qed.
 
 Lemma coproduct_assoc' :
@@ -289,9 +310,9 @@ Lemma coproduct_assoc' :
     {f : Hom (coproduct (coproduct X Y) Z) (coproduct X (coproduct Y Z)) | isIso f}.
 Proof.
   intros.
-  exists (copair (copair finl (finl .> finr)) (finr .> finr)).
-  exists (copair (finl .> finl) (copair (finr .> finl) finr)).
-  coprod.
+  exists (copair (copair finl (finl .> finr)) (finr .> finr)),
+         (copair (finl .> finl) (copair (finr .> finl) finr)).
+  solve_coproduct.
 Defined.
 
 Definition CoproductFunctor_fmap
@@ -309,14 +330,16 @@ Instance Proper_CoproductFunctor_fmap :
       (@equiv _ (HomSetoid (coproduct X X') (coproduct Y Y'))))
       (@CoproductFunctor_fmap C hp X X' Y Y').
 Proof.
-  unfold Proper, respectful, CoproductFunctor_fmap. coprod.
+  unfold Proper, respectful, CoproductFunctor_fmap.
+  solve_coproduct.
 Qed.
 
 Lemma CoproductFunctor_fmap_id :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
     CoproductFunctor_fmap (id X) (id Y) == id (coproduct X Y).
 Proof.
-  intros; unfold CoproductFunctor_fmap. coprod.
+  intros; unfold CoproductFunctor_fmap.
+  solve_coproduct.
 Defined.
 
 Lemma CoproductFunctor_fmap_comp :
@@ -327,7 +350,8 @@ Lemma CoproductFunctor_fmap_comp :
         ==
       CoproductFunctor_fmap f1 f2 .> CoproductFunctor_fmap g1 g2.
 Proof.
-  unfold CoproductFunctor_fmap; intros. coprod.
+  unfold CoproductFunctor_fmap; intros.
+  solve_coproduct.
 Defined.
 
 Lemma CoproductFunctor_fmap_comp_l :
@@ -338,7 +362,7 @@ Lemma CoproductFunctor_fmap_comp_l :
         ==
       CoproductFunctor_fmap f (id Z) .> CoproductFunctor_fmap g (id Z).
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_comp. cat.
+  now intros; rewrite <- CoproductFunctor_fmap_comp, comp_id_l.
 Defined.
 
 Lemma CoproductFunctor_fmap_comp_r :
@@ -349,7 +373,7 @@ Lemma CoproductFunctor_fmap_comp_r :
         ==
       CoproductFunctor_fmap (id Z) f .> CoproductFunctor_fmap (id Z) g.
 Proof.
-  intros. rewrite <- CoproductFunctor_fmap_comp. cat.
+  now intros; rewrite <- CoproductFunctor_fmap_comp, comp_id_r.
 Defined.
 
 #[refine]
@@ -360,9 +384,9 @@ Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_produc
   fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => CoproductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  proper. apply Proper_CoproductFunctor_fmap; cat.
-  intros. apply CoproductFunctor_fmap_comp.
-  intros. apply CoproductFunctor_fmap_id.
+  - now proper; apply Proper_CoproductFunctor_fmap.
+  - now intros; apply CoproductFunctor_fmap_comp.
+  - now intros; apply CoproductFunctor_fmap_id.
 Defined.
 
 Notation "A + B" := (fob CoproductFunctor (A, B)).
@@ -377,5 +401,5 @@ Instance CoproductBifunctor {C : Cat} {hp : HasCoproducts C} : Bifunctor C C C :
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.
 Proof.
-  unfold Proper, respectful. all: coprod.
+  all: solve_coproduct.
 Defined.
