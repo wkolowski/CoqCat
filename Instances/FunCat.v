@@ -77,7 +77,7 @@ Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunC
 }.
 Proof.
   split; cbn; intros; fpair.
-  now apply fpair_equiv.
+  now apply equiv_product.
 Defined.
 
 #[refine]
@@ -143,7 +143,7 @@ Instance HasCoproducts_FunCat
 }.
 Proof.
   repeat split; cbn; intros; coprod.
-  now apply copair_equiv.
+  now apply equiv_coproduct.
 Defined.
 
 #[refine]

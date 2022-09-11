@@ -84,7 +84,7 @@ Proof. lin. Defined.
 
 #[refine]
 #[export]
-Instance Lin_prod_Pros (X Y : Lin) : Pros :=
+Instance Lin_Pros_product (X Y : Lin) : Pros :=
 {
   carrier := CoqSetoid_product X Y;
   leq := fun p1 p2 : X * Y =>
@@ -104,9 +104,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance Lin_prod_Pos (X Y : Lin) : Pos :=
+Instance Lin_product_Pos (X Y : Lin) : Pos :=
 {
-  pros := Lin_prod_Pros X Y
+  pros := Lin_Pros_product X Y
 }.
 Proof.
   intros. destruct x, y. cbn in *. repeat
@@ -118,9 +118,9 @@ Defined.
 
 #[refine]
 #[export]
-Instance Lin_prod (X Y : Lin) : Lin :=
+Instance Lin_product (X Y : Lin) : Lin :=
 {
-  pos := Lin_prod_Pos X Y
+  pos := Lin_product_Pos X Y
 }.
 Proof.
   destruct x, y; cbn.
@@ -131,12 +131,12 @@ Abort.
 (* TODO : products of linear orders suck because of constructivity *)
 
 (*
-Definition Lin_outl (X Y : Lin) : ProsHom (Lin_prod X Y) X.
+Definition Lin_outl (X Y : Lin) : ProsHom (Lin_product X Y) X.
 Proof.
   red. exists fst. destruct 1, H; try rewrite H; lin.
 Defined.
 
-Definition Lin_outr (X Y : Lin) : ProsHom (Lin_prod X Y) Y.
+Definition Lin_outr (X Y : Lin) : ProsHom (Lin_product X Y) Y.
 Proof.
   red. exists snd. lin'. destruct a, a', H, H; cbn in *.
 Abort.
@@ -147,7 +147,7 @@ Abort.
 #[export]
 TODO: Instance HasProducts_Lin : HasProducts LinCat :=
 {
-  product := Lin_prod;
+  product := Lin_product;
   outl := Pros_outl;
   outr := Pros_outr;
   fpair := @Pros_fpair
@@ -170,7 +170,7 @@ end.
 
 #[refine]
 #[export]
-Instance Lin_Pros_coprod (X Y : Lin) : Pros :=
+Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
 {
   carrier := CoqSetoid_coproduct X Y;
   leq := fun p1 p2 : X + Y =>

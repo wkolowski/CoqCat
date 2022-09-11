@@ -10,7 +10,7 @@ Class isExponential
   exp_comp :
     forall {E' : Ob C} (f : Hom (product E' A) B),
       curry f ×' id A .> eval == f;
-  exp_equiv :
+  equiv_exponential :
     forall {E' : Ob C} (f g : Hom E' E),
       f ×' id A .> eval == g ×' id A .> eval -> f == g;
 }.
@@ -18,7 +18,7 @@ Class isExponential
 #[export] Hint Mode isExponential ! ! ! ! ! ! ! : core.
 #[export] Hint Mode isExponential ! - ! ! - - - : core.
 
-Lemma exp_equiv' :
+Lemma equiv_exponential' :
   forall
     {C : Cat} {hp : HasProducts C} {A B : Ob C}
     {E : Ob C} {eval : Hom (product E A) B}
@@ -29,7 +29,7 @@ Lemma exp_equiv' :
 Proof.
   split.
   - now intros ->.
-  - now intros; apply exp_equiv.
+  - now intros; apply equiv_exponential.
 Qed.
 
 Definition uncurry
@@ -55,7 +55,7 @@ Arguments curry {E2} _.
 Instance Proper_curry :
   Proper (equiv ==> equiv) (@curry E').
 Proof.
-  now intros x y H; rewrite exp_equiv', !exp_comp.
+  now intros x y H; rewrite equiv_exponential', !exp_comp.
 Defined.
 
 #[export]
@@ -70,7 +70,7 @@ Lemma universal_property :
 Proof.
   split.
   - now intros <-; rewrite exp_comp.
-  - now intros; rewrite exp_equiv', exp_comp.
+  - now intros; rewrite equiv_exponential', exp_comp.
 Qed.
 
 Lemma computation_rule :
@@ -84,14 +84,14 @@ Lemma uniqueness_rule :
   forall (f : Hom (product E' A) B) (g : Hom E' E),
     g ×' id A .> eval == f -> g == curry f.
 Proof.
-  now intros; rewrite exp_equiv', exp_comp.
+  now intros; rewrite equiv_exponential', exp_comp.
 Qed.
 
 Lemma curry_uncurry :
   forall f : Hom E' E,
     curry (uncurry f) == f.
 Proof.
-  now intros f; rewrite exp_equiv', exp_comp.
+  now intros f; rewrite equiv_exponential', exp_comp.
 Qed.
 
 Lemma uncurry_curry :
@@ -104,7 +104,7 @@ Qed.
 Lemma curry_eval :
   curry eval == id E.
 Proof.
-  now rewrite exp_equiv', exp_comp, ProductFunctor_fmap_id, comp_id_l.
+  now rewrite equiv_exponential', exp_comp, ProductFunctor_fmap_id, comp_id_l.
 Qed.
 
 End Exponential.
@@ -124,10 +124,10 @@ Proof.
   exists (curry2 E1 eval1).
   repeat split.
   - exists (curry1 E2 eval2).
-    now rewrite !exp_equiv', !ProductFunctor_fmap_comp_l, !comp_assoc, !exp_comp,
+    now rewrite !equiv_exponential', !ProductFunctor_fmap_comp_l, !comp_assoc, !exp_comp,
       !ProductFunctor_fmap_id, !comp_id_l.
   - now rewrite exp_comp.
-  - now intros; rewrite exp_equiv', exp_comp.
+  - now intros; rewrite equiv_exponential', exp_comp.
 Qed.
 
 Arguments isExponential_uiso {C hp A B E1 eval1 curry1 E2 eval2 curry2} _ _.
@@ -168,7 +168,7 @@ Lemma curry_comp :
       curry (eval (A := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
   intros.
-  rewrite exp_equiv', exp_comp.
+  rewrite equiv_exponential', exp_comp.
   now rewrite ProductFunctor_fmap_comp_l, !comp_assoc, exp_comp, <- !comp_assoc, exp_comp.
 Qed.
 

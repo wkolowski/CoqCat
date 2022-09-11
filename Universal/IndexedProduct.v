@@ -12,7 +12,7 @@ Class isIndexedProduct
   tuple_out :
     forall {X : Ob C} (f : forall j : J, Hom X (A j)) (j : J),
       tuple f .> proj j == f j;
-  tuple_equiv :
+  equiv_indexedProduct :
     forall {X : Ob C} (f g : Hom X P),
       (forall j : J, f .> proj j == g .> proj j) -> f == g;
 }.
@@ -20,7 +20,7 @@ Class isIndexedProduct
 #[export] Hint Mode isIndexedProduct ! ! ! ! ! ! : core.
 #[export] Hint Mode isIndexedProduct ! ! ! - - - : core.
 
-Lemma tuple_equiv' :
+Lemma equiv_indexedProduct' :
   forall
     {C : Cat} {J : Set} {A : J -> Ob C}
     {P : Ob C} {proj : forall j : J, Hom P (A j)}
@@ -31,7 +31,7 @@ Lemma tuple_equiv' :
 Proof.
   split.
   - now intros Heq j; rewrite Heq.
-  - now apply tuple_equiv.
+  - now apply equiv_indexedProduct.
 Qed.
 
 Section isIndexedProduct.
@@ -49,7 +49,7 @@ Arguments tuple {X} _.
   Proper (equiv ==> equiv) (@tuple X).
 Proof.
   intros h1 h2 Heq.
-  apply tuple_equiv; intros j.
+  apply equiv_indexedProduct; intros j.
   now rewrite !tuple_out.
 Defined.
 
@@ -57,27 +57,27 @@ Lemma tuple_universal :
   forall h : Hom X P,
     tuple f == h <-> forall j : J, f j == h .> proj j.
 Proof.
-  now intros; rewrite tuple_equiv'; setoid_rewrite tuple_out.
+  now intros; rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_unique :
   forall h : Hom X P,
     (forall j : J, h .> proj j == f j) -> h == tuple f.
 Proof.
-  now intros; apply tuple_equiv; setoid_rewrite tuple_out.
+  now intros; apply equiv_indexedProduct; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_id :
   tuple proj == id P.
 Proof.
-  now rewrite tuple_equiv'; setoid_rewrite tuple_out.
+  now rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_pre :
   forall h : Hom Y X,
     tuple (fun j => h .> f j) == h .> tuple f.
 Proof.
-  setoid_rewrite tuple_equiv'; intros h j.
+  setoid_rewrite equiv_indexedProduct'; intros h j.
   now rewrite comp_assoc, !tuple_out.
 Qed.
 
@@ -96,7 +96,7 @@ Lemma isIndexedProduct_iso_unique :
 Proof.
   intros * H1 H2.
   exists (tuple2 _ proj1), (tuple1 _ proj2).
-  rewrite <- !tuple_pre, !tuple_equiv'; split; intros.
+  rewrite <- !tuple_pre, !equiv_indexedProduct'; split; intros.
   - now rewrite !tuple_out, comp_id_l.
   - now rewrite !tuple_out, comp_id_l.
 Qed.
@@ -136,10 +136,10 @@ Proof.
   exists (t2 P1 (fun j => p1 j .> f' j)),
          (t1 P2 (fun j : J => (p2 j .> g' j))).
   split.
-  - rewrite tuple_equiv'; intros j.
+  - rewrite equiv_indexedProduct'; intros j.
     now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
       iso1, comp_id_l, comp_id_r.
-  - rewrite tuple_equiv'; intros j.
+  - rewrite equiv_indexedProduct'; intros j.
     now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
       iso2, comp_id_l, comp_id_r.
 Defined.
@@ -164,7 +164,7 @@ Proof.
     + intros X f [].
       * now rewrite fpair_outl.
       * now rewrite fpair_outr.
-    + now intros X f g H; rewrite fpair_equiv', (H false), (H true).
+    + now intros X f g H; rewrite equiv_product', (H false), (H true).
   - split.
     + intros X f g.
     pose
@@ -185,10 +185,10 @@ Proof.
     ).
     destruct HP. apply (tuple_out0 _ wut false).
   + intros * H1 H2. destruct HP.
-    apply tuple_equiv0. now intros []; cbn.
+    apply equiv_indexedProduct0. now intros []; cbn.
 Qed.
 
-Lemma nullary_prod :
+Lemma nullary_product :
   forall
     (C : Cat) (A : Empty_set -> Ob C)
     (T : Ob C) (delete : forall X : Ob C, Hom X T)
@@ -287,6 +287,6 @@ Lemma tuple_comp :
       tuple f .> tuple (fun j : J => proj j .> g j).
 Proof.
   intros.
-  rewrite <- tuple_pre, tuple_equiv'; intros j.
+  rewrite <- tuple_pre, equiv_indexedProduct'; intros j.
   now rewrite !tuple_out, <- comp_assoc, tuple_out.
 Qed.

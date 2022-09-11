@@ -22,8 +22,8 @@ Proof.
   unfold isomorphic; intros.
   exists outl, (create _).
   split; cycle 1.
-  - apply create_equiv.
+  - apply equiv_initial.
   - setoid_replace (create (product (init C) X)) with (fpair (id (init C)) (create X))
-      by apply create_equiv.
-    rewrite <- fpair_pre, fpair_equiv', fpair_outl, fpair_outr. cat.
+      by apply equiv_initial.
+    rewrite <- fpair_pre, equiv_product', fpair_outl, fpair_outr. cat.
 Abort.

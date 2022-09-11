@@ -17,12 +17,12 @@ Class isPullback
   factor_pullR :
     forall (P' : Ob C) (x : Hom P' A) (y : Hom P' B) (H : x .> f == y .> g),
       factor x y H .> pullR == y;
-  factor_equiv :
+  equiv_pullback :
     forall (P' : Ob C) (h1 h2 : Hom P' P),
       h1 .> pullL == h2 .> pullL -> h1 .> pullR == h2 .> pullR -> h1 == h2;
 }.
 
-Lemma factor_equiv' :
+Lemma equiv_pullback' :
   forall
     {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
     {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
@@ -34,7 +34,7 @@ Lemma factor_equiv' :
 Proof.
   split.
   - now intros ->.
-  - now intros []; apply factor_equiv.
+  - now intros []; apply equiv_pullback.
 Qed.
 
 Section isPullback.
@@ -53,27 +53,27 @@ Arguments factor {P'} _ _.
   Proper (equiv ==> equiv ==> equiv) (@factor X).
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite factor_equiv', !factor_pullL, !factor_pullR.
+  now rewrite equiv_pullback', !factor_pullL, !factor_pullR.
 Defined. *)
 
 Lemma factor_universal :
   forall h : Hom P' P,
     factor x y H == h <-> x == h .> pullL /\ y == h .> pullR.
 Proof.
-  now intros; rewrite factor_equiv', factor_pullL, factor_pullR.
+  now intros; rewrite equiv_pullback', factor_pullL, factor_pullR.
 Qed.
 
 Lemma factor_unique :
   forall h : Hom P' P,
     h .> pullL == x -> h .> pullR == y -> h == factor x y H.
 Proof.
-  now intros; rewrite factor_equiv', factor_pullL, factor_pullR.
+  now intros; rewrite equiv_pullback', factor_pullL, factor_pullR.
 Qed.
 
 Lemma factor_id :
   factor pullL pullR isPullback_ok == id P.
 Proof.
-  now rewrite factor_equiv', factor_pullL, factor_pullR, !comp_id_l.
+  now rewrite equiv_pullback', factor_pullL, factor_pullR, !comp_id_l.
 Qed.
 
 Lemma factor_pre :
@@ -83,7 +83,7 @@ Lemma factor_pre :
 Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite comp_assoc, H.
-  - now rewrite factor_equiv', factor_pullL, factor_pullR,
+  - now rewrite equiv_pullback', factor_pullL, factor_pullR,
       !comp_assoc, factor_pullL, factor_pullR.
 Qed.
 
@@ -133,11 +133,11 @@ Proof.
   exists (factor2 _ pullL1 pullR1 isPullback_ok).
   repeat split.
   - exists (factor1 P2 pullL2 pullR2 isPullback_ok).
-    now rewrite !factor_equiv', !comp_assoc, !factor_pullL, !factor_pullR, !comp_id_l.
+    now rewrite !equiv_pullback', !comp_assoc, !factor_pullL, !factor_pullR, !comp_id_l.
   - now rewrite factor_pullL.
   - now rewrite factor_pullR.
   - intros u (HIso & Heql & Heqr).
-    now rewrite factor_equiv', factor_pullL, factor_pullR.
+    now rewrite equiv_pullback', factor_pullL, factor_pullR.
 Qed.
 
 Lemma isPullback_iso :
@@ -168,9 +168,9 @@ Lemma isProduct_isPullback :
         isProduct C P pullL pullR fpair.
 Proof.
   split; intros.
-  - now apply (factor_pullL (isPullback := H)), delete_equiv.
-  - now apply (factor_pullR (isPullback := H)), delete_equiv.
-  - now apply factor_equiv.
+  - now apply (factor_pullL (isPullback := H)), equiv_terminal.
+  - now apply (factor_pullR (isPullback := H)), equiv_terminal.
+  - now apply equiv_pullback.
 Qed.
 
 Lemma isPullback_isProduct :
@@ -184,10 +184,10 @@ Lemma isPullback_isProduct :
           (pullL' : Hom P' A) (pullR' : Hom P' B) _ => fpair P' pullL' pullR').
 Proof.
   split; intros.
-  - apply delete_equiv.
+  - apply equiv_terminal.
   - now rewrite fpair_outl.
   - now rewrite fpair_outr.
-  - now apply fpair_equiv.
+  - now apply equiv_product.
 Qed.
 
 Lemma isEqualizer_isPullback
@@ -199,7 +199,7 @@ Proof.
   split; intros.
   - apply isPullback_ok.
   - now apply (factor_pullL (isPullback := H)).
-  - now apply factor_equiv.
+  - now apply equiv_pullback.
 Qed.
 
 (*
@@ -213,7 +213,7 @@ Proof.
   - split; intros.
     + apply isPullback_ok.
     + now apply (factor_pullL (isPullback := H)).
-    + now apply factor_equiv.
+    + now apply equiv_pullback.
   - split; intros.
     + apply equalize_ok.
     + pose (h' := factorize_equalize (e' := x) (isEqualizer := H)).

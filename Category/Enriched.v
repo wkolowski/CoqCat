@@ -40,7 +40,7 @@ Proof.
     split with (fun p => SetoidComp (fst p) (snd p)). proper.
       destruct H, x, y. cbn in *. now rewrite H, H0.
   intros. cbn. exists (fun _ => id X). proper.
-  easy.
-  easy.
-  easy.
+  now cbn.
+  now cbn.
+  now cbn.
 Defined.

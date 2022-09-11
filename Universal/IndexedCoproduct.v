@@ -10,7 +10,7 @@ Class isIndexedCoproduct
   coproj_cotuple :
     forall {X : Ob C} (f : forall j : J, Hom (A j) X) (j : J),
       coproj j .> cotuple f == f j;
-  cotuple_equiv :
+  equiv_indexedCoproduct :
     forall {X : Ob C} (h1 h2 : Hom P X),
       (forall j : J, coproj j .> h1 == coproj j .> h2) -> h1 == h2;
 }.
@@ -18,7 +18,7 @@ Class isIndexedCoproduct
 #[export] Hint Mode isIndexedCoproduct ! ! ! ! ! ! : core.
 #[export] Hint Mode isIndexedCoproduct ! ! ! - - - : core.
 
-Lemma cotuple_equiv' :
+Lemma equiv_indexedCoproduct' :
   forall
     {C : Cat} {J : Set} {A : J -> Ob C}
     {P : Ob C} {coproj : forall j : J, Hom (A j) P}
@@ -29,7 +29,7 @@ Lemma cotuple_equiv' :
 Proof.
   split.
   - now intros Heq j; rewrite Heq.
-  - now apply cotuple_equiv.
+  - now apply equiv_indexedCoproduct.
 Qed.
 
 Section isIndexedCoproduct.
@@ -47,7 +47,7 @@ Arguments cotuple {X} _.
   Proper (equiv ==> equiv) (@cotuple X).
 Proof.
   intros h1 h2 Heq.
-  apply cotuple_equiv; intros j.
+  apply equiv_indexedCoproduct; intros j.
   now rewrite !coproj_cotuple.
 Defined.
 
@@ -55,33 +55,33 @@ Lemma cotuple_universal :
   forall h : Hom P X,
     cotuple f == h <-> forall j : J, f j == coproj j .> h.
 Proof.
-  now intros; rewrite cotuple_equiv'; setoid_rewrite coproj_cotuple.
+  now intros; rewrite equiv_indexedCoproduct'; setoid_rewrite coproj_cotuple.
 Qed.
 
 Lemma cotuple_unique :
   forall h : Hom P X,
     (forall j : J, coproj j .> h == f j) -> h == cotuple f.
 Proof.
-  now intros; apply cotuple_equiv; setoid_rewrite coproj_cotuple.
+  now intros; apply equiv_indexedCoproduct; setoid_rewrite coproj_cotuple.
 Qed.
 
 Lemma cotuple_id :
   cotuple coproj == id P.
 Proof.
-  now rewrite cotuple_equiv'; intros j; rewrite coproj_cotuple, comp_id_r.
+  now rewrite equiv_indexedCoproduct'; intros j; rewrite coproj_cotuple, comp_id_r.
 Qed.
 
 Lemma cotuple_post :
   forall {Y : Ob C} (g : Hom X Y),
     cotuple f .> g == cotuple (fun j : J => f j .> g).
 Proof.
-  setoid_rewrite cotuple_equiv'; intros.
+  setoid_rewrite equiv_indexedCoproduct'; intros.
   now rewrite <- comp_assoc, !coproj_cotuple.
 Qed.
 
 End isIndexedCoproduct.
 
-Lemma nullary_coprod :
+Lemma nullary_coproduct :
   forall
     (C : Cat) (A : Empty_set -> Ob C) (I : Ob C)
     (create : forall X : Ob C, Hom I X)
@@ -89,7 +89,7 @@ Lemma nullary_coprod :
     (cotuple : forall (X : Ob C) (f : forall j : Empty_set, Hom (A j) X), Hom I X),
       isInitial C I create -> isIndexedCoproduct C I p cotuple.
 Proof.
-  now split; intros; [| apply create_equiv].
+  now split; intros; [| apply equiv_initial].
 Qed.
 
 Lemma unary_coprod_exists :
@@ -155,6 +155,6 @@ Lemma cotuple_comp :
       cotuple (fun j : J => f j .> coproj j) .> cotuple g.
 Proof.
   intros.
-  rewrite cotuple_post, cotuple_equiv'; intros j.
+  rewrite cotuple_post, equiv_indexedCoproduct'; intros j.
   now rewrite !coproj_cotuple, comp_assoc, coproj_cotuple.
 Qed.

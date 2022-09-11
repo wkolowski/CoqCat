@@ -16,7 +16,7 @@ Class isPushout
   pushr_cofactor :
     forall (Q : Ob C) (q1 : Hom A Q) (q2 : Hom B Q) (H : f .> q1 == g .> q2),
       pushr .> cofactor q1 q2 H == q2;
-  cofactor_equiv :
+  equiv_pushout :
     forall (Q : Ob C) (h1 h2 : Hom P Q),
       pushl .> h1 == pushl .> h2 -> pushr .> h1 == pushr .> h2 -> h1 == h2
 }.
@@ -44,7 +44,7 @@ Arguments pushl     {C HasPushouts A B X f g}.
 Arguments pushr     {C HasPushouts A B X f g}.
 Arguments cofactor  {C HasPushouts A B X f g P pushl' pushr'} _.
 
-Lemma cofactor_equiv' :
+Lemma equiv_pushout' :
   forall
     {C : Cat} {A B X : Ob C} {f : Hom X A} {g : Hom X B}
     {P : Ob C} {pushl : Hom A P} {pushr : Hom B P}
@@ -56,7 +56,7 @@ Lemma cofactor_equiv' :
 Proof.
   split.
   - now intros ->.
-  - now intros []; apply cofactor_equiv.
+  - now intros []; apply equiv_pushout.
 Qed.
 
 Section isPushout.
@@ -75,27 +75,27 @@ Arguments cofactor {P'} _ _.
   Proper (equiv ==> equiv ==> equiv) (@cofactor X).
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite cofactor_equiv', !pushl_cofactor, !pushr_cofactor.
+  now rewrite equiv_pushout', !pushl_cofactor, !pushr_cofactor.
 Defined. *)
 
 Lemma cofactor_universal :
   forall h : Hom P P',
     cofactor x y H == h <-> x == pushl .> h /\ y == pushr .> h.
 Proof.
-  now intros; rewrite cofactor_equiv', pushl_cofactor, pushr_cofactor.
+  now intros; rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
 Qed.
 
 Lemma cofactor_unique :
   forall h : Hom P P',
     pushl .> h == x -> pushr .> h == y -> h == cofactor x y H.
 Proof.
-  now intros; rewrite cofactor_equiv', pushl_cofactor, pushr_cofactor.
+  now intros; rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
 Qed.
 
 Lemma cofactor_id :
   cofactor pushl pushr pushout_ok == id P.
 Proof.
-  now rewrite cofactor_equiv', pushl_cofactor, pushr_cofactor, !comp_id_r.
+  now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor, !comp_id_r.
 Qed.
 
 Lemma cofactor_post :
@@ -105,7 +105,7 @@ Lemma cofactor_post :
 Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite <- comp_assoc, H, comp_assoc.
-  - now rewrite cofactor_equiv', pushl_cofactor, pushr_cofactor,
+  - now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor,
       <- !comp_assoc, pushl_cofactor, pushr_cofactor.
 Qed.
 
@@ -128,11 +128,11 @@ Proof.
   exists (cofactor2 P1 pushl1 pushr1 pushout_ok).
   repeat split.
   - exists (cofactor1 P2 pushl2 pushr2 pushout_ok).
-    now rewrite !cofactor_equiv', <- !comp_assoc, !pushl_cofactor, !pushr_cofactor, !comp_id_r.
+    now rewrite !equiv_pushout', <- !comp_assoc, !pushl_cofactor, !pushr_cofactor, !comp_id_r.
   - now rewrite pushl_cofactor.
   - now rewrite pushr_cofactor.
   - intros u (HIso & Heql & Heqr).
-    now rewrite cofactor_equiv', pushl_cofactor, pushr_cofactor.
+    now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
 Qed.
 
 Lemma isPushout_iso :

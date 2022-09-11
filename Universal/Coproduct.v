@@ -14,7 +14,7 @@ Class isCoproduct
   finr_copair :
     forall (P' : Ob C) (f : Hom A P') (g : Hom B P'),
       finr .> copair f g == g;
-  copair_equiv :
+  equiv_coproduct :
     forall (P' : Ob C) (h1 h2 : Hom P P'),
       finl .> h1 == finl .> h2 -> finr .> h1 == finr .> h2 -> h1 == h2
 }.
@@ -22,7 +22,7 @@ Class isCoproduct
 #[export] Hint Mode isCoproduct ! ! ! ! ! ! ! : core.
 #[export] Hint Mode isCoproduct ! ! ! - - - - : core.
 
-Lemma copair_equiv' :
+Lemma equiv_coproduct' :
   forall
     {C : Cat} {A B : Ob C}
     {P : Ob C} {finl : Hom A P} {finr : Hom B P}
@@ -33,7 +33,7 @@ Lemma copair_equiv' :
 Proof.
   split.
   - now intros ->.
-  - now intros []; apply copair_equiv.
+  - now intros []; apply equiv_coproduct.
 Qed.
 
 Section isCoproduct.
@@ -51,34 +51,34 @@ Arguments copair {P'} _ _.
   Proper (equiv ==> equiv ==> equiv) (@copair P').
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite copair_equiv', !finl_copair, !finr_copair.
+  now rewrite equiv_coproduct', !finl_copair, !finr_copair.
 Defined.
 
 Lemma copair_universal :
   forall h : Hom P P',
     copair f g == h <-> f == finl .> h /\ g == finr .> h.
 Proof.
-  now intros; rewrite copair_equiv', finl_copair, finr_copair.
+  now intros; rewrite equiv_coproduct', finl_copair, finr_copair.
 Qed.
 
 Lemma copair_unique :
   forall h : Hom P P',
     finl .> h == f -> finr .> h == g -> h == copair f g.
 Proof.
-  now intros; rewrite copair_equiv', finl_copair, finr_copair.
+  now intros; rewrite equiv_coproduct', finl_copair, finr_copair.
 Qed.
 
 Lemma copair_id :
   copair finl finr == id P.
 Proof.
-  now rewrite copair_equiv', finl_copair, finr_copair, !comp_id_r.
+  now rewrite equiv_coproduct', finl_copair, finr_copair, !comp_id_r.
 Qed.
 
 Lemma copair_post :
   forall {Y : Ob C} {h : Hom P' Y},
     copair (f .> h) (g .> h) == copair f g .> h.
 Proof.
-  now intros; rewrite copair_equiv', <- !comp_assoc, !finl_copair, !finr_copair.
+  now intros; rewrite equiv_coproduct', <- !comp_assoc, !finl_copair, !finr_copair.
 Qed.
 
 End isCoproduct.
@@ -98,11 +98,11 @@ Proof.
   exists (copair2 P1 finl1 finr1).
   repeat split.
   - exists (copair1 P2 finl2 finr2).
-    now rewrite !copair_equiv', <- !comp_assoc, !finl_copair, !finr_copair, !comp_id_r.
+    now rewrite !equiv_coproduct', <- !comp_assoc, !finl_copair, !finr_copair, !comp_id_r.
   - now rewrite finl_copair.
   - now rewrite finr_copair.
   - intros u (HIso & Heql & Heqr).
-    now rewrite copair_equiv', finl_copair, finr_copair.
+    now rewrite equiv_coproduct', finl_copair, finr_copair.
 Qed.
 
 Lemma isCoproduct_iso :
@@ -120,7 +120,7 @@ Proof.
   symmetry. cat.
 Qed.
 
-Lemma isCoproduct_copair_equiv :
+Lemma isCoproduct_equiv_coproduct :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (finl : Hom X P) (finr : Hom Y P)
@@ -130,7 +130,7 @@ Lemma isCoproduct_copair_equiv :
         forall (A : Ob C) (f : Hom X A) (g : Hom Y A),
           copair1 A f g == copair2 A f g.
 Proof.
-  now intros; rewrite copair_equiv', !finl_copair, !finr_copair.
+  now intros; rewrite equiv_coproduct', !finl_copair, !finr_copair.
 Qed.
 
 Lemma isCoproduct_finl_equiv :
@@ -157,7 +157,7 @@ Proof.
   now intros; rewrite <- finr_copair, copair_id, comp_id_r.
 Qed.
 
-Lemma iso_to_coprod :
+Lemma iso_to_coproduct :
   forall
     (C : Cat) (A B : Ob C)
     (P : Ob C) (finl : Hom A P) (finr : Hom B P)
@@ -176,7 +176,7 @@ Proof.
   - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finl_copair.
   - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finr_copair.
   - rewrite <- (comp_id_l _ _ h1), <- (comp_id_l _ _ h2), <- Heq2, !comp_assoc; f_equiv.
-    now rewrite copair_equiv', <- !comp_assoc.
+    now rewrite equiv_coproduct', <- !comp_assoc.
 Qed.
 
 Lemma isCoproduct_comm :
@@ -190,7 +190,7 @@ Proof.
   split; intros.
   - now rewrite finr_copair.
   - now rewrite finl_copair.
-  - now rewrite copair_equiv'.
+  - now rewrite equiv_coproduct'.
 Qed.
 
 (* Class HasCoproducts' (C : Cat) (coproduct : Ob C -> Ob C -> Ob C) : Type :=
@@ -261,7 +261,7 @@ Lemma copair_post_id :
   forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
     copair (finl .> f) (finr .> f) == f.
 Proof.
-  now intros; rewrite copair_equiv', finl_copair, finr_copair.
+  now intros; rewrite equiv_coproduct', finl_copair, finr_copair.
 Qed.
 
 Lemma coproduct_comm :

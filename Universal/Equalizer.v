@@ -12,7 +12,7 @@ Class isEqualizer
   factorize_equalize :
     forall {E' : Ob C} {e' : Hom E' A} (H : e' .> f == e' .> g),
       factorize H .> equalize == e';
-  factorize_equiv :
+  equiv_equalizer :
     forall {E' : Ob C} {e1 e2 : Hom E' E},
       e1 .> equalize == e2 .> equalize -> e1 == e2;
 }.
@@ -30,20 +30,20 @@ Context
 
 Arguments factorize {E' e'} _.
 
-Lemma factorize_equiv' :
+Lemma equiv_equalizer' :
   forall {E' : Ob C} {e1 e2 : Hom E' E},
     e1 == e2 <-> e1 .> equalize == e2 .> equalize.
 Proof.
   split.
   - now intros ->.
-  - apply factorize_equiv.
+  - apply equiv_equalizer.
 Qed.
 
 #[global] Lemma Proper_factorize :
   forall {E' : Ob C} {e1 e2 : Hom E' A} (H1 : e1 .> f == e1 .> g) (H2 : e2 .> f == e2 .> g),
     e1 == e2 -> factorize H1 == factorize H2.
 Proof.
-  now intros; rewrite factorize_equiv', !factorize_equalize.
+  now intros; rewrite equiv_equalizer', !factorize_equalize.
 Qed.
 
 Lemma universal :
@@ -54,7 +54,7 @@ Lemma universal :
 Proof.
   split.
   - now intros <-; rewrite factorize_equalize.
-  - now intros Heq; rewrite factorize_equiv', factorize_equalize.
+  - now intros Heq; rewrite equiv_equalizer', factorize_equalize.
 Qed.
 
 Lemma factorize_unique :
@@ -63,13 +63,13 @@ Lemma factorize_unique :
     (h : Hom E' E),
       h .> equalize == e' -> h == factorize H.
 Proof.
-  now intros; rewrite factorize_equiv', factorize_equalize.
+  now intros; rewrite equiv_equalizer', factorize_equalize.
 Qed.
 
 Lemma factorize_equalize_ok :
   factorize equalize_ok == id E.
 Proof.
-  now rewrite factorize_equiv', factorize_equalize, comp_id_l.
+  now rewrite equiv_equalizer', factorize_equalize, comp_id_l.
 Defined.
 
 Lemma factorize_pre :
@@ -79,13 +79,13 @@ Lemma factorize_pre :
 Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite !comp_assoc, H.
-  - now rewrite factorize_equiv', factorize_equalize, comp_assoc, factorize_equalize.
+  - now rewrite equiv_equalizer', factorize_equalize, comp_assoc, factorize_equalize.
 Qed.
 
 Lemma isMono_equalize :
   isMono equalize.
 Proof.
-  now intros X h1 h2 Heq; rewrite factorize_equiv'.
+  now intros X h1 h2 Heq; rewrite equiv_equalizer'.
 Qed.
 
 End isEqualizer.
@@ -113,9 +113,9 @@ Proof.
   exists (factorize2 E1 equalize1 equalize_ok).
   repeat split.
   - exists (factorize1 E2 equalize2 equalize_ok).
-    now rewrite factorize_equiv', factorize_equiv', !comp_assoc, !factorize_equalize, !comp_id_l.
+    now rewrite equiv_equalizer', equiv_equalizer', !comp_assoc, !factorize_equalize, !comp_id_l.
   - now rewrite factorize_equalize.
-  - now intros y [_ ?]; rewrite factorize_equiv', factorize_equalize.
+  - now intros y [_ ?]; rewrite equiv_equalizer', factorize_equalize.
 Qed.
 
 Lemma isEqualizer_iso :
@@ -152,7 +152,7 @@ Lemma isEqualizer_equiv_factorize :
         forall (E' : Ob C) (e' : Hom E' X) (H : e' .> f == e' .> g),
           factorize1 E' e' H == factorize2 E' e' H.
 Proof.
-  now intros; rewrite factorize_equiv', !factorize_equalize.
+  now intros; rewrite equiv_equalizer', !factorize_equalize.
 Qed.
 
 Lemma isIso_equalize :
@@ -164,7 +164,7 @@ Proof.
   intros * HisEq HisEpi; red.
   assert (Hfg : id X .> f == id X .> g) by (rewrite !comp_id_l; apply HisEpi, equalize_ok).
   exists (factorize _ (id X) Hfg).
-  now rewrite factorize_equiv', comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
+  now rewrite equiv_equalizer', comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
 Qed.
 
 End Traditional.

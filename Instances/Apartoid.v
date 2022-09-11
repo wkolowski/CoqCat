@@ -181,8 +181,8 @@ Proof. apartoid. Defined.
 #[export]
 Instance Apartoid_product (X Y : Apartoid) : Apartoid :=
 {
-  carrier := prod X Y;
-  neq := fun (p1 : prod X Y) (p2 : prod X Y) =>
+  carrier := X * Y;
+  neq := fun (p1 : X * Y) (p2 : X * Y) =>
     neq (fst p1) (fst p2) \/ neq (snd p1) (snd p2)
 }.
 Proof.

@@ -1119,7 +1119,7 @@ Defined.
     in many places to define two-argument functors. *)
 
 Definition ProdCatHom {C D : Cat} (X Y : Ob C * Ob D) : Type :=
-  prod (Hom (fst X) (fst Y)) (Hom (snd X) (snd Y)).
+  Hom (fst X) (fst Y) * Hom (snd X) (snd Y).
 
 #[refine]
 #[export]

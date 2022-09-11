@@ -13,7 +13,7 @@ Class isCoequalizer
   coequalize_cofactorize :
     forall {Q' : Ob C} {q : Hom B Q'} (H : f .> q == g .> q),
       coequalize .> cofactorize H == q;
-  cofactorize_equiv :
+  equiv_coequalizer :
     forall {Q' : Ob C} (h1 h2 : Hom Q Q'),
       coequalize .> h1 == coequalize .> h2 -> h1 == h2;
 }.
@@ -31,20 +31,20 @@ Context
 
 Arguments cofactorize {Q' q'} _.
 
-Lemma cofactorize_equiv' :
+Lemma equiv_coequalizer' :
   forall {Q' : Ob C} {h1 h2 : Hom Q Q'},
     h1 == h2 <-> coequalize .> h1 == coequalize .> h2.
 Proof.
   split.
   - now intros ->.
-  - apply cofactorize_equiv.
+  - apply equiv_coequalizer.
 Qed.
 
 #[global] Lemma Proper_cofactorize :
   forall {Q' : Ob C} {q1 q2 : Hom B Q'} (H1 : f .> q1 == g .> q1) (H2 : f .> q2 == g .> q2),
     q1 == q2 -> cofactorize H1 == cofactorize H2.
 Proof.
-  now intros; rewrite cofactorize_equiv', !coequalize_cofactorize.
+  now intros; rewrite equiv_coequalizer', !coequalize_cofactorize.
 Qed.
 
 Lemma universal :
@@ -55,7 +55,7 @@ Lemma universal :
 Proof.
   split.
   - now intros <-; rewrite coequalize_cofactorize.
-  - now intros Heq; rewrite cofactorize_equiv', coequalize_cofactorize.
+  - now intros Heq; rewrite equiv_coequalizer', coequalize_cofactorize.
 Qed.
 
 Lemma cofactorize_unique :
@@ -64,19 +64,19 @@ Lemma cofactorize_unique :
     (h : Hom Q Q'),
       coequalize .> h == q' -> h == cofactorize H.
 Proof.
-  now intros; rewrite cofactorize_equiv', coequalize_cofactorize.
+  now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
 Qed.
 
 Lemma cofactorize_coequalize_ok :
   cofactorize coequalize_ok == id Q.
 Proof.
-  now rewrite cofactorize_equiv', coequalize_cofactorize, comp_id_r.
+  now rewrite equiv_coequalizer', coequalize_cofactorize, comp_id_r.
 Defined.
 
 Lemma isEpi_coequalize :
   isEpi coequalize.
 Proof.
-  now intros X h1 h2 Heq; rewrite cofactorize_equiv'.
+  now intros X h1 h2 Heq; rewrite equiv_coequalizer'.
 Qed.
 
 Lemma cofactorize_post :
@@ -86,7 +86,7 @@ Lemma cofactorize_post :
 Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite <- !comp_assoc, H.
-  - now rewrite cofactorize_equiv', coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize.
+  - now rewrite equiv_coequalizer', coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize.
 Qed.
 
 End isCoequalizer.
@@ -106,9 +106,9 @@ Proof.
   exists (cofactorize1 _ q2 coequalize_ok).
   repeat split.
   - exists (cofactorize2 _ q1 coequalize_ok).
-    now rewrite !cofactorize_equiv', <- !comp_assoc, !coequalize_cofactorize, !comp_id_r.
+    now rewrite !equiv_coequalizer', <- !comp_assoc, !coequalize_cofactorize, !comp_id_r.
   - now rewrite coequalize_cofactorize.
-  - now intros; rewrite cofactorize_equiv', coequalize_cofactorize.
+  - now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
 Qed.
 
 Lemma isCoequalizer_iso :
@@ -137,7 +137,7 @@ Proof.
   unfold isMono, isIso; intros * HC HM.
   assert (Hfg : f .> id B == g .> id B) by (rewrite !comp_id_r; apply HM, coequalize_ok).
   exists (cofactorize B (id B) Hfg).
-  now rewrite cofactorize_equiv', <- comp_assoc, !coequalize_cofactorize, comp_id_l, comp_id_r.
+  now rewrite equiv_coequalizer', <- comp_assoc, !coequalize_cofactorize, comp_id_l, comp_id_r.
 Qed.
 
 Context
@@ -165,7 +165,7 @@ Lemma isCoequalizer_equiv_cofactorize :
         forall (Q' : Ob C) (q' : Hom B Q') (H : f .> q' == g .> q'),
           cofactorize1 Q' q' H == cofactorize2 Q' q' H.
 Proof.
-  now intros; rewrite cofactorize_equiv', !coequalize_cofactorize.
+  now intros; rewrite equiv_coequalizer', !coequalize_cofactorize.
 Qed.
 
 Class HasCoequalizers (C : Cat) : Type :=

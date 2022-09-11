@@ -19,7 +19,7 @@ Proof.
   symmetry.
   red. exists (fpair (delete X) (id X)).
   red. exists outr.
-  fpair. apply delete_equiv.
+  fpair. apply equiv_terminal.
 Defined.
 
 Lemma product_term_l' :
@@ -28,7 +28,7 @@ Lemma product_term_l' :
 Proof.
   intros.
   exists outr, (fpair (delete X) (id X)).
-  fpair; apply delete_equiv.
+  fpair; apply equiv_terminal.
 Defined.
 
 Lemma product_term_r :
@@ -44,7 +44,7 @@ Lemma product_term_r' :
 Proof.
   intros.
   exists outl, (fpair (id X) (delete X)).
-  fpair; apply delete_equiv.
+  fpair; apply equiv_terminal.
 Defined.
 
 Lemma coproduct_init_l :
@@ -53,7 +53,7 @@ Lemma coproduct_init_l :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  coprod; apply create_equiv.
+  coprod; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_l' :
@@ -62,7 +62,7 @@ Lemma coproduct_init_l' :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  coprod; apply create_equiv.
+  coprod; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_r :
@@ -78,7 +78,7 @@ Lemma coproduct_init_r' :
 Proof.
   intros.
   exists (copair (id X) (create X)), finl.
-  coprod; apply create_equiv.
+  coprod; apply equiv_initial.
 Defined.
 
 (* TODO *) Lemma exp_term_dom :
@@ -115,7 +115,7 @@ Proof.
   intros.
   exists (delete _), (curry (delete _)).
   split; cycle 1.
-  - apply delete_equiv.
+  - apply equiv_terminal.
   - rewrite <- curry_eval.
     symmetry.
     apply universal_property.

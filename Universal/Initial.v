@@ -3,9 +3,9 @@ From Cat Require Export Cat.
 Set Implicit Arguments.
 
 Class isInitial (C : Cat) (I : Ob C) (create : forall X : Ob C, Hom I X) : Prop :=
-  create_equiv : forall {X : Ob C} (f g : Hom I X), f == g.
+  equiv_initial : forall {X : Ob C} (f g : Hom I X), f == g.
 
-Arguments create_equiv {C I create isInitial X f} _.
+Arguments equiv_initial {C I create isInitial X f} _.
 
 (* Class HasInit' (C : Cat) (I : Ob C) : Type :=
 {
@@ -50,8 +50,8 @@ Proof.
   exists (create1 I2).
   split.
   - exists (create2 I1).
-    split; apply create_equiv.
-  - now intros; apply create_equiv.
+    split; apply equiv_initial.
+  - now intros; apply equiv_initial.
 Qed.
 
 Lemma isInitial_iso :
@@ -66,7 +66,7 @@ Proof.
   intros. destruct (isInitial_uiso H H0). cat.
 Qed.
 
-Lemma isInitial_create_equiv :
+Lemma isInitial_equiv_initial :
   forall
     (C : Cat)
     (I : Ob C) (create1 create2 : forall X : Ob C, Hom I X),
@@ -74,7 +74,7 @@ Lemma isInitial_create_equiv :
       isInitial C I create2 ->
         forall X : Ob C, create1 X == create2 X.
 Proof.
-  now intros; apply create_equiv.
+  now intros; apply equiv_initial.
 Qed.
 
 Lemma iso_to_init_is_init :
@@ -84,7 +84,7 @@ Lemma iso_to_init_is_init :
         isInitial C X (fun Y : Ob C => f .> create Y).
 Proof.
   intros C I c H X f (f' & Heq1 & Heq2) Y g1 g2.
-  now rewrite <- comp_id_l, <- Heq1, comp_assoc, (create_equiv (f' .> g2)),
+  now rewrite <- comp_id_l, <- Heq1, comp_assoc, (equiv_initial (f' .> g2)),
     <- comp_assoc, Heq1, comp_id_l.
 Defined.
 
@@ -95,7 +95,7 @@ Lemma mor_to_init_is_ret :
 Proof.
   unfold isRet; intros.
   exists (create0 X).
-  apply create_equiv.
+  apply equiv_initial.
 Qed.
 
 Module wut. (* TODO: are separate lemmas for Has* needed? *)
@@ -109,8 +109,8 @@ Proof.
   exists (create (init C)).
   split.
   - exists (create (init C)).
-    now split; apply create_equiv.
-  - now intros y _; apply create_equiv.
+    now split; apply equiv_initial.
+  - now intros y _; apply equiv_initial.
 Qed.
 
 Lemma HasInit_iso :
@@ -126,7 +126,7 @@ Lemma iso_to_init_is_init :
       isInitial C X (fun Y : Ob C => f .> create Y).
 Proof.
   intros C hi X f (g & Hfg & Hgf) Y h1 h2.
-  now rewrite <- comp_id_l, <- Hfg, comp_assoc, (create_equiv (g .> h2)),
+  now rewrite <- comp_id_l, <- Hfg, comp_assoc, (equiv_initial (g .> h2)),
     <- comp_assoc, Hfg, comp_id_l.
 Defined.
 
@@ -136,7 +136,7 @@ Lemma mor_to_init_is_ret :
 Proof.
   unfold isRet; intros.
   exists (create X).
-  now apply create_equiv.
+  now apply equiv_initial.
 Qed.
 
 End wut.
