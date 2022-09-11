@@ -243,6 +243,25 @@ repeat match goal with
 | _ => rewrite <- ?comp_assoc; auto
 end.
 
+Ltac prod_simpl :=
+repeat match goal with
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite fpair_pre, fpair_id
+| |- context [_ .> fpair _ _] => rewrite <- fpair_pre
+| |- context [fpair _ _ .> outl] => rewrite fpair_outl
+| |- context [fpair _ _ .> outr] => rewrite fpair_outr
+| |- context [fpair outl outr] => rewrite fpair_id
+| |- context [id _ .> _] => rewrite comp_id_l
+| |- context [_ .> id _] => rewrite comp_id_r
+| H : context [fpair (_ .> outl) (_ .> outr)] |- _ => rewrite fpair_pre, fpair_id in H
+| H : context [_ .> fpair _ _] |- _ => rewrite <- fpair_pre in H
+| H : context [fpair _ _ .> outl] |- _ => rewrite fpair_outl in H
+| H : context [fpair _ _ .> outr] |- _ => rewrite fpair_outr in H
+| H : context [fpair outl outr] |- _ => rewrite fpair_id in H
+| H : context [id _ .> _] |- _ => rewrite comp_id_l in H
+| H : context [_ .> id _] |- _ => rewrite comp_id_r in H
+| _ => rewrite <- ?comp_assoc
+end.
+
 Lemma fpair_comp :
   forall
     (C : Cat) (hp : HasProducts C)
@@ -337,8 +356,7 @@ Lemma ProductFunctor_fmap_comp_l :
         ==
       ProductFunctor_fmap f (id A) .> ProductFunctor_fmap g (id A).
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_comp.
-  fpair.
+  now intros; rewrite <- ProductFunctor_fmap_comp, comp_id_l.
 Defined.
 
 Lemma ProductFunctor_fmap_comp_r :
@@ -349,8 +367,7 @@ Lemma ProductFunctor_fmap_comp_r :
         ==
       ProductFunctor_fmap (id A) f .> ProductFunctor_fmap (id A) g.
 Proof.
-  intros. rewrite <- ProductFunctor_fmap_comp.
-  fpair.
+  now intros; rewrite <- ProductFunctor_fmap_comp, comp_id_r.
 Defined.
 
 #[refine]
@@ -361,9 +378,9 @@ Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_product C 
   fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => ProductFunctor_fmap (fst f) (snd f)
 }.
 Proof.
-  proper. apply Proper_ProductFunctor_fmap; cat.
-  intros. apply ProductFunctor_fmap_comp.
-  intros. apply ProductFunctor_fmap_id.
+  - now proper; apply Proper_ProductFunctor_fmap.
+  - now intros; apply ProductFunctor_fmap_comp.
+  - now intros; apply ProductFunctor_fmap_id.
 Defined.
 
 Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
@@ -378,5 +395,5 @@ Instance ProductBifunctor {C : Cat} {hp : HasProducts C} : Bifunctor C C C :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => fpair (outl .> f) (outr .> g);
 }.
 Proof.
-  all: now fpair.
+  all: fpair.
 Defined.
