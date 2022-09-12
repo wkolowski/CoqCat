@@ -5,13 +5,13 @@ Set Implicit Arguments.
 Class isEqualizer
   (C : Cat) {A B : Ob C} (f g : Hom A B)
   (E : Ob C) (equalize : Hom E A)
-  (factorize : forall {E' : Ob C} {e' : Hom E' A}, e' .> f == e' .> g -> Hom E' E)
+  (factorize : forall {E' : Ob C} (e' : Hom E' A), e' .> f == e' .> g -> Hom E' E)
   : Prop :=
 {
   equalize_ok : equalize .> f == equalize .> g;
   factorize_equalize :
-    forall {E' : Ob C} {e' : Hom E' A} (H : e' .> f == e' .> g),
-      factorize H .> equalize == e';
+    forall {E' : Ob C} (e' : Hom E' A) (H : e' .> f == e' .> g),
+      factorize e' H .> equalize == e';
   equiv_equalizer :
     forall {E' : Ob C} {e1 e2 : Hom E' E},
       e1 .> equalize == e2 .> equalize -> e1 == e2;
@@ -25,7 +25,7 @@ Section isEqualizer.
 Context
   {C : Cat} {A B : Ob C} {f g : Hom A B}
   {E : Ob C} {equalize : Hom E A}
-  {factorize : forall {E' : Ob C} {e' : Hom E' A}, e' .> f == e' .> g -> Hom E' E}
+  {factorize : forall {E' : Ob C} (e' : Hom E' A), e' .> f == e' .> g -> Hom E' E}
   {isEq : isEqualizer C f g E equalize (@factorize)}.
 
 Arguments factorize {E' e'} _.
@@ -181,7 +181,7 @@ Class HasEqualizers (C : Cat) : Type :=
   equalize :
     forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
   factorize :
-    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] [e' : Hom E' X],
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
       e' .> f == e' .> g -> Hom E' (equalizer f g);
   isEqualizer_HasEqualizers :>
     forall {X Y : Ob C} (f g : Hom X Y),
@@ -190,4 +190,4 @@ Class HasEqualizers (C : Cat) : Type :=
 
 Arguments equalizer     [C _ X Y] _ _.
 Arguments equalize    [C _ X Y] _ _.
-Arguments factorize [C _ X Y f g E' e'] _.
+Arguments factorize [C _ X Y f g E'] _ _.

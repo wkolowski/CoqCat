@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Universal Require Import Product Coproduct Exponential.
+From Cat.Universal Require Import Initial Terminal Product Coproduct Equalizer Coequalizer Exponential.
 
 Set Implicit Arguments.
 
@@ -16,6 +16,74 @@ Instance FunCat (C D : Cat) : Cat :=
 Proof.
   (* Proper *) do 3 red; cbn; intros. now rewrite H, H0.
   (* Category laws *) all: cat.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_init (C D : Cat) {hi : HasInit D} : Functor C D :=
+{
+  fob := fun _ => init D;
+  fmap := fun _ _ _ => id (init D);
+}.
+Proof.
+  all: easy.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_create
+  {C D : Cat} {hi : HasInit D} (F : Functor C D) : NatTrans (@FunCat_init C D hi) F :=
+{
+  component := fun X => create (fob F X);
+}.
+Proof.
+  now intros; apply equiv_initial.
+Defined.
+
+#[refine]
+#[export]
+Instance HasInit_FunCat (C D : Cat) {hi : HasInit D} : HasInit (FunCat C D) :=
+{
+  init := @FunCat_init C D hi;
+  create := @FunCat_create C D hi;
+}.
+Proof.
+  red; cbn; intros F α β X.
+  apply equiv_initial.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_term (C D : Cat) {ht : HasTerm D} : Functor C D :=
+{
+  fob := fun _ => term D;
+  fmap := fun _ _ _ => id (term D);
+}.
+Proof.
+  all: easy.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_delete
+  {C D : Cat} {ht : HasTerm D} (F : Functor C D) : NatTrans F (@FunCat_term C D ht) :=
+{
+  component := fun X => delete (fob F X);
+}.
+Proof.
+  now intros; apply equiv_terminal.
+Defined.
+
+#[refine]
+#[export]
+Instance HasTerm_FunCat (C D : Cat) {ht : HasTerm D} : HasTerm (FunCat C D) :=
+{
+  term := @FunCat_term C D ht;
+  delete := @FunCat_delete C D ht;
+}.
+Proof.
+  red; cbn; intros F α β X.
+  apply equiv_terminal.
 Defined.
 
 #[refine]
@@ -147,6 +215,76 @@ Instance HasCoproducts_FunCat
 Proof.
   repeat split; cbn; intros; solve_coproduct.
   now apply equiv_coproduct.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_equalizer
+  {C D : Cat} {he : HasEqualizers D}
+  {F G : Functor C D} (α β : NatTrans F G) : Functor C D :=
+{
+  fob := fun X : Ob C => equalizer (component α X) (component β X);
+}.
+Proof.
+  - intros A B f.
+    apply (factorize (equalize (component α A) (component β A) .> fmap F f)).
+    abstract
+    (
+      rewrite !comp_assoc, <- !natural, <- !comp_assoc;
+      f_equiv; apply equalize_ok
+    ).
+  - proper; apply equiv_equalizer.
+    rewrite !factorize_equalize.
+    now do 2 f_equiv.
+  - cbn; intros; apply equiv_equalizer.
+    rewrite factorize_equalize, comp_assoc, factorize_equalize, <- comp_assoc, factorize_equalize.
+    now rewrite fmap_comp, comp_assoc.
+  - cbn; intros; apply equiv_equalizer.
+    now rewrite factorize_equalize, fmap_id, comp_id_l, comp_id_r.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_equalize
+  {C D : Cat} {he : HasEqualizers D}
+  {F G : Functor C D} (α β : NatTrans F G) : NatTrans (FunCat_equalizer α β) F :=
+{
+  component := fun X => equalize (component α X) (component β X);
+}.
+Proof.
+  now cbn; intros; rewrite factorize_equalize.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_factorize
+  {C D : Cat} {he : HasEqualizers D}
+  {F G : Functor C D} (α β : NatTrans F G)
+  (E : Functor C D) (γ : NatTrans E F) (Heq : NatTransComp γ α == NatTransComp γ β)
+  : NatTrans E (FunCat_equalizer α β) :=
+{
+  component := fun X => factorize (component γ X) (Heq X);
+}.
+Proof.
+  cbn; intros; apply equiv_equalizer.
+  rewrite !comp_assoc, !factorize_equalize, <- comp_assoc, factorize_equalize.
+  apply (natural γ).
+Defined.
+
+#[refine]
+#[export]
+Instance HasEqualizers_FunCat
+  {C D : Cat} {he : HasEqualizers D} : HasEqualizers (FunCat C D) :=
+{
+  equalizer := @FunCat_equalizer C D he;
+  equalize  := @FunCat_equalize C D he;
+  factorize := @FunCat_factorize C D he;
+}.
+Proof.
+  cbn; intros F G α β; split; cbn.
+  - now intros X; apply equalize_ok.
+  - now intros E γ Heq X; rewrite factorize_equalize.
+  - intros E γ1 γ2 Heq X; apply equiv_equalizer, Heq.
 Defined.
 
 #[refine]
