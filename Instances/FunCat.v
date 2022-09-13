@@ -1,5 +1,7 @@
 From Cat Require Import Cat.
-From Cat.Universal Require Import Initial Terminal Product Coproduct Equalizer Coequalizer Exponential.
+From Cat.Universal Require Import
+  Initial Terminal Product Coproduct Equalizer Coequalizer Pullback Pushout Exponential.
+From Cat.Universal Require Import Duality.
 
 Set Implicit Arguments.
 
@@ -90,13 +92,13 @@ Defined.
 #[export]
 Instance FunCat_product {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : Functor C D :=
 {
-  fob := fun X : Ob C => product (fob F X) (fob G X);
+  fob  := fun X : Ob C => product (fob F X) (fob G X);
   fmap := fun (X Y : Ob C) (f : Hom X Y) => ProductFunctor_fmap (fmap F f) (fmap G f)
 }.
 Proof.
-  proper.
-  now intros; rewrite 2 fmap_comp, ProductFunctor_fmap_comp.
-  now intros; rewrite 2 fmap_id, ProductFunctor_fmap_id.
+  - proper.
+  - now intros; rewrite !fmap_comp, ProductFunctor_fmap_comp.
+  - now intros; rewrite !fmap_id, ProductFunctor_fmap_id.
 Defined.
 
 #[refine]
@@ -107,8 +109,7 @@ Instance FunCat_outl
   component := fun _ : Ob C => outl
 }.
 Proof.
-  cbn; unfold ProductFunctor_fmap; intros.
-  now rewrite fpair_outl.
+  now cbn; unfold ProductFunctor_fmap; intros; rewrite fpair_outl.
 Defined.
 
 #[refine]
@@ -119,8 +120,7 @@ Instance FunCat_outr
   component := fun _ : Ob C => outr
 }.
 Proof.
-  cbn; unfold ProductFunctor_fmap; intros.
-  now rewrite fpair_outr.
+  now cbn; unfold ProductFunctor_fmap; intros; rewrite fpair_outr.
 Defined.
 
 #[refine]
@@ -147,8 +147,10 @@ Instance HasProducts_FunCat {C D : Cat} {hp : HasProducts D} : HasProducts (FunC
     @FunCat_fpair C D hp F G H α β
 }.
 Proof.
-  split; cbn; intros; solve_product.
-  now apply equiv_product.
+  split; cbn; intros.
+  - now apply fpair_outl.
+  - now apply fpair_outr.
+  - now apply equiv_product.
 Defined.
 
 #[refine]
@@ -161,8 +163,8 @@ Instance FunCat_coproduct {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D)
 }.
 Proof.
   - proper.
-  - now intros; rewrite 2 fmap_comp, CoproductFunctor_fmap_comp.
-  - now intros; rewrite 2 fmap_id, CoproductFunctor_fmap_id.
+  - now intros; rewrite !fmap_comp, CoproductFunctor_fmap_comp.
+  - now intros; rewrite !fmap_id, CoproductFunctor_fmap_id.
 Defined.
 
 #[refine]
@@ -173,7 +175,7 @@ Instance FunCat_finl
   component := fun _ : Ob C => finl
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. solve_coproduct.
+  now cbn; unfold CoproductFunctor_fmap; intros; rewrite finl_copair.
 Defined.
 
 #[refine]
@@ -184,7 +186,7 @@ Instance FunCat_finr
   component := fun _ : Ob C => finr
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap. solve_coproduct.
+  now cbn; unfold CoproductFunctor_fmap; intros; rewrite finr_copair.
 Defined.
 
 #[refine]
@@ -196,8 +198,8 @@ Instance FunCat_copair
   component := fun X : Ob C => copair (component α X) (component β X)
 }.
 Proof.
-  intros. cbn. unfold CoproductFunctor_fmap.
-  destruct α, β; cbn in *. solve_coproduct.
+  cbn; unfold CoproductFunctor_fmap.
+  solve_coproduct; apply natural.
 Defined.
 
 #[refine]
@@ -213,8 +215,10 @@ Instance HasCoproducts_FunCat
     => @FunCat_copair C D hp F G H α β
 }.
 Proof.
-  repeat split; cbn; intros; solve_coproduct.
-  now apply equiv_coproduct.
+  split; cbn; intros.
+  - now apply finl_copair.
+  - now apply finr_copair.
+  - now apply equiv_coproduct.
 Defined.
 
 #[refine]
@@ -289,6 +293,165 @@ Defined.
 
 #[refine]
 #[export]
+Instance FunCat_coequalizer
+  {C D : Cat} {he : HasCoequalizers D}
+  {F G : Functor C D} (α β : NatTrans F G) : Functor C D :=
+{
+  fob := fun X : Ob C => coequalizer (component α X) (component β X);
+}.
+Proof.
+  - intros A B f.
+    apply (cofactorize (fmap G f .> coequalize (component α B) (component β B))).
+    abstract
+    (
+      rewrite <- !comp_assoc, !natural, !comp_assoc;
+      f_equiv; apply coequalize_ok
+    ).
+  - proper; apply equiv_coequalizer.
+    rewrite !coequalize_cofactorize.
+    now do 2 f_equiv.
+  - cbn; intros; apply equiv_coequalizer.
+    rewrite coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize, comp_assoc, coequalize_cofactorize.
+    now rewrite fmap_comp, comp_assoc.
+  - cbn; intros; apply equiv_coequalizer.
+    now rewrite coequalize_cofactorize, fmap_id, comp_id_l, comp_id_r.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_coequalize
+  {C D : Cat} {he : HasCoequalizers D}
+  {F G : Functor C D} (α β : NatTrans F G) : NatTrans G (FunCat_coequalizer α β) :=
+{
+  component := fun X => coequalize (component α X) (component β X);
+}.
+Proof.
+  now cbn; intros; rewrite coequalize_cofactorize.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_cofactorize
+  {C D : Cat} {he : HasCoequalizers D}
+  {F G : Functor C D} (α β : NatTrans F G)
+  (Q : Functor C D) (γ : NatTrans G Q) (Heq : NatTransComp α γ == NatTransComp β γ)
+  : NatTrans (FunCat_coequalizer α β) Q :=
+{
+  component := fun X => cofactorize (component γ X) (Heq X);
+}.
+Proof.
+  cbn; intros; apply equiv_coequalizer.
+  rewrite <- !comp_assoc, !coequalize_cofactorize, comp_assoc, coequalize_cofactorize.
+  apply (natural γ).
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoequalizers_FunCat
+  {C D : Cat} {he : HasCoequalizers D} : HasCoequalizers (FunCat C D) :=
+{
+  coequalizer := @FunCat_coequalizer C D he;
+  coequalize  := @FunCat_coequalize C D he;
+  cofactorize := @FunCat_cofactorize C D he;
+}.
+Proof.
+  cbn; intros F G α β; split; cbn.
+  - now intros X; apply coequalize_ok.
+  - now intros E γ Heq X; rewrite coequalize_cofactorize.
+  - intros E γ1 γ2 Heq X; apply equiv_coequalizer, Heq.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_pullback
+  {C D : Cat} {hp : HasPullbacks D}
+  {F G H : Functor C D} (α : NatTrans F H) (β : NatTrans G H) : Functor C D :=
+{
+  fob := fun X : Ob C => pullback (component α X) (component β X);
+}.
+Proof.
+  - intros A B f.
+    apply (factor (pullL .> fmap F f) (pullR .> fmap G f)).
+    abstract
+    (
+      rewrite !comp_assoc, <- !natural, <- !comp_assoc;
+      f_equiv; apply isPullback_ok
+    ).
+  - proper; apply equiv_pullback.
+    + now rewrite !factor_pullL, H0.
+    + now rewrite !factor_pullR, H0.
+  - cbn; intros; apply equiv_pullback; pullback_simpl.
+    + now rewrite <- comp_assoc, factor_pullL, comp_assoc, fmap_comp.
+    + now rewrite <- comp_assoc, factor_pullR, comp_assoc, fmap_comp.
+  - cbn; intros; apply equiv_pullback.
+    + now rewrite factor_pullL, fmap_id, comp_id_l, comp_id_r.
+    + now rewrite factor_pullR, fmap_id, comp_id_l, comp_id_r.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_pullL
+  {C D : Cat} {hp : HasPullbacks D}
+  {F G H : Functor C D} (α : NatTrans F H) (β : NatTrans G H)
+  : NatTrans (FunCat_pullback α β) F :=
+{
+  component := fun _ : Ob C => pullL
+}.
+Proof.
+  now cbn; intros; rewrite factor_pullL.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_pullR
+  {C D : Cat} {hp : HasPullbacks D}
+  {F G H : Functor C D} (α : NatTrans F H) (β : NatTrans G H)
+  : NatTrans (FunCat_pullback α β) G :=
+{
+  component := fun _ : Ob C => pullR
+}.
+Proof.
+  now cbn; intros; rewrite factor_pullR.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_factor
+  {C D : Cat} {hp : HasPullbacks D}
+  (F G H : Functor C D) (α : NatTrans F H) (β : NatTrans G H)
+  {P : Functor C D} (x : NatTrans P F) (y : NatTrans P G)
+  (Heq : NatTransComp x α == NatTransComp y β)
+  : NatTrans P (FunCat_pullback α β) :=
+{
+  component := fun X : Ob C => factor (component x X) (component y X) (Heq X);
+}.
+Proof.
+  cbn; intros; apply equiv_pullback.
+  - rewrite !comp_assoc, !factor_pullL, <- comp_assoc, factor_pullL.
+    now apply (natural x).
+  - rewrite !comp_assoc, !factor_pullR, <- comp_assoc, factor_pullR.
+    now apply (natural y).
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_FunCat {C D : Cat} {hp : HasPullbacks D} : HasPullbacks (FunCat C D) :=
+{
+  pullback := @FunCat_pullback C D hp;
+  pullL := @FunCat_pullL C D hp;
+  pullR := @FunCat_pullR C D hp;
+  factor := @FunCat_factor C D hp;
+}.
+Proof.
+  split; cbn; intros.
+  - now apply isPullback_ok.
+  - now apply factor_pullL.
+  - now apply factor_pullR.
+  - now apply equiv_pullback.
+Defined.
+
+#[refine]
+#[export]
 Instance FunCat_expOb
   {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
   (F G : Functor C D) : Functor C D :=
@@ -296,6 +459,8 @@ Instance FunCat_expOb
   fob := fun X : Ob C => expOb (fob F X) (fob G X)
 }.
 Proof.
+  - intros A B f.
+    apply curry.
 Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)

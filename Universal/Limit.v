@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Universal Require Import Initial Terminal.
-From Cat.Instances Require Import Setoids FunCat.
+From Cat.Instances Require Import Setoids.
 
 Set Implicit Arguments.
 
@@ -125,9 +125,9 @@ Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
   setoid := HomSetoid X Y
 }.
 
-Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
+(* Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F. *)
 
-Lemma isLimit_char
+(* Lemma isLimit_char
   (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K) :
     @isLimit J C F K del
@@ -135,4 +135,4 @@ Lemma isLimit_char
     forall c : Ob C,
       @isomorphic CoqSetoid (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
 Proof.
-Abort.
+Abort. *)

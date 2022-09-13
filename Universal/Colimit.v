@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Universal Require Import Initial Terminal.
-From Cat.Instances Require Import Setoids FunCat.
+From Cat.Instances Require Import Setoids.
 
 Set Implicit Arguments.
 

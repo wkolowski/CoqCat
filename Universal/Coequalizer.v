@@ -6,13 +6,13 @@ Set Implicit Arguments.
 Class isCoequalizer
   (C : Cat) {A B : Ob C} (f g : Hom A B)
   (Q : Ob C) (coequalize : Hom B Q)
-  (cofactorize : forall {Q' : Ob C} {q : Hom B Q'}, f .> q == g .> q -> Hom Q Q')
+  (cofactorize : forall {Q' : Ob C} (q : Hom B Q'), f .> q == g .> q -> Hom Q Q')
   : Prop :=
 {
   coequalize_ok : f .> coequalize == g .> coequalize;
   coequalize_cofactorize :
     forall {Q' : Ob C} {q : Hom B Q'} (H : f .> q == g .> q),
-      coequalize .> cofactorize H == q;
+      coequalize .> cofactorize q H == q;
   equiv_coequalizer :
     forall {Q' : Ob C} (h1 h2 : Hom Q Q'),
       coequalize .> h1 == coequalize .> h2 -> h1 == h2;
@@ -26,7 +26,7 @@ Section isCoequalizer.
 Context
   {C : Cat} {A B : Ob C} {f g : Hom A B}
   {Q : Ob C} {coequalize : Hom B Q}
-  {cofactorize : forall {Q' : Ob C} {q' : Hom B Q'}, f .> q' == g .> q' -> Hom Q Q'}
+  {cofactorize : forall {Q' : Ob C} (q' : Hom B Q'), f .> q' == g .> q' -> Hom Q Q'}
   {isCoeq : isCoequalizer C f g Q coequalize (@cofactorize)}.
 
 Arguments cofactorize {Q' q'} _.
@@ -180,13 +180,13 @@ Class HasCoequalizers (C : Cat) : Type :=
   coequalize  :
     forall {A B : Ob C} (f g : Hom A B), Hom B (coequalizer f g);
   cofactorize :
-    forall {A B : Ob C} (f g : Hom A B) (Q' : Ob C) (q2 : Hom B Q'),
+    forall [A B : Ob C] [f g : Hom A B] [Q' : Ob C] (q2 : Hom B Q'),
       f .> q2 == g .> q2 -> Hom (coequalizer f g) Q';
   isCoequalizer_HasCoequalizers :>
     forall {A B : Ob C} (f g : Hom A B),
-      isCoequalizer C f g (coequalizer f g) (coequalize  f g) (cofactorize f g)
+      isCoequalizer C f g (coequalizer f g) (coequalize  f g) (@cofactorize _ _ f g)
 }.
 
-Arguments coequalizer     [C _ A B] _ _.
-Arguments coequalize     [C _ A B] _ _.
-Arguments cofactorize [C _ A B f g Q' q2] _.
+Arguments coequalizer [C _ A B] _ _.
+Arguments coequalize  [C _ A B] _ _.
+Arguments cofactorize [C _ A B f g Q'] _ _.
