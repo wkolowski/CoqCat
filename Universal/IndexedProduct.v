@@ -5,16 +5,16 @@ Set Implicit Arguments.
 
 Class isIndexedProduct
   (C : Cat) {J : Set} {A : J -> Ob C}
-  (P : Ob C) (proj : forall j : J, Hom P (A j))
+  (P : Ob C) (out : forall j : J, Hom P (A j))
   (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P)
   : Prop :=
 {
-  tuple_proj :
+  tuple_out :
     forall {X : Ob C} (f : forall j : J, Hom X (A j)) (j : J),
-      tuple f .> proj j == f j;
+      tuple f .> out j == f j;
   equiv_indexedProduct :
     forall {X : Ob C} (f g : Hom X P),
-      (forall j : J, f .> proj j == g .> proj j) -> f == g;
+      (forall j : J, f .> out j == g .> out j) -> f == g;
 }.
 
 #[export] Hint Mode isIndexedProduct ! ! ! ! ! ! : core.
@@ -23,11 +23,11 @@ Class isIndexedProduct
 Lemma equiv_indexedProduct' :
   forall
     {C : Cat} {J : Set} {A : J -> Ob C}
-    {P : Ob C} {proj : forall j : J, Hom P (A j)}
+    {P : Ob C} {out : forall j : J, Hom P (A j)}
     {tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P}
-    {isP : isIndexedProduct C P proj (@tuple)}
+    {isP : isIndexedProduct C P out (@tuple)}
     {X : Ob C} (f g : Hom X P),
-      f == g <-> forall j : J, f .> proj j == g .> proj j.
+      f == g <-> forall j : J, f .> out j == g .> out j.
 Proof.
   split.
   - now intros Heq j; rewrite Heq.
@@ -38,9 +38,9 @@ Section isIndexedProduct.
 
 Context
   {C : Cat} {J : Set} {A : J -> Ob C}
-  {P : Ob C} {proj : forall j : J, Hom P (A j)}
+  {P : Ob C} {out : forall j : J, Hom P (A j)}
   {tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P}
-  {isP : isIndexedProduct C P proj (@tuple)}
+  {isP : isIndexedProduct C P out (@tuple)}
   {X Y : Ob C} (f : forall j : J, Hom X (A j)).
 
 Arguments tuple {X} _.
@@ -50,27 +50,27 @@ Arguments tuple {X} _.
 Proof.
   intros h1 h2 Heq.
   apply equiv_indexedProduct; intros j.
-  now rewrite !tuple_proj.
+  now rewrite !tuple_out.
 Defined.
 
 Lemma tuple_universal :
   forall h : Hom X P,
-    tuple f == h <-> forall j : J, f j == h .> proj j.
+    tuple f == h <-> forall j : J, f j == h .> out j.
 Proof.
-  now intros; rewrite equiv_indexedProduct'; setoid_rewrite tuple_proj.
+  now intros; rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_unique :
   forall h : Hom X P,
-    (forall j : J, h .> proj j == f j) -> h == tuple f.
+    (forall j : J, h .> out j == f j) -> h == tuple f.
 Proof.
-  now intros; apply equiv_indexedProduct; setoid_rewrite tuple_proj.
+  now intros; apply equiv_indexedProduct; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_id :
-  tuple proj == id P.
+  tuple out == id P.
 Proof.
-  now rewrite equiv_indexedProduct'; setoid_rewrite tuple_proj.
+  now rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
 Qed.
 
 Lemma tuple_pre :
@@ -78,14 +78,14 @@ Lemma tuple_pre :
     h .> tuple f == tuple (fun j => h .> f j).
 Proof.
   setoid_rewrite equiv_indexedProduct'; intros h j.
-  now rewrite comp_assoc, !tuple_proj.
+  now rewrite comp_assoc, !tuple_out.
 Qed.
 
 End isIndexedProduct.
 
 Ltac indexedProduct_simpl := repeat (
   try setoid_rewrite equiv_indexedProduct';
-  try setoid_rewrite tuple_proj;
+  try setoid_rewrite tuple_out;
   try setoid_rewrite tuple_id;
   try setoid_rewrite tuple_pre;
   try setoid_rewrite comp_id_l;
@@ -106,8 +106,8 @@ Proof.
   intros * H1 H2.
   exists (tuple2 _ proj1), (tuple1 _ proj2).
   rewrite !tuple_pre, !equiv_indexedProduct'; split; intros.
-  - now rewrite !tuple_proj, comp_id_l.
-  - now rewrite !tuple_proj, comp_id_l.
+  - now rewrite !tuple_out, comp_id_l.
+  - now rewrite !tuple_out, comp_id_l.
 Qed.
 
 Lemma isIndexedProduct_iso_unique2 :
@@ -146,10 +146,10 @@ Proof.
          (t1 P2 (fun j : J => (p2 j .> g' j))).
   split.
   - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_proj, <- comp_assoc, tuple_proj, comp_assoc,
+    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
       iso1, comp_id_l, comp_id_r.
   - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_proj, <- comp_assoc, tuple_proj, comp_assoc,
+    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
       iso2, comp_id_l, comp_id_r.
 Defined.
 
@@ -183,7 +183,7 @@ Proof.
         then f
         else g
     ).
-    destruct HP. apply (tuple_proj0 _ wut true).
+    destruct HP. apply (tuple_out0 _ wut true).
     + intros X f g.
     pose
     (
@@ -192,7 +192,7 @@ Proof.
         then f
         else g
     ).
-    destruct HP. apply (tuple_proj0 _ wut false).
+    destruct HP. apply (tuple_out0 _ wut false).
   + intros * H1 H2. destruct HP.
     apply equiv_indexedProduct0. now intros []; cbn.
 Qed.
@@ -247,17 +247,17 @@ Abort.
 (* Class HasIndexedProducts'
   (C : Cat) (indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C) : Type :=
 {
-  proj :
+  out :
     forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
   tuple :
     forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
   HasIndexedProducts_isIndexedProduct :>
     forall {J : Set} {A : J -> Ob C},
-      isIndexedProduct C (indexedProduct A) (@proj J A) (@tuple J A)
+      isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.
 
-Arguments proj  {C _ _ J A} _.
+Arguments out  {C _ _ J A} _.
 Arguments tuple {C _ _ J A X} _.
 
 Class HasIndexedProducts (C : Cat) : Type :=
@@ -274,18 +274,18 @@ Coercion HasIndexedProducts'_HasIndexedProducts :
 Class HasIndexedProducts (C : Cat) : Type :=
 {
   indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
-  proj :
+  out :
     forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
   tuple :
     forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
   HasIndexedProducts_isIndexedProduct :>
     forall {J : Set} {A : J -> Ob C},
-      isIndexedProduct C (indexedProduct A) (@proj J A) (@tuple J A)
+      isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.
 
 Arguments indexedProduct {C _ J} _.
-Arguments proj           {C _ J A} _.
+Arguments out           {C _ J A} _.
 Arguments tuple          {C _ J A X} _.
 
 Lemma tuple_comp :
@@ -295,9 +295,9 @@ Lemma tuple_comp :
     (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom (A j) (B j)),
       tuple (fun j : J => f j .> g j)
         ==
-      tuple f .> tuple (fun j : J => proj j .> g j).
+      tuple f .> tuple (fun j : J => out j .> g j).
 Proof.
   intros.
   rewrite tuple_pre, equiv_indexedProduct'; intros j.
-  now rewrite !tuple_proj, <- comp_assoc, tuple_proj.
+  now rewrite !tuple_out, <- comp_assoc, tuple_out.
 Qed.

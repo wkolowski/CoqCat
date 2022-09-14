@@ -326,7 +326,7 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_proj
+Instance CoqSetoid_out
   {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_indexedProduct A) (A j).
 Proof.
   split with (fun (f : forall j : J, A j) => f j). proper.
@@ -346,7 +346,7 @@ Defined.
 Instance HasIndexedProducts_CoqSetoid : HasIndexedProducts CoqSetoid :=
 {
   indexedProduct := @CoqSetoid_indexedProduct;
-  proj := @CoqSetoid_proj;
+  out := @CoqSetoid_out;
   tuple := @CoqSetoid_tuple
 }.
 Proof.
@@ -378,7 +378,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_coproj
+Instance CoqSetoid_inj
   {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_indexedCoproduct A) :=
 {
   func := fun x : A j => existT _ j x
@@ -405,7 +405,7 @@ Defined.
 Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
 {
   indexedCoproduct := @CoqSetoid_indexedCoproduct;
-  coproj := @CoqSetoid_coproj;
+  inj := @CoqSetoid_inj;
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.
@@ -414,22 +414,22 @@ Defined.
 
 #[refine]
 #[export]
-Instance CoqSetoid_expOb_setoid (X Y : Setoid') : Setoid (SetoidHom X Y) :=
+Instance CoqSetoid_exponential_setoid (X Y : Setoid') : Setoid (SetoidHom X Y) :=
 {
   equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x
 }.
 Proof. setoid. Defined.
 
 #[export]
-Instance CoqSetoid_expOb (X Y : Setoid') : Setoid' :=
+Instance CoqSetoid_exponential (X Y : Setoid') : Setoid' :=
 {
   carrier := SetoidHom X Y;
-  setoid := CoqSetoid_expOb_setoid X Y
+  setoid := CoqSetoid_exponential_setoid X Y
 }.
 
 #[export]
 Instance CoqSetoid_eval
-  (X Y : Setoid') : SetoidHom (product (CoqSetoid_expOb X Y) X) Y.
+  (X Y : Setoid') : SetoidHom (product (CoqSetoid_exponential X Y) X) Y.
 Proof.
   split with (fun fx : SetoidHom X Y * X => (fst fx) (snd fx)).
   proper. destruct x, y, H; cbn in *. setoid.
@@ -437,7 +437,7 @@ Defined.
 
 Definition CoqSetoid_curry_fun
   (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_product Z X) Y)
-  : Z -> (CoqSetoid_expOb X Y).
+  : Z -> (CoqSetoid_exponential X Y).
 Proof.
   intro z. destruct f as [f Hf]; do 2 red in Hf; cbn in *.
   split with (fun x : X => f (z, x)). do 2 red. intros.
@@ -447,7 +447,7 @@ Defined.
 #[export]
 Instance CoqSetoid_curry
   (X Y Z : Setoid') (f : SetoidHom (CoqSetoid_product Z X) Y)
-  : SetoidHom Z (CoqSetoid_expOb X Y).
+  : SetoidHom Z (CoqSetoid_exponential X Y).
 Proof.
   split with (CoqSetoid_curry_fun f). do 2 red. intros.
   setoidhom f; unfold CoqSetoid_curry_fun; cbn in *. intro x'.
@@ -458,7 +458,7 @@ Defined.
 #[export]
 Instance HasExponentials_CoqSetoid : HasExponentials CoqSetoid :=
 {
-  expOb := CoqSetoid_expOb;
+  exponential := CoqSetoid_exponential;
   eval := CoqSetoid_eval;
   curry := CoqSetoid_curry
 }.

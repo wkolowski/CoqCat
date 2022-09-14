@@ -268,7 +268,7 @@ Defined.
 #[export]
 Instance HasExponentials_CAT : HasExponentials CAT :=
 {
-  expOb := @FunCat;
+  exponential := @FunCat;
 }.
 Proof.
   - cbn; intros C D. esplit with (fob := fun '(F, X) => fob F X). Unshelve. all: cycle 3.

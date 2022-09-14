@@ -83,33 +83,33 @@ Defined.
 
 (* TODO *) Lemma exp_term_dom :
   forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
-    expOb (term C) Y ~ Y.
+    exponential (term C) Y ~ Y.
 Proof.
   symmetry.
   red. exists (curry outl).
-  red. exists (fpair (id (expOb (term C) Y)) (delete _) .> eval).
+  red. exists (fpair (id (exponential (term C) Y)) (delete _) .> eval).
   split; cycle 1.
-  - rewrite <- (curry_uncurry (id (expOb (term C) Y))).
+  - rewrite <- (curry_uncurry (id (exponential (term C) Y))).
     symmetry.
     apply universal_property.
     setoid_replace (
-      (fpair (curry (uncurry (id (expOb (term C) Y)))) (delete (expOb (term C) Y))
+      (fpair (curry (uncurry (id (exponential (term C) Y)))) (delete (exponential (term C) Y))
         .> eval) .> curry (A := term C) outl)
-    with (curry (uncurry (id (expOb (term C) Y)))).
+    with (curry (uncurry (id (exponential (term C) Y)))).
     + now rewrite computation_rule.
     + rewrite !curry_uncurry. admit.
   -
 Abort.
 
 (* TODO *) Lemma wuuut :
-  forall (C : Cat) (ccc : CartesianClosed C) (X Y A : Ob C) (f : Hom A (expOb X Y)) (g : Hom A X),
+  forall (C : Cat) (ccc : CartesianClosed C) (X Y A : Ob C) (f : Hom A (exponential X Y)) (g : Hom A X),
     fpair f g .> eval .> curry outl == f.
 Proof.
 Abort.
 
 (* TODO *) Lemma exp_term_cod :
   forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
-    expOb Y (term C) ~ term C.
+    exponential Y (term C) ~ term C.
 Proof.
   unfold isomorphic, isIso.
   intros.

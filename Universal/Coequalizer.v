@@ -1,5 +1,4 @@
 From Cat Require Import Cat.
-(* From Cat.Universal Require Import Equalizer. *)
 
 Set Implicit Arguments.
 
@@ -9,7 +8,7 @@ Class isCoequalizer
   (cofactorize : forall {Q' : Ob C} (q : Hom B Q'), f .> q == g .> q -> Hom Q Q')
   : Prop :=
 {
-  coequalize_ok : f .> coequalize == g .> coequalize;
+  coequalizer_ok : f .> coequalize == g .> coequalize;
   coequalize_cofactorize :
     forall {Q' : Ob C} {q : Hom B Q'} (H : f .> q == g .> q),
       coequalize .> cofactorize q H == q;
@@ -68,7 +67,7 @@ Proof.
 Qed.
 
 Lemma cofactorize_id :
-  cofactorize coequalize_ok == id Q.
+  cofactorize coequalizer_ok == id Q.
 Proof.
   now rewrite equiv_coequalizer', coequalize_cofactorize, comp_id_r.
 Defined.
@@ -108,9 +107,9 @@ Lemma isCoequalizer_uiso :
         exists!! f : Hom Q1 Q2, isIso f /\ q1 .> f == q2.
 Proof.
   intros * H1 H2.
-  exists (cofactorize1 _ q2 coequalize_ok).
+  exists (cofactorize1 _ q2 coequalizer_ok).
   repeat split.
-  - exists (cofactorize2 _ q1 coequalize_ok).
+  - exists (cofactorize2 _ q1 coequalizer_ok).
     now rewrite !equiv_coequalizer', <- !comp_assoc, !coequalize_cofactorize, !comp_id_r.
   - now rewrite coequalize_cofactorize.
   - now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
@@ -140,7 +139,7 @@ Lemma isIso_coequalize :
         isMono coequalize -> isIso coequalize.
 Proof.
   unfold isMono, isIso; intros * HC HM.
-  assert (Hfg : f .> id B == g .> id B) by (rewrite !comp_id_r; apply HM, coequalize_ok).
+  assert (Hfg : f .> id B == g .> id B) by (rewrite !comp_id_r; apply HM, coequalizer_ok).
   exists (cofactorize B (id B) Hfg).
   now rewrite equiv_coequalizer', <- comp_assoc, !coequalize_cofactorize, comp_id_l, comp_id_r.
 Qed.

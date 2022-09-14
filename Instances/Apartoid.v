@@ -295,7 +295,7 @@ Proof.
     right. now exists j.
 Defined.
 
-Definition Apartoid_proj
+Definition Apartoid_out
   {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
 Proof.
   red. exists (fun (f : forall j : J, A j) => f j). intros.
@@ -317,7 +317,7 @@ Defined.
 Instance HasIndexedProducts_Apartoid : HasIndexedProducts ApartoidCat :=
 {
   indexedProduct := @Apartoid_indexedProduct;
-  proj := @Apartoid_proj;
+  out := @Apartoid_out;
   tuple := @Apartoid_tuple;
 }.
 Proof.
@@ -428,7 +428,7 @@ Proof.
   all: destruct x; try destruct y; try destruct z; eauto.
 Defined.
 
-Definition Apartoid_coproj
+Definition Apartoid_inj
   {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoproduct A).
 Proof.
   red; cbn in *. exists (fun a : A j => existT _ j a); cbn.

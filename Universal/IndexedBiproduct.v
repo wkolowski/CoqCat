@@ -3,13 +3,13 @@ From Cat.Universal Require Import IndexedProduct IndexedCoproduct.
 
 Class isIndexedBiproduct
   (C : Cat) {J : Set} {A : J -> Ob C}
-  (P : Ob C) (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
+  (P : Ob C) (out : forall j : J, Hom P (A j)) (inj : forall j : J, Hom (A j) P)
   (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P)
   (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X)
   : Prop :=
 {
-  isIndexedProduct_isIndexedBiproduct :> isIndexedProduct C P proj (@tuple);
-  isIndexedCoproduct_isIndexedBiproduct :> isIndexedCoproduct C P coproj (@cotuple);
+  isIndexedProduct_isIndexedBiproduct :> isIndexedProduct C P out (@tuple);
+  isIndexedCoproduct_isIndexedBiproduct :> isIndexedCoproduct C P inj (@cotuple);
 }.
 
 #[export] Hint Mode isIndexedBiproduct ! ! ! ! ! ! ! ! : core.

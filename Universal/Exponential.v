@@ -7,7 +7,7 @@ Class isExponential
   (curry : forall {E2 : Ob C}, Hom (product E2 A) B -> Hom E2 E)
   : Prop :=
 {
-  exp_comp :
+  compute_exp :
     forall {E' : Ob C} (f : Hom (product E' A) B),
       curry f ×' id A .> eval == f;
   equiv_exponential :
@@ -55,7 +55,7 @@ Arguments curry {E2} _.
 Instance Proper_curry :
   Proper (equiv ==> equiv) (@curry E').
 Proof.
-  now intros x y H; rewrite equiv_exponential', !exp_comp.
+  now intros x y H; rewrite equiv_exponential', !compute_exp.
 Defined.
 
 #[export]
@@ -69,49 +69,49 @@ Lemma universal_property :
     curry f == g <-> g ×' id A .> eval == f.
 Proof.
   split.
-  - now intros <-; rewrite exp_comp.
-  - now intros; rewrite equiv_exponential', exp_comp.
+  - now intros <-; rewrite compute_exp.
+  - now intros; rewrite equiv_exponential', compute_exp.
 Qed.
 
 Lemma computation_rule :
   forall f : Hom (product E A) B,
     curry f ×' id A .> eval == f.
 Proof.
-  now intros f; rewrite exp_comp.
+  now intros f; rewrite compute_exp.
 Qed.
 
 Lemma uniqueness_rule :
   forall (f : Hom (product E' A) B) (g : Hom E' E),
     g ×' id A .> eval == f -> g == curry f.
 Proof.
-  now intros; rewrite equiv_exponential', exp_comp.
+  now intros; rewrite equiv_exponential', compute_exp.
 Qed.
 
 Lemma curry_uncurry :
   forall f : Hom E' E,
     curry (uncurry f) == f.
 Proof.
-  now intros f; rewrite equiv_exponential', exp_comp.
+  now intros f; rewrite equiv_exponential', compute_exp.
 Qed.
 
 Lemma uncurry_curry :
   forall f : Hom (product E' A) B,
     uncurry (curry f) == f.
 Proof.
-  now unfold uncurry; intros f; rewrite exp_comp.
+  now unfold uncurry; intros f; rewrite compute_exp.
 Qed.
 
 Lemma curry_eval :
   curry eval == id E.
 Proof.
-  now rewrite equiv_exponential', exp_comp, ProductFunctor_fmap_id, comp_id_l.
+  now rewrite equiv_exponential', compute_exp, ProductFunctor_fmap_id, comp_id_l.
 Qed.
 
 End Exponential.
 
 Ltac exponential_simpl :=
   repeat (rewrite
-    ?equiv_exponential', ?exp_comp, ?curry_uncurry, ?uncurry_curry, ?curry_eval,
+    ?equiv_exponential', ?compute_exp, ?curry_uncurry, ?uncurry_curry, ?curry_eval,
     ?ProductFunctor_fmap_comp_l, ?ProductFunctor_fmap_comp_r, ?ProductFunctor_fmap_id,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
@@ -130,10 +130,10 @@ Proof.
   exists (curry2 E1 eval1).
   repeat split.
   - exists (curry1 E2 eval2).
-    now rewrite !equiv_exponential', !ProductFunctor_fmap_comp_l, !comp_assoc, !exp_comp,
+    now rewrite !equiv_exponential', !ProductFunctor_fmap_comp_l, !comp_assoc, !compute_exp,
       !ProductFunctor_fmap_id, !comp_id_l.
-  - now rewrite exp_comp.
-  - now intros; rewrite equiv_exponential', exp_comp.
+  - now rewrite compute_exp.
+  - now intros; rewrite equiv_exponential', compute_exp.
 Qed.
 
 Arguments isExponential_uiso {C hp A B E1 eval1 curry1 E2 eval2 curry2} _ _.
@@ -154,14 +154,14 @@ Qed.
 
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
 {
-  expOb : Ob C -> Ob C -> Ob C;
-  eval  : forall {A B : Ob C}, Hom (product (expOb A B) A) B;
-  curry : forall {A B : Ob C} {Z : Ob C}, Hom (product Z A) B -> Hom Z (expOb A B);
+  exponential : Ob C -> Ob C -> Ob C;
+  eval  : forall {A B : Ob C}, Hom (product (exponential A B) A) B;
+  curry : forall {A B : Ob C} {Z : Ob C}, Hom (product Z A) B -> Hom Z (exponential A B);
   HasExponentials_isExponential :>
-    forall {A B : Ob C}, isExponential A B (expOb A B) (@eval A B) (@curry A B);
+    forall {A B : Ob C}, isExponential A B (exponential A B) (@eval A B) (@curry A B);
 }.
 
-Arguments expOb {C hp HasExponentials} _ _.
+Arguments exponential {C hp HasExponentials} _ _.
 Arguments eval  {C hp HasExponentials A B}.
 Arguments curry {C hp HasExponentials A B Z} _.
 
@@ -174,13 +174,13 @@ Lemma curry_comp :
       curry (eval (A := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
   intros.
-  rewrite equiv_exponential', exp_comp.
-  now rewrite ProductFunctor_fmap_comp_l, !comp_assoc, exp_comp, <- !comp_assoc, exp_comp.
+  rewrite equiv_exponential', compute_exp.
+  now rewrite ProductFunctor_fmap_comp_l, !comp_assoc, compute_exp, <- !comp_assoc, compute_exp.
 Qed.
 
 Lemma uncurry_id :
   forall {C : Cat} {hp : HasProducts C} {he : HasExponentials C} {A B : Ob C},
-    uncurry (id (expOb A B)) == eval.
+    uncurry (id (exponential A B)) == eval.
 Proof.
   intros. unfold uncurry.
   now rewrite ProductFunctor_fmap_id, comp_id_l.
@@ -203,7 +203,7 @@ Lemma HasExponentials_unique :
   forall
     {C : Cat} {hp : HasProducts C}
     (he : HasExponentials C) (he' : HasExponentials C) (A B : Ob C),
-      @expOb C hp he A B ~ @expOb C hp he' A B.
+      @exponential C hp he A B ~ @exponential C hp he' A B.
 Proof.
   intros. eapply isExponential_iso; typeclasses eauto.
 Qed.
@@ -215,7 +215,7 @@ Qed.
 Instance ExponentialFunctor
   {C : Cat} {hp : HasProducts C} {he : HasExponentials C} (A : Ob C) : Functor C C :=
 {
-  fob := fun B : Ob C => expOb A B;
+  fob := fun B : Ob C => exponential A B;
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
 Proof.

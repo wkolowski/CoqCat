@@ -235,7 +235,7 @@ Proof.
     abstract
     (
       rewrite !comp_assoc, <- !natural, <- !comp_assoc;
-      f_equiv; apply equalize_ok
+      f_equiv; apply equalizer_ok
     ).
   - proper; apply equiv_equalizer.
     rewrite !factorize_equalize.
@@ -286,7 +286,7 @@ Instance HasEqualizers_FunCat
 }.
 Proof.
   cbn; intros F G α β; split; cbn.
-  - now intros X; apply equalize_ok.
+  - now intros X; apply equalizer_ok.
   - now intros E γ Heq X; rewrite factorize_equalize.
   - intros E γ1 γ2 Heq X; apply equiv_equalizer, Heq.
 Defined.
@@ -305,7 +305,7 @@ Proof.
     abstract
     (
       rewrite <- !comp_assoc, !natural, !comp_assoc;
-      f_equiv; apply coequalize_ok
+      f_equiv; apply coequalizer_ok
     ).
   - proper; apply equiv_coequalizer.
     rewrite !coequalize_cofactorize.
@@ -356,7 +356,7 @@ Instance HasCoequalizers_FunCat
 }.
 Proof.
   cbn; intros F G α β; split; cbn.
-  - now intros X; apply coequalize_ok.
+  - now intros X; apply coequalizer_ok.
   - now intros E γ Heq X; rewrite coequalize_cofactorize.
   - intros E γ1 γ2 Heq X; apply equiv_coequalizer, Heq.
 Defined.
@@ -371,21 +371,21 @@ Instance FunCat_pullback
 }.
 Proof.
   - intros A B f.
-    apply (factor (pullL .> fmap F f) (pullR .> fmap G f)).
+    apply (triple (pullL .> fmap F f) (pullR .> fmap G f)).
     abstract
     (
       rewrite !comp_assoc, <- !natural, <- !comp_assoc;
-      f_equiv; apply isPullback_ok
+      f_equiv; apply pullback_ok
     ).
   - proper; apply equiv_pullback.
-    + now rewrite !factor_pullL, H0.
-    + now rewrite !factor_pullR, H0.
+    + now rewrite !triple_pullL, H0.
+    + now rewrite !triple_pullR, H0.
   - cbn; intros; apply equiv_pullback; pullback_simpl.
-    + now rewrite <- comp_assoc, factor_pullL, comp_assoc, fmap_comp.
-    + now rewrite <- comp_assoc, factor_pullR, comp_assoc, fmap_comp.
+    + now rewrite <- comp_assoc, triple_pullL, comp_assoc, fmap_comp.
+    + now rewrite <- comp_assoc, triple_pullR, comp_assoc, fmap_comp.
   - cbn; intros; apply equiv_pullback.
-    + now rewrite factor_pullL, fmap_id, comp_id_l, comp_id_r.
-    + now rewrite factor_pullR, fmap_id, comp_id_l, comp_id_r.
+    + now rewrite triple_pullL, fmap_id, comp_id_l, comp_id_r.
+    + now rewrite triple_pullR, fmap_id, comp_id_l, comp_id_r.
 Defined.
 
 #[refine]
@@ -398,7 +398,7 @@ Instance FunCat_pullL
   component := fun _ : Ob C => pullL
 }.
 Proof.
-  now cbn; intros; rewrite factor_pullL.
+  now cbn; intros; rewrite triple_pullL.
 Defined.
 
 #[refine]
@@ -411,25 +411,25 @@ Instance FunCat_pullR
   component := fun _ : Ob C => pullR
 }.
 Proof.
-  now cbn; intros; rewrite factor_pullR.
+  now cbn; intros; rewrite triple_pullR.
 Defined.
 
 #[refine]
 #[export]
-Instance FunCat_factor
+Instance FunCat_triple
   {C D : Cat} {hp : HasPullbacks D}
   (F G H : Functor C D) (α : NatTrans F H) (β : NatTrans G H)
   {P : Functor C D} (x : NatTrans P F) (y : NatTrans P G)
   (Heq : NatTransComp x α == NatTransComp y β)
   : NatTrans P (FunCat_pullback α β) :=
 {
-  component := fun X : Ob C => factor (component x X) (component y X) (Heq X);
+  component := fun X : Ob C => triple (component x X) (component y X) (Heq X);
 }.
 Proof.
   cbn; intros; apply equiv_pullback.
-  - rewrite !comp_assoc, !factor_pullL, <- comp_assoc, factor_pullL.
+  - rewrite !comp_assoc, !triple_pullL, <- comp_assoc, triple_pullL.
     now apply (natural x).
-  - rewrite !comp_assoc, !factor_pullR, <- comp_assoc, factor_pullR.
+  - rewrite !comp_assoc, !triple_pullR, <- comp_assoc, triple_pullR.
     now apply (natural y).
 Defined.
 
@@ -440,23 +440,23 @@ Instance HasPullbacks_FunCat {C D : Cat} {hp : HasPullbacks D} : HasPullbacks (F
   pullback := @FunCat_pullback C D hp;
   pullL := @FunCat_pullL C D hp;
   pullR := @FunCat_pullR C D hp;
-  factor := @FunCat_factor C D hp;
+  triple := @FunCat_triple C D hp;
 }.
 Proof.
   split; cbn; intros.
-  - now apply isPullback_ok.
-  - now apply factor_pullL.
-  - now apply factor_pullR.
+  - now apply pullback_ok.
+  - now apply triple_pullL.
+  - now apply triple_pullR.
   - now apply equiv_pullback.
 Defined.
 
 #[refine]
 #[export]
-Instance FunCat_expOb
+Instance FunCat_exponential
   {C D : Cat} {hp : HasProducts D} {he : HasExponentials D}
   (F G : Functor C D) : Functor C D :=
 {
-  fob := fun X : Ob C => expOb (fob F X) (fob G X)
+  fob := fun X : Ob C => exponential (fob F X) (fob G X)
 }.
 Proof.
   - intros A B f.

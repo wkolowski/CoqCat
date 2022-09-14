@@ -3,16 +3,16 @@ From Cat.Universal Require Import Initial.
 
 Class isIndexedCoproduct
   (C : Cat) {J : Set} {A : J -> Ob C}
-  (P : Ob C) (coproj : forall j : J, Hom (A j) P)
+  (P : Ob C) (inj : forall j : J, Hom (A j) P)
   (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X)
   : Prop :=
 {
-  coproj_cotuple :
+  inj_cotuple :
     forall {X : Ob C} (f : forall j : J, Hom (A j) X) (j : J),
-      coproj j .> cotuple f == f j;
+      inj j .> cotuple f == f j;
   equiv_indexedCoproduct :
     forall {X : Ob C} (h1 h2 : Hom P X),
-      (forall j : J, coproj j .> h1 == coproj j .> h2) -> h1 == h2;
+      (forall j : J, inj j .> h1 == inj j .> h2) -> h1 == h2;
 }.
 
 #[export] Hint Mode isIndexedCoproduct ! ! ! ! ! ! : core.
@@ -21,11 +21,11 @@ Class isIndexedCoproduct
 Lemma equiv_indexedCoproduct' :
   forall
     {C : Cat} {J : Set} {A : J -> Ob C}
-    {P : Ob C} {coproj : forall j : J, Hom (A j) P}
+    {P : Ob C} {inj : forall j : J, Hom (A j) P}
     {cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X}
-    {isIC : isIndexedCoproduct C P coproj (@cotuple)}
+    {isIC : isIndexedCoproduct C P inj (@cotuple)}
     {X : Ob C} (h1 h2 : Hom P X),
-      h1 == h2 <-> (forall j : J, coproj j .> h1 == coproj j .> h2).
+      h1 == h2 <-> (forall j : J, inj j .> h1 == inj j .> h2).
 Proof.
   split.
   - now intros Heq j; rewrite Heq.
@@ -36,9 +36,9 @@ Section isIndexedCoproduct.
 
 Context
   {C : Cat} {J : Set} {A : J -> Ob C}
-  {P : Ob C} {coproj : forall j : J, Hom (A j) P}
+  {P : Ob C} {inj : forall j : J, Hom (A j) P}
   {cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X}
-  {isIC : isIndexedCoproduct C P coproj (@cotuple)}
+  {isIC : isIndexedCoproduct C P inj (@cotuple)}
   {X : Ob C} {f : forall j : J, Hom (A j) X}.
 
 Arguments cotuple {X} _.
@@ -48,27 +48,27 @@ Arguments cotuple {X} _.
 Proof.
   intros h1 h2 Heq.
   apply equiv_indexedCoproduct; intros j.
-  now rewrite !coproj_cotuple.
+  now rewrite !inj_cotuple.
 Defined.
 
 Lemma cotuple_universal :
   forall h : Hom P X,
-    cotuple f == h <-> forall j : J, f j == coproj j .> h.
+    cotuple f == h <-> forall j : J, f j == inj j .> h.
 Proof.
-  now intros; rewrite equiv_indexedCoproduct'; setoid_rewrite coproj_cotuple.
+  now intros; rewrite equiv_indexedCoproduct'; setoid_rewrite inj_cotuple.
 Qed.
 
 Lemma cotuple_unique :
   forall h : Hom P X,
-    (forall j : J, coproj j .> h == f j) -> h == cotuple f.
+    (forall j : J, inj j .> h == f j) -> h == cotuple f.
 Proof.
-  now intros; apply equiv_indexedCoproduct; setoid_rewrite coproj_cotuple.
+  now intros; apply equiv_indexedCoproduct; setoid_rewrite inj_cotuple.
 Qed.
 
 Lemma cotuple_id :
-  cotuple coproj == id P.
+  cotuple inj == id P.
 Proof.
-  now rewrite equiv_indexedCoproduct'; intros j; rewrite coproj_cotuple, comp_id_r.
+  now rewrite equiv_indexedCoproduct'; intros j; rewrite inj_cotuple, comp_id_r.
 Qed.
 
 Lemma cotuple_post :
@@ -76,14 +76,14 @@ Lemma cotuple_post :
     cotuple f .> g == cotuple (fun j : J => f j .> g).
 Proof.
   setoid_rewrite equiv_indexedCoproduct'; intros.
-  now rewrite <- comp_assoc, !coproj_cotuple.
+  now rewrite <- comp_assoc, !inj_cotuple.
 Qed.
 
 End isIndexedCoproduct.
 
 Ltac indexedCoproduct_simpl := repeat (
   try setoid_rewrite equiv_indexedCoproduct';
-  try setoid_rewrite coproj_cotuple;
+  try setoid_rewrite inj_cotuple;
   try setoid_rewrite cotuple_id;
   try setoid_rewrite cotuple_post;
   try setoid_rewrite comp_id_l;
@@ -111,7 +111,7 @@ Qed.
 (* Class HasIndexedCoproducts'
   (C : Cat) (indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C) : Type :=
 {
-  coproj :
+  inj :
     forall (J : Set) (A : J -> Ob C) (j : J),
       Hom (A j) (indexedCoproduct J A);
   cotuple :
@@ -119,10 +119,10 @@ Qed.
       Hom (indexedCoproduct J A) X;
   isIndexedCoproduct_HasIndexedCoproducts' :>
     forall (J : Set) (A : J -> Ob C),
-      isIndexedCoproduct C (indexedCoproduct J A) (coproj J A) (cotuple J A)
+      isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.
 
-Arguments coproj  {C _ _ J A} _.
+Arguments inj  {C _ _ J A} _.
 Arguments cotuple {C _ _ J A X} _.
 
 Class HasIndexedCoproducts (C : Cat) : Type :=
@@ -139,7 +139,7 @@ Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
   indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;
-  coproj :
+  inj :
     forall (J : Set) (A : J -> Ob C) (j : J),
       Hom (A j) (indexedCoproduct J A);
   cotuple :
@@ -147,11 +147,11 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
       Hom (indexedCoproduct J A) X;
   isIndexedCoproduct_HasIndexedCoproducts' :>
     forall (J : Set) (A : J -> Ob C),
-      isIndexedCoproduct C (indexedCoproduct J A) (coproj J A) (cotuple J A)
+      isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.
 
 Arguments indexedCoproduct {C _ J} _.
-Arguments coproj           {C _ J A} _.
+Arguments inj           {C _ J A} _.
 Arguments cotuple          {C _ J A X} _.
 
 Lemma cotuple_comp :
@@ -161,9 +161,9 @@ Lemma cotuple_comp :
     (f : forall j : J, Hom (A j) (B j)) (g : forall j : J, Hom (B j) X),
       cotuple (fun j : J => f j .> g j)
         ==
-      cotuple (fun j : J => f j .> coproj j) .> cotuple g.
+      cotuple (fun j : J => f j .> inj j) .> cotuple g.
 Proof.
   intros.
   rewrite cotuple_post, equiv_indexedCoproduct'; intros j.
-  now rewrite !coproj_cotuple, comp_assoc, coproj_cotuple.
+  now rewrite !inj_cotuple, comp_assoc, inj_cotuple.
 Qed.

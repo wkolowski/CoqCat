@@ -226,22 +226,22 @@ Lemma isPullback_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom A X) (g : Hom A Y)
     (P : Ob C) (pushl : Hom X P) (pushr : Hom Y P)
-    (cofactor : forall (P' : Ob C) (pushl' : Hom X P') (pushr' : Hom Y P'),
+    (cotriple : forall (P' : Ob C) (pushl' : Hom X P') (pushr' : Hom Y P'),
                   f .> pushl' == g .> pushr' -> Hom P P'),
-      isPullback (Dual C) f g P pushl pushr cofactor
+      isPullback (Dual C) f g P pushl pushr cotriple
         <->
-      isPushout C f g P pushl pushr cofactor.
+      isPushout C f g P pushl pushr cotriple.
 Proof. firstorder. Defined.
 
 Lemma isPushout_Dual :
   forall
     (C : Cat) {X Y A : Ob C} (f : Hom X A) (g : Hom Y A)
     (P : Ob C) (pullL : Hom P X) (pullR : Hom P Y)
-    (factor : forall (P' : Ob C) (pullL' : Hom P' X) (pullR' : Hom P' Y),
+    (triple : forall (P' : Ob C) (pullL' : Hom P' X) (pullR' : Hom P' Y),
                 pullL' .> f == pullR' .> g -> Hom P' P),
-      isPushout (Dual C) f g P pullL pullR factor
+      isPushout (Dual C) f g P pullL pullR triple
         <->
-      isPullback C f g P pullL pullR factor.
+      isPullback C f g P pullL pullR triple.
 Proof. firstorder. Defined.
 
 #[refine]
@@ -251,7 +251,7 @@ Instance HasPullbacks_Dual (C : Cat) (hp : HasPushouts C) : HasPullbacks (Dual C
   pullback := @pushout C hp;
   pullL := @pushl C hp;
   pullR := @pushr C hp;
-  factor := @cofactor C hp;
+  triple := @cotriple C hp;
 }.
 Proof.
   now intros; apply isPullback_Dual; typeclasses eauto.
@@ -264,7 +264,7 @@ Instance HasPushouts_Dual (C : Cat) (hp : HasPullbacks C) : HasPushouts (Dual C)
   pushout := @pullback C hp;
   pushl := @pullL C hp;
   pushr := @pullR C hp;
-  cofactor := @factor C hp;
+  cotriple := @triple C hp;
 }.
 Proof.
   now intros; apply isPushout_Dual; typeclasses eauto.
@@ -273,32 +273,32 @@ Defined.
 Lemma isIndexedProduct_Dual :
   forall
     (C : Cat) {J : Set} {A : J -> Ob C}
-    (P : Ob C) (coproj : forall j : J, Hom (A j) P)
+    (P : Ob C) (inj : forall j : J, Hom (A j) P)
     (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X),
-      isIndexedProduct (Dual C) P coproj (@cotuple)
+      isIndexedProduct (Dual C) P inj (@cotuple)
         <->
-      isIndexedCoproduct C P coproj (@cotuple).
+      isIndexedCoproduct C P inj (@cotuple).
 Proof. firstorder. Defined.
 
 Lemma isIndexedCoproduct_Dual :
   forall
     (C : Cat) {J : Set} {A : J -> Ob C}
-    (P : Ob C) (proj : forall j : J, Hom P (A j))
+    (P : Ob C) (out : forall j : J, Hom P (A j))
     (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P),
-      isIndexedCoproduct (Dual C) P proj (@tuple)
+      isIndexedCoproduct (Dual C) P out (@tuple)
         <->
-      isIndexedProduct C P proj (@tuple).
+      isIndexedProduct C P out (@tuple).
 Proof. firstorder. Defined.
 
 Lemma isIndexedBiproduct_Dual :
   forall
     (C : Cat) {J : Set} {A : J -> Ob C}
-    (P : Ob C) (proj : forall j : J, Hom P (A j)) (coproj : forall j : J, Hom (A j) P)
+    (P : Ob C) (out : forall j : J, Hom P (A j)) (inj : forall j : J, Hom (A j) P)
     (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
     (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X),
-      isIndexedBiproduct (Dual C) P coproj proj (@cotuple) (@tuple)
+      isIndexedBiproduct (Dual C) P inj out (@cotuple) (@tuple)
         <->
-      isIndexedBiproduct C P proj coproj (@tuple) (@cotuple).
+      isIndexedBiproduct C P out inj (@tuple) (@cotuple).
 Proof. firstorder. Defined.
 
 (*
@@ -309,7 +309,7 @@ Instance HasIndexedProducts'_Dual
   (hp : HasIndexedCoproducts' C indexedCoproduct)
   : HasIndexedProducts' (Dual C) indexedCoproduct :=
 {
-  proj := @coproj C _ hp;
+  out := @inj C _ hp;
   tuple := @cotuple C _ hp;
 }.
 Proof.
@@ -323,7 +323,7 @@ Instance HasIndexedCoproducts'_Dual
   (hp : HasIndexedProducts' C indexedProduct)
   : HasIndexedCoproducts' (Dual C) indexedProduct :=
 {
-  coproj := @proj C _ hp;
+  inj := @out C _ hp;
   cotuple := @tuple C _ hp;
 }.
 Proof.
@@ -337,7 +337,7 @@ Instance HasIndexedProducts_Dual
   {C : Cat} (hp : HasIndexedCoproducts C) : HasIndexedProducts (Dual C) :=
 {
   indexedProduct := @indexedCoproduct C hp;
-  proj := @coproj C hp;
+  out := @inj C hp;
   tuple := @cotuple C hp;
 }.
 Proof.
@@ -350,7 +350,7 @@ Instance HasIndexedCoproducts_Dual
   {C : Cat} (hp : HasIndexedProducts C) : HasIndexedCoproducts (Dual C) :=
 {
   indexedCoproduct := @indexedProduct C hp;
-  coproj := @proj C hp;
+  inj := @out C hp;
   cotuple := @tuple C hp;
 }.
 Proof.

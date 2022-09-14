@@ -115,7 +115,7 @@ Defined.
 Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
 {
   indexedProduct := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
-  proj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  out := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
@@ -155,7 +155,7 @@ Defined.
 Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
 {
   indexedCoproduct := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
-  coproj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  inj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
     fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
@@ -219,7 +219,7 @@ Abort.
 #[export]
 Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
 {
-  expOb := fun X Y : Set => X -> Y;
+  exponential := fun X Y : Set => X -> Y;
   eval := fun (X Y : Set) (fx : product (X -> Y) X) => (fst fx) (snd fx);
   curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
 }.
@@ -248,7 +248,7 @@ Definition CoqSet_pullR
   {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullback f g)
   : Y := snd (proj1_sig p).
 
-Definition CoqSet_factor
+Definition CoqSet_triple
   {X Y A : Set} (f : X -> A) (g : Y -> A) (P : Set) (p1 : P -> X) (p2 : P -> Y)
   : P -> CoqSet_pullback f g.
 Proof.

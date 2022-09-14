@@ -5,17 +5,17 @@ Set Implicit Arguments.
 Class isPushout
   (C : Cat) {A B X : Ob C} (f : Hom X A) (g : Hom X B)
   (P : Ob C) (pushl : Hom A P) (pushr : Hom B P)
-  (cofactor : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
+  (cotriple : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
                 f .> pushl' == g .> pushr' -> Hom P P')
   : Prop :=
 {
   pushout_ok : f .> pushl == g .> pushr;
-  pushl_cofactor :
+  pushl_cotriple :
     forall (Q : Ob C) (q1 : Hom A Q) (q2 : Hom B Q) (H : f .> q1 == g .> q2),
-      pushl .> cofactor q1 q2 H == q1;
-  pushr_cofactor :
+      pushl .> cotriple q1 q2 H == q1;
+  pushr_cotriple :
     forall (Q : Ob C) (q1 : Hom A Q) (q2 : Hom B Q) (H : f .> q1 == g .> q2),
-      pushr .> cofactor q1 q2 H == q2;
+      pushr .> cotriple q1 q2 H == q2;
   equiv_pushout :
     forall (Q : Ob C) (h1 h2 : Hom P Q),
       pushl .> h1 == pushl .> h2 -> pushr .> h1 == pushr .> h2 -> h1 == h2
@@ -28,9 +28,9 @@ Lemma equiv_pushout' :
   forall
     {C : Cat} {A B X : Ob C} {f : Hom X A} {g : Hom X B}
     {P : Ob C} {pushl : Hom A P} {pushr : Hom B P}
-    {cofactor : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
+    {cotriple : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
                   f .> pushl' == g .> pushr' -> Hom P P'}
-    {isP : isPushout C f g P pushl pushr (@cofactor)}
+    {isP : isPushout C f g P pushl pushr (@cotriple)}
     {Y : Ob C} (h1 h2 : Hom P Y),
       h1 == h2 <-> pushl .> h1 == pushl .> h2 /\ pushr .> h1 == pushr .> h2.
 Proof.
@@ -44,56 +44,56 @@ Section isPushout.
 Context
   {C : Cat} {A B X : Ob C} {f : Hom X A} {g : Hom X B}
   {P : Ob C} {pushl : Hom A P} {pushr : Hom B P}
-  {cofactor : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
+  {cotriple : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
                 f .> pushl' == g .> pushr' -> Hom P P'}
-  {isP : isPushout C f g P pushl pushr (@cofactor)}
+  {isP : isPushout C f g P pushl pushr (@cotriple)}
   [P' : Ob C] [x : Hom A P'] [y : Hom B P'] [H : f .> x == g .> y].
 
-Arguments cofactor {P'} _ _.
+Arguments cotriple {P'} _ _.
 
-(* #[global] Instance Proper_cofactor :
-  Proper (equiv ==> equiv ==> equiv) (@cofactor X).
+(* #[global] Instance Proper_cotriple :
+  Proper (equiv ==> equiv ==> equiv) (@cotriple X).
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite equiv_pushout', !pushl_cofactor, !pushr_cofactor.
+  now rewrite equiv_pushout', !pushl_cotriple, !pushr_cotriple.
 Defined. *)
 
-Lemma cofactor_universal :
+Lemma cotriple_universal :
   forall h : Hom P P',
-    cofactor x y H == h <-> x == pushl .> h /\ y == pushr .> h.
+    cotriple x y H == h <-> x == pushl .> h /\ y == pushr .> h.
 Proof.
-  now intros; rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
+  now intros; rewrite equiv_pushout', pushl_cotriple, pushr_cotriple.
 Qed.
 
-Lemma cofactor_unique :
+Lemma cotriple_unique :
   forall h : Hom P P',
-    pushl .> h == x -> pushr .> h == y -> h == cofactor x y H.
+    pushl .> h == x -> pushr .> h == y -> h == cotriple x y H.
 Proof.
-  now intros; rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
+  now intros; rewrite equiv_pushout', pushl_cotriple, pushr_cotriple.
 Qed.
 
-Lemma cofactor_id :
-  cofactor pushl pushr pushout_ok == id P.
+Lemma cotriple_id :
+  cotriple pushl pushr pushout_ok == id P.
 Proof.
-  now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor, !comp_id_r.
+  now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple, !comp_id_r.
 Qed.
 
-Lemma cofactor_post :
+Lemma cotriple_post :
   forall {Y : Ob C} {h : Hom P' Y},
     exists H' : f .> (x .> h) == g .> (y .> h),
-      cofactor (x .> h) (y .> h) H' == cofactor x y H .> h.
+      cotriple (x .> h) (y .> h) H' == cotriple x y H .> h.
 Proof.
   esplit. Unshelve. all: cycle 1.
   - now rewrite <- comp_assoc, H, comp_assoc.
-  - now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor,
-      <- !comp_assoc, pushl_cofactor, pushr_cofactor.
+  - now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple,
+      <- !comp_assoc, pushl_cotriple, pushr_cotriple.
 Qed.
 
 End isPushout.
 
 Ltac pushout_simpl :=
   repeat (rewrite
-    ?equiv_pushout', ?pushl_cofactor, ?pushr_cofactor, ?cofactor_id,
+    ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_id,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Class HasPushouts (C : Cat) : Type :=
@@ -101,56 +101,56 @@ Class HasPushouts (C : Cat) : Type :=
   pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
   pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushout f g);
   pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushout f g);
-  cofactor :
+  cotriple :
     forall
       {A B X : Ob C} (f : Hom X A) (g : Hom X B)
       {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
         f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
   HasPushouts_isPushout :>
     forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
-      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cofactor A B X f g);
+      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cotriple A B X f g);
 }.
 
 Arguments pushout {C HasPushouts A B X} _ _.
 Arguments pushl     {C HasPushouts A B X f g}.
 Arguments pushr     {C HasPushouts A B X f g}.
-Arguments cofactor  {C HasPushouts A B X f g P pushl' pushr'} _.
+Arguments cotriple  {C HasPushouts A B X f g P pushl' pushr'} _.
 
 Lemma isPushout_uiso :
   forall
     (C : Cat) (A B X : Ob C) (f : Hom X A) (g : Hom X B)
     (P1 : Ob C) (pushl1 : Hom A P1) (pushr1 : Hom B P1)
-    (cofactor1 : forall (P1' : Ob C) (pushl1' : Hom A P1') (pushr1' : Hom B P1'),
+    (cotriple1 : forall (P1' : Ob C) (pushl1' : Hom A P1') (pushr1' : Hom B P1'),
                    f .> pushl1' == g .> pushr1' -> Hom P1 P1')
     (P2 : Ob C) (pushl2 : Hom A P2) (pushr2 : Hom B P2)
-    (cofactor2 : forall (P2' : Ob C) (pushl2' : Hom A P2') (pushr2' : Hom B P2'),
+    (cotriple2 : forall (P2' : Ob C) (pushl2' : Hom A P2') (pushr2' : Hom B P2'),
                    f .> pushl2' == g .> pushr2' -> Hom P2 P2'),
-      isPushout C f g P1 pushl1 pushr1 cofactor1 ->
-      isPushout C f g P2 pushl2 pushr2 cofactor2 ->
+      isPushout C f g P1 pushl1 pushr1 cotriple1 ->
+      isPushout C f g P2 pushl2 pushr2 cotriple2 ->
         exists!! f : Hom P2 P1, isIso f /\ pushl1 == pushl2 .> f /\ pushr1 == pushr2 .> f.
 Proof.
   intros * H1 H2.
-  exists (cofactor2 P1 pushl1 pushr1 pushout_ok).
+  exists (cotriple2 P1 pushl1 pushr1 pushout_ok).
   repeat split.
-  - exists (cofactor1 P2 pushl2 pushr2 pushout_ok).
-    now rewrite !equiv_pushout', <- !comp_assoc, !pushl_cofactor, !pushr_cofactor, !comp_id_r.
-  - now rewrite pushl_cofactor.
-  - now rewrite pushr_cofactor.
+  - exists (cotriple1 P2 pushl2 pushr2 pushout_ok).
+    now rewrite !equiv_pushout', <- !comp_assoc, !pushl_cotriple, !pushr_cotriple, !comp_id_r.
+  - now rewrite pushl_cotriple.
+  - now rewrite pushr_cotriple.
   - intros u (HIso & Heql & Heqr).
-    now rewrite equiv_pushout', pushl_cofactor, pushr_cofactor.
+    now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple.
 Qed.
 
 Lemma isPushout_iso :
   forall
     (C : Cat) (A B X : Ob C) (f : Hom X A) (g : Hom X B)
     (P1 : Ob C) (pushl1 : Hom A P1) (pushr1 : Hom B P1)
-    (cofactor1 : forall (P1' : Ob C) (pushl1' : Hom A P1') (pushr1' : Hom B P1'),
+    (cotriple1 : forall (P1' : Ob C) (pushl1' : Hom A P1') (pushr1' : Hom B P1'),
                    f .> pushl1' == g .> pushr1' -> Hom P1 P1')
     (P2 : Ob C) (pushl2 : Hom A P2) (pushr2 : Hom B P2)
-    (cofactor2 : forall (P2' : Ob C) (pushl2' : Hom A P2') (pushr2' : Hom B P2'),
+    (cotriple2 : forall (P2' : Ob C) (pushl2' : Hom A P2') (pushr2' : Hom B P2'),
                    f .> pushl2' == g .> pushr2' -> Hom P2 P2'),
-      isPushout C f g P1 pushl1 pushr1 cofactor1 ->
-      isPushout C f g P2 pushl2 pushr2 cofactor2 ->
+      isPushout C f g P1 pushl1 pushr1 cotriple1 ->
+      isPushout C f g P2 pushl2 pushr2 cotriple2 ->
         P1 ~ P2.
 Proof.
   intros. destruct (isPushout_uiso H H0).
@@ -196,9 +196,9 @@ Lemma isCoequalizer_isPushout :
   forall
     (C : Cat) (A B : Ob C) (f g : Hom A B)
     (P : Ob C) (p : Hom B P)
-    (cofactor : forall (P' : Ob C) (f : Hom B P') (g : Hom B P'), Hom P P'),
-      isPushout C f g P p p (fun P' f g _ => cofactor P' f g) ->
-        isCoequalizer C f g P p (fun (P' : Ob C) (p : Hom B P') _ => cofactor P' p p).
+    (cotriple : forall (P' : Ob C) (f : Hom B P') (g : Hom B P'), Hom P P'),
+      isPushout C f g P p p (fun P' f g _ => cotriple P' f g) ->
+        isCoequalizer C f g P p (fun (P' : Ob C) (p : Hom B P') _ => cotriple P' p p).
 Proof.
   repeat split.
     now destruct H.
