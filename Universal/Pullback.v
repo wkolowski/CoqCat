@@ -97,24 +97,6 @@ Ltac pullback_simpl :=
     ?equiv_pullback', ?triple_pullL, ?triple_pullR, ?triple_id,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
-Class HasPullbacks (C : Cat) : Type :=
-{
-  pullback : forall {A B X : Ob C}, Hom A X -> Hom B X -> Ob C;
-  pullL : forall {A B X : Ob C} {f : Hom A X} {g : Hom B X}, Hom (pullback f g) A;
-  pullR : forall {A B X : Ob C} {f : Hom A X} {g : Hom B X}, Hom (pullback f g) B;
-  triple :
-    forall {A B X : Ob C} [f : Hom A X] [g : Hom B X] {P : Ob C} (pullL' : Hom P A) (pullR' : Hom P B),
-      pullL' .> f == pullR' .> g -> Hom P (pullback f g);
-  HasPullbacks_isPullback :>
-    forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
-      isPullback C f g (pullback f g) (@pullL _ _ _ f g) (@pullR _ _ _ f g) (@triple A B X f g);
-}.
-
-Arguments pullback [C _ A B X] _ _.
-Arguments pullL    {C _ A B X f g}.
-Arguments pullR    {C _ A B X f g}.
-Arguments triple   [C _ A B X f g P] _ _ _.
-
 Lemma isPullback_uiso :
   forall
     (C : Cat) (A B X : Ob C) (f : Hom A X) (g : Hom B X)
@@ -154,6 +136,120 @@ Lemma isPullback_iso :
 Proof.
   intros. destruct (isPullback_uiso H H0).
   red. exists x. now destruct H1 as [[H1 _] _].
+Qed.
+
+Lemma isMono_pullL :
+  forall
+    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P},
+      isPullback C f g P pullL pullR (@triple) ->
+        isMono g -> isMono pullL.
+Proof.
+  unfold isMono; intros * HisP Hg Y h1 h2 Heq.
+  apply equiv_pullback; [easy |].
+  apply Hg.
+  now rewrite !comp_assoc, <- pullback_ok, <- !comp_assoc, Heq.
+Qed.
+
+Lemma isMono_pullR :
+  forall
+    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P},
+      isPullback C f g P pullL pullR (@triple) ->
+        isMono f -> isMono pullR.
+Proof.
+  unfold isMono; intros * HisP Hf Y h1 h2 Heq.
+  apply equiv_pullback; [| easy].
+  apply Hf.
+  now rewrite !comp_assoc, pullback_ok, <- !comp_assoc, Heq.
+Qed.
+
+Lemma isIso_pullL :
+  forall
+    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P},
+      isPullback C f g P pullL pullR (@triple) ->
+        isIso g -> isIso pullL.
+Proof.
+  unfold isIso; intros * HisP (g' & Heq1 & Heq2).
+  esplit. Unshelve. all: cycle 1.
+  - apply (triple A (id A) (f .> g')).
+    abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
+  - pullback_simpl; repeat split; [easy | | easy].
+    now rewrite <- comp_assoc, pullback_ok, comp_assoc, Heq1, comp_id_r.
+Qed.
+
+Lemma isIso_pullR :
+  forall
+    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P},
+      isPullback C f g P pullL pullR (@triple) ->
+        isIso f -> isIso pullR.
+Proof.
+  unfold isIso; intros * HisP (f' & Heq1 & Heq2).
+  esplit. Unshelve. all: cycle 1.
+  - apply (triple B (g .> f') (id B)).
+    abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
+  - pullback_simpl; repeat split; [| easy | easy].
+    now rewrite <- comp_assoc, <- pullback_ok, comp_assoc, Heq1, comp_id_r.
+Qed.
+
+Lemma isPullback_id_l :
+  forall {C : Cat} {B X : Ob C} (g : Hom B X),
+    isPullback C (id X) g B g (id B) (fun Γ x y H => y).
+Proof.
+  split; intros.
+  - now rewrite comp_id_l, comp_id_r.
+  - now rewrite <- H, comp_id_r.
+  - now rewrite comp_id_r.
+  - now rewrite !comp_id_r in H0.
+Qed.
+
+Lemma isPullback_id_r :
+  forall {C : Cat} {A X : Ob C} (f : Hom A X),
+    isPullback C f (id X) A (id A) f (fun Γ x y H => x).
+Proof.
+  split; intros.
+  - now rewrite comp_id_l, comp_id_r.
+  - now rewrite comp_id_r.
+  - now rewrite H, comp_id_r.
+  - now rewrite !comp_id_r in H.
+Qed.
+
+Lemma reassoc_l :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
+    f .> (g .> h) == r -> (f .> g) .> h == r.
+Proof.
+  now intros; rewrite comp_assoc.
+Qed.
+
+Lemma isPullback_comp :
+  forall
+    {C : Cat} {A A' B X : Ob C} {f : Hom A X} {g : Hom B X} {h : Hom A' A}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P}
+    (HisP : isPullback C f g P pullL pullR (@triple))
+    {Q : Ob C} {pullL' : Hom Q A'} {pullR' : Hom Q P}
+    {triple' : forall {Γ : Ob C} (x : Hom Γ A') (y : Hom Γ P), x .> h == y .> pullL -> Hom Γ Q}
+    (HisP' : isPullback C h pullL Q pullL' pullR' (@triple')),
+      isPullback C (h .> f) g Q pullL' (pullR' .> pullR)
+        (fun Γ x y H =>
+          triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)).
+Proof.
+  split.
+  - rewrite <- comp_assoc, pullback_ok, !comp_assoc; f_equiv.
+    now apply pullback_ok.
+  - now intros; rewrite triple_pullL.
+  - now intros; rewrite <- comp_assoc, !triple_pullR.
+  - intros * Heq1 Heq2.
+    apply equiv_pullback; [easy |].
+    apply equiv_pullback.
+    + now rewrite !comp_assoc, <- pullback_ok, <- !comp_assoc, Heq1.
+    + now rewrite !comp_assoc, Heq2.
 Qed.
 
 Lemma isProduct_isPullback :
@@ -241,3 +337,21 @@ Abort.
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
 
 Zhen Lin *)
+
+Class HasPullbacks (C : Cat) : Type :=
+{
+  pullback : forall {A B X : Ob C}, Hom A X -> Hom B X -> Ob C;
+  pullL : forall {A B X : Ob C} {f : Hom A X} {g : Hom B X}, Hom (pullback f g) A;
+  pullR : forall {A B X : Ob C} {f : Hom A X} {g : Hom B X}, Hom (pullback f g) B;
+  triple :
+    forall {A B X : Ob C} [f : Hom A X] [g : Hom B X] {P : Ob C} (pullL' : Hom P A) (pullR' : Hom P B),
+      pullL' .> f == pullR' .> g -> Hom P (pullback f g);
+  HasPullbacks_isPullback :>
+    forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
+      isPullback C f g (pullback f g) (@pullL _ _ _ f g) (@pullR _ _ _ f g) (@triple A B X f g);
+}.
+
+Arguments pullback [C _ A B X] _ _.
+Arguments pullL    {C _ A B X f g}.
+Arguments pullR    {C _ A B X f g}.
+Arguments triple   [C _ A B X f g P] _ _ _.
