@@ -198,29 +198,6 @@ Proof.
   - now rewrite equiv_coproduct'.
 Qed.
 
-(* Class HasCoproducts' (C : Cat) (coproduct : Ob C -> Ob C -> Ob C) : Type :=
-{
-  finl     : forall {A B : Ob C}, Hom A (coproduct A B);
-  finr     : forall {A B : Ob C}, Hom B (coproduct A B);
-  copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  isCoproduct_HasCoproducts' :>
-    forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
-}.
-
-Arguments finl     {C coproduct HasCoproducts' A B}.
-Arguments finr     {C coproduct HasCoproducts' A B}.
-Arguments copair   {C coproduct HasCoproducts' A B P} _ _.
-
-Class HasCoproducts (C : Cat) : Type :=
-{
-  coproduct : forall (A B : Ob C), Ob C;
-  HasCoproducts'_HasCoproducts :> HasCoproducts' C coproduct;
-}.
-
-Arguments coproduct {C HasCoproducts} _ _.
-
-Coercion HasCoproducts'_HasCoproducts : HasCoproducts >-> HasCoproducts'. *)
-
 Class HasCoproducts (C : Cat) : Type :=
 {
   coproduct : Ob C -> Ob C -> Ob C;

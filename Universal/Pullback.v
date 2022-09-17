@@ -108,15 +108,6 @@ Class HasPullbacks (C : Cat) : Type :=
   HasPullbacks_isPullback :>
     forall (A B X : Ob C) (f : Hom A X) (g : Hom B X),
       isPullback C f g (pullback f g) (@pullL _ _ _ f g) (@pullR _ _ _ f g) (@triple A B X f g);
-  (* Proper_pullback :
-    forall (A B X : Ob C) (f f' : Hom A X) (g g' : Hom B X),
-      f == f' -> g == g' -> JMequiv (id (pullback f g)) (id (pullback f' g'));
-  Proper_pullL :
-    forall (A B X : Ob C) (f f' : Hom A X) (g g' : Hom B X),
-      f == f' -> g == g' -> JMequiv (pullL f g) (pullL f' g');
-  Proper_pullR :
-    forall (A B X : Ob C) (f f' : Hom A X) (g g' : Hom B X),
-      f == f' -> g == g' -> JMequiv (pullR f g) (pullR f' g'); *)
 }.
 
 Arguments pullback [C _ A B X] _ _.

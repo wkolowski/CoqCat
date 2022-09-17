@@ -58,8 +58,9 @@
 * Distributive categories.
 
 ### Maintenance
-* Refactor the products and coproducts. Make a new file about finite (and not just binary) products/coproducts and put there the theorems that relate binary products/coproducts with initial and terminal objects (or not).
-* Use more duality.
+* Investigate alternative definitions of universal constructions from `Universal/AlternativeDefinitions.v`.
+* Investigate how much duality can be used to cut down the amount of code without sacrificing nice naming.
+* Investigate whether (co)equalizers and pullbacks/pushouts are `Proper`.
 * Prove more properties of universal constructions (like these for equalizers).
 * Check if it's possible to do "continuous reification".
 * Stop using dependent types for doing reification of `Cat`.

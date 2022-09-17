@@ -108,34 +108,6 @@ Proof.
   split; cat.
 Qed.
 
-(* Class HasIndexedCoproducts'
-  (C : Cat) (indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C) : Type :=
-{
-  inj :
-    forall (J : Set) (A : J -> Ob C) (j : J),
-      Hom (A j) (indexedCoproduct J A);
-  cotuple :
-    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
-      Hom (indexedCoproduct J A) X;
-  isIndexedCoproduct_HasIndexedCoproducts' :>
-    forall (J : Set) (A : J -> Ob C),
-      isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
-}.
-
-Arguments inj  {C _ _ J A} _.
-Arguments cotuple {C _ _ J A X} _.
-
-Class HasIndexedCoproducts (C : Cat) : Type :=
-{
-  indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;
-  HasIndexedCoproducts'_HasIndexedCoproducts :> HasIndexedCoproducts' C (@indexedCoproduct);
-}.
-
-Arguments indexedCoproduct [C _ J] _.
-
-Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
-  HasIndexedCoproducts >-> HasIndexedCoproducts'. *)
-
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
   indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;

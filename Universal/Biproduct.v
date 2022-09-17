@@ -28,31 +28,6 @@ Lemma isBiproduct_Dual :
       isBiproduct C P outl outr finl finr fpair copair.
 Proof. firstorder. Qed.
 
-(* Class HasBiproducts (C : Cat) : Type :=
-{
-  biproduct : Ob C -> Ob C -> Ob C;
-  HasProducts'_HasBiproducts :> HasProducts' C biproduct;
-  HasCoproducts'_HasBiproducts :> HasCoproducts' C biproduct;
-}.
-
-Coercion HasProducts'_HasBiproducts : HasBiproducts >-> HasProducts'.
-Coercion HasCoproducts'_HasBiproducts : HasBiproducts >-> HasCoproducts'.
-
-#[export]
-Instance HasProducts_HasBiproducts {C : Cat} (hb : HasBiproducts C) : HasProducts C :=
-{
-  product := biproduct;
-}.
-
-#[export]
-Instance HasCoproducts_HasBiproducts {C : Cat} (hb : HasBiproducts C) : HasCoproducts C :=
-{
-  coproduct := biproduct;
-}.
-
-Coercion HasProducts_HasBiproducts : HasBiproducts >-> HasProducts.
-Coercion HasCoproducts_HasBiproducts : HasBiproducts >-> HasCoproducts. *)
-
 Class HasBiproducts (C : Cat) : Type :=
 {
   HasProducts_HasBiproducts :> HasProducts C;

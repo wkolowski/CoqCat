@@ -25,28 +25,6 @@ Lemma isZero_Dual :
       isZero C X create delete.
 Proof. firstorder. Defined.
 
-(*
-#[refine]
-#[export]
-Instance HasInit'_Dual {C : Cat} {term : Ob C} (ht : HasTerm' C term) : HasInit' (Dual C) term :=
-{
-  create := @delete C _ ht;
-}.
-Proof.
-  now rewrite isInitial_Dual; typeclasses eauto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasTerm'_Dual {C : Cat} {init : Ob C} (hi : HasInit' C init) : HasTerm' (Dual C) init :=
-{
-  delete := @create C _ hi;
-}.
-Proof.
-  now rewrite isTerminal_Dual; typeclasses eauto.
-Defined.
-*)
-
 #[refine]
 #[export]
 Instance HasInit_Dual (C : Cat) (ht : HasTerm C) : HasInit (Dual C) :=
@@ -110,36 +88,6 @@ Lemma isBiproduct_Dual :
         <->
       isBiproduct C P outl outr finl finr fpair copair.
 Proof. firstorder. Defined.
-
-(*
-#[refine]
-#[export]
-Instance HasProducts'_Dual
-  {C : Cat} {coproduct : Ob C -> Ob C -> Ob C} (hp : HasCoproducts' C coproduct)
-  : HasProducts' (Dual C) coproduct :=
-{
-  outl := @finl C _ hp;
-  outr := @finr C _ hp;
-  fpair := @copair C _ hp;
-}.
-Proof.
-  now intros; apply isProduct_Dual; typeclasses eauto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasCoproducts'_Dual
-  {C : Cat} {product : Ob C -> Ob C -> Ob C} (hp : HasProducts' C product)
-  : HasCoproducts' (Dual C) product :=
-{
-  finl := @outl C _ hp;
-  finr := @outr C _ hp;
-  copair := @fpair C _ hp;
-}.
-Proof.
-  now intros; apply isCoproduct_Dual; typeclasses eauto.
-Defined.
-*)
 
 #[refine]
 #[export]
@@ -301,35 +249,6 @@ Lemma isIndexedBiproduct_Dual :
       isIndexedBiproduct C P out inj (@tuple) (@cotuple).
 Proof. firstorder. Defined.
 
-(*
-#[refine]
-#[export]
-Instance HasIndexedProducts'_Dual
-  {C : Cat} {indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C}
-  (hp : HasIndexedCoproducts' C indexedCoproduct)
-  : HasIndexedProducts' (Dual C) indexedCoproduct :=
-{
-  out := @inj C _ hp;
-  tuple := @cotuple C _ hp;
-}.
-Proof.
-  now intros; apply isIndexedProduct_Dual; typeclasses eauto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasIndexedCoproducts'_Dual
-  {C : Cat} {indexedProduct : forall J : Set, (J -> Ob C) -> Ob C}
-  (hp : HasIndexedProducts' C indexedProduct)
-  : HasIndexedCoproducts' (Dual C) indexedProduct :=
-{
-  inj := @out C _ hp;
-  cotuple := @tuple C _ hp;
-}.
-Proof.
-  now intros; apply isIndexedCoproduct_Dual; typeclasses eauto.
-Defined.
-*)
 
 #[refine]
 #[export]

@@ -22,26 +22,6 @@ Qed.
 
 Ltac initial_simpl := rewrite ?equiv_initial'.
 
-(* Class HasInit' (C : Cat) (I : Ob C) : Type :=
-{
-  create : forall X : Ob C, Hom I X;
-  isInitial_HasInit' :> isInitial C I create;
-}.
-
-Arguments create {C _ _} _.
-
-Coercion isInitial_HasInit' : HasInit' >-> isInitial.
-
-Class HasInit (C : Cat) : Type :=
-{
-  init : Ob C;
-  HasInit'_HasInit :> HasInit' C init;
-}.
-
-Arguments init _ {_}.
-
-Coercion HasInit'_HasInit : HasInit >-> HasInit'. *)
-
 Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;

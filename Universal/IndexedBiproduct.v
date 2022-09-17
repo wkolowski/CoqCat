@@ -15,19 +15,6 @@ Class isIndexedBiproduct
 #[export] Hint Mode isIndexedBiproduct ! ! ! ! ! ! ! ! : core.
 #[export] Hint Mode isIndexedBiproduct ! ! ! - - - - - : core.
 
-(* Class HasIndexedBiproducts (C : Cat) : Type :=
-{
-  indexedBiproduct : forall {J : Set} (A : J -> Ob C), Ob C;
-  HasIndexedProducts'_HasIndexedBiproducts :> HasIndexedProducts' C (@indexedBiproduct);
-  HasIndexedCoproducts'_HasIndexedBiproducts :> HasIndexedCoproducts' C (@indexedBiproduct);
-}.
-
-Coercion HasIndexedProducts'_HasIndexedBiproducts
-  : HasIndexedBiproducts >-> HasIndexedProducts'.
-
-Coercion HasIndexedCoproducts'_HasIndexedBiproducts
-  : HasIndexedBiproducts >-> HasIndexedCoproducts'. *)
-
 Class HasIndexedBiproducts (C : Cat) : Type :=
 {
   HasIndexedProducts_HasIndexedBiproducts :> HasIndexedProducts C;

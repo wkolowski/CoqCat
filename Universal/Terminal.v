@@ -22,26 +22,6 @@ Qed.
 
 Ltac terminal_simpl := rewrite ?equiv_terminal'.
 
-(* Class HasTerm' (C : Cat) (T : Ob C) : Type :=
-{
-  delete : forall X : Ob C, Hom X T;
-  isTerminal_HasTerm' :> isTerminal C T delete;
-}.
-
-Arguments delete {C _ _} _.
-
-Coercion isTerminal_HasTerm' : HasTerm' >-> isTerminal.
-
-Class HasTerm (C : Cat) : Type :=
-{
-  term : Ob C;
-  HasTerm'_HasTerm :> HasTerm' C term;
-}.
-
-Arguments term _ {_}.
-
-Coercion HasTerm'_HasTerm : HasTerm >-> HasTerm'. *)
-
 Class HasTerm (C : Cat) : Type :=
 {
   term : Ob C;

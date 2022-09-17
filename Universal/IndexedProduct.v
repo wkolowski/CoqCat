@@ -244,33 +244,6 @@ Proof.
   (forall j : J, h j = p (f (g j)))}).
 Abort.
 
-(* Class HasIndexedProducts'
-  (C : Cat) (indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C) : Type :=
-{
-  out :
-    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
-  tuple :
-    forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
-      Hom X (indexedProduct A);
-  HasIndexedProducts_isIndexedProduct :>
-    forall {J : Set} {A : J -> Ob C},
-      isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
-}.
-
-Arguments out  {C _ _ J A} _.
-Arguments tuple {C _ _ J A X} _.
-
-Class HasIndexedProducts (C : Cat) : Type :=
-{
-  indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
-  HasIndexedProducts'_HasIndexedProducts :> HasIndexedProducts' C (@indexedProduct);
-}.
-
-Arguments indexedProduct {C _ J} _.
-
-Coercion HasIndexedProducts'_HasIndexedProducts :
-  HasIndexedProducts >-> HasIndexedProducts'. *)
-
 Class HasIndexedProducts (C : Cat) : Type :=
 {
   indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
