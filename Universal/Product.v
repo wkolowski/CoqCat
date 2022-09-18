@@ -268,7 +268,7 @@ Definition commutator
   : Hom (product A B) (product B A)
   := fpair outr outl.
 
-Lemma commutator_commutator :
+Lemma commutator_idem :
   forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
     commutator .> commutator == id (product A B).
 Proof.
@@ -281,7 +281,7 @@ Lemma isIso_commutator :
 Proof.
   red; intros.
   exists commutator.
-  split; apply commutator_commutator.
+  split; apply commutator_idem.
 Qed.
 
 Lemma product_comm :

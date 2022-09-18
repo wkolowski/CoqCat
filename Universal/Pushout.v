@@ -99,22 +99,22 @@ Ltac pushout_simpl :=
 Class HasPushouts (C : Cat) : Type :=
 {
   pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
-  pushl : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom A (pushout f g);
-  pushr : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom B (pushout f g);
+  pushl : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom A (pushout f g);
+  pushr : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom B (pushout f g);
   cotriple :
     forall
-      {A B X : Ob C} (f : Hom X A) (g : Hom X B)
+      {A B X : Ob C} {f : Hom X A} {g : Hom X B}
       {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
         f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
   HasPushouts_isPushout :>
     forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
-      isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cotriple A B X f g);
+      isPushout C f g (pushout f g) pushl pushr (@cotriple A B X f g);
 }.
 
 Arguments pushout  {C HasPushouts A B X} _ _.
 Arguments pushl    {C HasPushouts A B X f g}.
 Arguments pushr    {C HasPushouts A B X f g}.
-Arguments cotriple {C HasPushouts A B X f g P pushl' pushr'} _.
+Arguments cotriple {C HasPushouts A B X f g P} _ _ _.
 
 Lemma isPushout_uiso :
   forall
@@ -207,3 +207,36 @@ Proof.
 Qed.
 
 *)
+
+Definition commutator
+  {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B}
+  : Hom (pushout f g) (pushout g f)
+  := cotriple pushr pushl (symmetry pushout_ok).
+
+Lemma commutator_idem :
+  forall {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B},
+    commutator .> commutator == id (pushout f g).
+Proof.
+  unfold commutator; intros.
+  apply equiv_pushout.
+  - now rewrite <- comp_assoc, pushl_cotriple, pushr_cotriple, comp_id_r.
+  - now rewrite <- comp_assoc, pushr_cotriple, pushl_cotriple, comp_id_r.
+Qed.
+
+Lemma isIso_commutator :
+  forall {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B},
+    isIso (commutator (f := f) (g := g)).
+Proof.
+  red; intros.
+  exists commutator.
+  split; apply commutator_idem.
+Qed.
+
+Lemma pushout_comm :
+  forall {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B},
+    pushout f g ~ pushout g f.
+Proof.
+  red; intros.
+  exists commutator.
+  now apply isIso_commutator.
+Qed.

@@ -386,3 +386,36 @@ Arguments pullback [C _ A B X] _ _.
 Arguments pullL    {C _ A B X f g}.
 Arguments pullR    {C _ A B X f g}.
 Arguments triple   [C _ A B X f g P] _ _ _.
+
+Definition commutator
+  {C : Cat} {hp : HasPullbacks C} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+  : Hom (pullback f g) (pullback g f)
+  := triple pullR pullL (symmetry pullback_ok).
+
+Lemma commutator_idem :
+  forall {C : Cat} {hp : HasPullbacks C} {A B X : Ob C} (f : Hom A X) (g : Hom B X),
+    commutator .> commutator == id (pullback f g).
+Proof.
+  unfold commutator; intros.
+  apply equiv_pullback.
+  - now rewrite comp_assoc, triple_pullL, triple_pullR, comp_id_l.
+  - now rewrite comp_assoc, triple_pullR, triple_pullL, comp_id_l.
+Qed.
+
+Lemma isIso_commutator :
+  forall {C : Cat} {hp : HasPullbacks C} {A B X : Ob C} (f : Hom A X) (g : Hom B X),
+    isIso (commutator (f := f) (g := g)).
+Proof.
+  red; intros.
+  exists commutator.
+  split; apply commutator_idem.
+Qed.
+
+Lemma pullback_comm :
+  forall {C : Cat} {hp : HasPullbacks C} {A B X : Ob C} (f : Hom A X) (g : Hom B X),
+    pullback f g ~ pullback g f.
+Proof.
+  red; intros.
+  exists commutator.
+  now apply isIso_commutator.
+Qed.
