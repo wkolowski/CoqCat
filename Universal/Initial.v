@@ -61,7 +61,7 @@ Proof.
   intros. destruct (isInitial_uiso H H0). cat.
 Qed.
 
-Lemma isInitial_equiv_initial :
+Lemma isInitial_equiv_create :
   forall
     (C : Cat)
     (I : Ob C) (create1 create2 : forall X : Ob C, Hom I X),

@@ -61,7 +61,7 @@ Proof.
   intros. destruct (isTerminal_uiso H H0). cat.
 Qed.
 
-Lemma isTerminal_equiv_terminal :
+Lemma isTerminal_equiv_delete :
   forall
     (C : Cat)
     (T : Ob C) (delete1 delete2 : forall X : Ob C, Hom X T),

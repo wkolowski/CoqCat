@@ -111,10 +111,10 @@ Class HasPushouts (C : Cat) : Type :=
       isPushout C f g (pushout f g) (pushl f g) (pushr f g) (@cotriple A B X f g);
 }.
 
-Arguments pushout {C HasPushouts A B X} _ _.
-Arguments pushl     {C HasPushouts A B X f g}.
-Arguments pushr     {C HasPushouts A B X f g}.
-Arguments cotriple  {C HasPushouts A B X f g P pushl' pushr'} _.
+Arguments pushout  {C HasPushouts A B X} _ _.
+Arguments pushl    {C HasPushouts A B X f g}.
+Arguments pushr    {C HasPushouts A B X f g}.
+Arguments cotriple {C HasPushouts A B X f g P pushl' pushr'} _.
 
 Lemma isPushout_uiso :
   forall

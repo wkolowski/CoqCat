@@ -5,18 +5,18 @@ Set Implicit Arguments.
 Class isProduct
   (C : Cat) {A B : Ob C}
   (P : Ob C) (outl : Hom P A) (outr : Hom P B)
-  (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
+  (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P)
   : Prop :=
 {
   fpair_outl :
-    forall {X : Ob C} (f : Hom X A) (g : Hom X B),
-      fpair f g .> outl == f;
+    forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B),
+      fpair a b .> outl == a;
   fpair_outr :
-    forall {X : Ob C} (f : Hom X A) (g : Hom X B),
-      fpair f g .> outr == g;
+    forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B),
+      fpair a b .> outr == b;
   equiv_product :
-    forall {X : Ob C} (f g : Hom X P),
-      f .> outl == g .> outl -> f .> outr == g .> outr -> f == g
+    forall {Γ : Ob C} (x y : Hom Γ P),
+      x .> outl == y .> outl -> x .> outr == y .> outr -> x == y
 }.
 
 #[export] Hint Mode isProduct ! ! ! ! ! ! ! : core.
@@ -26,9 +26,9 @@ Lemma equiv_product' :
   forall
     {C : Cat} {A B : Ob C}
     {P : Ob C} {outl : Hom P A} {outr : Hom P B}
-    {fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P}
+    {fpair : forall {Γ : Ob C} (f : Hom Γ A) (g : Hom Γ B), Hom Γ P}
     {isP : isProduct C P outl outr (@fpair)}
-    {X : Ob C} (h1 h2 : Hom X P),
+    {Γ : Ob C} (h1 h2 : Hom Γ P),
       h1 == h2 <-> h1 .> outl == h2 .> outl /\ h1 .> outr == h2 .> outr.
 Proof.
   split.
@@ -41,30 +41,30 @@ Section isProduct.
 Context
   {C : Cat} {A B : Ob C}
   {P : Ob C} {outl : Hom P A} {outr : Hom P B}
-  {fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P}
+  {fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P}
   {H : isProduct C P outl outr (@fpair)}
-  {X : Ob C} [Y : Ob C]
-  (f : Hom X A) (g : Hom X B).
+  {Γ : Ob C} [Y : Ob C]
+  (a : Hom Γ A) (b : Hom Γ B).
 
-Arguments fpair {X} _ _.
+Arguments fpair {Γ} _ _.
 
 #[global] Instance Proper_fpair :
-  Proper (equiv ==> equiv ==> equiv) (@fpair X).
+  Proper (equiv ==> equiv ==> equiv) (@fpair Γ).
 Proof.
   intros h1 h1' Heq1 h2 h2' Heq2.
   now rewrite equiv_product', !fpair_outl, !fpair_outr.
 Defined.
 
 Lemma fpair_universal :
-  forall h : Hom X P,
-    fpair f g == h <-> f == h .> outl /\ g == h .> outr.
+  forall p : Hom Γ P,
+    fpair a b == p <-> a == p .> outl /\ b == p .> outr.
 Proof.
   now intros; rewrite equiv_product', fpair_outl, fpair_outr.
 Qed.
 
 Lemma fpair_unique :
-  forall h : Hom X P,
-    h .> outl == f -> h .> outr == g -> h == fpair f g.
+  forall p : Hom Γ P,
+    p .> outl == a -> p .> outr == b -> p == fpair a b.
 Proof.
   now intros; rewrite equiv_product', fpair_outl, fpair_outr.
 Qed.
@@ -76,8 +76,8 @@ Proof.
 Qed.
 
 Lemma fpair_pre :
-  forall h : Hom Y X,
-    h .> fpair f g == fpair (h .> f) (h .> g).
+  forall f : Hom Y Γ,
+    f .> fpair a b == fpair (f .> a) (f .> b).
 Proof.
   now intros h; rewrite equiv_product', !comp_assoc, !fpair_outl, !fpair_outr.
 Qed.
@@ -91,11 +91,11 @@ Ltac product_simpl :=
 
 Lemma isProduct_uiso :
   forall
-    (C : Cat) (X Y : Ob C)
-    (P1 : Ob C) (outl1 : Hom P1 X) (outr1 : Hom P1 Y)
-    (fpair1 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P1)
-    (P2 : Ob C) (outl2 : Hom P2 X) (outr2 : Hom P2 Y)
-    (fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P2),
+    (C : Cat) (A B : Ob C)
+    (P1 : Ob C) (outl1 : Hom P1 A) (outr1 : Hom P1 B)
+    (fpair1 : forall (Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B), Hom Γ P1)
+    (P2 : Ob C) (outl2 : Hom P2 A) (outr2 : Hom P2 B)
+    (fpair2 : forall (Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B), Hom Γ P2),
       isProduct C P1 outl1 outr1 fpair1 ->
       isProduct C P2 outl2 outr2 fpair2 ->
         exists!! f : Hom P1 P2, isIso f /\ outl1 == f .> outl2 /\ outr1 == f .> outr2.
@@ -113,11 +113,11 @@ Qed.
 
 Lemma isProduct_iso :
   forall
-    (C : Cat) (X Y : Ob C)
-    (P1 : Ob C) (outl1 : Hom P1 X) (outr1 : Hom P1 Y)
-    (fpair1 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P1)
-    (P2 : Ob C) (outl2 : Hom P2 X) (outr2 : Hom P2 Y)
-    (fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P2),
+    (C : Cat) (A B : Ob C)
+    (P1 : Ob C) (outl1 : Hom P1 A) (outr1 : Hom P1 B)
+    (fpair1 : forall (Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B), Hom Γ P1)
+    (P2 : Ob C) (outl2 : Hom P2 A) (outr2 : Hom P2 B)
+    (fpair2 : forall (Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B), Hom Γ P2),
       isProduct C P1 outl1 outr1 fpair1 ->
       isProduct C P2 outl2 outr2 fpair2 ->
         P1 ~ P2.
@@ -125,37 +125,38 @@ Proof.
   intros. destruct (isProduct_uiso H H0). cat.
 Qed.
 
-Lemma isProduct_equiv_product :
+Lemma isProduct_equiv_fpair :
   forall
-    (C : Cat) (X Y : Ob C)
-    (P : Ob C) (outl : Hom P X) (outr : Hom P Y)
-    (fpair1 fpair2 : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      isProduct C P outl outr fpair1 ->
-      isProduct C P outl outr fpair2 ->
-        forall (A : Ob C) (f : Hom A X) (g : Hom A Y),
-          fpair1 A f g == fpair2 A f g.
+    (C : Cat) (A B : Ob C)
+    (P : Ob C) (outl : Hom P A) (outr : Hom P B)
+    (fpair1 fpair2 : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
+      isProduct C P outl outr (@fpair1) ->
+      isProduct C P outl outr (@fpair2) ->
+        forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B),
+          fpair1 a b == fpair2 a b.
 Proof.
   now intros; rewrite equiv_product', !fpair_outl, !fpair_outr.
 Qed.
 
-Lemma isProduct_outl_equiv
-  (C : Cat) (X Y : Ob C)
-  (P : Ob C) (outl1 outl2 : Hom P X) (outr : Hom P Y)
-  (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P) :
-    isProduct C P outl1 outr fpair ->
-    isProduct C P outl2 outr fpair ->
-      outl1 == outl2.
+Lemma isProduct_equiv_outl :
+  forall
+    (C : Cat) (A B : Ob C)
+    (P : Ob C) (outl1 outl2 : Hom P A) (outr : Hom P B)
+    (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
+      isProduct C P outl1 outr (@fpair) ->
+      isProduct C P outl2 outr (@fpair) ->
+        outl1 == outl2.
 Proof.
   now intros; rewrite <- fpair_outl, fpair_id, comp_id_l.
 Qed.
 
-Lemma isProduct_outr_equiv :
+Lemma isProduct_equiv_outr :
   forall
-    (C : Cat) (X Y : Ob C)
-    (P : Ob C) (outl : Hom P X) (outr1 outr2 : Hom P Y)
-    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      isProduct C P outl outr1 fpair ->
-      isProduct C P outl outr2 fpair ->
+    (C : Cat) (A B : Ob C)
+    (P : Ob C) (outl : Hom P A) (outr1 outr2 : Hom P B)
+    (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
+      isProduct C P outl outr1 (@fpair) ->
+      isProduct C P outl outr2 (@fpair) ->
         outr1 == outr2.
 Proof.
   now intros; rewrite <- fpair_outr, fpair_id, comp_id_l.
@@ -163,15 +164,15 @@ Qed.
 
 Lemma iso_to_product : (* TODO: dual *)
   forall
-    (C : Cat) (X Y : Ob C)
-    (P Q : Ob C) (outl : Hom P X) (outr : Hom P Y)
-    (fpair : forall Q : Ob C, Hom Q X -> Hom Q Y -> Hom Q P),
-      isProduct C P outl outr fpair ->
-      forall (f : Hom Q P) (H : isIso f),
+    (C : Cat) (A B : Ob C)
+    (P : Ob C) (outl : Hom P A) (outr : Hom P B)
+    (fpair : forall {Γ : Ob C}, Hom Γ A -> Hom Γ B -> Hom Γ P),
+      isProduct C P outl outr (@fpair) ->
+      forall (Q : Ob C) (f : Hom Q P) (H : isIso f),
       isProduct C Q (f .> outl) (f .> outr)
-        (fun (A : Ob C) (outl' : Hom A X) (outr' : Hom A Y) =>
+        (fun (Γ : Ob C) (a : Hom Γ A) (b : Hom Γ B) =>
           match constructive_indefinite_description _ H with
-          | exist _ g _ => fpair A outl' outr' .> g
+          | exist _ g _ => fpair a b .> g
           end).
 Proof.
   intros.
@@ -179,16 +180,17 @@ Proof.
   constructor; intros.
   - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outl.
   - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outr.
-  - rewrite <- (comp_id_r _ _ f0), <- (comp_id_r _ _ g), <- !eoutl2, <- !comp_assoc; f_equiv.
+  - rewrite <- (comp_id_r _ _ x), <- (comp_id_r _ _ y), <- !eoutl2, <- !comp_assoc; f_equiv.
     now rewrite equiv_product', !comp_assoc.
 Qed.
 
 Lemma isProduct_comm :
   forall
-    (C : Cat) (X Y P : Ob C) (outl : Hom P X) (outr : Hom P Y)
-    (fpair : forall (A : Ob C) (f : Hom A X) (g : Hom A Y), Hom A P),
-      isProduct C P outl outr fpair ->
-        isProduct C P outr outl (fun A f g => fpair A g f).
+    {C : Cat} {A B : Ob C}
+    {P : Ob C} {outl : Hom P A} {outr : Hom P B}
+    {fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P},
+      isProduct C P outl outr (@fpair) ->
+        isProduct C P outr outl (fun Γ a b => fpair b a).
 Proof.
   intros * []; constructor; cat.
 Qed.
@@ -198,7 +200,7 @@ Class HasProducts (C : Cat) : Type :=
   product : Ob C -> Ob C -> Ob C;
   outl : forall {A B : Ob C}, Hom (product A B) A;
   outr : forall {A B : Ob C}, Hom (product A B) B;
-  fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (product A B);
+  fpair : forall {A B Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ (product A B);
   isProduct_HasProducts' :>
     forall {A B : Ob C}, isProduct C (product A B) outl outr (@fpair A B)
 }.
@@ -206,7 +208,7 @@ Class HasProducts (C : Cat) : Type :=
 Arguments product {C _} _ _.
 Arguments outl    {C _ A B}.
 Arguments outr    {C _ A B}.
-Arguments fpair   {C _ A B X} _ _.
+Arguments fpair   {C _ A B Γ} _ _.
 
 Ltac solve_product := intros; try split;
 repeat match goal with
@@ -247,32 +249,32 @@ end.
 Lemma fpair_comp :
   forall
     (C : Cat) (hp : HasProducts C)
-    (A X Y X' Y' : Ob C) (f : Hom A X) (g : Hom A Y) (h1 : Hom X X') (h2 : Hom Y Y'),
-      fpair (f .> h1) (g .> h2) == fpair f g .> fpair (outl .> h1) (outr .> h2).
+    (A B Γ A' B' : Ob C) (a : Hom Γ A) (b : Hom Γ B) (h1 : Hom A A') (h2 : Hom B B'),
+      fpair (a .> h1) (b .> h2) == fpair a b .> fpair (outl .> h1) (outr .> h2).
 Proof.
   intros; rewrite equiv_product'.
   now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
 Qed.
 
 Lemma fpair_pre_id :
-  forall (C : Cat) (hp : HasProducts C) (A X Y : Ob C) (f : Hom A (product X Y)),
-    fpair (f .> outl) (f .> outr) == f.
+  forall (C : Cat) (hp : HasProducts C) (A B Γ : Ob C) (p : Hom Γ (product A B)),
+    fpair (p .> outl) (p .> outr) == p.
 Proof.
   now intros; rewrite equiv_product', fpair_outl, fpair_outr.
 Qed.
 
 Lemma product_comm :
-  forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
-    product X Y ~ product Y X.
+  forall (C : Cat) (hp : HasProducts C) (A B : Ob C),
+    product A B ~ product B A.
 Proof.
-  intros.
+  red; intros.
   exists (fpair outr outl), (fpair outr outl).
   solve_product.
 Qed.
 
 Lemma product_assoc :
-  forall (C : Cat) (hp : HasProducts C) (X Y Z : Ob C),
-    product X (product Y Z) ~ product (product X Y) Z.
+  forall (C : Cat) (hp : HasProducts C) (A B C : Ob C),
+    product A (product B C) ~ product (product A B) C.
 Proof.
   intros.
   exists (fpair (fpair outl (outr .> outl)) (outr .> outr)),
@@ -281,8 +283,8 @@ Proof.
 Defined.
 
 Lemma product_assoc' :
-  forall (C : Cat) (hp : HasProducts C) (X Y Z : Ob C),
-    {f : Hom (product (product X Y) Z) (product X (product Y Z)) | isIso f}.
+  forall (C : Cat) (hp : HasProducts C) (A B C : Ob C),
+    {f : Hom (product (product A B) C) (product A (product B C)) | isIso f}.
 Proof.
   intros.
   exists (fpair (outl .> outl) (fpair (outl .> outr) outr)),
@@ -292,8 +294,8 @@ Defined.
 
 Definition ProductFunctor_fmap
   {C : Cat} {hp : HasProducts C}
-  {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
-  : Hom (product X X') (product Y Y') :=
+  {A B A' B' : Ob C} (f : Hom A A') (g : Hom B B')
+  : Hom (product A B) (product A' B') :=
     fpair (outl .> f) (outr .> g).
 
 #[export]

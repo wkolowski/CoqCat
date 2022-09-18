@@ -252,6 +252,37 @@ Proof.
     + now rewrite !comp_assoc, Heq2.
 Qed.
 
+Lemma isPullback_comp' :
+  forall
+    {C : Cat} {A A' B X : Ob C} {f : Hom A X} {g : Hom B X} {h : Hom A' A}
+    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+    {triple : forall {Γ : Ob C} (x : Hom Γ A) (y : Hom Γ B), x .> f == y .> g -> Hom Γ P}
+    (HisP : isPullback C f g P pullL pullR (@triple))
+    {Q : Ob C} {pullL' : Hom Q A'} {pullR' : Hom Q P}
+    {triple' : forall {Γ : Ob C} (x : Hom Γ A') (y : Hom Γ P), x .> h == y .> pullL -> Hom Γ Q},
+      isPullback C (h .> f) g Q pullL' (pullR' .> pullR)
+        (fun Γ x y H =>
+          triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)) ->
+        isPullback C h pullL Q pullL' pullR' (@triple').
+Proof.
+  split.
+  - admit.
+  - destruct H; intros.
+    assert (Heq : x .> (h .> f) == (y .> pullR) .> g).
+    {
+      now rewrite <- comp_assoc, H, comp_assoc, pullback_ok.
+    }
+    rewrite <- (triple_pullL0 P' x (y .> pullR) Heq) at 2.
+    assert (Heq' : y == triple P' (x .> h) (y .> pullR) (reassoc_l Heq)).
+    {
+      apply equiv_pullback.
+      - now rewrite <- H, triple_pullL.
+      - now rewrite triple_pullR.
+    }
+    admit.
+  - destruct H; intros.
+Admitted.
+
 Lemma isProduct_isPullback :
   forall
     (C : Cat) (ht : HasTerm C) (A B : Ob C)

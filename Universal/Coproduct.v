@@ -125,7 +125,7 @@ Proof.
   symmetry. cat.
 Qed.
 
-Lemma isCoproduct_equiv_coproduct :
+Lemma isCoproduct_equiv_copair :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (finl : Hom X P) (finr : Hom Y P)
@@ -138,7 +138,7 @@ Proof.
   now intros; rewrite equiv_coproduct', !finl_copair, !finr_copair.
 Qed.
 
-Lemma isCoproduct_finl_equiv :
+Lemma isCoproduct_equiv_finl :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (finl1 finl2 : Hom X P) (finr : Hom Y P)
@@ -150,7 +150,7 @@ Proof.
   now intros; rewrite <- finl_copair, copair_id, comp_id_r.
 Qed.
 
-Lemma isCoproduct_finr_equiv :
+Lemma isCoproduct_equiv_finr :
   forall
     (C : Cat) (X Y : Ob C)
     (P : Ob C) (finl : Hom X P) (finr1 finr2 : Hom Y P)

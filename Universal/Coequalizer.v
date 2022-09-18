@@ -95,9 +95,15 @@ Ltac coequalizer_simpl :=
     ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_id,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
+Section Traditional.
+
+Context
+  [C : Cat]
+  [A B : Ob C]
+  [f g : Hom A B].
+
 Lemma isCoequalizer_uiso :
   forall
-    [C : Cat] [A B : Ob C] [f g : Hom A B]
     (Q1 : Ob C) (q1 : Hom B Q1)
     (cofactorize1 : forall (Q1' : Ob C) (q1' : Hom B Q1'), f .> q1' == g .> q1' -> Hom Q1 Q1')
     (Q2 : Ob C) (q2 : Hom B Q2)
@@ -117,7 +123,6 @@ Qed.
 
 Lemma isCoequalizer_iso :
   forall
-    [C : Cat] [A B : Ob C] [f g : Hom A B]
     (Q1 : Ob C) (q1 : Hom B Q1)
     (cofactorize1 : forall (Q1' : Ob C) (q1' : Hom B Q1'), f .> q1' == g .> q1' -> Hom Q1 Q1')
     (Q2 : Ob C) (q2 : Hom B Q2)
@@ -132,7 +137,6 @@ Qed.
 
 Lemma isIso_coequalize :
   forall
-    [C : Cat] [A B : Ob C] [f g : Hom A B]
     (Q : Ob C) (coequalize : Hom B Q)
     (cofactorize : forall (Q' : Ob C) (q2 : Hom B Q'), f .> q2 == g .> q2 -> Hom Q Q'),
       isCoequalizer C f g Q coequalize cofactorize ->
@@ -143,11 +147,6 @@ Proof.
   exists (cofactorize B (id B) Hfg).
   now rewrite equiv_coequalizer', <- comp_assoc, !coequalize_cofactorize, comp_id_l, comp_id_r.
 Qed.
-
-Context
-  [C : Cat]
-  [A B : Ob C]
-  [f g : Hom A B].
 
 Lemma isCoequalizer_equiv_coequalize :
   forall
@@ -171,6 +170,8 @@ Lemma isCoequalizer_equiv_cofactorize :
 Proof.
   now intros; rewrite equiv_coequalizer', !coequalize_cofactorize.
 Qed.
+
+End Traditional.
 
 Class HasCoequalizers (C : Cat) : Type :=
 {

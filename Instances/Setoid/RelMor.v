@@ -170,32 +170,34 @@ Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
   fpair := SetoidRel_fpair
 }.
 Proof.
-  (* Proper *) rel.
-  (* Product laws *) split; setoidrel'; repeat
-  match goal with
-  | p : _ + _ |- _ => destruct p
-  | H : False |- _ => inversion H
-  end.
-  - eapply Proper_f; [| | eassumption]; easy.
-  - now exists (inl y).
-  - eapply Proper_g; [| | eassumption]; easy.
-  - now exists (inr y).
-  - destruct (H x a) as [[[y0_l | y0_r] [H'1 H'2]] _].
-    + now exists (inl a).
-    + eapply Proper_g; [| | eassumption]; easy.
-    + easy.
-  - destruct (H0 x b) as [[[y0_l | y0_r] [H'1 H'2]] _].
-    + now exists (inr b).
-    + easy.
-    + eapply Proper_g; [| | eassumption]; easy.
-  - destruct (H x a) as [_ [[y0_l | y0_r] [H'1 H'2]]].
-    + now exists (inl a).
-    + eapply Proper_f; [| | eassumption]; easy.
-    + easy.
-  - destruct (H0 x b) as [_ [[y0_l | y0_r] [H'1 H'2]]].
-    + now exists (inr b).
-    + easy.
-    + eapply Proper_f; [| | eassumption]; easy.
+  split; cbn.
+  - intros Γ R S x y; split.
+    + now intros [[] [r Heq]]; [rewrite Heq |].
+    + now intros r; exists (inl y).
+  - intros Γ R S x y; split.
+    + now intros [[] [r Heq]]; [| rewrite Heq].
+    + now intros s; exists (inr y).
+  - intros Γ R S HeqR HeqS x [a | b]; split; setoidrel'; repeat
+    match goal with
+    | p : _ + _ |- _ => destruct p
+    | H : False |- _ => inversion H
+    end.
+    + destruct (HeqR x a) as [[[y0_l | y0_r] [H'1 H'2]] _].
+      * now exists (inl a).
+      * eapply Proper_S; [| | eassumption]; easy.
+      * easy.
+    + destruct (HeqR x a) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+      * now exists (inl a).
+      * eapply Proper_R; [| | eassumption]; easy.
+      * easy.
+    + destruct (HeqS x b) as [[[y0_l | y0_r] [H'1 H'2]] _].
+      * now exists (inr b).
+      * easy.
+      * eapply Proper_S; [| | eassumption]; easy.
+    + destruct (HeqS x b) as [_ [[y0_l | y0_r] [H'1 H'2]]].
+      * now exists (inr b).
+      * easy.
+      * eapply Proper_R; [| | eassumption]; easy.
 Defined.
 
 Definition SetoidRel_coproduct := SetoidRel_product.
