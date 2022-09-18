@@ -263,25 +263,25 @@ Proof.
   now intros; rewrite equiv_product', fpair_outl, fpair_outr.
 Qed.
 
-Definition swap
+Definition commutator
   {C : Cat} {hp : HasProducts C} {A B : Ob C}
   : Hom (product A B) (product B A)
   := fpair outr outl.
 
-Lemma swap_swap :
+Lemma commutator_commutator :
   forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
-    swap .> swap == id (product A B).
+    commutator .> commutator == id (product A B).
 Proof.
-  unfold swap; solve_product.
+  unfold commutator; solve_product.
 Qed.
 
-Lemma isIso_swap :
+Lemma isIso_commutator :
   forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
-    isIso (@swap _ _ A B).
+    isIso (@commutator _ _ A B).
 Proof.
   red; intros.
-  exists swap.
-  split; apply swap_swap.
+  exists commutator.
+  split; apply commutator_commutator.
 Qed.
 
 Lemma product_comm :
@@ -289,8 +289,8 @@ Lemma product_comm :
     product A B ~ product B A.
 Proof.
   red; intros.
-  exists swap.
-  apply isIso_swap.
+  exists commutator.
+  apply isIso_commutator.
 Qed.
 
 Definition associator

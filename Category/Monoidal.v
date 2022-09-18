@@ -58,12 +58,12 @@ Instance Monoidal_HasInit_HasCoproducts
 }.
 Proof.
   all: cbn; intros.
-  exact (proj1_sig (coproduct_assoc' hp X Y Z)).
-  exact (proj2_sig (coproduct_assoc' hp X Y Z)).
-  exact (proj1_sig (coproduct_init_l' C hi hp X)).
-  exact (proj2_sig (coproduct_init_l' C hi hp X)).
-  exact (proj1_sig (coproduct_init_r' C hi hp X)).
-  exact (proj2_sig (coproduct_init_r' C hi hp X)).
-  cbn. solve_coproduct. apply equiv_initial.
-  cbn. solve_coproduct.
+  - exact Coproduct.associator.
+  - exact Coproduct.isIso_associator.
+  - exact (proj1_sig (coproduct_init_l' C hi hp X)).
+  - exact (proj2_sig (coproduct_init_l' C hi hp X)).
+  - exact (proj1_sig (coproduct_init_r' C hi hp X)).
+  - exact (proj2_sig (coproduct_init_r' C hi hp X)).
+  - cbn; unfold Coproduct.associator; solve_coproduct; apply equiv_initial.
+  - cbn; unfold Coproduct.associator; solve_coproduct.
 Defined.

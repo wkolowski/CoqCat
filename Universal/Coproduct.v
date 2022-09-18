@@ -263,23 +263,89 @@ Proof.
   now intros; rewrite equiv_coproduct', finl_copair, finr_copair.
 Qed.
 
+Definition commutator
+  {C : Cat} {hp : HasCoproducts C} {A B : Ob C}
+  : Hom (coproduct A B) (coproduct B A) :=
+    copair finr finl.
+
+Lemma commutator_idem :
+  forall {C : Cat} {hp : HasCoproducts C} {A B : Ob C},
+    commutator .> commutator == id (coproduct A B).
+Proof.
+  unfold commutator; solve_coproduct.
+Qed.
+
+Lemma isIso_commutator :
+  forall {C : Cat} {hp : HasCoproducts C} {A B : Ob C},
+    isIso (@commutator _ _ A B).
+Proof.
+  red; intros.
+  exists commutator.
+  split; apply commutator_idem.
+Qed.
+
 Lemma coproduct_comm :
   forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
     coproduct X Y ~ coproduct Y X.
 Proof.
-  intros.
-  exists (copair finr finl), (copair finr finl).
-  solve_coproduct.
+  red; intros.
+  exists commutator.
+  apply isIso_commutator.
+Qed.
+
+Definition associator
+  {C : Cat} {hp : HasCoproducts C} {A B C : Ob C}
+  : Hom (coproduct (coproduct A B) C) (coproduct A (coproduct B C)) :=
+    copair (copair finl (finl .> finr)) (finr .> finr).
+
+Definition unassociator
+  {C : Cat} {hp : HasCoproducts C} {A B C : Ob C}
+  : Hom (coproduct A (coproduct B C)) (coproduct (coproduct A B) C) :=
+    copair (finl .> finl) (copair (finr .> finl) finr).
+
+Lemma associator_unassociator :
+  forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
+    associator .> unassociator == id (coproduct (coproduct A B) C).
+Proof.
+  unfold associator, unassociator; solve_coproduct.
+Qed.
+
+Lemma unassociator_associator :
+  forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
+    unassociator .> associator == id (coproduct A (coproduct B C)).
+Proof.
+  unfold associator, unassociator; solve_coproduct.
+Qed.
+
+Lemma isIso_associator :
+  forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
+    isIso (@associator _ _ A B C).
+Proof.
+  red; intros.
+  exists unassociator.
+  split.
+  - now apply associator_unassociator.
+  - now apply unassociator_associator.
+Qed.
+
+Lemma isIso_unassociator :
+  forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
+    isIso (@unassociator _ _ A B C).
+Proof.
+  red; intros.
+  exists associator.
+  split.
+  - now apply unassociator_associator.
+  - now apply associator_unassociator.
 Qed.
 
 Lemma coproduct_assoc :
   forall (C : Cat) (hp : HasCoproducts C) (X Y Z : Ob C),
     coproduct X (coproduct Y Z) ~ coproduct (coproduct X Y) Z.
 Proof.
-  intros.
-  exists (copair (finl .> finl) (copair (finr .> finl) finr)),
-         (copair (copair finl (finl .> finr)) (finr .> finr)).
-  solve_coproduct.
+  red; intros.
+  exists unassociator.
+  now apply isIso_unassociator.
 Qed.
 
 Lemma coproduct_assoc' :
@@ -287,9 +353,8 @@ Lemma coproduct_assoc' :
     {f : Hom (coproduct (coproduct X Y) Z) (coproduct X (coproduct Y Z)) | isIso f}.
 Proof.
   intros.
-  exists (copair (copair finl (finl .> finr)) (finr .> finr)),
-         (copair (finl .> finl) (copair (finr .> finl) finr)).
-  solve_coproduct.
+  exists associator.
+  now apply isIso_associator.
 Defined.
 
 Definition CoproductFunctor_fmap
