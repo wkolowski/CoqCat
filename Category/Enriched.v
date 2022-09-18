@@ -11,7 +11,7 @@ Class Enriched (V : Monoidal) : Type :=
   EId : forall X : EOb, Hom tensor_unit (EHom X X);
   EComp_assoc :
     forall A B C D : EOb,
-      associator (EHom A B) (EHom B C) (EHom C D) .>
+      Monoidal.associator (EHom A B) (EHom B C) (EHom C D) .>
         bimap (id (EHom A B)) (EComp B C D) .> EComp A B D
           ==
         bimap (EComp A B C) (id (EHom C D)) .> EComp A C D;
@@ -35,7 +35,11 @@ Instance Enriched_CoqSetoid
   := {}.
 Proof.
   exact (Ob CoqSetoid).
-  intros X Y. exact (wut _ X Y).
+  intros X Y. refine (
+  {|
+  carrier := @Hom _ X Y;
+  setoid := @HomSetoid _ X Y;
+  |}).
   cbn. intros.
     split with (fun p => SetoidComp (fst p) (snd p)). proper.
       destruct H, x, y. cbn in *. now rewrite H, H0.

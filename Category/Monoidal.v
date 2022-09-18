@@ -37,14 +37,14 @@ Instance Monoidal_HasTerm_HasProducts
 }.
 Proof.
   all: cbn; intros.
-  exact (proj1_sig (product_assoc' hp X Y Z)).
-  exact (proj2_sig (product_assoc' hp X Y Z)).
-  exact (proj1_sig (product_term_l' C ht hp X)).
-  exact (proj2_sig (product_term_l' C ht hp X)).
-  exact (proj1_sig (product_term_r' C X ht hp)).
-  exact (proj2_sig (product_term_r' C X ht hp)).
-  cbn; solve_product.
-  cbn; solve_product.
+  - exact Product.associator.
+  - exact Product.isIso_associator.
+  - exact (proj1_sig (product_term_l' C ht hp X)).
+  - exact (proj2_sig (product_term_l' C ht hp X)).
+  - exact (proj1_sig (product_term_r' C X ht hp)).
+  - exact (proj2_sig (product_term_r' C X ht hp)).
+  - cbn; unfold Product.associator; solve_product.
+  - cbn; unfold Product.associator; solve_product.
 Defined.
 
 #[refine]

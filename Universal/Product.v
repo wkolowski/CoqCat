@@ -263,23 +263,82 @@ Proof.
   now intros; rewrite equiv_product', fpair_outl, fpair_outr.
 Qed.
 
+Definition swap
+  {C : Cat} {hp : HasProducts C} {A B : Ob C}
+  : Hom (product A B) (product B A)
+  := fpair outr outl.
+
+Lemma swap_swap :
+  forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
+    swap .> swap == id (product A B).
+Proof.
+  unfold swap; solve_product.
+Qed.
+
+Lemma isIso_swap :
+  forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
+    isIso (@swap _ _ A B).
+Proof.
+  red; intros.
+  exists swap.
+  split; apply swap_swap.
+Qed.
+
 Lemma product_comm :
   forall (C : Cat) (hp : HasProducts C) (A B : Ob C),
     product A B ~ product B A.
 Proof.
   red; intros.
-  exists (fpair outr outl), (fpair outr outl).
+  exists swap.
+  apply isIso_swap.
+Qed.
+
+Definition associator
+  {C : Cat} {hp : HasProducts C} {A B C : Ob C}
+  : Hom (product (product A B) C) (product A (product B C))
+  := fpair (outl .> outl) (fpair (outl .> outr) outr).
+
+Definition unassociator
+  {C : Cat} {hp : HasProducts C} {A B C : Ob C}
+  : Hom (product A (product B C)) (product (product A B) C)
+  := fpair (fpair outl (outr .> outl)) (outr .> outr).
+
+Lemma associator_unassociator :
+  forall {C : Cat} {hp : HasProducts C} {A B C : Ob C},
+    associator .> unassociator == id (product (product A B) C).
+Proof.
+  unfold associator, unassociator; intros.
   solve_product.
+Qed.
+
+Lemma unassociator_associator :
+  forall {C : Cat} {hp : HasProducts C} {A B C : Ob C},
+    unassociator .> associator == id (product A (product B C)).
+Proof.
+  unfold associator, unassociator; intros.
+  solve_product.
+Qed.
+
+Lemma isIso_associator :
+  forall {C : Cat} {hp : HasProducts C} {A B C : Ob C},
+    isIso (@associator _ _ A B C).
+Proof.
+  red; intros.
+  exists unassociator.
+  split.
+  - apply associator_unassociator.
+  - apply unassociator_associator.
 Qed.
 
 Lemma product_assoc :
   forall (C : Cat) (hp : HasProducts C) (A B C : Ob C),
     product A (product B C) ~ product (product A B) C.
 Proof.
-  intros.
-  exists (fpair (fpair outl (outr .> outl)) (outr .> outr)),
-         (fpair (outl .> outl) (fpair (outl .> outr) outr)).
-  solve_product.
+  red; intros.
+  exists unassociator, associator.
+  split.
+  - now apply unassociator_associator.
+  - now apply associator_unassociator.
 Defined.
 
 Lemma product_assoc' :
@@ -287,9 +346,10 @@ Lemma product_assoc' :
     {f : Hom (product (product A B) C) (product A (product B C)) | isIso f}.
 Proof.
   intros.
-  exists (fpair (outl .> outl) (fpair (outl .> outr) outr)),
-         (fpair (fpair outl (outr .> outl)) (outr .> outr)).
-  solve_product.
+  exists associator, unassociator.
+  split.
+  - now apply associator_unassociator.
+  - now apply unassociator_associator.
 Defined.
 
 Definition ProductFunctor_fmap

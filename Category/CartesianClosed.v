@@ -16,9 +16,8 @@ Lemma product_term_l :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     product (term C) X ~ X.
 Proof.
-  symmetry.
-  red. exists (fpair (delete X) (id X)).
-  red. exists outr.
+  intros.
+  exists outr, (fpair (delete X) (id X)).
   solve_product; apply equiv_terminal.
 Defined.
 
