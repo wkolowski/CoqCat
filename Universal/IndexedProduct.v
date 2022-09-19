@@ -73,7 +73,7 @@ Proof.
   now rewrite equiv_indexedProduct'; setoid_rewrite tuple_out.
 Qed.
 
-Lemma tuple_pre :
+Lemma tuple_comp :
   forall h : Hom Y X,
     h .> tuple f == tuple (fun j => h .> f j).
 Proof.
@@ -87,7 +87,7 @@ Ltac indexedProduct_simpl := repeat (
   try setoid_rewrite equiv_indexedProduct';
   try setoid_rewrite tuple_out;
   try setoid_rewrite tuple_id;
-  try setoid_rewrite tuple_pre;
+  try setoid_rewrite tuple_comp;
   try setoid_rewrite comp_id_l;
   try setoid_rewrite comp_id_r;
   try setoid_rewrite <- comp_assoc).
@@ -105,7 +105,7 @@ Lemma isIndexedProduct_iso_unique :
 Proof.
   intros * H1 H2.
   exists (tuple2 _ proj1), (tuple1 _ proj2).
-  rewrite !tuple_pre, !equiv_indexedProduct'; split; intros.
+  rewrite !tuple_comp, !equiv_indexedProduct'; split; intros.
   - now rewrite !tuple_out, comp_id_l.
   - now rewrite !tuple_out, comp_id_l.
 Qed.
@@ -261,7 +261,7 @@ Arguments indexedProduct {C _ J} _.
 Arguments out           {C _ J A} _.
 Arguments tuple          {C _ J A X} _.
 
-Lemma tuple_comp :
+Lemma tuple_comp' :
   forall
     {C : Cat} {hip : HasIndexedProducts C}
     {X : Ob C} {J : Set} {A B : J -> Ob C}
@@ -271,6 +271,6 @@ Lemma tuple_comp :
       tuple f .> tuple (fun j : J => out j .> g j).
 Proof.
   intros.
-  rewrite tuple_pre, equiv_indexedProduct'; intros j.
+  rewrite tuple_comp, equiv_indexedProduct'; intros j.
   now rewrite !tuple_out, <- comp_assoc, tuple_out.
 Qed.

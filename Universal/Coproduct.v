@@ -74,7 +74,7 @@ Proof.
   now rewrite equiv_coproduct', finl_copair, finr_copair, !comp_id_r.
 Qed.
 
-Lemma copair_post :
+Lemma copair_comp :
   forall {Y : Ob C} {h : Hom P' Y},
     copair f g .> h == copair (f .> h) (g .> h).
 Proof.
@@ -85,7 +85,7 @@ End isCoproduct.
 
 Ltac coproduct_simpl :=
   repeat (rewrite
-    ?equiv_coproduct', ?finl_copair, ?finr_copair, ?copair_id, ?copair_post,
+    ?equiv_coproduct', ?finl_copair, ?finr_copair, ?copair_id, ?copair_comp,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 Lemma isCoproduct_uiso :
@@ -180,7 +180,7 @@ Proof.
   split; intros.
   - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finl_copair.
   - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finr_copair.
-  - rewrite <- (comp_id_l _ _ h1), <- (comp_id_l _ _ h2), <- Heq2, !comp_assoc; f_equiv.
+  - rewrite <- (comp_id_l h1), <- (comp_id_l h2), <- Heq2, !comp_assoc; f_equiv.
     now rewrite equiv_coproduct', <- !comp_assoc.
 Qed.
 
@@ -215,8 +215,8 @@ Arguments copair    {C HasCoproducts A B P} _ _.
 
 Ltac solve_coproduct := intros; try split;
 repeat match goal with
-| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_post, copair_id
-| |- context [copair _ _ .> _] => rewrite copair_post
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_comp, copair_id
+| |- context [copair _ _ .> _] => rewrite copair_comp
 | |- context [finl .> copair _ _] => rewrite finl_copair
 | |- context [finr .> copair _ _] => rewrite finr_copair
 | |- context [copair finl finr] => rewrite copair_id
@@ -233,15 +233,15 @@ end.
 
 Ltac coproduct_simpl' :=
 repeat match goal with
-| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_post, copair_id
-| |- context [copair _ _ .> _] => rewrite copair_post
+| |- context [copair (finl .> ?x) (finr .> ?x)] => rewrite <- copair_comp, copair_id
+| |- context [copair _ _ .> _] => rewrite copair_comp
 | |- context [finl .> copair _ _] => rewrite finl_copair
 | |- context [finr .> copair _ _] => rewrite finr_copair
 | |- context [copair finl finr] => rewrite copair_id
 | |- context [id _ .> _] => rewrite comp_id_l
 | |- context [_ .> id _] => rewrite comp_id_r
-| H : context [copair (finl .> ?x) (finr .> ?x)] |- _ => rewrite <- copair_post, copair_id in H
-| H : context [copair _ _ .> _] |- _ => rewrite copair_post in H
+| H : context [copair (finl .> ?x) (finr .> ?x)] |- _ => rewrite <- copair_comp, copair_id in H
+| H : context [copair _ _ .> _] |- _ => rewrite copair_comp in H
 | H : context [finl .> copair _ _] |- _ => rewrite finl_copair in H
 | H : context [finr .> copair _ _] |- _ => rewrite finr_copair in H
 | H : context [copair finl finr] |- _ => rewrite copair_id in H
@@ -249,14 +249,14 @@ repeat match goal with
 | H : context [_ .> id _] |- _ => rewrite comp_id_r in H
 end.
 
-Lemma copair_comp :
+Lemma copair_comp' :
   forall
     (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
     (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
-      copair (h1 .> f) (h2 .> g) == copair (h1 .> finl) (h2 .> finr) .> copair f g.
+      copair (h1 .> finl) (h2 .> finr) .> copair f g == copair (h1 .> f) (h2 .> g).
 Proof. solve_coproduct. Qed.
 
-Lemma copair_post_id :
+Lemma copair_comp_id :
   forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
     copair (finl .> f) (finr .> f) == f.
 Proof.

@@ -78,7 +78,7 @@ Proof.
   now intros X h1 h2 Heq; rewrite equiv_coequalizer'.
 Qed.
 
-Lemma cofactorize_post :
+Lemma cofactorize_comp :
   forall {X Y : Ob C} {q1 : Hom B X} {q2 : Hom X Y}  (H : f .> q1 == g .> q1),
     exists H' : f .> (q1 .> q2) == g .> (q1 .> q2),
       cofactorize H' == cofactorize H .> q2.

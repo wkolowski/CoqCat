@@ -78,15 +78,18 @@ Proof.
   now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple, !comp_id_r.
 Qed.
 
-Lemma cotriple_post :
-  forall {Y : Ob C} {h : Hom P' Y},
-    exists H' : f .> (x .> h) == g .> (y .> h),
-      cotriple (x .> h) (y .> h) H' == cotriple x y H .> h.
+Definition wut
+  {Y : Ob C} (h : Hom P' Y) (Heq : f .> x == g .> y)
+  : f .> (x .> h) == g .> (y .> h).
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - now rewrite <- comp_assoc, H, comp_assoc.
-  - now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple,
-      <- !comp_assoc, pushl_cotriple, pushr_cotriple.
+  now rewrite <- comp_assoc, Heq, comp_assoc.
+Defined.
+
+Lemma cotriple_comp :
+  forall {Y : Ob C} {h : Hom P' Y},
+    cotriple x y H .> h == cotriple (x .> h) (y .> h) (wut h H).
+Proof.
+  now intros; rewrite equiv_pushout', <- !comp_assoc, !pushl_cotriple, !pushr_cotriple.
 Qed.
 
 End isPushout.
@@ -95,26 +98,6 @@ Ltac pushout_simpl :=
   repeat (rewrite
     ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_ok,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
-
-Class HasPushouts (C : Cat) : Type :=
-{
-  pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
-  pushl : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom A (pushout f g);
-  pushr : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom B (pushout f g);
-  cotriple :
-    forall
-      {A B X : Ob C} {f : Hom X A} {g : Hom X B}
-      {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
-        f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
-  HasPushouts_isPushout :>
-    forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
-      isPushout C f g (pushout f g) pushl pushr (@cotriple A B X f g);
-}.
-
-Arguments pushout  {C HasPushouts A B X} _ _.
-Arguments pushl    {C HasPushouts A B X f g}.
-Arguments pushr    {C HasPushouts A B X f g}.
-Arguments cotriple {C HasPushouts A B X f g P} _ _ _.
 
 Lemma isPushout_uiso :
   forall
@@ -157,8 +140,79 @@ Proof.
   symmetry. cat.
 Qed.
 
-(*
+Section Pushout_lemmas.
 
+Context
+  {C : Cat} {A B X : Ob C} {f : Hom X A} {g : Hom X B}
+  {P : Ob C} {pushl : Hom A P} {pushr : Hom B P}
+  {cotriple : forall {P' : Ob C} (a : Hom A P') (b : Hom B P'), f .> a == g .> b -> Hom P P'}
+  {HisP : isPushout C f g P pushl pushr (@cotriple)}.
+
+Lemma isEpi_pushl :
+  isEpi g -> isEpi pushl.
+Proof.
+  unfold isEpi; intros * H Y h1 h2 Heq.
+  apply equiv_pushout; [easy |].
+  apply H.
+  now rewrite <- comp_assoc, <- ok, comp_assoc, Heq, <- comp_assoc, ok.
+Qed.
+
+Lemma isEpi_pushr :
+  isEpi f -> isEpi pushr.
+Proof.
+  unfold isEpi; intros * H Y h1 h2 Heq.
+  apply equiv_pushout; [| easy].
+  apply H.
+  now rewrite <- comp_assoc, ok, comp_assoc, Heq, <- comp_assoc, <- ok.
+Qed.
+
+Lemma isIso_pushl :
+  isIso g -> isIso pushl.
+Proof.
+  unfold isIso; intros (g' & Heq1 & Heq2).
+  esplit. Unshelve. all: cycle 1.
+  - apply (cotriple A (id A) (g' .> f)).
+    abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
+  - pushout_simpl.
+    now rewrite comp_assoc, ok, <- comp_assoc, Heq2.
+Qed.
+
+Lemma isIso_pushr :
+  isIso f -> isIso pushr.
+Proof.
+  unfold isIso; intros (f' & Heq1 & Heq2).
+  esplit. Unshelve. all: cycle 1.
+  - apply (cotriple B (f' .> g) (id B)).
+    abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
+  - pushout_simpl.
+    now rewrite comp_assoc, <- ok, <- comp_assoc, Heq2.
+Qed.
+
+End Pushout_lemmas.
+
+Lemma isPushout_id_l :
+  forall {C : Cat} {A B : Ob C} {g : Hom A B},
+    isPushout C (id A) g B g (id B) (fun Γ _ b _ => b).
+Proof.
+  split.
+  - now rewrite comp_id_l, comp_id_r.
+  - now intros; rewrite <- H, comp_id_l.
+  - now intros; rewrite comp_id_l.
+  - now intros; rewrite !comp_id_l in H0.
+Qed.
+
+Lemma isPushout_id_r :
+  forall {C : Cat} {A B : Ob C} (f : Hom B A),
+    isPushout C f (id B) A (id A) f (fun Γ a _ _ => a).
+Proof.
+  split.
+  - now rewrite comp_id_l, comp_id_r.
+  - now intros; rewrite comp_id_l.
+  - now intros; rewrite H, comp_id_l.
+  - now intros; rewrite !comp_id_l in H.
+Qed.
+
+(*
 Lemma isCoproduct_isPushout :
   forall
     (C : Cat) (ht : HasInit C) (A B : Ob C)
@@ -174,6 +228,7 @@ Proof.
       now rewrite H3.
       intros. apply H4. now cat; [rewrite H5 | rewrite H6].
 Qed.
+
 
 Lemma isPushout_isCoproduct :
   forall
@@ -207,6 +262,27 @@ Proof.
 Qed.
 
 *)
+
+Class HasPushouts (C : Cat) : Type :=
+{
+  pushout : forall {A B X : Ob C}, Hom X A -> Hom X B -> Ob C;
+  pushl : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom A (pushout f g);
+  pushr : forall {A B X : Ob C} {f : Hom X A} {g : Hom X B}, Hom B (pushout f g);
+  cotriple :
+    forall
+      {A B X : Ob C} {f : Hom X A} {g : Hom X B}
+      {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
+        f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
+  HasPushouts_isPushout :>
+    forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
+      isPushout C f g (pushout f g) pushl pushr (@cotriple A B X f g);
+}.
+
+Arguments pushout  {C HasPushouts A B X} _ _.
+Arguments pushl    {C HasPushouts A B X f g}.
+Arguments pushr    {C HasPushouts A B X f g}.
+Arguments cotriple {C HasPushouts A B X f g P} _ _ _.
+
 
 Definition commutator
   {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B}

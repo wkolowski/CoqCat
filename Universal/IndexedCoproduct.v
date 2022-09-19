@@ -71,7 +71,7 @@ Proof.
   now rewrite equiv_indexedCoproduct'; intros j; rewrite inj_cotuple, comp_id_r.
 Qed.
 
-Lemma cotuple_post :
+Lemma cotuple_comp :
   forall {Y : Ob C} (g : Hom X Y),
     cotuple f .> g == cotuple (fun j : J => f j .> g).
 Proof.
@@ -85,7 +85,7 @@ Ltac indexedCoproduct_simpl := repeat (
   try setoid_rewrite equiv_indexedCoproduct';
   try setoid_rewrite inj_cotuple;
   try setoid_rewrite cotuple_id;
-  try setoid_rewrite cotuple_post;
+  try setoid_rewrite cotuple_comp;
   try setoid_rewrite comp_id_l;
   try setoid_rewrite comp_id_r;
   try setoid_rewrite comp_assoc).
@@ -126,7 +126,7 @@ Arguments indexedCoproduct {C _ J} _.
 Arguments inj           {C _ J A} _.
 Arguments cotuple          {C _ J A X} _.
 
-Lemma cotuple_comp :
+Lemma cotuple_comp' :
   forall
     {C : Cat} {hip : HasIndexedCoproducts C}
     {X : Ob C} {J : Set} {A B : J -> Ob C}
@@ -136,6 +136,6 @@ Lemma cotuple_comp :
       cotuple (fun j : J => f j .> inj j) .> cotuple g.
 Proof.
   intros.
-  rewrite cotuple_post, equiv_indexedCoproduct'; intros j.
+  rewrite cotuple_comp, equiv_indexedCoproduct'; intros j.
   now rewrite !inj_cotuple, comp_assoc, inj_cotuple.
 Qed.

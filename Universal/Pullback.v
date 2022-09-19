@@ -83,7 +83,7 @@ Proof.
   now rewrite comp_assoc, Heq, <- comp_assoc.
 Defined.
 
-Lemma triple_pre :
+Lemma triple_comp :
   forall {Y : Ob C} {h : Hom Y Γ},
     h .> triple a b H == triple (h .> a) (h .> b) (wut h H).
 Proof.
@@ -134,43 +134,36 @@ Proof.
   red. exists x. now destruct H1 as [[H1 _] _].
 Qed.
 
+Section Pullback_lemmas.
+
+Context
+  {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
+  {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
+  {triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P}
+  {HisP : isPullback C f g P pullL pullR (@triple)}.
+
 Lemma isMono_pullL :
-  forall
-    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
-    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
-    {triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P},
-      isPullback C f g P pullL pullR (@triple) ->
-        isMono g -> isMono pullL.
+  isMono g -> isMono pullL.
 Proof.
-  unfold isMono; intros * HisP Hg Y h1 h2 Heq.
+  unfold isMono; intros H Y h1 h2 Heq.
   apply equiv_pullback; [easy |].
-  apply Hg.
+  apply H.
   now rewrite !comp_assoc, <- ok, <- !comp_assoc, Heq.
 Qed.
 
 Lemma isMono_pullR :
-  forall
-    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
-    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
-    {triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P},
-      isPullback C f g P pullL pullR (@triple) ->
-        isMono f -> isMono pullR.
+  isMono f -> isMono pullR.
 Proof.
-  unfold isMono; intros * HisP Hf Y h1 h2 Heq.
+  unfold isMono; intros * H Y h1 h2 Heq.
   apply equiv_pullback; [| easy].
-  apply Hf.
+  apply H.
   now rewrite !comp_assoc, ok, <- !comp_assoc, Heq.
 Qed.
 
 Lemma isIso_pullL :
-  forall
-    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
-    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
-    {triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P},
-      isPullback C f g P pullL pullR (@triple) ->
-        isIso g -> isIso pullL.
+  isIso g -> isIso pullL.
 Proof.
-  unfold isIso; intros * HisP (g' & Heq1 & Heq2).
+  unfold isIso; intros (g' & Heq1 & Heq2).
   esplit. Unshelve. all: cycle 1.
   - apply (triple A (id A) (f .> g')).
     abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
@@ -179,14 +172,9 @@ Proof.
 Qed.
 
 Lemma isIso_pullR :
-  forall
-    {C : Cat} {A B X : Ob C} {f : Hom A X} {g : Hom B X}
-    {P : Ob C} {pullL : Hom P A} {pullR : Hom P B}
-    {triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P},
-      isPullback C f g P pullL pullR (@triple) ->
-        isIso f -> isIso pullR.
+  isIso f -> isIso pullR.
 Proof.
-  unfold isIso; intros * HisP (f' & Heq1 & Heq2).
+  unfold isIso; intros (f' & Heq1 & Heq2).
   esplit. Unshelve. all: cycle 1.
   - apply (triple B (g .> f') (id B)).
     abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
@@ -194,9 +182,11 @@ Proof.
     now rewrite <- comp_assoc, <- ok, comp_assoc, Heq1, comp_id_r.
 Qed.
 
+End Pullback_lemmas.
+
 Lemma isPullback_id_l :
-  forall {C : Cat} {B X : Ob C} (g : Hom B X),
-    isPullback C (id X) g B g (id B) (fun Γ a b H => b).
+  forall {C : Cat} {A B : Ob C} (g : Hom B A),
+    isPullback C (id A) g B g (id B) (fun Γ _ b _ => b).
 Proof.
   split; intros.
   - now rewrite comp_id_l, comp_id_r.
@@ -206,8 +196,8 @@ Proof.
 Qed.
 
 Lemma isPullback_id_r :
-  forall {C : Cat} {A X : Ob C} (f : Hom A X),
-    isPullback C f (id X) A (id A) f (fun Γ a b H => a).
+  forall {C : Cat} {A B : Ob C} (f : Hom A B),
+    isPullback C f (id B) A (id A) f (fun Γ a _ _ => a).
 Proof.
   split; intros.
   - now rewrite comp_id_l, comp_id_r.
@@ -237,8 +227,7 @@ Lemma isPullback_comp :
           triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)).
 Proof.
   split.
-  - rewrite <- comp_assoc, ok, !comp_assoc; f_equiv.
-    now apply ok.
+  - now rewrite <- comp_assoc, ok, !comp_assoc, ok.
   - now intros; rewrite triple_pullL.
   - now intros; rewrite <- comp_assoc, !triple_pullR.
   - intros * Heq1 Heq2.

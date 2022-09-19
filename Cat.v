@@ -17,8 +17,8 @@ Class Cat : Type :=
     forall {A B C D : Ob} (f : Hom A B) (g : Hom B C) (h : Hom C D),
       comp (comp f g) h == comp f (comp g h);
   id : forall A : Ob, Hom A A;
-  comp_id_l : forall (A B : Ob) (f : Hom A B), comp (id A) f == f;
-  comp_id_r : forall (A B : Ob) (f : Hom A B), comp f (id B) == f;
+  comp_id_l : forall {A B : Ob} (f : Hom A B), comp (id A) f == f;
+  comp_id_r : forall {A B : Ob} (f : Hom A B), comp f (id B) == f;
 }.
 
 Arguments Ob _ : clear implicits.

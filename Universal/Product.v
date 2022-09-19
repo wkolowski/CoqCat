@@ -75,7 +75,7 @@ Proof.
   now rewrite equiv_product', fpair_outl, fpair_outr, !comp_id_l.
 Qed.
 
-Lemma fpair_pre :
+Lemma fpair_comp :
   forall f : Hom Y Γ,
     f .> fpair a b == fpair (f .> a) (f .> b).
 Proof.
@@ -86,7 +86,7 @@ End isProduct.
 
 Ltac product_simpl :=
   repeat (rewrite
-    ?equiv_product', ?fpair_outl, ?fpair_outr, ?fpair_id, ?fpair_pre,
+    ?equiv_product', ?fpair_outl, ?fpair_outr, ?fpair_id, ?fpair_comp,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Lemma isProduct_uiso :
@@ -180,7 +180,7 @@ Proof.
   constructor; intros.
   - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outl.
   - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outr.
-  - rewrite <- (comp_id_r _ _ x), <- (comp_id_r _ _ y), <- !eoutl2, <- !comp_assoc; f_equiv.
+  - rewrite <- (comp_id_r x), <- (comp_id_r y), <- !eoutl2, <- !comp_assoc; f_equiv.
     now rewrite equiv_product', !comp_assoc.
 Qed.
 
@@ -212,8 +212,8 @@ Arguments fpair   {C _ A B Γ} _ _.
 
 Ltac solve_product := intros; try split;
 repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite fpair_pre
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_comp, fpair_id
+| |- context [_ .> fpair _ _] => rewrite fpair_comp
 | |- context [fpair _ _ .> outl] => rewrite fpair_outl
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
@@ -229,15 +229,15 @@ end.
 
 Ltac product_simpl' :=
 repeat match goal with
-| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_pre, fpair_id
-| |- context [_ .> fpair _ _] => rewrite fpair_pre
+| |- context [fpair (_ .> outl) (_ .> outr)] => rewrite <- fpair_comp, fpair_id
+| |- context [_ .> fpair _ _] => rewrite fpair_comp
 | |- context [fpair _ _ .> outl] => rewrite fpair_outl
 | |- context [fpair _ _ .> outr] => rewrite fpair_outr
 | |- context [fpair outl outr] => rewrite fpair_id
 | |- context [id _ .> _] => rewrite comp_id_l
 | |- context [_ .> id _] => rewrite comp_id_r
-| H : context [fpair (_ .> outl) (_ .> outr)] |- _ => rewrite <- fpair_pre, fpair_id in H
-| H : context [_ .> fpair _ _] |- _ => rewrite fpair_pre in H
+| H : context [fpair (_ .> outl) (_ .> outr)] |- _ => rewrite <- fpair_comp, fpair_id in H
+| H : context [_ .> fpair _ _] |- _ => rewrite fpair_comp in H
 | H : context [fpair _ _ .> outl] |- _ => rewrite fpair_outl in H
 | H : context [fpair _ _ .> outr] |- _ => rewrite fpair_outr in H
 | H : context [fpair outl outr] |- _ => rewrite fpair_id in H
@@ -246,17 +246,17 @@ repeat match goal with
 | _ => rewrite <- ?comp_assoc
 end.
 
-Lemma fpair_comp :
+Lemma fpair_comp' :
   forall
     (C : Cat) (hp : HasProducts C)
     (A B Γ A' B' : Ob C) (a : Hom Γ A) (b : Hom Γ B) (h1 : Hom A A') (h2 : Hom B B'),
-      fpair (a .> h1) (b .> h2) == fpair a b .> fpair (outl .> h1) (outr .> h2).
+      fpair a b .> fpair (outl .> h1) (outr .> h2) == fpair (a .> h1) (b .> h2).
 Proof.
   intros; rewrite equiv_product'.
   now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
 Qed.
 
-Lemma fpair_pre_id :
+Lemma fpair_comp_id :
   forall (C : Cat) (hp : HasProducts C) (A B Γ : Ob C) (p : Hom Γ (product A B)),
     fpair (p .> outl) (p .> outr) == p.
 Proof.
