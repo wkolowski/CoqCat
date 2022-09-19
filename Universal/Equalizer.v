@@ -8,7 +8,7 @@ Class isEqualizer
   (factorize : forall {E' : Ob C} (e' : Hom E' A), e' .> f == e' .> g -> Hom E' E)
   : Prop :=
 {
-  equalizer_ok : equalize .> f == equalize .> g;
+  ok : equalize .> f == equalize .> g;
   factorize_equalize :
     forall {E' : Ob C} (e' : Hom E' A) (H : e' .> f == e' .> g),
       factorize e' H .> equalize == e';
@@ -66,8 +66,8 @@ Proof.
   now intros; rewrite equiv_equalizer', factorize_equalize.
 Qed.
 
-Lemma factorize_id :
-  factorize equalizer_ok == id E.
+Lemma factorize_ok :
+  factorize ok == id E.
 Proof.
   now rewrite equiv_equalizer', factorize_equalize, comp_id_l.
 Defined.
@@ -92,7 +92,7 @@ End isEqualizer.
 
 Ltac equalizer_simpl :=
   repeat (rewrite
-    ?equiv_equalizer', ?factorize_equalize, ?factorize_id,
+    ?equiv_equalizer', ?factorize_equalize, ?factorize_ok,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 (* TODO: equalize_comp *)
@@ -115,9 +115,9 @@ Lemma isEqualizer_uiso :
         exists!! f : Hom E1 E2, isIso f /\ equalize1 == f .> equalize2.
 Proof.
   intros * H1 H2.
-  exists (factorize2 E1 equalize1 equalizer_ok).
+  exists (factorize2 E1 equalize1 ok).
   repeat split.
-  - exists (factorize1 E2 equalize2 equalizer_ok).
+  - exists (factorize1 E2 equalize2 ok).
     now rewrite equiv_equalizer', equiv_equalizer', !comp_assoc, !factorize_equalize, !comp_id_l.
   - now rewrite factorize_equalize.
   - now intros y [_ ?]; rewrite equiv_equalizer', factorize_equalize.
@@ -145,7 +145,7 @@ Lemma isEqualizer_equiv_equalize :
       isEqualizer C f g E equalize2 factorize ->
         equalize1 == equalize2.
 Proof.
-  now intros; rewrite <- comp_id_l, <- factorize_id, factorize_equalize.
+  now intros; rewrite <- comp_id_l, <- factorize_ok, factorize_equalize.
 Qed.
 
 Lemma isEqualizer_equiv_factorize :
@@ -167,7 +167,7 @@ Lemma isIso_equalize :
       isEqualizer C f g E equalize factorize -> isEpi equalize -> isIso equalize.
 Proof.
   intros * HisEq HisEpi; red.
-  assert (Hfg : id X .> f == id X .> g) by (rewrite !comp_id_l; apply HisEpi, equalizer_ok).
+  assert (Hfg : id X .> f == id X .> g) by (rewrite !comp_id_l; apply HisEpi, ok).
   exists (factorize _ (id X) Hfg).
   now rewrite equiv_equalizer', comp_assoc, factorize_equalize, comp_id_l, comp_id_r.
 Qed.

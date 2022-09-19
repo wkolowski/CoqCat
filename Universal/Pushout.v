@@ -9,7 +9,7 @@ Class isPushout
                 f .> pushl' == g .> pushr' -> Hom P P')
   : Prop :=
 {
-  pushout_ok : f .> pushl == g .> pushr;
+  ok : f .> pushl == g .> pushr;
   pushl_cotriple :
     forall (Q : Ob C) (q1 : Hom A Q) (q2 : Hom B Q) (H : f .> q1 == g .> q2),
       pushl .> cotriple q1 q2 H == q1;
@@ -72,8 +72,8 @@ Proof.
   now intros; rewrite equiv_pushout', pushl_cotriple, pushr_cotriple.
 Qed.
 
-Lemma cotriple_id :
-  cotriple pushl pushr pushout_ok == id P.
+Lemma cotriple_ok :
+  cotriple pushl pushr ok == id P.
 Proof.
   now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple, !comp_id_r.
 Qed.
@@ -93,7 +93,7 @@ End isPushout.
 
 Ltac pushout_simpl :=
   repeat (rewrite
-    ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_id,
+    ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_ok,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Class HasPushouts (C : Cat) : Type :=
@@ -130,9 +130,9 @@ Lemma isPushout_uiso :
         exists!! f : Hom P2 P1, isIso f /\ pushl1 == pushl2 .> f /\ pushr1 == pushr2 .> f.
 Proof.
   intros * H1 H2.
-  exists (cotriple2 P1 pushl1 pushr1 pushout_ok).
+  exists (cotriple2 P1 pushl1 pushr1 ok).
   repeat split.
-  - exists (cotriple1 P2 pushl2 pushr2 pushout_ok).
+  - exists (cotriple1 P2 pushl2 pushr2 ok).
     now rewrite !equiv_pushout', <- !comp_assoc, !pushl_cotriple, !pushr_cotriple, !comp_id_r.
   - now rewrite pushl_cotriple.
   - now rewrite pushr_cotriple.
@@ -211,7 +211,7 @@ Qed.
 Definition commutator
   {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B}
   : Hom (pushout f g) (pushout g f)
-  := cotriple pushr pushl (symmetry pushout_ok).
+  := cotriple pushr pushl (symmetry ok).
 
 Lemma commutator_idem :
   forall {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B},

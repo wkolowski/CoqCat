@@ -8,7 +8,7 @@ Class isCoequalizer
   (cofactorize : forall {Q' : Ob C} (q : Hom B Q'), f .> q == g .> q -> Hom Q Q')
   : Prop :=
 {
-  coequalizer_ok : f .> coequalize == g .> coequalize;
+  ok : f .> coequalize == g .> coequalize;
   coequalize_cofactorize :
     forall {Q' : Ob C} {q : Hom B Q'} (H : f .> q == g .> q),
       coequalize .> cofactorize q H == q;
@@ -66,8 +66,8 @@ Proof.
   now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
 Qed.
 
-Lemma cofactorize_id :
-  cofactorize coequalizer_ok == id Q.
+Lemma cofactorize_ok :
+  cofactorize ok == id Q.
 Proof.
   now rewrite equiv_coequalizer', coequalize_cofactorize, comp_id_r.
 Defined.
@@ -92,7 +92,7 @@ End isCoequalizer.
 
 Ltac coequalizer_simpl :=
   repeat (rewrite
-    ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_id,
+    ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_ok,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Section Traditional.
@@ -113,9 +113,9 @@ Lemma isCoequalizer_uiso :
         exists!! f : Hom Q1 Q2, isIso f /\ q1 .> f == q2.
 Proof.
   intros * H1 H2.
-  exists (cofactorize1 _ q2 coequalizer_ok).
+  exists (cofactorize1 _ q2 ok).
   repeat split.
-  - exists (cofactorize2 _ q1 coequalizer_ok).
+  - exists (cofactorize2 _ q1 ok).
     now rewrite !equiv_coequalizer', <- !comp_assoc, !coequalize_cofactorize, !comp_id_r.
   - now rewrite coequalize_cofactorize.
   - now intros; rewrite equiv_coequalizer', coequalize_cofactorize.
@@ -143,7 +143,7 @@ Lemma isIso_coequalize :
         isMono coequalize -> isIso coequalize.
 Proof.
   unfold isMono, isIso; intros * HC HM.
-  assert (Hfg : f .> id B == g .> id B) by (rewrite !comp_id_r; apply HM, coequalizer_ok).
+  assert (Hfg : f .> id B == g .> id B) by (rewrite !comp_id_r; apply HM, ok).
   exists (cofactorize B (id B) Hfg).
   now rewrite equiv_coequalizer', <- comp_assoc, !coequalize_cofactorize, comp_id_l, comp_id_r.
 Qed.
@@ -156,7 +156,7 @@ Lemma isCoequalizer_equiv_coequalize :
       isCoequalizer C f g Q coequalize2 cofactorize ->
         coequalize1 == coequalize2.
 Proof.
-  now intros; rewrite <- comp_id_r, <- cofactorize_id, coequalize_cofactorize.
+  now intros; rewrite <- comp_id_r, <- cofactorize_ok, coequalize_cofactorize.
 Qed.
 
 Lemma isCoequalizer_equiv_cofactorize :

@@ -235,13 +235,14 @@ Proof.
     abstract
     (
       rewrite !comp_assoc, <- !natural, <- !comp_assoc;
-      f_equiv; apply equalizer_ok
+      f_equiv; apply Equalizer.ok
     ).
   - proper; apply equiv_equalizer.
     rewrite !factorize_equalize.
     now do 2 f_equiv.
   - cbn; intros; apply equiv_equalizer.
-    rewrite factorize_equalize, comp_assoc, factorize_equalize, <- comp_assoc, factorize_equalize.
+    rewrite factorize_equalize, comp_assoc, factorize_equalize,
+      <- comp_assoc, factorize_equalize.
     now rewrite fmap_comp, comp_assoc.
   - cbn; intros; apply equiv_equalizer.
     now rewrite factorize_equalize, fmap_id, comp_id_l, comp_id_r.
@@ -286,7 +287,7 @@ Instance HasEqualizers_FunCat
 }.
 Proof.
   cbn; intros F G α β; split; cbn.
-  - now intros X; apply equalizer_ok.
+  - now intros X; apply Equalizer.ok.
   - now intros E γ Heq X; rewrite factorize_equalize.
   - intros E γ1 γ2 Heq X; apply equiv_equalizer, Heq.
 Defined.
@@ -305,13 +306,14 @@ Proof.
     abstract
     (
       rewrite <- !comp_assoc, !natural, !comp_assoc;
-      f_equiv; apply coequalizer_ok
+      f_equiv; apply Coequalizer.ok
     ).
   - proper; apply equiv_coequalizer.
     rewrite !coequalize_cofactorize.
     now do 2 f_equiv.
   - cbn; intros; apply equiv_coequalizer.
-    rewrite coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize, comp_assoc, coequalize_cofactorize.
+    rewrite coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize,
+      comp_assoc, coequalize_cofactorize.
     now rewrite fmap_comp, comp_assoc.
   - cbn; intros; apply equiv_coequalizer.
     now rewrite coequalize_cofactorize, fmap_id, comp_id_l, comp_id_r.
@@ -356,7 +358,7 @@ Instance HasCoequalizers_FunCat
 }.
 Proof.
   cbn; intros F G α β; split; cbn.
-  - now intros X; apply coequalizer_ok.
+  - now intros X; apply Coequalizer.ok.
   - now intros E γ Heq X; rewrite coequalize_cofactorize.
   - intros E γ1 γ2 Heq X; apply equiv_coequalizer, Heq.
 Defined.
@@ -375,7 +377,7 @@ Proof.
     abstract
     (
       rewrite !comp_assoc, <- !natural, <- !comp_assoc;
-      f_equiv; apply pullback_ok
+      f_equiv; apply Pullback.ok
     ).
   - proper; apply equiv_pullback.
     + now rewrite !triple_pullL, H0.
@@ -444,7 +446,7 @@ Instance HasPullbacks_FunCat {C D : Cat} {hp : HasPullbacks D} : HasPullbacks (F
 }.
 Proof.
   split; cbn; intros.
-  - now apply pullback_ok.
+  - now apply Pullback.ok.
   - now apply triple_pullL.
   - now apply triple_pullR.
   - now apply equiv_pullback.
