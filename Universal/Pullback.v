@@ -272,25 +272,24 @@ Lemma isProduct_isPullback :
   forall
     (C : Cat) (ht : HasTerm C) (A B : Ob C)
     (P : Ob C) (pullL : Hom P A) (pullR : Hom P B)
-    (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
-      isPullback C (delete A) (delete B) P pullL pullR (fun Γ a b _ => fpair a b) ->
-        isProduct C P pullL pullR (@fpair).
+    (triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B),
+      a .> delete A == b .> delete B -> Hom Γ P),
+      isPullback C (delete A) (delete B) P pullL pullR (@triple) ->
+        isProduct C P pullL pullR (fun Γ a b => triple a b (equiv_terminal _)).
 Proof.
   split; intros.
-  - now apply (triple_pullL (isPullback := H)), equiv_terminal.
-  - now apply (triple_pullR (isPullback := H)), equiv_terminal.
+  - now rewrite triple_pullL.
+  - now rewrite triple_pullR.
   - now apply equiv_pullback.
 Qed.
 
 Lemma isPullback_isProduct :
   forall
     (C : Cat) (ht : HasTerm C) (A B : Ob C)
-    (P : Ob C) (pullL : Hom P A) (pullR : Hom P B)
+    (P : Ob C) (outl : Hom P A) (outr : Hom P B)
     (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
-      isProduct C P pullL pullR (@fpair) ->
-        isPullback C
-          (delete A) (delete B) P pullL pullR (fun (Γ : Ob C)
-          (a : Hom Γ A) (b : Hom Γ B) _ => fpair a b).
+      isProduct C P outl outr (@fpair) ->
+        isPullback C (delete A) (delete B) P outl outr (fun Γ a b _ => fpair a b).
 Proof.
   split; intros.
   - apply equiv_terminal.
@@ -299,53 +298,74 @@ Proof.
   - now apply equiv_product.
 Qed.
 
+Lemma isPullback_isProduct' :
+  forall
+    (C : Cat) (ht : HasTerm C) (A B : Ob C)
+    (P : Ob C) (outl : Hom P A) (outr : Hom P B)
+    (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ P),
+      isProduct C P outl outr (@fpair)
+        <->
+      isPullback C (delete A) (delete B) P outl outr (fun Γ a b _ => fpair a b).
+Proof.
+  split.
+  - split; intros.
+    + apply equiv_terminal.
+    + now rewrite fpair_outl.
+    + now rewrite fpair_outr.
+    + now apply equiv_product.
+  - split; intros.
+    + rewrite (triple_pullL (isPullback := H)); [easy |].
+      now apply equiv_terminal.
+    + rewrite (triple_pullR (isPullback := H)); [easy |].
+      now apply equiv_terminal.
+    + now apply equiv_pullback.
+Qed.
+
 Lemma isEqualizer_isPullback
-  (C : Cat) (A B : Ob C) (f g : Hom A B)
-  (P : Ob C) (p : Hom P A) (triple : forall {Γ : Ob C} (a1 a2 : Hom Γ A), Hom Γ P) :
-    isPullback C f g P p p (fun Γ a1 a2 _ => triple a1 a2) ->
-      isEqualizer C f g P p (fun (Γ : Ob C) (a : Hom Γ A) _ => triple a a).
+  (C : Cat) (A X : Ob C) (f g : Hom A X)
+  (P : Ob C) (pull : Hom P A)
+  (triple : forall {Γ : Ob C} (a1 a2 : Hom Γ A), a1 .> f == a2 .> g -> Hom Γ P) :
+    isPullback C f g P pull pull (@triple) ->
+      isEqualizer C f g P pull (fun Γ a Heq => triple a a Heq).
 Proof.
   split; intros.
   - now apply ok.
-  - now apply (triple_pullL (isPullback := H)).
+  - now rewrite triple_pullL.
   - now apply equiv_pullback.
 Qed.
 
-(*
 Lemma isEqualizer_isPullback'
-  (C : Cat) (A B : Ob C) (f g : Hom A B)
-  (P : Ob C) (p : Hom P A) (triple : forall (Γ : Ob C) (f : Hom Γ A) (g : Hom Γ A), Hom Γ P) :
-    isPullback C f g P p p (fun Γ a b _ => triple Γ a b) <->
-      isEqualizer C f g P p (fun (Γ : Ob C) (p : Hom Γ A) _ => triple Γ p p).
+  (C : Cat) (A X : Ob C) (f g : Hom A X)
+  (P : Ob C) (pull : Hom P A)
+  (triple : forall {Γ : Ob C} (a1 a2 : Hom Γ A), a1 .> f == a2 .> g -> Hom Γ P) :
+    isPullback C f g P pull pull (@triple)
+      <->
+    isEqualizer C f g P pull (fun Γ a Heq => triple a a Heq).
 Proof.
-  split; intros.
+  split.
   - split; intros.
-    + apply ok.
-    + now apply (triple_pullL (isPullback := H)).
+    + now apply ok.
+    + now rewrite triple_pullL.
     + now apply equiv_pullback.
   - split; intros.
-    + apply equalizer_ok.
-    + pose (h' := factorize_equalize (e' := x) (isEqualizer := H)).
-      cbn in h'.
-Abort.
+    + apply Equalizer.ok.
+    +
+Admitted.
 
 Lemma isPullback_isEqualizer :
   forall (C : Cat) (hp : HasProducts C) (A B : Ob C) (f g : Hom A B)
-  (E : Ob C) (e e1 : Hom E A) (e2 : Hom E A)
+  (E : Ob C) (e : Hom E A)
   (factorize : forall (E' : Ob C) (e : Hom E' A), e .> f == e .> g -> Hom E' E),
     isEqualizer C f g E e factorize ->
-(*     isEqualizer C f g E e2 factorize -> *)
     isPullback C f g (product E E) (outl .> e) (outr .> e)
       (fun (E' : Ob C) (e1 e2 : Hom E' A) (H : e1 .> f == e2 .> g) =>
         fpair e1 e2).
-        (* fpair (factorize E' e1 equalizer_ok) (factorize E' e2 equalizer_ok)). *)
 Proof.
   intros. pose (eq := isEqualizer_equiv H H0).
   repeat split.
     rewrite eq. edestruct H0. assocr'. rewrite e.
       f_equiv. destruct hp. cbn in *. do 2 red in is_product.
 Abort.
-*)
 
 (* 
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
