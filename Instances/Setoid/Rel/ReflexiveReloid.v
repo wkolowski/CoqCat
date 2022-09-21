@@ -73,6 +73,15 @@ Instance HasInit_ReflexiveReloid : HasInit ReflexiveReloidCat :=
 }.
 Proof. red; rreloid. Defined.
 
+#[export]
+Instance HasStrictInit_ReflexiveReloid : HasStrictInit ReflexiveReloidCat.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance ReflexiveReloid_term : ReflexiveReloid :=

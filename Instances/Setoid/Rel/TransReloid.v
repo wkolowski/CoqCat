@@ -73,6 +73,15 @@ Instance HasInit_TransReloid : HasInit TransReloidCat :=
 }.
 Proof. red; treloid. Defined.
 
+#[export]
+Instance HasStrictInit_TransReloid : HasStrictInit TransReloidCat.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance TransReloid_term : TransReloid :=

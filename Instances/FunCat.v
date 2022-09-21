@@ -54,6 +54,17 @@ Proof.
   apply equiv_initial.
 Defined.
 
+#[export]
+Instance HasStrictInit_FunCat
+  (C D : Cat) {hi : HasInit D} {hsi : @HasStrictInit D hi}
+  : HasStrictInit (FunCat C D).
+Proof.
+  intros F α; cbn in *.
+  apply natural_isomorphism_char.
+  intros X.
+  apply hsi.
+Defined.
+
 #[refine]
 #[export]
 Instance FunCat_term (C D : Cat) {ht : HasTerm D} : Functor C D :=
@@ -86,6 +97,17 @@ Instance HasTerm_FunCat (C D : Cat) {ht : HasTerm D} : HasTerm (FunCat C D) :=
 Proof.
   red; cbn; intros F α β X.
   apply equiv_terminal.
+Defined.
+
+#[export]
+Instance HasStrictTerm_FunCat
+  (C D : Cat) {ht : HasTerm D} {hst : @HasStrictTerm D ht}
+  : HasStrictTerm (FunCat C D).
+Proof.
+  intros F α; cbn in *.
+  apply natural_isomorphism_char.
+  intros X.
+  apply hst.
 Defined.
 
 #[refine]

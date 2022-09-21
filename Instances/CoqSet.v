@@ -64,6 +64,16 @@ Instance HasInit_CoqSet : HasInit CoqSet :=
 }.
 Proof. red; cat. Defined.
 
+#[export]
+Instance HasStrictInit_CoqSet : HasStrictInit CoqSet.
+Proof.
+  intros A f.
+  exists (create A).
+  split; cycle 1.
+  - now apply equiv_initial.
+  - now intros x; destruct (f x).
+Defined.
+
 #[refine]
 #[export]
 Instance HasTerm_CoqSet : HasTerm CoqSet :=

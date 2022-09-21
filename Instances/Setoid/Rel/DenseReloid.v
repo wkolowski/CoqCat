@@ -80,6 +80,15 @@ Instance HasInit_DenseReloid : HasInit DenseReloidCat :=
 }.
 Proof. red; dreloid. Defined.
 
+#[export]
+Instance HasStrictInit_DenseReloid : HasStrictInit DenseReloidCat.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance DenseReloid_term : DenseReloid :=

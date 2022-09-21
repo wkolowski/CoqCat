@@ -79,6 +79,15 @@ Instance HasInit_CoqSetoid : HasInit CoqSetoid :=
 }.
 Proof. setoid. Defined.
 
+#[export]
+Instance HasStrictInit_CoqSetoid : HasStrictInit CoqSetoid.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance CoqSetoid_term : Setoid' :=

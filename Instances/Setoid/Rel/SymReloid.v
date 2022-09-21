@@ -73,6 +73,15 @@ Instance HasInit_SymReloid : HasInit SymReloidCat :=
 }.
 Proof. red; sreloid. Defined.
 
+#[export]
+Instance HasStrictInit_SymReloid : HasStrictInit SymReloidCat.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance SymReloid_term : SymReloid :=

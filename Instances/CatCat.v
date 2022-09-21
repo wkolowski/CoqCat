@@ -31,6 +31,17 @@ Proof.
 Defined.
 
 #[export]
+Instance HasStrictInit_CAT : HasStrictInit CAT.
+Proof.
+  intros C F.
+  exists (create C); split; cycle 1.
+  - apply equiv_initial.
+  - cbn in *. esplit. Unshelve. all: cycle 1.
+    + now intros A; destruct (fob F A).
+    + now intros A B G; cbn; destruct (fob F A).
+Defined.
+
+#[export]
 Instance CAT_term : Cat := Discrete unit.
 
 #[refine]

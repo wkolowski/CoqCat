@@ -146,6 +146,15 @@ Instance HasInit_Pros : HasInit ProsCat :=
 }.
 Proof. pros. Defined.
 
+#[export]
+Instance HasStrictInit_Pros : HasStrictInit ProsCat.
+Proof.
+  intros A [f Hf]; cbn in f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance Pros_term : Pros :=

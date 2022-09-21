@@ -65,6 +65,15 @@ Instance HasInit_Lin : HasInit LinCat :=
 }.
 Proof. lin. Defined.
 
+#[export]
+Instance HasStrictInit_Lin : HasStrictInit LinCat.
+Proof.
+  intros A [f Hf]; cbn in f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance Lin_term : Lin :=

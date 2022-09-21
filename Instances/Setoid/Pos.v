@@ -69,6 +69,15 @@ Instance HasInit_Pos : HasInit PosCat :=
 }.
 Proof. pos. Defined.
 
+#[export]
+Instance HasStrictInit_Pos : HasStrictInit PosCat.
+Proof.
+  intros A [f Hf]; cbn in f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
 #[refine]
 #[export]
 Instance Pos_term : Pos :=

@@ -154,6 +154,17 @@ Instance HasInit_Apartoid : HasInit ApartoidCat :=
 }.
 Proof. apartoid. Defined.
 
+#[export]
+Instance HasStrictInit_Apartoid : HasStrictInit ApartoidCat.
+Proof.
+  intros A f.
+  exists (create A).
+  split; cycle 1.
+  - now apply equiv_initial.
+  - destruct f as [f Hf]; cbn.
+    now intros x; destruct (f x).
+Defined.
+
 #[refine]
 #[export]
 Instance Apartoid_term : Apartoid :=

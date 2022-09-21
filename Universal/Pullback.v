@@ -350,7 +350,10 @@ Proof.
   - split; intros.
     + apply Equalizer.ok.
     +
-Admitted.
+Abort.
+
+(*
+https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
 
 Lemma isPullback_isEqualizer :
   forall (C : Cat) (hp : HasProducts C) (A B : Ob C) (f g : Hom A B)
@@ -366,11 +369,7 @@ Proof.
     rewrite eq. edestruct H0. assocr'. rewrite e.
       f_equiv. destruct hp. cbn in *. do 2 red in is_product.
 Abort.
-
-(* 
-https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
-
-Zhen Lin *)
+*)
 
 Class HasPullbacks (C : Cat) : Type :=
 {

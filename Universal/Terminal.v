@@ -92,3 +92,12 @@ Proof.
   exists (delete0 X).
   apply equiv_terminal.
 Qed.
+
+Class HasStrictTerm {C : Cat} (ht : HasTerm C) : Prop :=
+  isStrictlyTerminal : forall {X : Ob C} (f : Hom (term C) X), isIso f.
+
+#[export] Hint Mode HasStrictTerm ! ! : core.
+#[export] Hint Mode HasStrictTerm ! - : core.
+
+Arguments HasStrictTerm _ {ht}.
+Arguments isStrictlyTerminal {C ht _} _.

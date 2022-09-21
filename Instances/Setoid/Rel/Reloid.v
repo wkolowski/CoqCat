@@ -119,6 +119,15 @@ Instance HasInit_Reloid : HasInit ReloidCat :=
 Proof. red; reloid. Defined.
 
 #[export]
+Instance HasStrictInit_Reloid : HasStrictInit ReloidCat.
+Proof.
+  intros A f.
+  exists (create A); split.
+  - now intros x; destruct (f x).
+  - now apply equiv_initial.
+Defined.
+
+#[export]
 Instance Reloid_term : Reloid :=
 {
   carrier := CoqSetoid_term;
