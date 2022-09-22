@@ -223,8 +223,7 @@ Lemma isPullback_comp :
     {triple' : forall {Γ : Ob C} (a : Hom Γ A') (b : Hom Γ P), a .> h == b .> pullL -> Hom Γ Q}
     (HisQ : isPullback C h pullL Q pullL' pullR' (@triple')),
       isPullback C (h .> f) g Q pullL' (pullR' .> pullR)
-        (fun Γ x y H =>
-          triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)).
+        (fun Γ x y H => triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)).
 Proof.
   split.
   - now rewrite <- comp_assoc, ok, !comp_assoc, ok.
@@ -266,7 +265,7 @@ Proof.
     }
     admit.
   - admit.
-Admitted.
+Abort.
 
 Lemma isProduct_isPullback :
   forall

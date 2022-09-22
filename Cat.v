@@ -969,6 +969,24 @@ Definition second
   {C D E : Cat} {F : Bifunctor C D E} {A : Ob C} {X Y : Ob D} (f : Hom X Y)
   : Hom (biob A X) (biob A Y) := bimap (id A) f.
 
+Lemma bimap_comp_l :
+  forall
+    {C D E : Cat} {F : Bifunctor C D E}
+    {X Y Z : Ob C} {A : Ob D} (f : Hom X Y) (g : Hom Y Z),
+      bimap (f .> g) (id A) == bimap f (id A) .> bimap g (id A).
+Proof.
+  now intros; rewrite <- bimap_comp, comp_id_l.
+Defined.
+
+Lemma bimap_comp_r :
+  forall
+    {C D E : Cat} {F : Bifunctor C D E}
+    {A : Ob C} {X Y Z : Ob D} (f : Hom X Y) (g : Hom Y Z),
+      bimap (id A) (f .> g) == bimap (id A) f .> bimap (id A) g.
+Proof.
+  now intros; rewrite <- bimap_comp, comp_id_l.
+Defined.
+
 #[refine]
 #[export]
 Instance BiComp
@@ -998,7 +1016,7 @@ Defined.
 
 (** ** Profunctors *)
 
-Class Profunctor (C D E: Cat) : Type :=
+Class Profunctor (C D E : Cat) : Type :=
 {
   diob : Ob C -> Ob D -> Ob E;
   dimap :
@@ -1019,6 +1037,24 @@ Class Profunctor (C D E: Cat) : Type :=
 
 Arguments diob  [C D E Profunctor] _ _.
 Arguments dimap [C D E Profunctor X Y X' Y'] _ _.
+
+Lemma dimap_comp_l :
+  forall
+    {C D E : Cat} {F : Profunctor C D E}
+    {X Y Z : Ob C} {A : Ob D} (f : Hom X Y) (g : Hom Y Z),
+      dimap (f .> g) (id A) == dimap g (id A) .> dimap f (id A).
+Proof.
+  now intros; rewrite <- dimap_comp, comp_id_l.
+Defined.
+
+Lemma dimap_comp_r :
+  forall
+    {C D E : Cat} {F : Profunctor C D E}
+    {A : Ob C} {X Y Z : Ob D} (f : Hom X Y) (g : Hom Y Z),
+      dimap (id A) (f .> g) == dimap (id A) f .> dimap (id A) g.
+Proof.
+  now intros; rewrite <- dimap_comp, comp_id_l.
+Defined.
 
 Ltac profunctor_simpl := repeat (rewrite dimap_comp || rewrite dimap_id).
 
@@ -1062,7 +1098,7 @@ Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
 }.
 Proof.
   - intros * f g. exists (fun h : Hom Y X' => f .> h .> g). proper.
-  - proper.
+  - now proper.
   - now cbn; intros; rewrite !comp_assoc.
   - now cbn; intros; rewrite comp_id_l, comp_id_r.
 Defined.
@@ -1150,6 +1186,34 @@ Proof.
   - now cbn; intros; rewrite !comp_assoc.
   - now cbn; intros; rewrite comp_id_l.
   - now cbn; intros; rewrite comp_id_r.
+Defined.
+
+(** We can turn bifunctors and profunctors into functors with product domain. *)
+
+#[refine]
+#[export]
+Instance FromBifunctor
+  {C D E : Cat} (F : Bifunctor C D E) : Functor (CAT_product C D) E :=
+{
+  fob := fun '(A, B) => biob A B;
+  fmap := fun '(A1, A2) '(B1, B2) '(f1, f2) => bimap f1 f2;
+}.
+Proof.
+  - now intros [A1 A2] [B1 B2] [f1 f2] [g1 g2] [Heq1 Heq2]; apply Proper_bimap.
+  - now intros [A1 A2] [B1 B2] [C1 C2] [f1 f2] [g1 g2]; cbn in *; apply bimap_comp.
+  - now intros [A1 A2]; cbn; apply bimap_id.
+Defined.
+
+#[export]
+Instance FromProfunctor
+  {C D E : Cat} (F : Profunctor C D E) : Functor (CAT_product (Dual C) D) E.
+Proof.
+  esplit. Unshelve. all: cycle 3.
+  - now cbn; intros [A B]; apply (diob A B).
+  - now intros [A1 A2] [B1 B2] [f1 f2]; cbn in *; apply (dimap f1 f2).
+  - now intros [A1 A2] [B1 B2] [f1 f2] [g1 g2] [H1 H2]; apply Proper_dimap.
+  - now intros [A1 A2] [B1 B2] [C1 C2] [f1 f2] [g1 g2]; cbn in *; apply dimap_comp.
+  - now intros [A1 A2]; cbn; apply dimap_id.
 Defined.
 
 (** * Natural transformations *)

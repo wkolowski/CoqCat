@@ -104,7 +104,7 @@ Qed.
 Lemma curry_eval :
   curry eval == id E.
 Proof.
-  now rewrite equiv_exponential', compute_exp, ProductFunctor_fmap_id, comp_id_l.
+  now rewrite equiv_exponential', compute_exp, bimap_id, comp_id_l.
 Qed.
 
 End Exponential.
@@ -112,7 +112,7 @@ End Exponential.
 Ltac exponential_simpl :=
   repeat (rewrite
     ?equiv_exponential', ?compute_exp, ?curry_uncurry, ?uncurry_curry, ?curry_eval,
-    ?ProductFunctor_fmap_comp_l, ?ProductFunctor_fmap_comp_r, ?ProductFunctor_fmap_id,
+    ?bimap_comp_l, ?bimap_comp_r, ?bimap_id,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 Lemma isExponential_uiso :
@@ -130,8 +130,8 @@ Proof.
   exists (curry2 E1 eval1).
   repeat split.
   - exists (curry1 E2 eval2).
-    now rewrite !equiv_exponential', !ProductFunctor_fmap_comp_l, !comp_assoc, !compute_exp,
-      !ProductFunctor_fmap_id, !comp_id_l.
+    now rewrite !equiv_exponential', !bimap_comp_l, !comp_assoc, !compute_exp,
+      !bimap_id, !comp_id_l.
   - now rewrite compute_exp.
   - now intros; rewrite equiv_exponential', compute_exp.
 Qed.
@@ -175,15 +175,15 @@ Lemma curry_comp :
 Proof.
   intros.
   rewrite equiv_exponential', compute_exp.
-  now rewrite ProductFunctor_fmap_comp_l, !comp_assoc, compute_exp, <- !comp_assoc, compute_exp.
+  now rewrite bimap_comp_l, !comp_assoc, compute_exp, <- !comp_assoc, compute_exp.
 Qed.
 
 Lemma uncurry_id :
   forall {C : Cat} {hp : HasProducts C} {he : HasExponentials C} {A B : Ob C},
     uncurry (id (exponential A B)) == eval.
 Proof.
-  intros. unfold uncurry.
-  now rewrite ProductFunctor_fmap_id, comp_id_l.
+  intros; unfold uncurry.
+  now rewrite bimap_id, comp_id_l.
 Qed.
 
 Ltac solve_exponential := intros; repeat
@@ -208,11 +208,26 @@ Proof.
   intros. eapply isExponential_iso; typeclasses eauto.
 Qed.
 
-(* TODO: bifunctor *)
+#[refine]
+#[export]
+Instance ExponentialProfunctor
+  {C : Cat} {hp : HasProducts C} {he : HasExponentials C} : Profunctor C C C :=
+{
+  diob := exponential;
+  dimap := fun A B a' B' f g => curry ((id _ ×' f .> eval) .> g);
+}.
+Proof.
+  2-3: cycle 1.
+  - proper.
+  - now intros; exponential_simpl.
+  - intros.
+    apply equiv_exponential.
+    rewrite compute_exp, bimap_comp_r, bimap_comp_l, !comp_assoc, compute_exp.
+Abort.
 
 #[refine]
 #[export]
-Instance ExponentialFunctor
+Instance ExponentialFunctor_dom
   {C : Cat} {hp : HasProducts C} {he : HasExponentials C} (A : Ob C) : Functor C C :=
 {
   fob := fun B : Ob C => exponential A B;
@@ -221,3 +236,20 @@ Instance ExponentialFunctor
 Proof.
   all: solve_exponential.
 Defined.
+
+#[refine]
+#[export]
+Instance ExponentialFunctor_cod
+  {C : Cat} {hp : HasProducts C} {he : HasExponentials C} (Y : Ob C) : Functor (Dual C) C :=
+{
+  fob := fun A : Ob C => exponential A Y;
+  fmap := fun (A B : Ob C) (f : Hom B A) => curry (id _ ×' f .> eval);
+}.
+Proof.
+  2-3: cycle 1.
+  - now proper.
+  - now intros; apply equiv_exponential, compute_exp.
+  - intros A B D f g.
+    apply equiv_exponential.
+    rewrite bimap_comp_l, comp_assoc, !compute_exp.
+Abort.

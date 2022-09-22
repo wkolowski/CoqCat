@@ -357,91 +357,18 @@ Proof.
   now apply isIso_associator.
 Defined.
 
-Definition CoproductFunctor_fmap
-  {C : Cat} {hp : HasCoproducts C}
-  {X X' Y Y' : Ob C} (f : Hom X Y) (g : Hom X' Y')
-  : Hom (coproduct X X') (coproduct Y Y')
-  := (copair (f .> finl) (g .> finr)).
-
-#[export]
-Instance Proper_CoproductFunctor_fmap :
-  forall (C : Cat) (hp : HasCoproducts C) (X X' Y Y' : Ob C),
-    Proper
-      ((@equiv _ (HomSetoid X Y))  ==>
-      (@equiv _ (HomSetoid X' Y'))  ==>
-      (@equiv _ (HomSetoid (coproduct X X') (coproduct Y Y'))))
-      (@CoproductFunctor_fmap C hp X X' Y Y').
-Proof.
-  unfold Proper, respectful, CoproductFunctor_fmap.
-  solve_coproduct.
-Qed.
-
-Lemma CoproductFunctor_fmap_id :
-  forall (C : Cat) (hp : HasCoproducts C) (X Y : Ob C),
-    CoproductFunctor_fmap (id X) (id Y) == id (coproduct X Y).
-Proof.
-  intros; unfold CoproductFunctor_fmap.
-  solve_coproduct.
-Defined.
-
-Lemma CoproductFunctor_fmap_comp :
-  forall
-    (C : Cat) (hp : HasCoproducts C) (A1 A2 B1 B2 C1 C2 : Ob C)
-    (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
-      CoproductFunctor_fmap (f1 .> g1) (f2 .> g2)
-        ==
-      CoproductFunctor_fmap f1 f2 .> CoproductFunctor_fmap g1 g2.
-Proof.
-  unfold CoproductFunctor_fmap; intros.
-  solve_coproduct.
-Defined.
-
-Lemma CoproductFunctor_fmap_comp_l :
-  forall
-    {C : Cat} {hp : HasCoproducts C}
-    {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-      CoproductFunctor_fmap (f .> g) (id Z)
-        ==
-      CoproductFunctor_fmap f (id Z) .> CoproductFunctor_fmap g (id Z).
-Proof.
-  now intros; rewrite <- CoproductFunctor_fmap_comp, comp_id_l.
-Defined.
-
-Lemma CoproductFunctor_fmap_comp_r :
-  forall
-    {C : Cat} {hp : HasCoproducts C}
-    {X Y : Ob C} (Z : Ob C) (f : Hom X Y) (g : Hom Y X),
-      CoproductFunctor_fmap (id Z) (f .> g)
-        ==
-      CoproductFunctor_fmap (id Z) f .> CoproductFunctor_fmap (id Z) g.
-Proof.
-  now intros; rewrite <- CoproductFunctor_fmap_comp, comp_id_r.
-Defined.
-
-#[refine]
-#[export]
-Instance CoproductFunctor {C : Cat} (hp : HasCoproducts C) : Functor (CAT_product C C) C :=
-{
-  fob := fun P : Ob (CAT_product C C) => coproduct (fst P) (snd P);
-  fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => CoproductFunctor_fmap (fst f) (snd f)
-}.
-Proof.
-  - now proper; apply Proper_CoproductFunctor_fmap.
-  - now intros; apply CoproductFunctor_fmap_comp.
-  - now intros; apply CoproductFunctor_fmap_id.
-Defined.
-
-Notation "A + B" := (fob CoproductFunctor (A, B)).
-Notation "f +' g" := (CoproductFunctor_fmap f g) (at level 40).
-
 #[refine]
 #[export]
 Instance CoproductBifunctor {C : Cat} {hp : HasCoproducts C} : Bifunctor C C C :=
 {
   biob := @coproduct C hp;
-  bimap :=
-    fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
+  bimap := fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
 }.
 Proof.
-  all: solve_coproduct.
+  - now proper.
+  - now solve_coproduct.
+  - now solve_coproduct.
 Defined.
+
+Notation "A + B" := (@biob _ _ _ (@CoproductBifunctor _ _) A B).
+Notation "f +' g" := (@bimap _ _ _ (@CoproductBifunctor _ _) _ _ _ _ f g) (at level 40).

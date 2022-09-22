@@ -352,84 +352,6 @@ Proof.
   - now apply unassociator_associator.
 Defined.
 
-Definition ProductFunctor_fmap
-  {C : Cat} {hp : HasProducts C}
-  {A B A' B' : Ob C} (f : Hom A A') (g : Hom B B')
-  : Hom (product A B) (product A' B') :=
-    fpair (outl .> f) (outr .> g).
-
-#[export]
-Instance Proper_ProductFunctor_fmap :
-  forall (C : Cat) (hp : HasProducts C) (X X' Y Y' : Ob C),
-    Proper
-      ((@equiv _ (HomSetoid X Y))  ==>
-      (@equiv _ (HomSetoid X' Y'))  ==>
-      (@equiv _ (HomSetoid (product X X') (product Y Y'))))
-      (@ProductFunctor_fmap C hp X X' Y Y').
-Proof.
-  unfold Proper, respectful, ProductFunctor_fmap.
-  solve_product.
-Qed.
-
-Lemma ProductFunctor_fmap_id :
-  forall (C : Cat) (hp : HasProducts C) (X Y : Ob C),
-    ProductFunctor_fmap (id X) (id Y) == id (product X Y).
-Proof.
-  unfold ProductFunctor_fmap.
-  solve_product.
-Defined.
-
-Lemma ProductFunctor_fmap_comp :
-  forall
-    (C : Cat) (hp : HasProducts C)
-    (A1 A2 B1 B2 C1 C2 : Ob C)
-    (f1 : Hom A1 B1) (g1 : Hom B1 C1) (f2 : Hom A2 B2) (g2 : Hom B2 C2),
-      ProductFunctor_fmap (f1 .> g1) (f2 .> g2)
-        ==
-      ProductFunctor_fmap f1 f2 .> ProductFunctor_fmap g1 g2.
-Proof.
-  unfold ProductFunctor_fmap.
-  solve_product.
-Defined.
-
-Lemma ProductFunctor_fmap_comp_l :
-  forall
-    {C : Cat} {hp : HasProducts C}
-    {X Y Z A : Ob C} (f : Hom X Y) (g : Hom Y Z),
-      ProductFunctor_fmap (f .> g) (id A)
-        ==
-      ProductFunctor_fmap f (id A) .> ProductFunctor_fmap g (id A).
-Proof.
-  now intros; rewrite <- ProductFunctor_fmap_comp, comp_id_l.
-Defined.
-
-Lemma ProductFunctor_fmap_comp_r :
-  forall
-    {C : Cat} {hp : HasProducts C}
-    {X Y Z A : Ob C} (f : Hom X Y) (g : Hom Y Z),
-      ProductFunctor_fmap (id A) (f .> g)
-        ==
-      ProductFunctor_fmap (id A) f .> ProductFunctor_fmap (id A) g.
-Proof.
-  now intros; rewrite <- ProductFunctor_fmap_comp, comp_id_r.
-Defined.
-
-#[refine]
-#[export]
-Instance ProductFunctor {C : Cat} {hp : HasProducts C} : Functor (CAT_product C C) C :=
-{
-  fob := fun P : Ob (CAT_product C C) => product (fst P) (snd P);
-  fmap := fun (X Y : Ob (CAT_product C C)) (f : Hom X Y) => ProductFunctor_fmap (fst f) (snd f)
-}.
-Proof.
-  - now proper; apply Proper_ProductFunctor_fmap.
-  - now intros; apply ProductFunctor_fmap_comp.
-  - now intros; apply ProductFunctor_fmap_id.
-Defined.
-
-Notation "A × B" := (fob ProductFunctor (A, B)) (at level 40).
-Notation "f ×' g" := (ProductFunctor_fmap f g) (at level 40).
-
 #[refine]
 #[export]
 Instance ProductBifunctor {C : Cat} {hp : HasProducts C} : Bifunctor C C C :=
@@ -439,5 +361,10 @@ Instance ProductBifunctor {C : Cat} {hp : HasProducts C} : Bifunctor C C C :=
     fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => fpair (outl .> f) (outr .> g);
 }.
 Proof.
-  all: solve_product.
+  - now proper.
+  - now solve_product.
+  - now solve_product.
 Defined.
+
+Notation "A × B" := (@biob _ _ _ (@ProductBifunctor _ _) A B) (at level 40, only parsing).
+Notation "f ×' g" := (@bimap _ _ _ (@ProductBifunctor _ _) _ _ _ _ f g) (at level 40).

@@ -283,7 +283,6 @@ Arguments pushl    {C HasPushouts A B X f g}.
 Arguments pushr    {C HasPushouts A B X f g}.
 Arguments cotriple {C HasPushouts A B X f g P} _ _ _.
 
-
 Definition commutator
   {C : Cat} {hp : HasPushouts C} {A B Γ : Ob C} {f : Hom Γ A} {g : Hom Γ B}
   : Hom (pushout f g) (pushout g f)

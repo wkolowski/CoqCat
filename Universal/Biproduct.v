@@ -38,14 +38,6 @@ Class HasBiproducts (C : Cat) : Type :=
 Coercion HasProducts_HasBiproducts : HasBiproducts >-> HasProducts.
 Coercion HasCoproducts_HasBiproducts : HasBiproducts >-> HasCoproducts.
 
-#[refine]
 #[export]
 Instance BiproductBifunctor {C : Cat} {hp : HasBiproducts C} : Bifunctor C C C :=
-{
-  biob := @coproduct C hp;
-  bimap :=
-    fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') => copair (f .> finl) (g .> finr)
-}.
-Proof.
-  all: solve_coproduct.
-Defined.
+  @CoproductBifunctor C hp.
