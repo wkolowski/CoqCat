@@ -41,7 +41,7 @@ Lemma eq_JMeq :
   forall (A : Type) (x y : A), x = y -> JMeq x y.
 Proof.
   now intros A x y [].
-Qed.
+Defined.
 
 (** * Setoids *)
 
@@ -155,9 +155,7 @@ Lemma setoid_split :
     A = A' -> JMeq equiv equiv' ->
       JMeq (@Build_Setoid A equiv setoid_equiv) (@Build_Setoid A' equiv' setoid_equiv').
 Proof.
-  intros.
-  subst.
-  now replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
+  now intros; subst; replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
 Qed.
 
 (** Some setoid instances. *)
@@ -170,7 +168,7 @@ Instance Setoid_forall
 {
   equiv := fun f g => forall x : A, f x == g x;
 }.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
@@ -178,15 +176,15 @@ Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
 {|
   equiv := fun a a' : A => f a = f a'
 |}.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
 Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A :=
 {|
-  equiv := fun a a' : A => f a == f a'
+  equiv := fun a1 a2 : A => @equiv _ S (f a1) (f a2);
 |}.
-Proof. all: solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 (** Extension of an equivalence relation to a heterogenous equivalence relation.  *)
 
@@ -200,10 +198,9 @@ Lemma JMequiv_trans :
     A = B -> JMeq SA SB -> JMequiv (S := SA) x y -> JMequiv (S := SB) y z ->
       JMequiv (S := SA) x z.
 Proof.
-  intros. subst.
-  dependent destruction H1.
-  dependent destruction H2.
-  constructor. now rewrite H.
+  intros; subst.
+  dependent destruction H1; dependent destruction H2.
+  now constructor; rewrite H, H0.
 Qed.
 
 Arguments JMequiv_trans [A B C SA SB x y z] _ _ _ _.
@@ -215,9 +212,9 @@ Inductive sumprod (X Y : Set) : Set :=
 | inr'  : Y -> sumprod X Y
 | pair' : X -> Y -> sumprod X Y.
 
-Arguments inl' [X] [Y] _.
-Arguments inr' [X] [Y] _.
-Arguments pair' [X] [Y] _ _.
+Arguments inl'  [X Y] _.
+Arguments inr'  [X Y] _.
+Arguments pair' [X Y] _ _.
 
 #[global] Hint Constructors sumprod : core.
 
@@ -242,9 +239,7 @@ Lemma nel_app_assoc :
   forall (A : Type) (x y z : nel A),
     nel_app x (nel_app y z) = nel_app (nel_app x y) z.
 Proof.
-  induction x as [h | h t]; cbn; intros.
-    easy.
-    now rewrite IHt.
+  now induction x as [h | h t]; cbn; intros; rewrite ?IHt.
 Qed.
 
 Fixpoint nel_map {A B : Type} (f : A -> B) (l : nel A) : nel B :=

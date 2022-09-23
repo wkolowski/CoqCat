@@ -110,12 +110,12 @@ Lemma isPushout_uiso :
                    f .> pushl2' == g .> pushr2' -> Hom P2 P2'),
       isPushout C f g P1 pushl1 pushr1 cotriple1 ->
       isPushout C f g P2 pushl2 pushr2 cotriple2 ->
-        exists!! f : Hom P2 P1, isIso f /\ pushl1 == pushl2 .> f /\ pushr1 == pushr2 .> f.
+        exists!! f : Hom P1 P2, isIso f /\ pushl2 == pushl1 .> f /\ pushr2 == pushr1 .> f.
 Proof.
   intros * H1 H2.
-  exists (cotriple2 P1 pushl1 pushr1 ok).
+  exists (cotriple1 P2 pushl2 pushr2 ok).
   repeat split.
-  - exists (cotriple1 P2 pushl2 pushr2 ok).
+  - exists (cotriple2 P1 pushl1 pushr1 ok).
     now rewrite !equiv_pushout', <- !comp_assoc, !pushl_cotriple, !pushr_cotriple, !comp_id_r.
   - now rewrite pushl_cotriple.
   - now rewrite pushr_cotriple.
@@ -136,8 +136,7 @@ Lemma isPushout_iso :
       isPushout C f g P2 pushl2 pushr2 cotriple2 ->
         P1 ~ P2.
 Proof.
-  intros. destruct (isPushout_uiso H H0).
-  symmetry. cat.
+  now intros * H1 H2; destruct (isPushout_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Section Pushout_lemmas.
@@ -173,8 +172,7 @@ Proof.
   esplit. Unshelve. all: cycle 1.
   - apply (cotriple A (id A) (g' .> f)).
     abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
-  - pushout_simpl.
-    now rewrite comp_assoc, ok, <- comp_assoc, Heq2.
+  - now pushout_simpl; rewrite comp_assoc, ok, <- comp_assoc, Heq2.
 Qed.
 
 Lemma isIso_pushr :
@@ -184,8 +182,7 @@ Proof.
   esplit. Unshelve. all: cycle 1.
   - apply (cotriple B (f' .> g) (id B)).
     abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
-  - pushout_simpl.
-    now rewrite comp_assoc, <- ok, <- comp_assoc, Heq2.
+  - now pushout_simpl; rewrite comp_assoc, <- ok, <- comp_assoc, Heq2.
 Qed.
 
 End Pushout_lemmas.
@@ -304,7 +301,7 @@ Lemma isIso_commutator :
 Proof.
   red; intros.
   exists commutator.
-  split; apply commutator_idem.
+  now split; apply commutator_idem.
 Qed.
 
 Lemma pushout_comm :

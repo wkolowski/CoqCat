@@ -17,7 +17,7 @@ Lemma equiv_terminal' :
     {X : Ob C} (h1 h2 : Hom X T),
       h1 == h2 <-> True.
 Proof.
-  firstorder.
+  now firstorder.
 Qed.
 
 Ltac terminal_simpl := rewrite ?equiv_terminal'.
@@ -45,8 +45,8 @@ Proof.
   exists (delete2 T1).
   repeat split.
   - exists (delete1 T2).
-    split; apply equiv_terminal.
-  - intros; now intros; apply equiv_terminal.
+    now split; apply equiv_terminal.
+  - now intros; now intros; apply equiv_terminal.
 Qed.
 
 Lemma isTerminal_iso :
@@ -58,7 +58,7 @@ Lemma isTerminal_iso :
       isTerminal C T2 delete2 ->
         T1 ~ T2.
 Proof.
-  intros. destruct (isTerminal_uiso H H0). cat.
+  now intros * H1 H2; destruct (isTerminal_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Lemma isTerminal_equiv_delete :
@@ -90,7 +90,7 @@ Lemma mor_from_term_is_sec :
 Proof.
   unfold isSec; intros.
   exists (delete0 X).
-  apply equiv_terminal.
+  now apply equiv_terminal.
 Qed.
 
 Class HasStrictTerm {C : Cat} (ht : HasTerm C) : Prop :=

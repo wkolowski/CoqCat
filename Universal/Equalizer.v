@@ -36,7 +36,7 @@ Lemma equiv_equalizer' :
 Proof.
   split.
   - now intros ->.
-  - apply equiv_equalizer.
+  - now apply equiv_equalizer.
 Qed.
 
 Lemma Proper_factorize :
@@ -72,7 +72,7 @@ Proof.
   now rewrite equiv_equalizer', factorize_equalize, comp_id_l.
 Defined.
 
-Lemma factorize_comp :
+(* TODO*) Lemma factorize_comp :
   forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (H : e2 .> f == e2 .> g),
     exists H' : (e1 .> e2) .> f == (e1 .> e2) .> g,
       factorize H' == e1 .> factorize H.
@@ -133,8 +133,7 @@ Lemma isEqualizer_iso :
       isEqualizer C f g E2 e2 factorize2 ->
         E1 ~ E2.
 Proof.
-  intros. destruct (isEqualizer_uiso H H0).
-  do 2 destruct H1. eauto.
+  now intros; destruct (isEqualizer_uiso H H0) as [i []]; exists i.
 Qed.
 
 Lemma isEqualizer_equiv_equalize :

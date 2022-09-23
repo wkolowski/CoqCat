@@ -36,7 +36,7 @@ Lemma equiv_coequalizer' :
 Proof.
   split.
   - now intros ->.
-  - apply equiv_coequalizer.
+  - now apply equiv_coequalizer.
 Qed.
 
 #[global] Lemma Proper_cofactorize :
@@ -131,8 +131,7 @@ Lemma isCoequalizer_iso :
       isCoequalizer C f g Q2 q2 cofactorize2 ->
         Q1 ~ Q2.
 Proof.
-  intros. destruct (isCoequalizer_uiso H H0).
-  do 2 destruct H1. iso.
+  now intros * H1 H2; destruct (isCoequalizer_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Lemma isIso_coequalize :

@@ -18,7 +18,7 @@ Lemma product_term_l :
 Proof.
   intros.
   exists outr, (fpair (delete X) (id X)).
-  solve_product; apply equiv_terminal.
+  now solve_product; apply equiv_terminal.
 Defined.
 
 Lemma product_term_l' :
@@ -27,14 +27,14 @@ Lemma product_term_l' :
 Proof.
   intros.
   exists outr, (fpair (delete X) (id X)).
-  solve_product; apply equiv_terminal.
+  now solve_product; apply equiv_terminal.
 Defined.
 
 Lemma product_term_r :
   forall (C : Cat) (ht : HasTerm C) (hp : HasProducts C) (X : Ob C),
     product X (term C) ~ X.
 Proof.
-  intros. rewrite product_comm. apply product_term_l.
+  now intros; rewrite product_comm, product_term_l.
 Defined.
 
 Lemma product_term_r' :
@@ -43,7 +43,7 @@ Lemma product_term_r' :
 Proof.
   intros.
   exists outl, (fpair (id X) (delete X)).
-  solve_product; apply equiv_terminal.
+  now solve_product; apply equiv_terminal.
 Defined.
 
 Lemma coproduct_init_l :
@@ -52,7 +52,7 @@ Lemma coproduct_init_l :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  solve_coproduct; apply equiv_initial.
+  now solve_coproduct; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_l' :
@@ -61,14 +61,14 @@ Lemma coproduct_init_l' :
 Proof.
   intros.
   exists (copair (create X) (id X)), finr.
-  solve_coproduct; apply equiv_initial.
+  now solve_coproduct; apply equiv_initial.
 Defined.
 
 Lemma coproduct_init_r :
   forall (C : Cat) (hi : HasInit C) (hp : HasCoproducts C) (X : Ob C),
     coproduct X (init C) ~ X.
 Proof.
-  intros. rewrite coproduct_comm. apply coproduct_init_l.
+  now intros; rewrite coproduct_comm, coproduct_init_l.
 Qed.
 
 Lemma coproduct_init_r' :
@@ -77,7 +77,7 @@ Lemma coproduct_init_r' :
 Proof.
   intros.
   exists (copair (id X) (create X)), finl.
-  solve_coproduct; apply equiv_initial.
+  now solve_coproduct; apply equiv_initial.
 Defined.
 
 (* TODO *) Lemma exp_term_dom :
@@ -85,9 +85,9 @@ Defined.
     exponential (term C) Y ~ Y.
 Proof.
   symmetry.
-  red. exists (curry outl).
-  red. exists (fpair (id (exponential (term C) Y)) (delete _) .> eval).
-  split; cycle 1.
+  exists (curry outl), (fpair (id (exponential (term C) Y)) (delete _) .> eval).
+  split.
+  - admit.
   - rewrite <- (curry_uncurry (id (exponential (term C) Y))).
     symmetry.
     apply universal_property.
@@ -97,7 +97,6 @@ Proof.
     with (curry (uncurry (id (exponential (term C) Y)))).
     + now rewrite computation_rule.
     + rewrite !curry_uncurry. admit.
-  -
 Abort.
 
 (* TODO *) Lemma wuuut :

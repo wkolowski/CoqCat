@@ -105,7 +105,7 @@ Lemma unary_coprod_exists :
   forall (C : Cat) (A : unit -> Ob C),
     isIndexedCoproduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
 Proof.
-  split; cat.
+  now split; cat.
 Qed.
 
 Class HasIndexedCoproducts (C : Cat) : Type :=

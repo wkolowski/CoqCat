@@ -29,7 +29,7 @@ Instance CoconeHomSetoid
 {
   equiv := fun f g : CoconeHom C1 C2 => mor' f == mor' g
 }.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
@@ -40,8 +40,7 @@ Instance CoconeComp
   mor' := mor' f .> mor' g
 }.
 Proof.
-  intros. rewrite <- comp_assoc. rewrite cond'.
-  destruct C2. destruct g. cbn in *. apply cond'0.
+  now intros; rewrite <- comp_assoc, (cond' f), (cond' g).
 Defined.
 
 #[refine]
@@ -50,7 +49,7 @@ Instance CoconeId {J C : Cat} {F : Functor J C} (C1 : Cocone F) : CoconeHom C1 C
 {
   mor' := id (coapex C1)
 }.
-Proof. cat. Defined.
+Proof. now intros; rewrite comp_id_r. Defined.
 
 #[refine]
 #[export]
@@ -62,7 +61,9 @@ Instance CoconeCat {J C : Cat} (F : Functor J C) : Cat :=
   comp := CoconeComp;
   id := CoconeId
 }.
-Proof. proper. all: cat. Defined.
+Proof.
+  all: now cat.
+Defined.
 
 Definition isColimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
   forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
@@ -111,8 +112,9 @@ Instance CoconeImage
   colegs := {| component := fun X : Ob J => _ |}
 }.
 Proof.
-  - cbn. apply (fmap F). exact (component (colegs K) X).
-  - cat. rewrite <- fmap_comp. rewrite <- (natural (colegs K) f). cat.
+  - exact (fmap F (component (colegs K) X)).
+  - cbn; intros.
+    now rewrite comp_id_r, <- fmap_comp, <- (natural (colegs K) f); cbn; rewrite comp_id_r.
 Defined.
 
 Definition cocontinuous {C D : Cat} {F : Functor C D} : Prop :=

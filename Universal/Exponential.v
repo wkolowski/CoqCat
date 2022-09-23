@@ -130,8 +130,7 @@ Proof.
   exists (curry2 E1 eval1).
   repeat split.
   - exists (curry1 E2 eval2).
-    now rewrite !equiv_exponential', !bimap_comp_l, !comp_assoc, !compute_exp,
-      !bimap_id, !comp_id_l.
+    now rewrite !equiv_exponential', !bimap_comp_l, !comp_assoc, !compute_exp, !bimap_id, !comp_id_l.
   - now rewrite compute_exp.
   - now intros; rewrite equiv_exponential', compute_exp.
 Qed.
@@ -149,7 +148,7 @@ Lemma isExponential_iso :
       isExponential A B E2 eval2 curry2 ->
         E1 ~ E2.
 Proof.
-  intros. destruct (isExponential_uiso H H0). cat.
+  now intros; destruct (isExponential_uiso H H0) as [i []]; exists i.
 Qed.
 
 Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
@@ -173,17 +172,15 @@ Lemma curry_comp :
     [X Y Z A : Ob C] (f : Hom Y Z) (g : Hom Z A),
       curry (eval (A := X) .> f .> g) == curry (eval .> f) .> curry (eval .> g).
 Proof.
-  intros.
-  rewrite equiv_exponential', compute_exp.
-  now rewrite bimap_comp_l, !comp_assoc, compute_exp, <- !comp_assoc, compute_exp.
+  now intros; rewrite equiv_exponential', compute_exp,
+    bimap_comp_l, !comp_assoc, compute_exp, <- !comp_assoc, compute_exp.
 Qed.
 
 Lemma uncurry_id :
   forall {C : Cat} {hp : HasProducts C} {he : HasExponentials C} {A B : Ob C},
     uncurry (id (exponential A B)) == eval.
 Proof.
-  intros; unfold uncurry.
-  now rewrite bimap_id, comp_id_l.
+  now intros; unfold uncurry; rewrite bimap_id, comp_id_l.
 Qed.
 
 Ltac solve_exponential := intros; repeat
@@ -205,7 +202,7 @@ Lemma HasExponentials_unique :
     (he : HasExponentials C) (he' : HasExponentials C) (A B : Ob C),
       @exponential C hp he A B ~ @exponential C hp he' A B.
 Proof.
-  intros. eapply isExponential_iso; typeclasses eauto.
+  now intros; eapply isExponential_iso; typeclasses eauto.
 Qed.
 
 #[refine]
@@ -218,7 +215,7 @@ Instance ExponentialProfunctor
 }.
 Proof.
   2-3: cycle 1.
-  - proper.
+  - now proper.
   - now intros; exponential_simpl.
   - intros.
     apply equiv_exponential.
@@ -234,7 +231,7 @@ Instance ExponentialFunctor_dom
   fmap := fun (A B : Ob C) (f : Hom A B) => curry (eval .> f)
 }.
 Proof.
-  all: solve_exponential.
+  all: now solve_exponential.
 Defined.
 
 #[refine]

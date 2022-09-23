@@ -29,7 +29,7 @@ Instance ConeHomSetoid
 {
   equiv := fun f g : ConeHom C1 C2 => mor f == mor g
 }.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
@@ -40,7 +40,7 @@ Instance ConeComp
   mor := mor f .> mor g
 }.
 Proof.
-  intros. rewrite !comp_assoc, !cond. reflexivity.
+  now intros; rewrite !comp_assoc, !cond.
 Defined.
 
 #[refine]
@@ -49,7 +49,7 @@ Instance ConeId {J C : Cat} {F : Functor J C} (C1 : Cone F) : ConeHom C1 C1 :=
 {
   mor := id (apex C1)
 }.
-Proof. cat. Defined.
+Proof. now cat. Defined.
 
 #[refine]
 #[export]
@@ -61,7 +61,7 @@ Instance ConeCat {J C : Cat} (F : Functor J C) : Cat :=
   comp := ConeComp;
   id := ConeId
 }.
-Proof. proper. all: cat. Defined.
+Proof. all: now cat. Defined.
 
 Definition isLimit
   {J C : Cat} {F : Functor J C}
@@ -110,8 +110,8 @@ Instance ConeImage
   legs := {| component := fun X : Ob J => _ |}
 }.
 Proof.
-  simpl. apply (fmap F). exact (component (legs K) X).
-  cat. rewrite <- fmap_comp. rewrite (natural (legs K) f). cat.
+  - exact (fmap F (component (legs K) X)).
+  - now cbn; intros; rewrite comp_id_l, <- fmap_comp, (natural (legs K) f); cbn; rewrite comp_id_l.
 Defined.
 
 Definition isContinuous {C D : Cat} {F : Functor C D} : Prop :=

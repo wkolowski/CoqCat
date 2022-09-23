@@ -122,7 +122,7 @@ Lemma isProduct_iso :
       isProduct C P2 outl2 outr2 fpair2 ->
         P1 ~ P2.
 Proof.
-  intros. destruct (isProduct_uiso H H0). cat.
+  now intros * H1 H2; destruct (isProduct_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Lemma isProduct_equiv_fpair :
@@ -192,7 +192,7 @@ Lemma isProduct_comm :
       isProduct C P outl outr (@fpair) ->
         isProduct C P outr outl (fun Γ a b => fpair b a).
 Proof.
-  intros * []; constructor; cat.
+  now intros * []; constructor; cat.
 Qed.
 
 Class HasProducts (C : Cat) : Type :=
@@ -272,7 +272,7 @@ Lemma commutator_idem :
   forall {C : Cat} {hp : HasProducts C} {A B : Ob C},
     commutator .> commutator == id (product A B).
 Proof.
-  unfold commutator; solve_product.
+  now unfold commutator; solve_product.
 Qed.
 
 Lemma isIso_commutator :
@@ -281,7 +281,7 @@ Lemma isIso_commutator :
 Proof.
   red; intros.
   exists commutator.
-  split; apply commutator_idem.
+  now split; apply commutator_idem.
 Qed.
 
 Lemma product_comm :
@@ -290,7 +290,7 @@ Lemma product_comm :
 Proof.
   red; intros.
   exists commutator.
-  apply isIso_commutator.
+  now apply isIso_commutator.
 Qed.
 
 Definition associator
@@ -307,16 +307,14 @@ Lemma associator_unassociator :
   forall {C : Cat} {hp : HasProducts C} {A B C : Ob C},
     associator .> unassociator == id (product (product A B) C).
 Proof.
-  unfold associator, unassociator; intros.
-  solve_product.
+  now unfold associator, unassociator; intros; solve_product.
 Qed.
 
 Lemma unassociator_associator :
   forall {C : Cat} {hp : HasProducts C} {A B C : Ob C},
     unassociator .> associator == id (product A (product B C)).
 Proof.
-  unfold associator, unassociator; intros.
-  solve_product.
+  now unfold associator, unassociator; intros; solve_product.
 Qed.
 
 Lemma isIso_associator :
@@ -326,8 +324,8 @@ Proof.
   red; intros.
   exists unassociator.
   split.
-  - apply associator_unassociator.
-  - apply unassociator_associator.
+  - now apply associator_unassociator.
+  - now apply unassociator_associator.
 Qed.
 
 Lemma product_assoc :

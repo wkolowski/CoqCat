@@ -97,12 +97,12 @@ Lemma isCoproduct_uiso :
     (copair2 : forall (P2' : Ob C) (finl2' : Hom A P2') (finr2' : Hom B P2'), Hom P2 P2'),
       isCoproduct C P1 finl1 finr1 copair1 ->
       isCoproduct C P2 finl2 finr2 copair2 ->
-        exists!! f : Hom P2 P1, isIso f /\ finl1 == finl2 .> f /\ finr1 == finr2 .> f.
+        exists!! f : Hom P1 P2, isIso f /\ finl2 == finl1 .> f /\ finr2 == finr1 .> f.
 Proof.
   intros * H1 H2.
-  exists (copair2 P1 finl1 finr1).
+  exists (copair1 P2 finl2 finr2).
   repeat split.
-  - exists (copair1 P2 finl2 finr2).
+  - exists (copair2 P1 finl1 finr1).
     now rewrite !equiv_coproduct', <- !comp_assoc, !finl_copair, !finr_copair, !comp_id_r.
   - now rewrite finl_copair.
   - now rewrite finr_copair.
@@ -121,8 +121,7 @@ Lemma isCoproduct_iso :
       isCoproduct C P2 finl2 finr2 copair2 ->
         P1 ~ P2.
 Proof.
-  intros. destruct (isCoproduct_uiso H H0).
-  symmetry. cat.
+  now intros; destruct (isCoproduct_uiso H H0) as [i []]; exists i.
 Qed.
 
 Lemma isCoproduct_equiv_copair :
@@ -254,7 +253,7 @@ Lemma copair_comp' :
     (C : Cat) (hp : HasCoproducts C) (X Y X' Y' A : Ob C)
     (f : Hom X A) (g : Hom Y A) (h1 : Hom X' X) (h2 : Hom Y' Y),
       copair (h1 .> finl) (h2 .> finr) .> copair f g == copair (h1 .> f) (h2 .> g).
-Proof. solve_coproduct. Qed.
+Proof. now solve_coproduct. Qed.
 
 Lemma copair_comp_id :
   forall (C : Cat) (hp : HasCoproducts C) (A X Y : Ob C) (f : Hom (coproduct X Y) A),
@@ -272,7 +271,7 @@ Lemma commutator_idem :
   forall {C : Cat} {hp : HasCoproducts C} {A B : Ob C},
     commutator .> commutator == id (coproduct A B).
 Proof.
-  unfold commutator; solve_coproduct.
+  now unfold commutator; solve_coproduct.
 Qed.
 
 Lemma isIso_commutator :
@@ -281,7 +280,7 @@ Lemma isIso_commutator :
 Proof.
   red; intros.
   exists commutator.
-  split; apply commutator_idem.
+  now split; apply commutator_idem.
 Qed.
 
 Lemma coproduct_comm :
@@ -290,7 +289,7 @@ Lemma coproduct_comm :
 Proof.
   red; intros.
   exists commutator.
-  apply isIso_commutator.
+  now apply isIso_commutator.
 Qed.
 
 Definition associator
@@ -307,14 +306,14 @@ Lemma associator_unassociator :
   forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
     associator .> unassociator == id (coproduct (coproduct A B) C).
 Proof.
-  unfold associator, unassociator; solve_coproduct.
+  now unfold associator, unassociator; solve_coproduct.
 Qed.
 
 Lemma unassociator_associator :
   forall {C : Cat} {hp : HasCoproducts C} {A B C : Ob C},
     unassociator .> associator == id (coproduct A (coproduct B C)).
 Proof.
-  unfold associator, unassociator; solve_coproduct.
+  now unfold associator, unassociator; solve_coproduct.
 Qed.
 
 Lemma isIso_associator :

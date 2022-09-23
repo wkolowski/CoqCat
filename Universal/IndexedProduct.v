@@ -127,10 +127,11 @@ Proof.
   assert (f : forall j : J, {f : Hom (A j) (B j) &
     {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).
   {
-    intro. specialize (H j). apply constructive_indefinite_description in H.
-    destruct H as [f f_iso]. exists f.
-    apply constructive_indefinite_description in f_iso.
-    destruct f_iso as [g [eq1 eq2]]. exists g. auto.
+    intros j.
+    specialize (H j).
+    apply constructive_indefinite_description in H as [f f_iso].
+    apply constructive_indefinite_description in f_iso as (g & eq1 & eq2).
+    now exists f, g; auto.
   }
   assert (f' : {f : forall j : J, Hom (A j) (B j) &
     {g : forall j : J, Hom (B j) (A j) |
@@ -139,7 +140,7 @@ Proof.
   {
     exists (fun j : J => projT1 (f j)).
     exists (fun j : J => proj1_sig (projT2 (f j))).
-    split; intro; destruct (f j) as [f' [g' [eq1 eq2]]]; cat.
+    now split; intro; destruct (f j) as (f' & g' & eq1 & eq2); cat.
   }
   destruct f' as [f' [g' [iso1 iso2]]].
   exists (t2 P1 (fun j => p1 j .> f' j)),
@@ -174,27 +175,26 @@ Proof.
       * now rewrite fpair_outl.
       * now rewrite fpair_outr.
     + now intros X f g H; rewrite equiv_product', (H false), (H true).
-  - split.
-    + intros X f g.
-    pose
-    (
-      wut := fun j : bool =>
-        if j return (Hom X (if j then A else B))
-        then f
-        else g
-    ).
-    destruct HP. apply (tuple_out0 _ wut true).
-    + intros X f g.
-    pose
-    (
-      wut := fun j : bool =>
-        if j return (Hom X (if j then A else B))
-        then f
-        else g
-    ).
-    destruct HP. apply (tuple_out0 _ wut false).
-  + intros * H1 H2. destruct HP.
-    apply equiv_indexedProduct0. now intros []; cbn.
+  - split; cycle 2.
+    + now intros * H1 H2; destruct HP; apply equiv_indexedProduct0; intros []; cbn.
+    + intros Γ f g.
+      pose
+      (
+        wut := fun j : bool =>
+          if j return (Hom Γ (if j then A else B))
+          then f
+          else g
+      ).
+      now destruct HP; apply (tuple_out0 _ wut true).
+    + intros Γ f g.
+      pose
+      (
+        wut := fun j : bool =>
+          if j return (Hom Γ (if j then A else B))
+          then f
+          else g
+      ).
+      now destruct HP; apply (tuple_out0 _ wut false).
 Qed.
 
 Lemma nullary_product :
@@ -205,16 +205,14 @@ Lemma nullary_product :
     (tuple : forall (X : Ob C) (f : forall j : Empty_set, Hom X (A j)), Hom X T),
       isTerminal C T delete -> isIndexedProduct C T p tuple.
 Proof.
-  unfold isTerminal; split; intros.
-  - easy.
-  - apply H.
+  easy.
 Qed.
 
 Lemma unary_prod_exists :
   forall (C : Cat) (A : unit -> Ob C),
     isIndexedProduct C (A tt) (fun _ : unit => id (A tt)) (fun _ f => f tt).
 Proof.
-  split; cat.
+  now split; cat.
 Qed.
 
 (* Dependent type bullshit. This is harder than I thought. *)
@@ -236,8 +234,8 @@ Proof.
   {
     exists (fun j : J => proj1_sig (constructive_indefinite_description _ (sur j))).
     split; intros.
-      destruct (constructive_indefinite_description _ (sur j)). auto.
-      destruct (constructive_indefinite_description _ (sur (f j))). auto.
+    - now destruct (constructive_indefinite_description _ (sur j)); auto.
+    - now destruct (constructive_indefinite_description _ (sur (f j))); auto.
   }
   destruct g as [g [g_inv1 g_inv2]].
   assert (h : {h : forall j : J, Hom P (A (f (g j))) |
@@ -258,7 +256,7 @@ Class HasIndexedProducts (C : Cat) : Type :=
 }.
 
 Arguments indexedProduct {C _ J} _.
-Arguments out           {C _ J A} _.
+Arguments out            {C _ J A} _.
 Arguments tuple          {C _ J A X} _.
 
 Lemma tuple_comp' :

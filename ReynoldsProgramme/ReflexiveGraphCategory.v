@@ -9,12 +9,8 @@ Require Import JMeq ProofIrrelevance.
     https://www.cs.bham.ac.uk/~udr/papers/logical-relations-and-parametricity.pdf
 *)
 
-Lemma transport :
-  forall {A : Type} (P : A -> Type) {x y : A} (p : x = y),
-    P x -> P y.
-Proof.
-  destruct 1. intro u. exact u.
-Defined.
+Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y :=
+  let 'eq_refl := p in u.
 
 Class ReflexiveGraphCategory : Type :=
 {
@@ -110,15 +106,15 @@ Instance CoqSetFunRel : ReflexiveGraphCategory :=
   I A := eq;
 }.
 Proof.
-  easy.
-  easy.
-  easy.
-  easy.
-  auto.
-  cbn. intros. apply proof_irrelevance.
-  cbn. intros. apply JMeq_pi.
-  cbn. intros. apply JMeq_pi.
-  exact f_equal.
+  - easy.
+  - easy.
+  - easy.
+  - easy.
+  - now auto.
+  - now cbn; intros; apply proof_irrelevance.
+  - now cbn; intros; apply JMeq_pi.
+  - now cbn; intros; apply JMeq_pi.
+  - exact f_equal.
 Defined.
 
 Class Cat : Type :=
@@ -181,16 +177,17 @@ Instance RGC_RGC'
   |};
 }.
 Proof.
-  idtac.
-    intros (X & X' & R) (Y & Y' & S).
-      exact {f : Mor C X Y & {g : Mor C X' Y' & fill f g R S}}.
-    intros (X & X' & R). exists (mid C X), (mid C X'). apply rid.
-    intros (X & X' & R) (Y & Y' & S) (Z & Z' & T) (f1 & f2 & F) (g1 & g2 & G).
-      exists (mcomp f1 g1), (mcomp f2 g2). eapply rcomp.
-        exact F.
-        exact G.
-    intros (X & X' & R) (Y & Y' & S) (f & g & H). admit.
-    intros (X & X' & R) (Y & Y' & S) (f & g & H). admit.
-    intros (A & A' & R) (B & B' & S) (Ć & Ć' & T) (D & D' & Q)
-           (f1 & g1 & h1) (f2 & g2 & h2) (f3 & g3 & h3). admit.
+  - intros (X & X' & R) (Y & Y' & S).
+    exact {f : Mor C X Y & {g : Mor C X' Y' & fill f g R S}}.
+  - intros (X & X' & R).
+    exists (mid C X), (mid C X').
+    now apply rid.
+  - intros (X & X' & R) (Y & Y' & S) (Z & Z' & T) (f1 & f2 & F) (g1 & g2 & G).
+    exists (mcomp f1 g1), (mcomp f2 g2).
+    exact (rcomp F G).
+  - intros (X & X' & R) (Y & Y' & S) (f & g & H). admit.
+  - intros (X & X' & R) (Y & Y' & S) (f & g & H). admit.
+  - intros (A & A' & R) (B & B' & S) (Ć & Ć' & T) (D & D' & Q)
+           (f1 & g1 & h1) (f2 & g2 & h2) (f3 & g3 & h3).
+    admit.
 Abort.

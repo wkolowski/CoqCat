@@ -53,6 +53,8 @@ Arguments mcomp {_ X Y Z} _ _.
 Inductive Box (A : Type) : SProp :=
 | box : A -> Box A.
 
+#[export] Hint Constructors Box : core.
+
 Arguments box {A} _.
 
 #[refine]
@@ -72,12 +74,12 @@ Instance CoqSetFunRel : ReflexiveGraphCategory :=
     Box (forall x x', R x x' -> S (f x) (g x'));
 }.
 Proof.
-  easy.
-  easy.
-  easy.
-  now constructor.
-  constructor. congruence.
-  intros * [] []. constructor. auto.
+  - easy.
+  - easy.
+  - easy.
+  - now constructor.
+  - now constructor; congruence.
+  - now intros * [] []; auto.
 Defined.
 
 Class SetoidRel (X Y : Setoid') : Type :=
@@ -95,7 +97,7 @@ Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
   srel := equiv;
 |}.
 Proof.
-  setoid.
+  now setoid.
 Defined.
 
 (* TODO *)
@@ -116,11 +118,13 @@ Instance SetoidFunRel : ReflexiveGraphCategory :=
     Box (forall (x : X) (x' : X'), srel x x' -> srel (f x) (g x'));
 }.
 Proof.
-  intros. destruct f, X, Y. cbn in *. unfold SetoidId, SetoidComp. cbn. f_equal.
-  admit.
-  admit.
-  admit.
-  now constructor.
-  constructor. intros. destruct X, Y, f. cbn in *. now apply Proper_func.
-  intros * [] []. constructor. cbn. auto.
-Admitted.
+  - unfold SetoidId, SetoidComp; intros X Y []; cbn in *.
+    now f_equal; apply proof_irrelevance.
+  - unfold SetoidId, SetoidComp; intros X Y []; cbn in *.
+    now f_equal; apply proof_irrelevance.
+  - unfold SetoidId, SetoidComp; intros A B C D [] [] []; cbn in *.
+    now f_equal; apply proof_irrelevance.
+  - now auto.
+  - now constructor; cbn; intros x x' ->.
+  - now intros * [] []; constructor; cbn; auto.
+Defined.

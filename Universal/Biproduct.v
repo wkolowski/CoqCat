@@ -26,7 +26,7 @@ Lemma isBiproduct_Dual :
       isBiproduct (Dual C) P finl finr outl outr copair fpair
         <->
       isBiproduct C P outl outr finl finr fpair copair.
-Proof. firstorder. Qed.
+Proof. now firstorder. Qed.
 
 Class HasBiproducts (C : Cat) : Type :=
 {

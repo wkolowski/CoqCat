@@ -31,20 +31,22 @@ Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
 #[refine]
 #[export]
 Instance Enriched_CoqSetoid
-  : Enriched (Monoidal_HasTerm_HasProducts HasTerm_CoqSetoid HasProducts_CoqSetoid)
-  := {}.
-Proof.
-  exact (Ob CoqSetoid).
-  intros X Y. refine (
+  : Enriched (Monoidal_HasTerm_HasProducts HasTerm_CoqSetoid HasProducts_CoqSetoid) :=
+{
+  EOb := Ob CoqSetoid;
+  EHom := fun X Y =>
   {|
-  carrier := @Hom _ X Y;
-  setoid := @HomSetoid _ X Y;
-  |}).
-  cbn. intros.
-    split with (fun p => SetoidComp (fst p) (snd p)). proper.
-      destruct H, x, y. cbn in *. now rewrite H, H0.
-  intros. cbn. exists (fun _ => id X). proper.
-  now cbn.
-  now cbn.
-  now cbn.
+    carrier := @Hom _ X Y;
+    setoid := @HomSetoid _ X Y;
+  |};
+}.
+Proof.
+  - intros.
+    split with (fun p => SetoidComp (fst p) (snd p)).
+    proper.
+    now destruct H, x, y; cbn in *; rewrite H, H0.
+  - now intros; cbn; exists (fun _ => id X); proper.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.

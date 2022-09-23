@@ -130,8 +130,7 @@ Lemma isPullback_iso :
       isPullback C f g P2 pullL2 pullR2 triple2 ->
         P1 ~ P2.
 Proof.
-  intros. destruct (isPullback_uiso H H0).
-  red. exists x. now destruct H1 as [[H1 _] _].
+  now intros * H1 H2; destruct (isPullback_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Section Pullback_lemmas.
@@ -230,8 +229,8 @@ Proof.
   - now intros; rewrite triple_pullL.
   - now intros; rewrite <- comp_assoc, !triple_pullR.
   - intros * Heq1 Heq2.
-    apply equiv_pullback; [easy |].
-    apply equiv_pullback.
+    rewrite !equiv_pullback'.
+    repeat split; [easy | |].
     + now rewrite !comp_assoc, <- ok, <- !comp_assoc, Heq1.
     + now rewrite !comp_assoc, Heq2.
 Qed.
@@ -291,7 +290,7 @@ Lemma isPullback_isProduct :
         isPullback C (delete A) (delete B) P outl outr (fun Γ a b _ => fpair a b).
 Proof.
   split; intros.
-  - apply equiv_terminal.
+  - now apply equiv_terminal.
   - now rewrite fpair_outl.
   - now rewrite fpair_outr.
   - now apply equiv_product.
@@ -308,7 +307,7 @@ Lemma isPullback_isProduct' :
 Proof.
   split.
   - split; intros.
-    + apply equiv_terminal.
+    + now apply equiv_terminal.
     + now rewrite fpair_outl.
     + now rewrite fpair_outr.
     + now apply equiv_product.
@@ -347,7 +346,7 @@ Proof.
     + now rewrite triple_pullL.
     + now apply equiv_pullback.
   - split; intros.
-    + apply Equalizer.ok.
+    + now apply Equalizer.ok.
     +
 Abort.
 
@@ -409,7 +408,7 @@ Lemma isIso_commutator :
 Proof.
   red; intros.
   exists commutator.
-  split; apply commutator_idem.
+  now split; apply commutator_idem.
 Qed.
 
 Lemma pullback_comm :
@@ -418,5 +417,5 @@ Lemma pullback_comm :
 Proof.
   red; intros.
   exists commutator.
-  now apply isIso_commutator.
+  now now apply isIso_commutator.
 Qed.

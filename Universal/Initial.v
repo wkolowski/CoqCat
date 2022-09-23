@@ -17,7 +17,7 @@ Lemma equiv_initial' :
     {X : Ob C} (h1 h2 : Hom I X),
       h1 == h2 <-> True.
 Proof.
-  firstorder.
+  now firstorder.
 Qed.
 
 Ltac initial_simpl := rewrite ?equiv_initial'.
@@ -45,7 +45,7 @@ Proof.
   exists (create1 I2).
   split.
   - exists (create2 I1).
-    split; apply equiv_initial.
+    now split; apply equiv_initial.
   - now intros; apply equiv_initial.
 Qed.
 
@@ -58,7 +58,7 @@ Lemma isInitial_iso :
       isInitial C I2 create2 ->
         I1 ~ I2.
 Proof.
-  intros. destruct (isInitial_uiso H H0). cat.
+  now intros * H1 H2; destruct (isInitial_uiso H1 H2) as [i []]; exists i.
 Qed.
 
 Lemma isInitial_equiv_create :
@@ -90,7 +90,7 @@ Lemma mor_to_init_is_ret :
 Proof.
   unfold isRet; intros.
   exists (create0 X).
-  apply equiv_initial.
+  now apply equiv_initial.
 Qed.
 
 Module wut. (* TODO: are separate lemmas for Has* needed? *)
@@ -99,8 +99,7 @@ Lemma HasInit_uiso :
   forall (C : Cat) (hi1 hi2 : HasInit C),
     @init C hi1 ~~ @init C hi2.
 Proof.
-  unfold uniquely_isomorphic, isIso.
-  intros.
+  unfold uniquely_isomorphic, isIso; intros.
   exists (create (init C)).
   split.
   - exists (create (init C)).
@@ -112,7 +111,7 @@ Lemma HasInit_iso :
   forall (C : Cat) (hi1 hi2 : HasInit C),
     @init C hi1 ~ @init C hi2.
 Proof.
-  intros. destruct (HasInit_uiso hi1 hi2). cat.
+  now intros; destruct (HasInit_uiso hi1 hi2); cat.
 Qed.
 
 Lemma iso_to_init_is_init :

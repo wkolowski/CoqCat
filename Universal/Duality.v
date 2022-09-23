@@ -23,7 +23,7 @@ Lemma isZero_Dual :
       isZero (Dual C) X delete create
         <->
       isZero C X create delete.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 #[refine]
 #[export]
@@ -66,7 +66,7 @@ Lemma isProduct_Dual :
       isProduct (Dual C) P finl finr copair
         <->
       isCoproduct C P finl finr copair.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isCoproduct_Dual :
   forall
@@ -76,7 +76,7 @@ Lemma isCoproduct_Dual :
       isCoproduct (Dual C) P outl outr fpair
         <->
       isProduct C P outl outr fpair.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isBiproduct_Dual :
   forall
@@ -87,7 +87,7 @@ Lemma isBiproduct_Dual :
       isBiproduct (Dual C) P finl finr outl outr copair fpair
         <->
       isBiproduct C P outl outr finl finr fpair copair.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 #[refine]
 #[export]
@@ -134,7 +134,7 @@ Lemma isEqualizer_Dual :
       isEqualizer (Dual C) f g Q q cofactorize
         <->
       isCoequalizer C f g Q q cofactorize.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isCoequalizer_Dual :
   forall
@@ -144,7 +144,7 @@ Lemma isCoequalizer_Dual :
       isCoequalizer (Dual C) f g E e factorize
         <->
       isEqualizer C f g E e factorize.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 #[refine]
 #[export]
@@ -179,7 +179,7 @@ Lemma isPullback_Dual :
       isPullback (Dual C) f g P pushl pushr cotriple
         <->
       isPushout C f g P pushl pushr cotriple.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isPushout_Dual :
   forall
@@ -190,7 +190,7 @@ Lemma isPushout_Dual :
       isPushout (Dual C) f g P pullL pullR triple
         <->
       isPullback C f g P pullL pullR triple.
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 #[refine]
 #[export]
@@ -226,7 +226,7 @@ Lemma isIndexedProduct_Dual :
       isIndexedProduct (Dual C) P inj (@cotuple)
         <->
       isIndexedCoproduct C P inj (@cotuple).
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isIndexedCoproduct_Dual :
   forall
@@ -236,7 +236,7 @@ Lemma isIndexedCoproduct_Dual :
       isIndexedCoproduct (Dual C) P out (@tuple)
         <->
       isIndexedProduct C P out (@tuple).
-Proof. firstorder. Defined.
+Proof. now firstorder. Defined.
 
 Lemma isIndexedBiproduct_Dual :
   forall
@@ -247,8 +247,7 @@ Lemma isIndexedBiproduct_Dual :
       isIndexedBiproduct (Dual C) P inj out (@cotuple) (@tuple)
         <->
       isIndexedBiproduct C P out inj (@tuple) (@cotuple).
-Proof. firstorder. Defined.
-
+Proof. now firstorder. Defined.
 
 #[refine]
 #[export]
@@ -285,5 +284,5 @@ Instance HasIndexedBiproducts_Dual
   HasIndexedCoproducts_HasIndexedBiproducts := HasIndexedCoproducts_Dual hp;
 }.
 Proof.
-  cbn; symmetry; apply HasIndexedBiproducts_spec.
+  now cbn; symmetry; apply HasIndexedBiproducts_spec.
 Defined.
