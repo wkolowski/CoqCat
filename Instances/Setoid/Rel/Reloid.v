@@ -62,7 +62,7 @@ Instance ReloidHomSetoid (X Y : Reloid) : Setoid (ReloidHom X Y) :=
 {
   equiv := fun f g => forall x : X, f x == g x
 }.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
@@ -70,7 +70,7 @@ Instance ReloidComp {X Y Z : Reloid} (f : ReloidHom X Y) (g : ReloidHom Y Z) : R
 {
   func := SetoidComp f g
 }.
-Proof. reloid. Defined.
+Proof. now reloid. Defined.
 
 #[refine]
 #[export]
@@ -78,7 +78,7 @@ Instance ReloidId (X : Reloid) : ReloidHom X X :=
 {
   func := SetoidId X
 }.
-Proof. reloid. Defined.
+Proof. now reloid. Defined.
 
 #[refine]
 #[export]
@@ -90,7 +90,7 @@ Instance ReloidCat : Cat :=
   comp := @ReloidComp;
   id := @ReloidId;
 }.
-Proof. all: reloid. Defined.
+Proof. all: now reloid. Defined.
 
 #[refine]
 #[export]
@@ -107,7 +107,7 @@ Instance Reloid_create (X : Reloid) : ReloidHom Reloid_init X :=
 {
   func := CoqSetoid_create X
 }.
-Proof. proper. destruct x. Defined.
+Proof. now proper. Defined.
 
 #[refine]
 #[export]
@@ -116,7 +116,7 @@ Instance HasInit_Reloid : HasInit ReloidCat :=
   init := Reloid_init;
   create := Reloid_create
 }.
-Proof. red; reloid. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_Reloid : HasStrictInit ReloidCat.
@@ -140,7 +140,7 @@ Instance Reloid_delete (X : Reloid) : ReloidHom X Reloid_term :=
 {
   func := CoqSetoid_delete X
 }.
-Proof. proper. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -149,7 +149,7 @@ Instance HasTerm_Reloid : HasTerm ReloidCat :=
   term := Reloid_term;
   delete := Reloid_delete;
 }.
-Proof. red; reloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -159,7 +159,8 @@ Instance Reloid_product (X Y : Reloid) : Reloid :=
   rel := fun p p' => @rel X (fst p) (fst p') /\ @rel Y (snd p) (snd p')
 }.
 Proof.
-  proper. destruct H, H0. now rewrite H, H0, H1, H2.
+  intros [f1 Hf1] [f2 Hf2] [Hf1' Hf2'] [g1 Hg1] [g2 Hg2] [Hg1' Hg2']; cbn in *.
+  now rewrite Hf1', Hf2', Hg1', Hg2'.
 Defined.
 
 #[refine]
@@ -168,7 +169,7 @@ Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_product X Y) X :=
 {
   func := CoqSetoid_outl X Y
 }.
-Proof. reloid. Defined.
+Proof. now reloid. Defined.
 
 #[refine]
 #[export]
@@ -176,7 +177,7 @@ Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_product X Y) Y :=
 {
   func := CoqSetoid_outr X Y
 }.
-Proof. reloid. Defined.
+Proof. now reloid. Defined.
 
 #[refine]
 #[export]
@@ -186,7 +187,7 @@ Instance Reloid_fpair (X Y A : Reloid)
 {
   func := CoqSetoid_fpair f g
 }.
-Proof. reloid. Defined.
+Proof. now reloid. Defined.
 
 #[refine]
 #[export]
@@ -198,7 +199,7 @@ Instance HasProducts_Reloid : HasProducts ReloidCat :=
   fpair := Reloid_fpair;
 }.
 Proof.
-  split; reloid.
+  now repeat split; cbn in *.
 Defined.
 
 #[refine]
@@ -214,7 +215,7 @@ Instance Reloid_coproduct (X Y : Reloid) : Reloid :=
   end
 }.
 Proof.
-  proper. now destruct x, x0, y, y0; rewrite ?H, ?H0 in *.
+  now proper; destruct x, x0, y, y0; rewrite ?H, ?H0 in *.
 Defined.
 
 #[refine]
@@ -223,7 +224,7 @@ Instance Reloid_finl (X Y : Reloid) : ReloidHom X (Reloid_coproduct X Y) :=
 {
   func := CoqSetoid_finl X Y;
 }.
-Proof. reloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -231,7 +232,7 @@ Instance Reloid_finr (X Y : Reloid) : ReloidHom Y (Reloid_coproduct X Y) :=
 {
   func := CoqSetoid_finr X Y;
 }.
-Proof. reloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -242,7 +243,7 @@ Instance Reloid_copair
   func := CoqSetoid_copair f g
 }.
 Proof.
-  proper. now destruct x, y; try apply pres_rel.
+  now proper; destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]
@@ -255,5 +256,8 @@ Instance HasCoproducts_Reloid : HasCoproducts ReloidCat :=
   copair := Reloid_copair;
 }.
 Proof.
-  split; cat. now destruct x; rewrite ?H, ?H0.
+  split; cbn.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b]; cbn.
 Defined.

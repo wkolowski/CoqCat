@@ -46,7 +46,13 @@ Instance ReflexiveReloidCat : Cat :=
   comp := @ReloidComp;
   id := @ReloidId;
 }.
-Proof. all: rreloid. Defined.
+Proof.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - easy.
+  - easy.
+  - easy.
+Defined.
 
 #[refine]
 #[export]
@@ -54,7 +60,7 @@ Instance ReflexiveReloid_init : ReflexiveReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -62,7 +68,7 @@ Instance ReflexiveReloid_create (X : ReflexiveReloid) : ReloidHom ReflexiveReloi
 {
   func := Reloid_create X
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -71,7 +77,7 @@ Instance HasInit_ReflexiveReloid : HasInit ReflexiveReloidCat :=
   init := ReflexiveReloid_init;
   create := ReflexiveReloid_create
 }.
-Proof. red; rreloid. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_ReflexiveReloid : HasStrictInit ReflexiveReloidCat.
@@ -105,7 +111,7 @@ Instance HasTerm_ReflexiveReloid : HasTerm ReflexiveReloidCat :=
   term := ReflexiveReloid_term;
   delete := ReflexiveReloid_delete;
 }.
-Proof. red; rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -124,7 +130,9 @@ Instance ReflexiveReloid_outl
 {
   func := Reloid_outl X Y
 }.
-Proof. rreloid. Defined.
+Proof.
+  now intros f1 f2 Hf; cbn in *.
+Defined.
 
 #[refine]
 #[export]
@@ -133,7 +141,9 @@ Instance ReflexiveReloid_outr
 {
   func := Reloid_outr X Y
 }.
-Proof. rreloid. Defined.
+Proof.
+  now intros f1 f2 Hf; cbn in *.
+Defined.
 
 #[refine]
 #[export]
@@ -143,7 +153,9 @@ Instance ReflexiveReloid_fpair
 {
   func := Reloid_fpair f g
 }.
-Proof. rreloid. Defined.
+Proof.
+  now split; apply pres_rel.
+Defined.
 
 #[refine]
 #[export]
@@ -155,7 +167,7 @@ Instance HasProducts_ReflexiveReloid : HasProducts ReflexiveReloidCat :=
   fpair := ReflexiveReloid_fpair;
 }.
 Proof.
-  split; reloid.
+  now repeat split; cbn in *.
 Defined.
 
 #[refine]
@@ -173,7 +185,7 @@ Instance ReflexiveReloid_finl
 {
   func := Reloid_finl X Y;
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -182,7 +194,7 @@ Instance ReflexiveReloid_finr
 {
   func := Reloid_finr X Y;
 }.
-Proof. rreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -193,7 +205,11 @@ Instance ReflexiveReloid_copair
   func := Reloid_copair f g
 }.
 Proof.
-  proper. now destruct x, y; try apply pres_rel.
+  intros [x1 | y1] [x2 | y2] r; cbn in *.
+  - now apply pres_rel.
+  - easy.
+  - easy.
+  - now apply pres_rel.
 Defined.
 
 #[refine]
@@ -206,6 +222,8 @@ Instance HasCoproducts_ReflexiveReloid : HasCoproducts ReflexiveReloidCat :=
   copair := ReflexiveReloid_copair;
 }.
 Proof.
-  split; cat.
-  now destruct x; rewrite ?H, ?H0.
+  split; cbn.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b].
 Defined.

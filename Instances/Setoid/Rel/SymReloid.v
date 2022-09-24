@@ -46,7 +46,7 @@ Instance SymReloidCat : Cat :=
   comp := @ReloidComp;
   id := @ReloidId;
 }.
-Proof. all: sreloid. Defined.
+Proof. all: now sreloid. Defined.
 
 #[refine]
 #[export]
@@ -54,7 +54,7 @@ Instance SymReloid_init : SymReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -62,7 +62,7 @@ Instance SymReloid_create (X : SymReloid) : ReloidHom SymReloid_init X :=
 {
   func := Reloid_create X
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -71,7 +71,7 @@ Instance HasInit_SymReloid : HasInit SymReloidCat :=
   init := SymReloid_init;
   create := SymReloid_create
 }.
-Proof. red; sreloid. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_SymReloid : HasStrictInit SymReloidCat.
@@ -88,7 +88,7 @@ Instance SymReloid_term : SymReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance SymReloid_delete (X : SymReloid) : ReloidHom X SymReloid_term :=
 {
   func := Reloid_delete X
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -105,7 +105,7 @@ Instance HasTerm_SymReloid : HasTerm SymReloidCat :=
   term := SymReloid_term;
   delete := SymReloid_delete;
 }.
-Proof. red; sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -113,7 +113,9 @@ Instance SymReloid_product (X Y : SymReloid) : SymReloid :=
 {
   reloid := Reloid_product X Y;
 }.
-Proof. split; sreloid. Defined.
+Proof.
+  now intros [] []; cbn.
+Defined.
 
 #[refine]
 #[export]
@@ -121,7 +123,9 @@ Instance SymReloid_outl (X Y : SymReloid) : ReloidHom (SymReloid_product X Y) X 
 {
   func := Reloid_outl X Y
 }.
-Proof. sreloid. Defined.
+Proof.
+  now intros [] []; cbn.
+Defined.
 
 #[refine]
 #[export]
@@ -129,7 +133,9 @@ Instance SymReloid_outr (X Y : SymReloid) : ReloidHom (SymReloid_product X Y) Y 
 {
   func := Reloid_outr X Y
 }.
-Proof. sreloid. Defined.
+Proof.
+  now intros [] []; cbn.
+Defined.
 
 #[refine]
 #[export]
@@ -139,7 +145,9 @@ Instance SymReloid_fpair
 {
   func := Reloid_fpair f g
 }.
-Proof. sreloid. Defined.
+Proof.
+  now split; apply pres_rel.
+Defined.
 
 #[refine]
 #[export]
@@ -151,7 +159,7 @@ Instance HasProducts_SymReloid : HasProducts SymReloidCat :=
   fpair := SymReloid_fpair;
 }.
 Proof.
-  split; reloid.
+  now repeat split; cbn in *.
 Defined.
 
 #[refine]
@@ -160,7 +168,7 @@ Instance SymReloid_coproduct (X Y : SymReloid) : SymReloid :=
 {
   reloid := Reloid_coproduct X Y;
 }.
-Proof. intros [] []; cbn; intuition. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -168,7 +176,7 @@ Instance SymReloid_finl (X Y : SymReloid) : ReloidHom X (SymReloid_coproduct X Y
 {
   func := Reloid_finl X Y;
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -176,7 +184,7 @@ Instance SymReloid_finr (X Y : SymReloid) : ReloidHom Y (SymReloid_coproduct X Y
 {
   func := Reloid_finr X Y;
 }.
-Proof. sreloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -187,7 +195,7 @@ Instance SymReloid_copair
   func := Reloid_copair f g
 }.
 Proof.
-  proper. now destruct x, y; try apply pres_rel.
+  now proper; destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]
@@ -200,6 +208,8 @@ Instance HasCoproducts_SymReloid : HasCoproducts SymReloidCat :=
   copair := SymReloid_copair;
 }.
 Proof.
-  split; cat.
-  now destruct x; rewrite ?H, ?H0.
+  split; cbn.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b].
 Defined.

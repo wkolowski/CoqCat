@@ -46,7 +46,7 @@ Instance TransReloidCat : Cat :=
   comp := @ReloidComp;
   id := @ReloidId;
 }.
-Proof. all: treloid. Defined.
+Proof. all: now treloid. Defined.
 
 #[refine]
 #[export]
@@ -54,7 +54,7 @@ Instance TransReloid_init : TransReloid :=
 {
   reloid := Reloid_init;
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -62,7 +62,7 @@ Instance TransReloid_create (X : TransReloid) : ReloidHom TransReloid_init X :=
 {
   func := Reloid_create X
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -71,7 +71,7 @@ Instance HasInit_TransReloid : HasInit TransReloidCat :=
   init := TransReloid_init;
   create := TransReloid_create
 }.
-Proof. red; treloid. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_TransReloid : HasStrictInit TransReloidCat.
@@ -88,7 +88,7 @@ Instance TransReloid_term : TransReloid :=
 {
   reloid := Reloid_term;
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -96,7 +96,7 @@ Instance TransReloid_delete (X : TransReloid) : ReloidHom X TransReloid_term :=
 {
   func := Reloid_delete X
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -105,7 +105,7 @@ Instance HasTerm_TransReloid : HasTerm TransReloidCat :=
   term := TransReloid_term;
   delete := TransReloid_delete;
 }.
-Proof. red; treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -113,7 +113,7 @@ Instance TransReloid_product (X Y : TransReloid) : TransReloid :=
 {
   reloid := Reloid_product X Y;
 }.
-Proof. split; cbn; treloid. Defined.
+Proof. now split; cbn; treloid. Defined.
 
 #[refine]
 #[export]
@@ -121,7 +121,7 @@ Instance TransReloid_outl (X Y : TransReloid) : ReloidHom (TransReloid_product X
 {
   func := Reloid_outl X Y
 }.
-Proof. treloid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -129,7 +129,7 @@ Instance TransReloid_outr (X Y : TransReloid) : ReloidHom (TransReloid_product X
 {
   func := Reloid_outr X Y
 }.
-Proof. treloid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -139,7 +139,7 @@ Instance TransReloid_fpair
 {
   func := Reloid_fpair f g
 }.
-Proof. treloid. Defined.
+Proof. now split; apply pres_rel. Defined.
 
 #[refine]
 #[export]
@@ -151,7 +151,7 @@ Instance HasProducts_TransReloid : HasProducts TransReloidCat :=
   fpair := TransReloid_fpair;
 }.
 Proof.
-  split; reloid.
+  now repeat split; cbn in *.
 Defined.
 
 #[refine]
@@ -160,7 +160,7 @@ Instance TransReloid_coproduct (X Y : TransReloid) : TransReloid :=
 {
   reloid := Reloid_coproduct X Y;
 }.
-Proof. intros [] [] []; cbn; treloid. Defined.
+Proof. now intros [] [] []; cbn; treloid. Defined.
 
 #[refine]
 #[export]
@@ -168,7 +168,7 @@ Instance TransReloid_finl (X Y : TransReloid) : ReloidHom X (TransReloid_coprodu
 {
   func := Reloid_finl X Y;
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -176,7 +176,7 @@ Instance TransReloid_finr (X Y : TransReloid) : ReloidHom Y (TransReloid_coprodu
 {
   func := Reloid_finr X Y;
 }.
-Proof. treloid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -187,7 +187,7 @@ Instance TransReloid_copair
   func := Reloid_copair f g
 }.
 Proof.
-  proper. now destruct x, y; try apply pres_rel.
+  now proper; destruct x, y; try apply pres_rel.
 Defined.
 
 #[refine]
@@ -200,6 +200,8 @@ Instance HasCoproducts_TransReloid : HasCoproducts TransReloidCat :=
   copair := TransReloid_copair;
 }.
 Proof.
-  split; cat.
-  now destruct x; rewrite ?H, ?H0.
+  split; cbn.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b].
 Defined.
