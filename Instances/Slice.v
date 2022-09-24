@@ -22,7 +22,7 @@ Instance SliceHomSetoid {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Setoid (Slice
 {
   equiv := fun f g : SliceHom A B => proj1_sig f == proj1_sig g
 }.
-Proof. solve_equiv. Defined.
+Proof. now solve_equiv. Defined.
 
 Definition SliceComp
   {C : Cat} {A : Ob C} (X Y Z : SliceOb C A) (f : SliceHom X Y) (g : SliceHom Y Z) : SliceHom X Z.
@@ -34,25 +34,27 @@ Defined.
 
 Definition SliceId {C : Cat} {Y : Ob C} (X : SliceOb C Y) : SliceHom X X.
 Proof.
-  red. exists (id X).
+  exists (id X).
   now rewrite comp_id_l.
 Defined.
 
 #[refine]
 #[export]
-Instance Slice (C : Cat) (Y : Ob C) : Cat :=
+Instance Slice (C : Cat) (T : Ob C) : Cat :=
 {
-  Ob := SliceOb C Y;
-  Hom := @SliceHom C Y;
-  HomSetoid := @SliceHomSetoid C Y;
-  comp := @SliceComp C Y;
-  id := @SliceId C Y
+  Ob := SliceOb C T;
+  Hom := @SliceHom C T;
+  HomSetoid := @SliceHomSetoid C T;
+  comp := @SliceComp C T;
+  id := @SliceId C T;
 }.
 Proof.
-  unfold Proper, respectful; intros.
-  1: now destruct x, y, x0, y0; cbn in *; rewrite H, H0.
-  all: (cat; repeat
-  match goal with
-  | f : SliceHom _ _ |- _ => destruct f; cbn in *
-  end; cat).
+  - intros [X x] [Y y] [Z z] [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg; cbn in *.
+    now rewrite Hf, Hg.
+  - intros [X x] [Y y] [Z z] [W w] [f Hf] [g Hg] [h Hh]; cbn in *.
+    now rewrite comp_assoc.
+  - intros [X x] [Y y] [f Hf]; cbn in *.
+    now rewrite comp_id_l.
+  - intros [X x] [Y y] [f Hf]; cbn in *.
+    now rewrite comp_id_r.
 Defined.

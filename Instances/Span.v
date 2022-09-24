@@ -15,18 +15,17 @@ Class SpanHom (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Type :=
 #[export]
 Instance SpanHomSetoid (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Setoid (SpanHom hp A B).
 Proof.
-  esplit. Unshelve. 2:
-  {
-    red. intros [X f g] [Y f' g'].
+  esplit. Unshelve. all: cycle 1.
+  - intros [X f g] [Y f' g'].
     exact (exists p : X = Y,
       @transport _ (fun X => Hom X A) _ _ p f == f' /\
       @transport _ (fun X => Hom X B) _ _ p g == g').
-  }
-  split; red; destruct x; try destruct y; try destruct z.
-    now exists eq_refl.
-    intros [-> [H1 H2]]. now exists eq_refl.
-    intros [-> [Hl1 Hr1]] [-> [Hl2 Hr2]]. exists eq_refl. cbn in *.
-      now rewrite ?Hl1, ?Hr1.
+  - split; red.
+    + now intros [x x1 x2]; exists eq_refl.
+    + now intros [x x1 x2] [y y1 y2] (-> & p1 & p2); cbn in *; exists eq_refl.
+    + intros [x x1 x2] [y y1 y2] [z z1 z2] (-> & p1 & p2) (-> & q1 & q2); cbn in *.
+      exists eq_refl; cbn.
+      now rewrite p1, p2, q1, q2.
 Defined.
 
 #[export]

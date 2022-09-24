@@ -11,4 +11,4 @@ Instance SubcatOb (C : Cat) (P : Ob C -> Prop) : Cat :=
   comp := fun X Y Z => @comp C (proj1_sig X) (proj1_sig Y) (proj1_sig Z);
   id := fun X => @id C (proj1_sig X)
 }.
-Proof. all: cat. Defined.
+Proof. all: now cat. Defined.

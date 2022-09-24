@@ -9,15 +9,20 @@ Instance WithMono (C : Cat) : Cat :=
   HomSetoid := fun X Y : Ob C => Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) isMono)
 }.
 Proof.
-  destruct 1 as [f f_mon], 1 as [g g_mon].
-    exists (f .> g). now apply isMono_comp.
-  repeat (red || split).
-    destruct C, x as [f1 f1_mon], y as [g1 g1_mon]; cbn in *;
-    destruct x as [f2 f2_mon], y as [g2 g2_mon]; cbn in *; intros.
-    now rewrite H, H0.
-  destruct f, g, h; cat.
-  intro. exists (id A). red; cat.
-  all: destruct f; cat.
+  - intros X Y Z [f Hf] [g Hg].
+    exists (f .> g).
+    now apply isMono_comp.
+  - intros X Y Z [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg; cbn in *.
+    now rewrite Hf, Hg.
+  - intros X Y Z W [f Hf] [g Hg] [h Hh]; cbn in *.
+    now rewrite comp_assoc.
+  - intros X.
+    exists (id X).
+    now apply isMono_id.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_l.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_r.
 Defined.
 
 #[refine]
@@ -29,12 +34,18 @@ Instance WithIso (C : Cat) : Cat :=
   HomSetoid := fun A B : Ob C => Setoid_kernel_equiv (HomSetoid A B) (@proj1_sig (Hom A B) isIso)
 }.
 Proof.
-  - intros. destruct X as [f f_iso], X0 as [g g_iso].
-    exists (f .> g). now apply isIso_comp.
-  - unfold Proper, respectful; intros;
-    destruct x, y, x0, y0; cbn in *. now rewrite H, H0.
-  - intros; destruct f, g, h; cat.
-  - intro. exists (id A). apply isAut_id.
-  - intros; destruct f; cat.
-  - intros; destruct f; cat.
+  - intros X Y Z [f Hf] [g Hg].
+    exists (f .> g).
+    now apply isIso_comp.
+  - intros X Y Z [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg; cbn in *.
+    now rewrite Hf, Hg.
+  - intros X Y Z W [f Hf] [g Hg] [h Hh]; cbn in *.
+    now rewrite comp_assoc.
+  - intros X.
+    exists (id X).
+    now apply isIso_id.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_l.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_r.
 Defined.

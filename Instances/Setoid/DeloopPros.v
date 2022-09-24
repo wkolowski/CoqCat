@@ -11,4 +11,4 @@ Instance DeloopPros (P : Pros) : Cat :=
   HomSetoid := fun (X Y : carrier) => {| equiv := fun f g : X ≤ Y => True |};
   comp := leq_trans;
 }.
-Proof. all: pros. Defined.
+Proof. all: now pros. Defined.

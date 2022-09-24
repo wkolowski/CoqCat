@@ -9,9 +9,11 @@ Instance N (n : nat) : Cat :=
   HomSetoid := fun _ _ => {| equiv := fun _ _ => True |}
 }.
 Proof.
-  (* Equiv *) solve_equiv.
-  (* composition *) destruct A, B, C. simpl. intros. eapply le_trans; eauto.
-  (* Proper *) proper.
-  (* Category laws *) all: cat.
+  - now solve_equiv.
+  - now intros [a Ha] [b Hb] [c Hc] Hab Hbc; cbn in *; transitivity b.
+  - now proper.
+  - easy.
+  - easy.
+  - easy.
+  - easy.
 Defined.
-

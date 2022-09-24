@@ -71,8 +71,10 @@ Instance SimplifyMor
     end
 }.
 Proof.
-  destruct S, f, func0; cbn in *. destruct simplify0; cbn in *;
-  now rewrite <- simplify_spec0, ?pres_op0.
+  destruct S as [[] IH]; cbn in *.
+  - now rewrite IH.
+  - now rewrite <- pres_op, IH.
+  - now rewrite IH.
 Defined.
 
 #[refine]
@@ -95,18 +97,16 @@ Lemma expDenoteNel_nel_app :
   forall (X : Sgr) (l1 l2 : nel X),
     expDenoteNel (nel_app l1 l2) == op (expDenoteNel l1) (expDenoteNel l2).
 Proof.
-  induction l1 as [| h1 t1]; cbn; intros.
-    easy.
-    now rewrite IHt1, assoc.
+  induction l1 as [| h1 t1]; cbn; intros; [easy |].
+  now rewrite IHt1, assoc.
 Qed.
 
 Lemma expDenoteNel_hom :
   forall (X Y : Sgr) (f : SgrHom X Y) (l : nel X),
     expDenoteNel (nel_map f l) == f (expDenoteNel l).
 Proof.
-  induction l as [| h t]; cbn.
-    easy.
-    now rewrite pres_op, IHt.
+  induction l as [| h t]; cbn; [easy |].
+  now rewrite pres_op, IHt.
 Qed.
 
 Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
@@ -120,10 +120,9 @@ Lemma flatten_correct :
   forall (X : Sgr) (e : exp X),
     expDenoteNel (flatten e) == expDenote e.
 Proof.
-  induction e; cbn.
-    easy.
-    now rewrite expDenoteNel_nel_app, IHe1, IHe2.
-    now rewrite expDenoteNel_hom, IHe.
+  induction e; cbn; [easy | |].
+  - now rewrite expDenoteNel_nel_app, IHe1, IHe2.
+  - now rewrite expDenoteNel_hom, IHe.
 Qed.
 
 Lemma sgr_reflect :
@@ -239,16 +238,17 @@ Instance SgrHomSetoid (X Y : Sgr) : Setoid (SgrHom X Y) :=
 {
   equiv := fun f g : SgrHom X Y => forall x : X, f x == g x
 }.
-Proof. sgr. Defined.
+Proof. now sgr. Defined.
 
 Definition SgrComp (A B C : Sgr) (f : SgrHom A B) (g : SgrHom B C) : SgrHom A C.
 Proof.
-  exists (SetoidComp f g). sgr.
+  exists (SetoidComp f g); cbn.
+  now intros; rewrite !pres_op.
 Defined.
 
 Definition SgrId (A : Sgr) : SgrHom A A.
 Proof.
-  exists (SetoidId A). sgr.
+  now exists (SetoidId A).
 Defined.
 
 #[refine]
@@ -261,7 +261,7 @@ Instance SgrCat : Cat :=
   comp := SgrComp;
   id := SgrId
 }.
-Proof. all: sgr. Defined.
+Proof. all: now sgr. Defined.
 
 #[refine]
 #[export]
@@ -270,11 +270,11 @@ Instance Sgr_init : Sgr :=
   setoid := CoqSetoid_init;
   op := fun (e : Empty_set) _ => match e with end
 }.
-Proof. all: sgr. Defined.
+Proof. all: easy. Defined.
 
 Definition Sgr_create (X : Sgr) : Hom Sgr_init X.
 Proof.
-  sgr_simpl. exists (CoqSetoid_create X). sgr.
+  now exists (CoqSetoid_create X).
 Defined.
 
 #[refine]
@@ -284,7 +284,7 @@ Instance HasInit_Sgr : HasInit SgrCat :=
   init := Sgr_init;
   create := Sgr_create
 }.
-Proof. sgr. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -293,11 +293,11 @@ Instance Sgr_term : Sgr :=
   setoid := CoqSetoid_term;
   op := fun _ _ => tt
 }.
-Proof. all: sgr. Defined.
+Proof. all: easy. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  exists (CoqSetoid_delete X). sgr.
+  now exists (CoqSetoid_delete X).
 Defined.
 
 #[refine]
@@ -307,7 +307,7 @@ Instance HasTerm_Sgr : HasTerm SgrCat :=
   term := Sgr_term;
   delete := Sgr_delete
 }.
-Proof. sgr. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -317,23 +317,26 @@ Instance Sgr_product (X Y : Sgr) : Sgr :=
   op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
-  proper. destruct H, H0. now rewrite H, H0, H1, H2.
-  sgr.
+  - intros f1 f2 [Hf1 Hf2] g1 g2 [Hg1 Hg2]; cbn in *.
+    now rewrite Hf1, Hf2, Hg1, Hg2.
+  - intros [x1 y1] [x2 y2] [x3 y3]; cbn.
+    now rewrite !assoc.
 Defined.
 
 Definition Sgr_outl (X Y : Sgr) : SgrHom (Sgr_product X Y) X.
 Proof.
-  exists (CoqSetoid_outl X Y). sgr.
+  now exists (CoqSetoid_outl X Y).
 Defined.
 
 Definition Sgr_outr (X Y : Sgr) : SgrHom (Sgr_product X Y) Y.
 Proof.
-  exists (CoqSetoid_outr X Y). sgr.
+  now exists (CoqSetoid_outr X Y).
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B) : SgrHom X (Sgr_product A B).
 Proof.
-  exists (CoqSetoid_fpair f g). split; sgr.
+  exists (CoqSetoid_fpair f g); cbn.
+  now intros; rewrite !pres_op.
 Defined.
 
 #[refine]
@@ -345,24 +348,11 @@ Instance HasProducts_Sgr : HasProducts SgrCat :=
   outr := Sgr_outr;
   fpair := Sgr_fpair
 }.
-Proof. split; sgr. Defined.
-
-#[refine]
-#[export]
-Instance Sgr_sum (X Y : Sgr) : Sgr :=
-{
-  setoid := CoqSetoid_coproduct X Y
-}.
 Proof.
-  destruct 1 as [x | y], 1 as [x' | y']; cat.
-  proper. repeat
-  match goal with
-  | H : match ?x with _ => _ end |- _ => destruct x
-  | |- match ?x with _ => _ end => destruct x
-  | H : False |- _ => inversion H
-  end; auto.
-  destruct x, y, z; sgr.
+  now repeat split; cbn in *.
 Defined.
+
+(* TODO: coproducts of semigroups *)
 
 Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
 match l1, l2 with
@@ -375,14 +365,14 @@ Lemma equiv_nel_refl :
   forall (X : Setoid') (l : nel X),
     equiv_nel l l.
 Proof.
-  induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
+  now induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
 Qed.
 
 Lemma equiv_nel_sym :
   forall (X : Setoid') (l1 l2 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l1.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
+  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
   intros; solve_equiv.
 Qed.
 
@@ -390,7 +380,7 @@ Lemma equiv_nel_trans :
   forall (X : Setoid') (l1 l2 l3 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
+  now induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
 Qed.
 
 #[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
@@ -402,7 +392,7 @@ Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
   carrier := nel X;
   setoid := {| equiv := @equiv_nel X |}
 }.
-Proof. sgr. Defined.
+Proof. now sgr. Defined.
 
 Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
 match l with
@@ -436,13 +426,13 @@ Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
 Definition Sgr_freeprod_setoid_finl
   (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
 Proof.
-  exists (fun x : X => singl (inl x)). sgr.
+  now exists (fun x : X => singl (inl x)).
 Defined.
 
 Definition Sgr_freeprod_setoid_finr
   (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
 Proof.
-  exists (fun y : Y => singl (inr y)). sgr.
+  now exists (fun y : Y => singl (inr y)).
 Defined.
 
 (*
@@ -480,21 +470,21 @@ Lemma fp_equiv_refl :
   forall (X Y : Setoid') (l : nel (X + Y)),
     fp_equiv l l.
 Proof.
-  induction l as [| h t]; fp_equiv.
+  now induction l as [| h t]; fp_equiv.
 Qed.
 
 Lemma fp_equiv_sym :
   forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l1.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
+  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
 Qed.
 
 Lemma fp_equiv_trans :
   forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
     fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
 Proof.
-  induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
+  now induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
 Qed.
 
 #[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
@@ -514,21 +504,21 @@ Lemma fpeq4_refl :
   forall (X Y : Sgr) (l : nel (X + Y)),
     fpeq4 l l.
 Proof.
-  unfold fpeq4. induction l as [| h [| h' t]]; fpeq4.
+  now induction l as [| h [| h' t]]; fpeq4.
 Qed.
 
 Lemma fpeq4_sym :
   forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l1.
 Proof.
-  unfold fpeq4. induction l1 as [| h [| h' t]]; fpeq4.
+  now induction l1 as [| h [| h' t]]; fpeq4.
 Qed.
 
 Lemma fpeq4_trans :
   forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
     fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
 Proof.
-  unfold fpeq4. induction l1 as [| h1 t1]; fpeq4.
+  now induction l1 as [| h1 t1]; fpeq4.
 Qed.
 
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
@@ -537,9 +527,6 @@ Lemma Proper_app_nel :
   forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
-  unfold fpeq4. induction l1 as [| h1 t1].
-    cbn; intros. fpeq4. destruct l2.
-      fpeq4.
 Abort.
 
 (*

@@ -44,15 +44,16 @@ Lemma inv_op :
   forall (G : Grp) (a b : G),
     inv (op a b) == op (inv b) (inv a).
 Proof.
-  intros.
+  intros G a b.
   assert (forall x y : G, op (op x y) (inv (op x y)) == neutr) by easy.
-  assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr).
-    now intros; rewrite <- assoc, (assoc y _), inv_r, neutr_l.
-  assert (op (op a b) (inv (op a b)) == op (op a b) (op (inv b) (inv a))).
-    now rewrite H, H0.
-  assert (op (inv (op a b)) (op (op a b) (inv (op a b))) ==
-    op (inv (op a b)) (op (op a b) (op (inv b) (inv a)))).
-    now rewrite H1.
+  assert (forall x y : G, op (op x y) (op (inv y) (inv x)) == neutr)
+    by now intros; rewrite <- assoc, (assoc y _), inv_r, neutr_l.
+  assert (op (op a b) (inv (op a b)) == op (op a b) (op (inv b) (inv a)))
+    by now rewrite H, H0.
+  assert (op (inv (op a b)) (op (op a b) (inv (op a b)))
+            ==
+          op (inv (op a b)) (op (op a b) (op (inv b) (inv a))))
+    by now rewrite H1.
   now repeat (rewrite assoc, inv_l, neutr_l in H2).
 Defined.
 
@@ -85,8 +86,6 @@ Arguments Var {X} _.
 Arguments Op  {X} _ _.
 Arguments Mor {X A} _ _.
 Arguments Inv {X} _.
-
-Unset Asymmetric Patterns.
 
 Fixpoint expDenote {X : Grp} (e : exp X) : X :=
 match e with
@@ -139,8 +138,8 @@ Lemma expDenoteL_app :
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    now rewrite neutr_l.
-    now rewrite <- assoc, IHt1.
+  - now rewrite neutr_l.
+  - now rewrite <- assoc, IHt1.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -148,8 +147,8 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; cbn.
-    now rewrite pres_neutr.
-    now rewrite pres_op, IHt.
+  - now rewrite pres_neutr.
+  - now rewrite pres_op, IHt.
 Qed.
 
 Lemma expDenoteL_inv :
@@ -157,8 +156,8 @@ Lemma expDenoteL_inv :
     expDenoteL (map inv l) == inv (expDenoteL (rev l)).
 Proof.
   induction l as [| h t]; cbn.
-    now rewrite inv_neutr.
-    now rewrite expDenoteL_app, inv_op; cbn; rewrite neutr_r, IHt.
+  - now rewrite inv_neutr.
+  - now rewrite expDenoteL_app, inv_op; cbn; rewrite neutr_r, IHt.
 Qed.
 
 Fixpoint flatten {X : Grp} (e : exp X) : list X :=
@@ -174,12 +173,11 @@ Lemma flatten_correct :
   forall (X : Grp) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; cbn.
-    easy.
-    now rewrite neutr_r.
-    now rewrite expDenoteL_app, IHe1, IHe2.
-    now rewrite expDenoteL_hom, IHe.
-    now rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe.
+  induction e; cbn; [easy | | | |].
+  - now rewrite neutr_r.
+  - now rewrite expDenoteL_app, IHe1, IHe2.
+  - now rewrite expDenoteL_hom, IHe.
+  - now rewrite <- map_rev, expDenoteL_inv, rev_involutive, IHe.
 Qed.
 
 Lemma grp_reflect :
@@ -373,16 +371,17 @@ Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
 {
   equiv := fun f g : GrpHom X Y => @equiv _ (SgrHomSetoid X Y) f g
 }.
-Proof. apply Setoid_kernel_equiv. Defined.
+Proof. now apply Setoid_kernel_equiv. Defined.
 
 Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z) : GrpHom X Z.
 Proof.
-  exists (MonComp f g). grp.
+  exists (MonComp f g); cbn.
+  now intros; rewrite !pres_inv.
 Defined.
 
 Definition GrpId (X : Grp) : GrpHom X X.
 Proof.
-  exists (MonId X). grp.
+  now exists (MonId X).
 Defined.
 
 #[refine]
@@ -396,14 +395,16 @@ Instance GrpCat : Cat :=
   id := GrpId;
 }.
 Proof.
-  (* Proper *) proper; repeat red; intros; destruct x, y, x0, y0; cat;
-    now eapply (@Proper_comp MonCat).
-  (* Category laws *) all: grp.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - now grp.
+  - now grp.
+  - now grp.
 Defined.
 
 Definition Grp_zero_inv : SetoidHom Mon_init Mon_init.
 Proof.
-  exists (fun _ => tt). grp.
+  now exists (fun _ => tt).
 Defined.
 
 #[refine]
@@ -413,11 +414,12 @@ Instance Grp_zero : Grp :=
   mon := Mon_init;
   inv := Grp_zero_inv
 }.
-Proof. all: grp. Defined.
+Proof. all: now grp. Defined.
 
 Definition Grp_create (X : Grp) : Hom Grp_zero X.
 Proof.
-  exists (Mon_create X). grp.
+  exists (Mon_create X); cbn.
+  now intros; rewrite inv_neutr.
 Defined.
 
 #[refine]
@@ -427,11 +429,11 @@ Instance HasInit_Grp : HasInit GrpCat :=
     init := Grp_zero;
     create := Grp_create
 }.
-Proof. grp. Defined.
+Proof. now grp. Defined.
 
 Definition Grp_delete (X : Grp) : Hom X Grp_zero.
 Proof.
-  exists (Mon_delete X). grp.
+  now exists (Mon_delete X).
 Defined.
 
 #[refine]
@@ -441,7 +443,7 @@ Instance HasTerm_Grp : HasTerm GrpCat :=
   term := Grp_zero;
   delete := Grp_delete
 }.
-Proof. grp. Defined.
+Proof. now grp. Defined.
 
 #[refine]
 #[export]
@@ -450,12 +452,13 @@ Instance HasZero_Grp : HasZero GrpCat :=
   HasInit_HasZero := HasInit_Grp;
   HasTerm_HasZero := HasTerm_Grp
 }.
-Proof. grp. Defined.
+Proof. now grp. Defined.
 
 Definition Grp_product_inv (X Y : Grp) : SetoidHom (Mon_product X Y) (Mon_product X Y).
 Proof.
   exists (fun p : X * Y => (inv (fst p), inv (snd p))).
-  proper. destruct H. now rewrite H, H0.
+  intros [f1 Hf1] [f2 Hf2] Hf; cbn in *.
+  now destruct Hf as [-> ->].
 Defined.
 
 #[refine]
@@ -465,21 +468,22 @@ Instance Grp_product (X Y : Grp) : Grp :=
   mon := Mon_product X Y;
   inv := Grp_product_inv X Y
 }.
-Proof. all: destruct x; grp. Defined.
+Proof. all: now destruct x; grp. Defined.
 
 Definition Grp_outl (X Y : Grp) : Hom (Grp_product X Y) X.
 Proof.
-  grp_simpl. exists (Mon_outl X Y). grp.
+  now exists (Mon_outl X Y).
 Defined.
 
 Definition Grp_outr (X Y : Grp) : Hom (Grp_product X Y) Y.
 Proof.
-  grp_simpl. exists (Mon_outr X Y). grp.
+  now exists (Mon_outr X Y).
 Defined.
 
 Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_product A B).
 Proof.
-  grp_simpl. exists (Mon_fpair f g). split; grp.
+  exists (Mon_fpair f g); cbn.
+  now intros; rewrite !pres_inv.
 Defined.
 
 #[refine]
@@ -492,8 +496,10 @@ Instance HasProducts_Grp : HasProducts GrpCat :=
   fpair := Grp_fpair
 }.
 Proof.
-  grp.
-  repeat split; cat.
+  split; cbn.
+  - easy.
+  - easy.
+  - now split.
 Defined.
 
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
@@ -514,17 +520,21 @@ Instance AutHomSetoid
 {
   equiv := fun f g : AutHom A B => @equiv _ (@HomSetoid C X X) f g
 }.
-Proof. grp. Defined.
+Proof. now grp. Defined.
 
 Definition AutComp
   (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
 Proof.
-  red. exists (f .> g). destruct f, g; cbn. now apply isIso_comp.
+  exists (f .> g).
+  apply isIso_comp.
+  - now destruct f.
+  - now destruct g.
 Defined.
 
 Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.
 Proof.
-  red. exists (id A). apply isAut_id.
+  exists (id A).
+  now apply isAut_id.
 Defined.
 
 #[refine]
@@ -537,4 +547,4 @@ Instance AutCat (C : Cat) (X : Ob C) : Cat :=
   comp := @AutComp C X;
   id := @AutId C X;
 }.
-Proof. all: grp. Defined.
+Proof. all: now grp. Defined.

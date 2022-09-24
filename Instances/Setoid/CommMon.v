@@ -57,12 +57,10 @@ Lemma simplifyExp_correct :
   forall (X : ComMon) (env : nat -> X) (e : exp X),
     expDenote env (simplifyExp e) == expDenote env e.
 Proof.
-  induction e; cbn.
-    easy.
-    easy.
-    now destruct (simplifyExp e1), (simplifyExp e2); cbn in *;
+  induction e; cbn; [easy | easy | |].
+  - now destruct (simplifyExp e1), (simplifyExp e2); cbn in *;
       rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r.
-    now destruct (simplifyExp e); cbn in *; rewrite ?neutr_l.
+  - now destruct (simplifyExp e); cbn in *; rewrite ?neutr_l.
 Qed.
 
 Fixpoint expDenoteL {X : ComMon} (env : nat -> X) (l : list nat) : X :=
@@ -76,8 +74,8 @@ Lemma expDenoteL_app :
     expDenoteL env (l1 ++ l2) == op (expDenoteL env l1) (expDenoteL env l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    now rewrite neutr_l.
-    now rewrite <- assoc, IHt1.
+  - now rewrite neutr_l.
+  - now rewrite <- assoc, IHt1.
 Qed.
 
 Fixpoint flatten {X : ComMon} (e : exp X) : list nat :=
@@ -92,22 +90,20 @@ Lemma flatten_correct :
   forall (X : ComMon) (env : nat -> X) (e : exp X),
     expDenoteL env (flatten e) == expDenote env e.
 Proof.
-  induction e; cbn.
-    easy.
-    now rewrite neutr_r.
-    now rewrite expDenoteL_app, IHe1, IHe2.
-    now rewrite ?expDenoteL_hom, ?IHe.
+  induction e; cbn; [easy | | |].
+  - now rewrite neutr_r.
+  - now rewrite expDenoteL_app, IHe1, IHe2.
+  - now rewrite ?expDenoteL_hom, ?IHe.
 Qed.
 
 Lemma expDenoteL_Permutation :
   forall (X : ComMon) (env : nat -> X) (l1 l2 : list nat),
     Permutation l1 l2 -> expDenoteL env l1 == expDenoteL env l2.
 Proof.
-  induction 1; cbn.
-    easy.
-    now rewrite IHPermutation.
-    now rewrite !assoc, (com (env y)).
-    now rewrite IHPermutation1, IHPermutation2.
+  induction 1; cbn; [easy | | |].
+  - now rewrite IHPermutation.
+  - now rewrite !assoc, (com (env y)).
+  - now rewrite IHPermutation1, IHPermutation2.
 Qed.
 
 (* TOOD: fix *) Lemma sort_correct :
@@ -207,7 +203,9 @@ Lemma flat_reflect_goal :
     flatten (simplifyExp e1) = flatten (simplifyExp e2) ->
       expDenote env e1 == expDenote env e2.
 Proof.
-  intros. apply simplify_correct. unfold simplify. now rewrite H.
+  intros.
+  apply simplify_correct; unfold simplify.
+  now rewrite H.
 Qed.
 
 Lemma flat_reflect_hyp :
@@ -350,24 +348,26 @@ Fixpoint solveFormula {X : ComMon} (env : nat -> X) (f : formula X)
   : option (formulaDenote env f).
 Proof.
   destruct f; cbn.
-    apply None.
-    destruct (list_eq
+  - apply None.
+  - destruct (list_eq
               (insertionSort natle (flatten (simplifyExp e)))
               (insertionSort natle (flatten (simplifyExp e0)))).
-      apply Some. now apply simplify_correct.
-      apply None.
-    apply None.
-    destruct (solveFormula X env f1), (solveFormula X env f2).
-      now apply Some.
-      1-3: apply None.
-    destruct (solveFormula X env f1).
-      apply Some. now left.
-      destruct (solveFormula X env f2).
-        apply Some. now right.
-        apply None.
-    destruct (solveFormula X env f2).
-      apply Some. now intro.
-      apply None.
+    + apply Some. now apply simplify_correct.
+    + apply None.
+  - apply None.
+  - destruct (solveFormula X env f1), (solveFormula X env f2).
+    + now apply Some.
+    + apply None.
+    + apply None.
+    + apply None.
+  - destruct (solveFormula X env f1).
+    + apply Some. now left.
+    + destruct (solveFormula X env f2).
+      * apply Some. now right.
+      * apply None.
+  - destruct (solveFormula X env f2).
+    + apply Some. now intro.
+    + apply None.
 Defined.
 
 Lemma solveFormula_spec :
@@ -375,7 +375,7 @@ Lemma solveFormula_spec :
     (exists p : formulaDenote env f, solveFormula env f = Some p) ->
       formulaDenote env f.
 Proof.
-  intros. now destruct H.
+  now intros; destruct H.
 Qed.
 
 Ltac solve_goal' :=
@@ -396,7 +396,7 @@ Goal forall (X : ComMon) (a a' b b' c c' : X),
   a == b -> b' == c' -> 2 = 2 \/ op c c == op c (op a c').
 Proof.
   intros X a _ b b' c c'.
-  match goal with
+  now match goal with
   | X : ComMon |- ?P =>
     let xs := allVarsFormula constr:(@nil X) P in
     let env := functionalize xs X in
@@ -414,17 +414,17 @@ Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
   equiv := fun f g : MonHom X Y =>
     @equiv _ (SgrHomSetoid X Y) f g
 }.
-Proof. apply Setoid_kernel_equiv. Defined.
+Proof. now apply Setoid_kernel_equiv. Defined.
 
 Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z)
     : MonHom X Z.
 Proof.
-  exists (SgrComp f g). mon.
+  now exists (SgrComp f g).
 Defined.
 
 Definition MonId (X : Mon) : MonHom X X.
 Proof.
-  exists (SgrId X). mon.
+  now exists (SgrId X).
 Defined.
 
 #[refine]
@@ -437,7 +437,7 @@ Instance MonCat : Cat :=
   comp := MonComp;
   id := MonId
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 #[refine]
 #[export]
@@ -446,21 +446,21 @@ Instance Mon_init : Mon :=
   sgr := Sgr_term;
   neutr := tt
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 Definition Mon_Setoid_create (X : Mon) : SetoidHom Mon_init X.
 Proof.
-  exists (fun _ => neutr). mon.
+  now exists (fun _ => neutr).
 Defined.
 
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
 Proof.
-  exists (Mon_Setoid_create X). mon.
+  now exists (Mon_Setoid_create X).
 Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
 Proof.
-  exists (Mon_Sgr_create X). mon.
+  now exists (Mon_Sgr_create X).
 Defined.
 
 #[refine]
@@ -470,7 +470,7 @@ Instance HasInit_Mon : HasInit MonCat :=
   init := Mon_init;
   create := Mon_create
 }.
-Proof. mon. Defined.
+Proof. now mon. Defined.
 
 #[refine]
 #[export]
@@ -479,21 +479,21 @@ Instance Mon_term : Mon :=
   sgr := Sgr_term;
   neutr := tt
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 Definition Mon_Setoid_delete (X : Mon) : SetoidHom X Mon_term.
 Proof.
-  exists (fun _ => tt). mon.
+  now exists (fun _ => tt).
 Defined.
 
 Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
 Proof.
-  exists (Mon_Setoid_delete X). mon.
+  now exists (Mon_Setoid_delete X).
 Defined.
 
 Definition Mon_delete (X : Mon) : Hom X Mon_term.
 Proof.
-  exists (Mon_Sgr_delete X). mon.
+  now exists (Mon_Sgr_delete X).
 Defined.
 
 #[refine]
@@ -503,7 +503,7 @@ Instance HasTerm_Mon : HasTerm MonCat :=
   term := Mon_term;
   delete := Mon_delete
 }.
-Proof. mon. Defined.
+Proof. now mon. Defined.
 
 #[refine]
 #[export]
@@ -512,7 +512,7 @@ Instance HasZero_Mon : HasZero MonCat :=
     HasInit_HasZero := HasInit_Mon;
     HasTerm_HasZero := HasTerm_Mon
 }.
-Proof. mon. Defined.
+Proof. now mon. Defined.
 
 #[refine]
 #[export]
@@ -521,22 +521,22 @@ Instance Mon_product (X Y : Mon) : Mon :=
   sgr := Sgr_product X Y;
   neutr := (neutr, neutr);
 }.
-Proof. all: destruct a; mon. Defined.
+Proof. all: now destruct a; mon. Defined.
 
 Definition Mon_outl (X Y : Mon) : Hom (Mon_product X Y) X.
 Proof.
-  mon_simpl. exists (Sgr_outl X Y). mon.
+  now exists (Sgr_outl X Y).
 Defined.
 
 Definition Mon_outr (X Y : Mon) : Hom (Mon_product X Y) Y.
 Proof.
-  mon_simpl. exists (Sgr_outr X Y). mon.
+  now exists (Sgr_outr X Y).
 Defined.
 
 Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B)
     : MonHom X (Mon_product A B).
 Proof.
-  exists (Sgr_fpair f g). mon.
+  now exists (Sgr_fpair f g).
 Defined.
 
 #[refine]
@@ -549,8 +549,7 @@ Instance HasProducts_Mon : HasProducts MonCat :=
   fpair := Mon_fpair
 }.
 Proof.
-  formulaer.
-  repeat split; cat. (* TODO : mon doesn't work *)
+  now repeat split; cat.
 Defined.
 
 #[refine]
@@ -560,8 +559,8 @@ Instance forgetful : Functor MonCat CoqSetoid :=
   fob := fun X : Mon => @setoid (sgr X);
 }.
 Proof.
-  cbn. intros. exact X.
-  formulaer. all: mon.
+  - now cbn; intros; exact X.
+  - formulaer. all: mon.
 Defined.
 
 Notation "'U'" := forgetful.
@@ -591,12 +590,12 @@ Instance MonListUnit : Mon :=
   neutr := 0
 }.
 Proof.
-  all: cbn; intros; ring.
+  all: now cbn; intros; ring.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
 Proof.
-  cbn. exists (fun _ => 1). formulaer.
+  now exists (fun _ => 1); formulaer.
 Defined.
 
 Lemma free_monoid_MonListUnit :

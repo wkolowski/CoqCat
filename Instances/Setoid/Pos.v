@@ -48,8 +48,11 @@ Instance PosCat : Cat :=
   id := ProsId
 }.
 Proof.
-  (* Proper *) proper. pos'.
-  (* Category laws *) all: pos.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 #[refine]
@@ -58,7 +61,7 @@ Instance Pos_init : Pos :=
 {
   pros := Pros_init
 }.
-Proof. pos. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -67,7 +70,7 @@ Instance HasInit_Pos : HasInit PosCat :=
   init := Pos_init;
   create := Pros_create
 }.
-Proof. pos. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_Pos : HasStrictInit PosCat.
@@ -84,7 +87,7 @@ Instance Pos_term : Pos :=
 {
   pros := Pros_term
 }.
-Proof. pos. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -93,7 +96,7 @@ Instance HasTerm_Pos : HasTerm PosCat :=
   term := Pos_term;
   delete := Pros_delete
 }.
-Proof. pos. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -101,7 +104,7 @@ Instance Pos_product (X Y : Pos) : Pos :=
 {
   pros := Pros_product X Y
 }.
-Proof. pos. Defined.
+Proof. now pos. Defined.
 
 #[refine]
 #[export]
@@ -113,8 +116,10 @@ Instance HasProducts_Pos : HasProducts PosCat :=
   fpair := @Pros_fpair
 }.
 Proof.
-  proper.
-  all: pos.
+  split; cbn.
+  - easy.
+  - easy.
+  - split; easy.
 Defined.
 
 #[refine]
@@ -124,23 +129,24 @@ Instance Pos_coproduct (X Y : Pos) : Pos :=
   pros := Pros_coproduct X Y;
 }.
 Proof.
-  destruct x, y; pos.
+  now intros [] []; pos.
 Defined.
 
 Definition Pos_finl (X Y : Pos) : ProsHom X (Pos_coproduct X Y).
 Proof.
-  red. exists (Pros_finl X Y). pos.
+  now exists (Pros_finl X Y).
 Defined.
 
 Definition Pos_finr (X Y : Pos) : ProsHom Y (Pos_coproduct X Y).
 Proof.
-  red. exists (Pros_finr X Y). pos.
+  now exists (Pros_finr X Y).
 Defined.
 
 Definition Pos_copair
   (A B X : Pos) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pos_coproduct A B) X.
 Proof.
-  red. exists (Pros_copair f g). destruct a, a'; pos.
+  exists (Pros_copair f g).
+  now intros [] []; pos.
 Defined.
 
 #[refine]
@@ -154,6 +160,7 @@ Instance HasCoproducts_Pos : HasCoproducts PosCat :=
 }.
 Proof.
   split; cbn.
-    1-2: easy.
-    destruct x; pos.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b].
 Defined.

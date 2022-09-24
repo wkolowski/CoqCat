@@ -19,9 +19,15 @@ Instance SetP : Cat :=
   id := fun (X : Set) (x : X) => Some x
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Proper *) proper. rewrite H. now destruct (y x1).
-  (* Category laws *) all: cat; try destruct (f x); cat.
+  - now solve_equiv.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    rewrite Hf.
+    now destruct (f2 x).
+  - intros A B C D f g h x.
+    now destruct (f x).
+  - easy.
+  - intros A B f x.
+    now destruct (f x).
 Defined.
 
 #[refine]

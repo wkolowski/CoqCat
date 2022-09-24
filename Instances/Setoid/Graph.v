@@ -85,12 +85,8 @@ Instance GraphComp (X Y Z : Graph) (f : GraphHom X Y) (g : GraphHom Y Z) : Graph
   fed := SetoidComp (fed f) (fed g);
 }.
 Proof.
-  all: cbn; graphhoms; repeat
-  match goal with
-  | H : forall _, _ = _ |- _ => try rewrite H; clear H
-  end.
-    now rewrite g_pres_src, f_pres_src.
-    now rewrite g_pres_tgt, f_pres_tgt.
+  - now cbn; intros; rewrite !pres_src.
+  - now cbn; intros; rewrite !pres_tgt.
 Defined.
 
 #[refine]
@@ -100,7 +96,7 @@ Instance GraphId (X : Graph) : GraphHom X X :=
   fver := SetoidId (vertices X);
   fed := SetoidId (edges X);
 }.
-Proof. all: graph. Defined.
+Proof. all: easy. Defined.
 
 #[refine]
 #[export]
@@ -113,8 +109,14 @@ Instance GraphCat : Cat :=
   id := GraphId;
 }.
 Proof.
-  now proper; my_simpl; intros; rewrite ?H, ?H0, ?H1, ?H2.
-  all: graph.
+  - intros A B C [f1 f1' Hf1 Hf1'] [f2 f2' Hf2 Hf2'] [Hf Hf']
+                 [g1 g1' Hg1 Hg1'] [g2 g2' Hg2 Hg2'] [Hg Hg']
+    ; split; cbn in *; intros.
+    + now rewrite Hg, Hf.
+    + now rewrite Hg', Hf'.
+  - now graph.
+  - now graph.
+  - now graph.
 Defined.
 
 (* These are only finite paths *)

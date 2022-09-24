@@ -12,9 +12,11 @@ Instance Discrete (X : Set) : Cat :=
   id := @eq_refl X
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* composition is proper *) proper.
-  (* Category laws *) all: cat.
+  - now solve_equiv.
+  - now proper.
+  - easy.
+  - easy.
+  - easy.
 Defined.
 
 #[export] Instance Empty : Cat := Discrete Empty_set.
@@ -24,8 +26,7 @@ Lemma Discrete_char_iso :
   forall (X : Set) (x x' : X) (f : @Hom (Discrete X) x x'),
     isIso f.
 Proof.
-  unfold isIso; cbn; intros X x x' ->.
-  now exists eq_refl.
+  now unfold isIso; cbn.
 Defined.
 
 #[refine]
@@ -37,10 +38,11 @@ Instance Two : Cat :=
   HomSetoid := fun b b' : bool => {| equiv := fun _ _ => True |}
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Composition *) now destruct A, B, C.
-  (* Proper *) proper.
-  (* Assoc *) cat.
-  (* Id *) now destruct A.
-  (* Id laws *) all: cat.
+  - now solve_equiv.
+  - now intros [] [] [].
+  - now proper.
+  - now intros [] [] [] [].
+  - now intros [].
+  - now intros [] [].
+  - now intros [] [].
 Defined.

@@ -12,4 +12,4 @@ Instance DeloopMon (M : Mon) : Cat :=
   comp := fun _ _ _ => @op M;
   id := fun _ => @neutr M
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.

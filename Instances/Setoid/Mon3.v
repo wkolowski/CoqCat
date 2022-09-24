@@ -67,16 +67,10 @@ Lemma simplify_correct :
   forall (X : Mon) (e : exp X),
     expDenote (simplify e) == expDenote e.
 Proof.
-  induction e; cbn.
-    easy.
-    easy.
-    now destruct (simplify e1), (simplify e2); cbn in *;
+  induction e; cbn; [easy | easy | |].
+  - now destruct (simplify e1), (simplify e2); cbn in *;
       rewrite <- ?IHe1, <- ?IHe2, ?neutr_l, ?neutr_r.
-    destruct (simplify e); cbn in *; rewrite <- IHe.
-      now rewrite pres_neutr.
-      easy.
-      now rewrite pres_op.
-      easy.
+  - now destruct (simplify e); cbn in *; rewrite <- IHe, ?pres_neutr, ?pres_op.
 Qed.
 
 Fixpoint expDenoteL {X : Mon} (l : list X) : X :=
@@ -90,8 +84,8 @@ Lemma expDenoteL_app :
     expDenoteL (l1 ++ l2) == op (expDenoteL l1) (expDenoteL l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros.
-    now rewrite neutr_l.
-    now rewrite <- assoc, IHt1.
+  - now rewrite neutr_l.
+  - now rewrite <- assoc, IHt1.
 Qed.
 
 Lemma expDenoteL_hom :
@@ -99,8 +93,8 @@ Lemma expDenoteL_hom :
     expDenoteL (map f l) == f (expDenoteL l).
 Proof.
   induction l as [| h t]; cbn.
-    now rewrite pres_neutr.
-    now rewrite pres_op, IHt.
+  - now rewrite pres_neutr.
+  - now rewrite pres_op, IHt.
 Qed.
 
 Fixpoint flatten {X : Mon} (e : exp X) : list X :=
@@ -115,11 +109,10 @@ Lemma flatten_correct :
   forall (X : Mon) (e : exp X),
     expDenoteL (flatten e) == expDenote e.
 Proof.
-  induction e; cbn.
-    easy.
-    now rewrite neutr_r.
-    now rewrite expDenoteL_app, IHe1, IHe2.
-    now rewrite expDenoteL_hom, IHe.
+  induction e; cbn; [easy | | |].
+  - now rewrite neutr_r.
+  - now rewrite expDenoteL_app, IHe1, IHe2.
+  - now rewrite expDenoteL_hom, IHe.
 Qed.
 
 Lemma mon_reflect :
@@ -269,16 +262,17 @@ Instance MonHomSetoid (X Y : Mon) : Setoid (MonHom X Y) :=
 {
   equiv := fun f g : MonHom X Y => @equiv _ (SgrHomSetoid X Y) f g
 }.
-Proof. apply Setoid_kernel_equiv. Defined.
+Proof. now apply Setoid_kernel_equiv. Defined.
 
 Definition MonComp (X Y Z : Mon) (f : MonHom X Y) (g : MonHom Y Z) : MonHom X Z.
 Proof.
-  exists (SgrComp f g). mon.
+  exists (SgrComp f g); cbn.
+  now rewrite !pres_neutr.
 Defined.
 
 Definition MonId (X : Mon) : MonHom X X.
 Proof.
-  exists (SgrId X). mon.
+  now exists (SgrId X).
 Defined.
 
 #[refine]
@@ -291,7 +285,7 @@ Instance MonCat : Cat :=
   comp := MonComp;
   id := MonId
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 #[refine]
 #[export]
@@ -300,21 +294,22 @@ Instance Mon_init : Mon :=
   sgr := Sgr_term;
   neutr := tt
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 Definition Mon_Setoid_create (X : Mon) : SetoidHom Mon_init X.
 Proof.
-  exists (fun _ => neutr). mon.
+  now exists (fun _ => neutr).
 Defined.
 
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
 Proof.
-  exists (Mon_Setoid_create X). mon.
+  exists (Mon_Setoid_create X); cbn.
+  now intros; rewrite neutr_l.
 Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
 Proof.
-  exists (Mon_Sgr_create X). mon.
+  now exists (Mon_Sgr_create X).
 Defined.
 
 #[refine]
@@ -324,7 +319,7 @@ Instance HasInit_Mon : HasInit MonCat :=
   init := Mon_init;
   create := Mon_create
 }.
-Proof. mon. Defined.
+Proof. now mon. Defined.
 
 #[refine]
 #[export]
@@ -333,21 +328,21 @@ Instance Mon_term : Mon :=
   sgr := Sgr_term;
   neutr := tt
 }.
-Proof. all: mon. Defined.
+Proof. all: now mon. Defined.
 
 Definition Mon_Setoid_delete (X : Mon) : SetoidHom X Mon_term.
 Proof.
-  exists (fun _ => tt). mon.
+  now exists (fun _ => tt).
 Defined.
 
 Definition Mon_Sgr_delete (X : Mon) : SgrHom X Mon_term.
 Proof.
-  exists (Mon_Setoid_delete X). mon.
+  now exists (Mon_Setoid_delete X).
 Defined.
 
 Definition Mon_delete (X : Mon) : Hom X Mon_term.
 Proof.
-  exists (Mon_Sgr_delete X). mon.
+  now exists (Mon_Sgr_delete X).
 Defined.
 
 #[refine]
@@ -357,7 +352,7 @@ Instance HasTerm_Mon : HasTerm MonCat :=
   term := Mon_term;
   delete := Mon_delete
 }.
-Proof. mon. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -366,7 +361,7 @@ Instance HasZero_Mon : HasZero MonCat :=
   HasInit_HasZero := HasInit_Mon;
   HasTerm_HasZero := HasTerm_Mon
 }.
-Proof. mon. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -375,21 +370,22 @@ Instance Mon_product (X Y : Mon) : Mon :=
   sgr := Sgr_product X Y;
   neutr := (neutr, neutr);
 }.
-Proof. all: destruct a; mon. Defined.
+Proof. all: now destruct a; mon. Defined.
 
 Definition Mon_outl (X Y : Mon) : Hom (Mon_product X Y) X.
 Proof.
-  mon_simpl. exists (Sgr_outl X Y). mon.
+  now exists (Sgr_outl X Y).
 Defined.
 
 Definition Mon_outr (X Y : Mon) : Hom (Mon_product X Y) Y.
 Proof.
-  mon_simpl. exists (Sgr_outr X Y). mon.
+  now exists (Sgr_outr X Y).
 Defined.
 
 Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_product A B).
 Proof.
-  exists (Sgr_fpair f g). mon.
+  exists (Sgr_fpair f g); cbn.
+  now rewrite !pres_neutr.
 Defined.
 
 #[refine]
@@ -402,8 +398,10 @@ Instance HasProducts_Mon : HasProducts MonCat :=
   fpair := Mon_fpair
 }.
 Proof.
-  proper.
-  repeat split; cat. (* TODO : mon doesn't work *)
+  split; cbn.
+  - easy.
+  - easy.
+  - now split.
 Defined.
 
 #[refine]
@@ -411,10 +409,12 @@ Defined.
 Instance forgetful : Functor MonCat CoqSetoid :=
 {
   fob := fun X : Mon => @setoid (sgr X);
+  fmap := fun A B f => f;
 }.
 Proof.
-  cbn. intros. exact X.
-  proper. all: mon.
+  - now proper.
+  - now cbn.
+  - now cbn.
 Defined.
 
 Notation "'U'" := forgetful.
@@ -443,12 +443,12 @@ Instance MonListUnit : Mon :=
   neutr := 0
 }.
 Proof.
-  all: cbn; intros; ring.
+  all: now cbn; intros; ring.
 Defined.
 
 Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
 Proof.
-  cbn. exists (fun _ => 1). proper.
+  now exists (fun _ => 1).
 Defined.
 
 Set Nested Proofs Allowed.
@@ -456,9 +456,10 @@ Set Nested Proofs Allowed.
 Lemma free_monoid_MonListUnit :
   @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
 Proof.
-  unfold free_monoid. intros.
+  unfold free_monoid; intros.
   Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SetoidHom MonListUnit N.
+  Proof.
     exists (fix f (n : nat) : N :=
       match n with
       | 0 => @neutr N
@@ -468,18 +469,22 @@ Proof.
   Defined.
   Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : SgrHom MonListUnit N.
-    exists (f1 N q). induction x as [| x']. simpl.
-      mon.
-      now simpl; intro; rewrite <- assoc, IHx'.
+  Proof.
+    exists (f1 N q). induction x as [| x'].
+    - now cbn; intros; rewrite neutr_l.
+    - now cbn; intros; rewrite <- assoc, IHx'.
   Defined.
   Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
     : MonHom MonListUnit N.
-    exists (f2 N q). mon.
+  Proof.
+    now exists (f2 N q).
   Defined.
-  exists (f3 N q). repeat split.
-    simpl. destruct x. mon.
-    destruct y, sgrHom0; cbn in *; intros ? n. induction n as [| n'].
-      mon.
-      pose (H' := pres_op). specialize (H' n' 1). rewrite plus_comm in H'.
-        rewrite H'. rewrite pres_op in H'. rewrite <- H'. f_equiv; mon.
+  exists (f3 N q).
+  repeat split.
+  - now cbn; intros []; rewrite neutr_r.
+  - intros [[y H1] H2] Heq n; cbn in *.
+    induction n as [| n'].
+    + now rewrite H2.
+    + change (S n') with (1 + n')%nat.
+      now rewrite H1, Heq, IHn'.
 Defined.

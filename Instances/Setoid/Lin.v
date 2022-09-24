@@ -43,9 +43,12 @@ Instance LinCat : Cat :=
   comp := ProsComp;
   id := ProsId
 }.
-Proof. 
-  (* Proper *) proper. now rewrite H, H0.
-  (* Category laws *) all: lin.
+Proof.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 #[refine]
@@ -54,7 +57,7 @@ Instance Lin_init : Lin :=
 {
   pos := Pos_init
 }.
-Proof. lin. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -63,7 +66,7 @@ Instance HasInit_Lin : HasInit LinCat :=
   init := Lin_init;
   create := Pros_create
 }.
-Proof. lin. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_Lin : HasStrictInit LinCat.
@@ -80,7 +83,7 @@ Instance Lin_term : Lin :=
 {
   pos := Pos_term
 }.
-Proof. lin. Defined.
+Proof. now lin. Defined.
 
 #[refine]
 #[export]
@@ -89,7 +92,7 @@ Instance HasTerm_Lin : HasTerm LinCat :=
   term := Lin_term;
   delete := Pros_delete
 }.
-Proof. lin. Defined.
+Proof. now lin. Defined.
 
 #[refine]
 #[export]
@@ -97,18 +100,26 @@ Instance Lin_Pros_product (X Y : Lin) : Pros :=
 {
   carrier := CoqSetoid_product X Y;
   leq := fun p1 p2 : X * Y =>
-    (fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2) \/
-    (fst p1 == fst p2 /\ snd p1 ≤ snd p2)
+    fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2
+      \/
+    fst p1 == fst p2 /\ snd p1 ≤ snd p2;
 }.
 Proof. 
-  (* Proper *) proper. destruct H, H0. now rewrite H, H0, H1, H2.
-  (* Reflexivity *) lin.
-  (* Transitivity *) destruct 1, 1; destruct H, H0.
-    left. split; [eauto |]. intro.
-      assert (fst c == fst b); try rewrite H3 in H; eauto.
-    left. now rewrite <- H0.
-    left. now rewrite H.
-    right. split; [| eauto]. now rewrite H, H0.
+  - intros f1 f2 [Hf1 Hf2] g1 g2 [Hg1 Hg2]; cbn in *.
+    now rewrite Hf1, Hf2, Hg1, Hg2.
+  - now lin.
+  - cbn; intros a b c [[Hle1 Hneq1] | [Heq1 Hle1]] [[Hle2 Hneq2] | [Heq2 Hle2]].
+    + left; split.
+      * now eauto.
+      * intros Hneq.
+        assert (fst c == fst b) by now apply leq_antisym; [rewrite <- Hneq |].
+        apply Hneq1.
+        now rewrite Hneq, H.
+    + now left; rewrite <- Heq2.
+    + now left; rewrite Heq1.
+    + right; split.
+      * now rewrite Heq1, Heq2.
+      * now eauto.
 Defined.
 
 #[refine]
@@ -118,11 +129,7 @@ Instance Lin_product_Pos (X Y : Lin) : Pos :=
   pros := Lin_Pros_product X Y
 }.
 Proof.
-  intros. destruct x, y. cbn in *. repeat
-  match goal with
-  | H : _ /\ _ |- _ => destruct H
-  | H : _ \/ _ |- _ => destruct H
-  end; intuition.
+  now cbn; intuition.
 Defined.
 
 #[refine]
@@ -132,9 +139,8 @@ Instance Lin_product (X Y : Lin) : Lin :=
   pos := Lin_product_Pos X Y
 }.
 Proof.
-  destruct x, y; cbn.
-  destruct (leq_total c c1), (leq_total c1 c),
-    (leq_total c0 c2), (leq_total c2 c0); eauto.
+  intros [x1 y1] [x2 y2]; cbn in *.
+  destruct (leq_total x1 x2), (leq_total x2 x1), (leq_total y1 y2), (leq_total y2 y1).
 Abort.
 
 (* TODO : products of linear orders suck because of constructivity *)
@@ -191,11 +197,9 @@ Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
     end
 }.
 Proof.
-  proper_lin.
-  all: cbn; intros; repeat
-  match goal with
-  | p : _ + _ |- _ => destruct p
-  end; lin.
+  - now proper_lin.
+  - now intros [x1 | y1] [x2 | y2] Heq; cbn in *; eauto.
+  - now intros [x1 | y1] [x2 | y2] [x3 | y3] H12 H23; cbn in *; eauto.
 Defined.
 
 #[refine]
@@ -218,27 +222,26 @@ Instance Lin_coproduct (X Y : Lin) : Lin :=
   |}
 }.
 Proof.
-  proper_lin.
-  all: intros; repeat
-  (try match goal with
-| p : _ + _ |- _ => destruct p
-  end; my_simpl; try f_equal; lin').
+  1: now proper_lin.
+  all: now intros; repeat (try
+    match goal with
+    | p : _ + _ |- _ => destruct p
+    end;
+    my_simpl; try f_equal; lin').
 Defined.
 
 Definition Lin_finl (X Y : Lin) : ProsHom X (Lin_coproduct X Y).
 Proof.
-  red. exists (CoqSetoid_finl X Y). lin.
+  now exists (CoqSetoid_finl X Y).
 Defined.
 
 Definition Lin_finr (X Y : Lin) : ProsHom Y (Lin_coproduct X Y).
 Proof.
-  red. exists (CoqSetoid_finr X Y). lin.
+  now exists (CoqSetoid_finr X Y).
 Defined.
 
 Definition Lin_copair
   (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coproduct A B) X.
 Proof.
-  exists (CoqSetoid_copair f g). cbn. destruct f, g.
-  destruct a, a'; intros; cbn.
-    try apply l; try apply l0; easy.
+  exists (CoqSetoid_copair f g).
 Abort.

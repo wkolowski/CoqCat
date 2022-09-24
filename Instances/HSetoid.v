@@ -27,18 +27,20 @@ Instance HSetoidHomSetoid (X Y : HSetoid) : Setoid (HSetoidHom X Y) :=
 {
   equiv := fun f g : HSetoidHom X Y => forall x : X, f x === g x
 }.
-Proof. split; red; intros; eauto. Defined.
+Proof. now solve_equiv. Defined.
 
 Definition HSetoidComp
   (X Y Z : HSetoid) (f : HSetoidHom X Y) (g : HSetoidHom Y Z) : HSetoidHom X Z.
 Proof.
-  red. exists (fun x : X => g (f x)). intros.
-  destruct f, g; cbn. now apply h0, h.
+  exists (fun x : X => g (f x)).
+  intros x1 x2 Heq.
+  destruct f as [h Hf], g as [g Hg]; cbn in *.
+  now apply Hg, Hf.
 Defined.
 
 Definition HSetoidId (X : HSetoid) : HSetoidHom X X.
 Proof.
-  red. exists (fun x : X => x). now intros.
+  now exists (fun x : X => x).
 Defined.
 
 #[refine]
@@ -52,8 +54,11 @@ Instance HSetoidCat : Cat :=
   id := HSetoidId;
 }.
 Proof.
-  (* Composition is proper *) proper.
-    apply hequiv_trans with (y0 (x x1)). apply H0.
-    destruct y0; cbn in *. apply h. apply H.
-  (* Category laws *) all: cat.
+  - intros A B C [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg x; cbn in *.
+    apply hequiv_trans with (g2 (f1 x)).
+    + now apply Hg.
+    + now apply Hg2, Hf.
+  - easy.
+  - easy.
+  - easy.
 Defined.

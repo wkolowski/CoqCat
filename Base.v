@@ -193,6 +193,15 @@ Inductive JMequiv {A : Type} {S : Setoid A} (x : A) : forall {B : Type}, B -> Pr
 
 #[global] Hint Constructors JMequiv : core.
 
+Lemma JMequiv_sym :
+  forall (A B : Type) (SA : Setoid A) (SB : Setoid B) (a : A) (b : B),
+    JMeq SA SB -> JMequiv (S := SA) a b -> JMequiv (S := SB) b a.
+Proof.
+  inversion 2; subst.
+  apply inj_pair2 in H4; subst.
+  now constructor; symmetry.
+Qed.
+
 Lemma JMequiv_trans :
   forall (A B C : Type) (SA : Setoid A) (SB : Setoid B) (x : A) (y : B) (z : C),
     A = B -> JMeq SA SB -> JMequiv (S := SA) x y -> JMequiv (S := SB) y z ->

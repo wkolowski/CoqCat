@@ -36,7 +36,7 @@ Proof.
   intros C F.
   exists (create C); split; cycle 1.
   - apply equiv_initial.
-  - cbn in *. esplit. Unshelve. all: cycle 1.
+  - esplit. Unshelve. all: cbn in *; cycle 1.
     + now intros A; destruct (fob F A).
     + now intros A B G; cbn; destruct (fob F A).
 Defined.
@@ -65,7 +65,8 @@ Proof.
   cbn; intros X F G.
   assert (Heq : forall H : Hom X CAT_term, H == CAT_delete X).
   {
-    intros H. esplit. Unshelve. all: cycle 1.
+    intros H.
+    esplit. Unshelve. all: cycle 1.
     - now cbn; intros A; destruct (fob H A).
     - now cbn; intros A B f; apply Eqdep_dec.UIP_refl_unit.
   }
@@ -80,7 +81,7 @@ Instance CAT_outl (X Y : Cat) : Functor (CAT_product X Y) X :=
   fmap := fun _ _ => fst
 }.
 Proof.
-  - proper. intuition.
+  - now proper.
   - easy.
   - easy.
 Defined.
@@ -93,7 +94,7 @@ Instance CAT_outr (X Y : Cat) : Functor (CAT_product X Y) Y :=
   fmap := fun _ _ => snd
 }.
 Proof.
-  - proper. intuition.
+  - now proper.
   - easy.
   - easy.
 Defined.
@@ -131,10 +132,9 @@ Lemma CAT_fpair_unique :
     F == FG .> CAT_outl C D -> G == FG .> CAT_outr C D -> CAT_fpair F G == FG.
 Proof.
   intros X C D F G FG [p q] [r s].
-  esplit. Unshelve. all: cycle 1; intros.
+  esplit. Unshelve. all: cycle 1; cbn in *; intros.
   - apply pair_eq; cbn; [apply p | apply r].
-  - cbn in *.
-    apply pair_eq'.
+  - apply pair_eq'.
     + rewrite <- q; clear q s.
       generalize (p A), (p B), (r A), (r B).
       destruct (fob FG A), (fob FG B); cbn.
@@ -171,18 +171,23 @@ match X, Y with
 | _     , _      => Empty_set
 end.
 
+#[refine]
 #[export]
-Instance CoprodCatSetoid {C D : Cat} (X Y : Ob C + Ob D) : Setoid (CoprodCatHom X Y).
+Instance CoprodCatSetoid {C D : Cat} (X Y : Ob C + Ob D) : Setoid (CoprodCatHom X Y) :=
+{
+  equiv :=
+    match X, Y with
+    | inl X', inl Y' => fun f g => f == g
+    | inr X', inr Y' => fun f g => f == g
+    | _     , _      => fun _ _ => False
+    end;
+}.
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - destruct X as [X' | X'], Y as [Y' | Y']; cbn; [| destruct 1 | destruct 1 |].
-    + intros f g. exact (f == g).
-    + intros f g. exact (f == g).
-  - destruct X as [X' | X'], Y as [Y' | Y']; cbn.
-    + apply HomSetoid.
-    + easy.
-    + easy.
-    + apply HomSetoid.
+  destruct X as [X' | X'], Y as [Y' | Y']; cbn.
+  + now apply HomSetoid.
+  + easy.
+  + easy.
+  + now apply HomSetoid.
 Defined.
 
 #[refine]
@@ -196,12 +201,15 @@ Instance CAT_coproduct (C : Cat) (D : Cat) : Cat :=
     match A with
     | inl A' => id A'
     | inr A' => id A'
-    end
+    end;
+  comp := fun A B C =>
+    match A, B, C with
+    | inl A', inl B', inl C' => fun f g => f .> g
+    | inr A', inr B', inr C' => fun f g => f .> g
+    | _     , _     , _      => ltac:(easy)
+    end;
 }.
 Proof.
-  - intros [X | X] [Y | Y] [Z | Z].
-    1, 8: exact comp.
-    1-6: easy.
   - now intros [X | X] [Y | Y] [Z | Z]; cbn; proper.
   - now intros [X | X] [Y | Y] [Z | Z] [W | W] *; cbn.
   - now intros [X | X] [Y | Y]; cbn.
@@ -239,15 +247,16 @@ Instance CAT_copair
     match X with
     | inl X' => fob F X'
     | inr X' => fob G X'
-    end
+    end;
+  fmap := fun A B =>
+    match A, B with
+    | inl A', inl B' => fun f => fmap F f
+    | inr A', inr B' => fun f => fmap G f
+    | _     , _      => ltac:(easy)
+    end;
 }.
 Proof.
-  - intros [A | A] [B | B] f; cbn in *.
-    + exact (fmap F f).
-    + easy.
-    + easy.
-    + exact (fmap G f).
-  - intros [A | A] [B | B] f g Heq; [| easy | easy |].
+  - intros [A | A] [B | B] f g Heq; cbn; [| easy | easy |].
     + now rewrite Heq.
     + now rewrite Heq.
   - intros [X | X] [Y | Y] [Z | Z] f g; cbn in *; try easy.
@@ -271,7 +280,7 @@ Proof.
   - now exists (fun _ => eq_refl).
   - intros [p q] [r s].
     esplit. Unshelve. all: cycle 1.
-    + intros [A | A]; [apply p | apply r].
+    + now intros [A | A]; [apply p | apply r].
     + now intros [A | A] [B | B] H; [apply q | | | apply s].
 Defined.
 
@@ -280,17 +289,24 @@ Defined.
 Instance HasExponentials_CAT : HasExponentials CAT :=
 {
   exponential := @FunCat;
+(*   eval := fun C D =>
+  {|
+    fob := fun '(F, X) => fob F X;
+  |}; *)
 }.
 Proof.
-  - cbn; intros C D. esplit with (fob := fun '(F, X) => fob F X). Unshelve. all: cycle 3.
-    + cbn. intros [F X] [G Y] [f g]; cbn in *.
+  - cbn; intros C D.
+    esplit with (fob := fun '(F, X) => fob F X). Unshelve. all: cycle 3.
+    + intros [F X] [G Y] [f g]; cbn in *.
       exact (component f X .> fmap G g).
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
       now rewrite H1, H2.
     + intros [F X] [G Y] [H Z] [[α H1] f] [[β H2] g]; cbn in *.
       now rewrite comp_assoc, H2, fmap_comp, !comp_assoc, <- H2.
     + now intros [F X]; cbn; rewrite fmap_id, comp_id_l.
-  - cbn; intros D E C. intros [fob fmap prp pcmp pid].
+  - cbn; intros D E C.
+    intros [fob fmap prp pcmp pid].
     esplit. Unshelve. all: cycle 3; cbn in *.
-    + intro X. esplit with (fob := fun d => fob (X, d)).
+    + intro X. esplit with (fob := fun d => fob (X, d)). Unshelve. all: cycle 3.
+      * intros A B f.
 Abort.

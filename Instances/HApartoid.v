@@ -26,7 +26,8 @@ Coercion HApartoidHom_Fun : HApartoidHom >-> Funclass.
 Definition HApartoidComp
   (X Y Z : HApartoid) (f : HApartoidHom X Y) (g : HApartoidHom Y Z) : HApartoidHom X Z.
 Proof.
-  red. exists (fun x : X => g (f x)). intros. intro.
-  destruct f, g; cbn in *. apply (n0 (x0 x) (x0 x')).
-    intro. apply (n x x').
+  exists (fun x : X => g (f x)).
+  intros x y Hn Hng.
+  destruct f as [f Hf], g as [g Hg]; cbn in *.
+  eapply Hg; [| exact Hng].
 Abort.

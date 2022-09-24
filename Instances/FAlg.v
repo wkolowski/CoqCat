@@ -46,18 +46,19 @@ Instance FAlgHomSetoid {C : Cat} {F : Functor C C} (X Y : FAlg F) : Setoid (FAlg
   equiv := fun f g : FAlgHom X Y =>
     @equiv _ (@HomSetoid C (projT1 X) (projT1 Y)) (proj1_sig f) (proj1_sig g)
 }.
-Proof. apply Setoid_kernel_equiv. Defined.
+Proof. now apply Setoid_kernel_equiv. Defined.
 
 Definition FAlgComp
   {C : Cat} {F : Functor C C} {X Y Z : FAlg F} (f : FAlgHom X Y) (g : FAlgHom Y Z) : FAlgHom X Z.
 Proof.
-  falg. exists (f .> g).
+  falg.
+  exists (f .> g).
   now rewrite <- comp_assoc, f_cond, comp_assoc, g_cond, fmap_comp, comp_assoc.
 Defined.
 
 Definition FAlgId {C : Cat} {F : Functor C C} {X : FAlg F} : FAlgHom X X.
 Proof.
-  red. exists (@id _ (projT1 X)).
+  exists (@id _ (projT1 X)).
   now rewrite fmap_id, comp_id_l, comp_id_r.
 Defined.
 
@@ -72,9 +73,12 @@ Instance CatFAlg {C : Cat} (F : Functor C C) : Cat :=
   id := @FAlgId C F
 }.
 Proof.
-  proper.
-  all: intros; repeat
-  match goal with
-  | f : FAlgHom _ _ |- _ => destruct f
-  end; falgobs; rewrite ?H, ?H0; cat.
+  - intros [X x] [Y y] [Z z] [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg; cbn in *.
+    now rewrite Hf, Hg.
+  - intros [X x] [Y y] [Z z] [W w] [f Hf] [g Hg] [h Hh]; cbn in *.
+    now rewrite comp_assoc.
+  - intros [X x] [Y y] [f Hf]; cbn in *.
+    now rewrite comp_id_l.
+  - intros [X x] [Y y] [f Hf]; cbn in *.
+    now rewrite comp_id_r.
 Defined.

@@ -16,8 +16,11 @@ Instance FunCat (C D : Cat) : Cat :=
   id := NatTransId
 }.
 Proof.
-  (* Proper *) do 3 red; cbn; intros. now rewrite H, H0.
-  (* Category laws *) all: cat.
+  - intros F G H α1 α2 Hα β1 β2 Hβ X; cbn in *.
+    now rewrite Hα, Hβ.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 #[refine]
@@ -50,8 +53,7 @@ Instance HasInit_FunCat (C D : Cat) {hi : HasInit D} : HasInit (FunCat C D) :=
   create := @FunCat_create C D hi;
 }.
 Proof.
-  red; cbn; intros F α β X.
-  apply equiv_initial.
+  now intros F α β X; apply equiv_initial.
 Defined.
 
 #[export]
@@ -60,9 +62,8 @@ Instance HasStrictInit_FunCat
   : HasStrictInit (FunCat C D).
 Proof.
   intros F α; cbn in *.
-  apply natural_isomorphism_char.
-  intros X.
-  apply hsi.
+  apply natural_isomorphism_char; intros X.
+  now apply hsi.
 Defined.
 
 #[refine]
@@ -95,8 +96,7 @@ Instance HasTerm_FunCat (C D : Cat) {ht : HasTerm D} : HasTerm (FunCat C D) :=
   delete := @FunCat_delete C D ht;
 }.
 Proof.
-  red; cbn; intros F α β X.
-  apply equiv_terminal.
+  now intros F α β X; apply equiv_terminal.
 Defined.
 
 #[export]
@@ -105,9 +105,8 @@ Instance HasStrictTerm_FunCat
   : HasStrictTerm (FunCat C D).
 Proof.
   intros F α; cbn in *.
-  apply natural_isomorphism_char.
-  intros X.
-  apply hst.
+  apply natural_isomorphism_char; intros X.
+  now apply hst.
 Defined.
 
 #[refine]
@@ -118,7 +117,7 @@ Instance FunCat_product {C D : Cat} {hp : HasProducts D} (F G : Functor C D) : F
   fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap F f ×' fmap G f
 }.
 Proof.
-  - proper.
+  - now proper.
   - now intros; rewrite !fmap_comp, bimap_comp.
   - now intros; rewrite !fmap_id, bimap_id.
 Defined.
@@ -260,9 +259,8 @@ Proof.
     rewrite !factorize_equalize.
     now do 2 f_equiv.
   - cbn; intros; apply equiv_equalizer.
-    rewrite factorize_equalize, comp_assoc, factorize_equalize,
-      <- comp_assoc, factorize_equalize.
-    now rewrite fmap_comp, comp_assoc.
+    now rewrite factorize_equalize, comp_assoc, factorize_equalize,
+      <- comp_assoc, factorize_equalize, fmap_comp, comp_assoc.
   - cbn; intros; apply equiv_equalizer.
     now rewrite factorize_equalize, fmap_id, comp_id_l, comp_id_r.
 Defined.
@@ -292,7 +290,7 @@ Instance FunCat_factorize
 Proof.
   cbn; intros; apply equiv_equalizer.
   rewrite !comp_assoc, !factorize_equalize, <- comp_assoc, factorize_equalize.
-  apply (natural γ).
+  now apply (natural γ).
 Defined.
 
 #[refine]
@@ -308,7 +306,7 @@ Proof.
   cbn; intros F G α β; split; cbn.
   - now intros X; apply Equalizer.ok.
   - now intros E γ Heq X; rewrite factorize_equalize.
-  - intros E γ1 γ2 Heq X; apply equiv_equalizer, Heq.
+  - now intros E γ1 γ2 Heq X; apply equiv_equalizer, Heq.
 Defined.
 
 #[refine]
@@ -331,9 +329,8 @@ Proof.
     rewrite !coequalize_cofactorize.
     now do 2 f_equiv.
   - cbn; intros; apply equiv_coequalizer.
-    rewrite coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize,
-      comp_assoc, coequalize_cofactorize.
-    now rewrite fmap_comp, comp_assoc.
+    now rewrite coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize,
+      comp_assoc, coequalize_cofactorize, fmap_comp, comp_assoc.
   - cbn; intros; apply equiv_coequalizer.
     now rewrite coequalize_cofactorize, fmap_id, comp_id_l, comp_id_r.
 Defined.
@@ -363,7 +360,7 @@ Instance FunCat_cofactorize
 Proof.
   cbn; intros; apply equiv_coequalizer.
   rewrite <- !comp_assoc, !coequalize_cofactorize, comp_assoc, coequalize_cofactorize.
-  apply (natural γ).
+  now apply (natural γ).
 Defined.
 
 #[refine]
@@ -379,7 +376,7 @@ Proof.
   cbn; intros F G α β; split; cbn.
   - now intros X; apply Coequalizer.ok.
   - now intros E γ Heq X; rewrite coequalize_cofactorize.
-  - intros E γ1 γ2 Heq X; apply equiv_coequalizer, Heq.
+  - now intros E γ1 γ2 Heq X; apply equiv_coequalizer, Heq.
 Defined.
 
 #[refine]
@@ -480,8 +477,6 @@ Instance FunCat_exponential
   fob := fun X : Ob C => exponential (fob F X) (fob G X)
 }.
 Proof.
-  - intros A B f.
-    apply curry.
 Abort.
 
 (* TODO : transfer of exponentials. Do they even transfer? *)

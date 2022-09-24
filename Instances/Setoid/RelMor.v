@@ -49,7 +49,7 @@ Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
     forall (x : X) (y : Y), P x y <-> Q x y
 }.
 Proof.
-  solve_equiv; intro; edestruct H; try edestruct H0; auto.
+  now solve_equiv; intro; edestruct H; try edestruct H0; auto.
 Defined.
 
 #[refine]
@@ -59,7 +59,7 @@ Instance SetoidRelComp
 {
   rel := fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[export]
 Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
@@ -77,7 +77,7 @@ Instance SetoidRelCat : Cat :=
   comp := SetoidRelComp;
   id := SetoidRelId
 |}.
-Proof. all: rel. Defined.
+Proof. all: now rel. Defined.
 
 #[export]
 Program Instance HasInit_SetoidRel : HasInit SetoidRelCat :=
@@ -121,7 +121,7 @@ Instance SetoidRel_product (X Y : Setoid') : Setoid' :=
     end
   |}
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -133,7 +133,7 @@ Instance SetoidRel_outl (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) X :=
     | _ => False
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -145,7 +145,7 @@ Instance SetoidRel_outr (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) Y :=
     | _ => False
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -158,7 +158,7 @@ Instance SetoidRel_fpair
     | inr b => S x b
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -212,7 +212,7 @@ Instance SetoidRel_finl (X Y : Setoid') : SetoidRel X (SetoidRel_coproduct X Y) 
     | _ => False
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -224,7 +224,7 @@ Instance SetoidRel_finr (X Y : Setoid') : SetoidRel Y (SetoidRel_coproduct X Y) 
     | _ => False
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -238,7 +238,7 @@ Instance SetoidRel_copair
     | inr b => S b x
     end
 }.
-Proof. rel. Defined.
+Proof. now rel. Defined.
 
 #[refine]
 #[export]
@@ -250,30 +250,29 @@ Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
   copair := SetoidRel_copair;
 }.
 Proof.
-  (* copair is proper *) rel.
-  (* Coproduct law *) split; setoidrel'; repeat
+  split; setoidrel'; repeat
   match goal with
   | p : _ + _ |- _ => destruct p
   | H : False |- _ => inversion H
   end.
-  - eapply Proper_f; eauto.
+  - now eapply Proper_f; eauto.
   - now exists (inl x).
-  - eapply Proper_g; eauto.
+  - now eapply Proper_g; eauto.
   - now exists (inr x).
   - destruct (H a y) as [[[y0_l | y0_r] [H'1 H'2]] _].
     + now exists (inl a).
-    + eapply Proper_h2; [| | eassumption]; easy.
+    + now eapply Proper_h2; eauto.
     + easy.
   - destruct (H0 b y) as [[[y0_l | y0_r] [H'1 H'2]] _].
     + now exists (inr b).
     + easy.
-    + eapply Proper_h2; [| | eassumption]; easy.
+    + now eapply Proper_h2; eauto.
   - destruct (H a y) as [_ [[y0_l | y0_r] [H'1 H'2]]].
     + now exists (inl a).
-    + eapply Proper_h1; [| | eassumption]; easy.
+    + now eapply Proper_h1; eauto.
     + easy.
   - destruct (H0 b y) as [_ [[y0_l | y0_r] [H'1 H'2]]].
     + now exists (inr b).
     + easy.
-    + eapply Proper_h1; [| | eassumption]; easy.
+    + now eapply Proper_h1; eauto.
 Defined.

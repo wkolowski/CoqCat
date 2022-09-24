@@ -15,29 +15,32 @@ Instance CoqSet : Cat :=
   id := fun (A : Set) (a : A) => a
 |}.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Composition is proper *) proper. now rewrite H, H0.
-  (* Category laws *) all: cat.
+  - now solve_equiv.
+  - now proper; congruence.
+  - easy.
+  - easy.
+  - easy.
 Defined.
 
 Lemma CoqSet_isMono_inj :
   forall (A B : Ob CoqSet) (f : A -> B),
     isMono f <-> injective f.
 Proof.
-  unfold isMono, injective; cbn; split; intros.
+  unfold isMono, injective; cbn.
+  split; intros.
   - now apply (H A (fun _ => x) (fun _ => y)).
-  - apply H, H0.
+  - now apply H, H0.
 Defined.
 
 Lemma CoqSet_isRet_sur :
   forall (X Y : Set) (f : Hom X Y),
     isRet f <-> surjective f.
 Proof.
-  unfold isRet, surjective; cbn; split; intros.
-    destruct H as [g eq]. exists (g b). apply eq.
-    exists (
-    fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
-      intro y. now destruct (constructive_indefinite_description _ (H y)).
+  unfold isRet, surjective; cbn.
+  split; intros.
+  - now destruct H as [g eq]; exists (g b).
+  - exists (fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
+    now intros y; destruct (constructive_indefinite_description _ (H y)).
 Defined.
 
 (* TODO : characterize epimorphisms and sections *)
@@ -46,13 +49,9 @@ Lemma CoqSet_isIso_bij :
   forall (A B : Set) (f : Hom A B),
     isIso f <-> bijective f.
 Proof.
-  split; intros.
-    red. rewrite isIso_iff_isMono_isRet in H. destruct H. split.
-      now rewrite <- CoqSet_isMono_inj.
-      now rewrite <- CoqSet_isRet_sur.
-    destruct H. rewrite isIso_iff_isMono_isRet. split.
-      now rewrite CoqSet_isMono_inj.
-      now rewrite CoqSet_isRet_sur.
+  intros A B f.
+  unfold bijective.
+  now rewrite isIso_iff_isMono_isRet, <- CoqSet_isMono_inj, <- CoqSet_isRet_sur.
 Defined.
 
 #[refine]
@@ -62,7 +61,7 @@ Instance HasInit_CoqSet : HasInit CoqSet :=
   init := Empty_set;
   create := fun (X : Set) (e : Empty_set) => match e with end
 }.
-Proof. red; cat. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_CoqSet : HasStrictInit CoqSet.
@@ -81,7 +80,9 @@ Instance HasTerm_CoqSet : HasTerm CoqSet :=
   term := unit;
   delete := fun (X : Set) (x : X) => tt
 }.
-Proof. red; cat. Defined.
+Proof.
+  now intros A f g x; apply unit_eq_intro.
+Defined.
 
 Definition isSingleton (A : Set) : Prop :=
   exists a : A, True /\ forall x y : A, x = y.
@@ -89,16 +90,16 @@ Definition isSingleton (A : Set) : Prop :=
 Definition isSingleton_delete :
   forall A : Set, isSingleton A -> forall X : Set, X -> A.
 Proof.
-  unfold isSingleton. intros.
-  apply constructive_indefinite_description in H.
-  destruct H as [a [_ H]]. exact a.
+  unfold isSingleton.
+  intros A (a & _ & H)%constructive_indefinite_description X x.
+  exact a.
 Defined.
 
 Lemma isTerminal_CoqSet :
   forall (A : Set) (H : isSingleton A),
     @isTerminal CoqSet A (isSingleton_delete A H).
 Proof.
-  unfold isSingleton, isTerminal; intros; cat.
+  now red; firstorder.
 Qed.
 
 Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
@@ -131,8 +132,9 @@ Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
-  split; cat.
-  now extensionality a.
+  split; cbn; intros.
+  - easy.
+  - now extensionality j.
 Defined.
 
 Definition CoqSet_coproduct := sum.
@@ -156,8 +158,8 @@ Instance HasCoproducts_CoqSet : HasCoproducts CoqSet :=
   copair := CoqSet_copair
 }.
 Proof.
-  split; cat.
-  now destruct x.
+  split; cbn; [easy | easy |].
+  now intros P' h1 h2 HeqA heqB [a | b].
 Defined.
 
 #[refine]
@@ -172,7 +174,10 @@ Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
         f (projT1 p) (projT2 p)
 }.
 Proof.
-  split; cat.
+  split; cbn.
+  - easy.
+  - intros X h1 h2 Heq [j a].
+    now apply Heq.
 Defined.
 
 Lemma CoqSet_counterexample1 :
@@ -181,8 +186,8 @@ Lemma CoqSet_counterexample1 :
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold injective, not; cbn; split; intros.
-    now destruct x, y.
-    now specialize (H true false eq_refl).
+  - now destruct x, y.
+  - now specialize (H true false eq_refl).
 Qed.
 
 Lemma CoqSet_counterexample2 :
@@ -191,8 +196,8 @@ Lemma CoqSet_counterexample2 :
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
   unfold surjective, not; cbn; split; intros.
-    exists tt. now destruct b.
-    destruct (H false). inversion H0.
+  - exists tt. now destruct b.
+  - destruct (H false). inversion H0.
 Qed.
 
 Definition CoqSet_equalizer {X Y : Set} (f g : X -> Y) : Set :=
@@ -204,10 +209,8 @@ Definition CoqSet_equalize {X Y : Set} (f g : X -> Y)
 Definition CoqSet_factorize
   (X Y : Set) (f g : X -> Y)
   (E' : Set ) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
-  : E' -> {x : X | f x = g x}.
-Proof.
- intro x. exists (e' x). apply H.
-Defined.
+  : E' -> {x : X | f x = g x}
+  := fun x : E' => exist _ (e' x) (H x).
 
 #[refine]
 #[export]
@@ -221,8 +224,9 @@ Proof.
   split; cbn.
   - now intros []; cbn.
   - easy.
-  - intros. specialize (H x). destruct (e1 x), (e2 x); cbn in *.
-    f_equal.
+  - intros E' e1 e2 Heq x.
+    specialize (Heq x).
+    destruct (e1 x), (e2 x); cbn in *.
 Abort.
 
 #[refine]
@@ -235,8 +239,10 @@ Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
 }.
 Proof.
   split; cbn.
-  - intuition.
-  - intros E' f g H x. extensionality a. apply (H (x, a)).
+  - now intros E' f [].
+  - intros E' f g H x.
+    extensionality a.
+    now apply (H (x, a)).
 Defined.
 
 #[export]
@@ -247,23 +253,25 @@ Instance CoqSet_CartesianClosed : CartesianClosed CoqSet :=
   HasExponentials_CartesianClosed := HasExponentials_CoqSet;
 }.
 
-Definition CoqSet_pullback {X Y A : Set} (f : X -> A) (g : Y -> A) : Set :=
-  {p : X * Y | f (fst p) = g (snd p)}.
+Definition CoqSet_pullback
+  {A B X : Set} (f : A -> X) (g : B -> X) : Set :=
+    {p : A * B | f (fst p) = g (snd p)}.
 
 Definition CoqSet_pullL
-  {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullback f g)
-  : X := fst (proj1_sig p).
+  {A B X : Set} (f : A -> X) (g : B -> X)
+  : CoqSet_pullback f g -> A
+  := fun p => fst (proj1_sig p).
 
 Definition CoqSet_pullR
-  {X Y A : Set} (f : X -> A) (g : Y -> A) (p : CoqSet_pullback f g)
-  : Y := snd (proj1_sig p).
+  {A B X : Set} (f : A -> X) (g : B -> X)
+  : CoqSet_pullback f g -> B
+  := fun p => snd (proj1_sig p).
 
 Definition CoqSet_triple
-  {X Y A : Set} (f : X -> A) (g : Y -> A) (P : Set) (p1 : P -> X) (p2 : P -> Y)
-  : P -> CoqSet_pullback f g.
-Proof.
-  intro x. red. exists (p1 x, p2 x).
-Abort.
+  {A B X : Set} (f : A -> X) (g : B -> X)
+  (Γ : Set) (a : Γ -> A) (b : Γ -> B) (Heq : forall x : Γ, f (a x) = g (b x))
+  : Γ -> CoqSet_pullback f g
+  := fun x => exist _ (a x, b x) (Heq x).
 
 #[refine]
 #[export]
@@ -272,6 +280,14 @@ Instance HasPullbacks_CoqSet : HasPullbacks CoqSet :=
   pullback := @CoqSet_pullback;
   pullL := @CoqSet_pullL;
   pullR := @CoqSet_pullR;
+  triple := @CoqSet_triple;
 }.
 Proof.
+  split; cbn.
+  - now intros [[a b] H]; cbn in *.
+  - easy.
+  - easy.
+  - intros Γ h1 h2 Hl Hr x.
+    specialize (Hl x); specialize (Hr x).
+    destruct (h1 x) as [[a1 b1] H1], (h2 x) as [[a2 b2] H2]; cbn in *.
 Abort.

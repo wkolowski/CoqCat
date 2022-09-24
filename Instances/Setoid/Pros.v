@@ -70,12 +70,13 @@ Ltac pros := try (pros'; fail).
 
 Definition ProsComp (A B C : Pros) (f : ProsHom A B) (g : ProsHom B C) : ProsHom A C.
 Proof.
-  red. exists (SetoidComp f g). pros.
+  exists (SetoidComp f g).
+  now pros.
 Defined.
 
 Definition ProsId (A : Pros) : ProsHom A A.
 Proof.
-  red. exists (@SetoidId A). pros.
+  now exists (@SetoidId A).
 Defined.
 
 #[refine]
@@ -92,35 +93,30 @@ Instance ProsCat : Cat :=
   id := ProsId
 }.
 Proof.
-  (* Equivalence *) solve_equiv.
-  (* Proper *) proper. pros'; setoid'.
-  (* Category laws *) all: pros.
+  - now solve_equiv.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 Lemma Pros_isMono_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
     isMono f <-> injectiveS f.
 Proof.
-  unfold isMono, injectiveS; split; intros.
-  - admit.
-  - admit.
 Abort.
 
 Lemma Pros_isEpi_sur :
   forall (X Y : Pros) (f : ProsHom X Y),
     isEpi f <-> surjective f.
 Proof.
-  unfold isEpi, surjective; split; intros.
 Abort.
 
 Lemma Pros_isSec_inj :
   forall (X Y : Pros) (f : ProsHom X Y),
     isSec f <-> injectiveS f.
 Proof.
-  unfold isSec, injectiveS; split; intros.
-  - destruct H as [g g_inv]. proshoms.
-    now rewrite <- (g_inv a), <- (g_inv a'), H0.
-  - 
 Abort.
 
 #[refine]
@@ -130,11 +126,11 @@ Instance Pros_init : Pros :=
   carrier := CoqSetoid_init;
   leq := fun (x y : Empty_set) => match x with end
 }.
-Proof. all: destruct a. Defined.
+Proof. all: easy. Defined.
 
 Definition Pros_create (X : Pros) : ProsHom Pros_init X.
 Proof.
-  red. exists (CoqSetoid_create X). pros.
+  now exists (CoqSetoid_create X).
 Defined.
 
 #[refine]
@@ -144,7 +140,7 @@ Instance HasInit_Pros : HasInit ProsCat :=
   init := Pros_init;
   create := Pros_create
 }.
-Proof. pros. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_Pros : HasStrictInit ProsCat.
@@ -162,11 +158,11 @@ Instance Pros_term : Pros :=
   carrier := CoqSetoid_term;
   leq := fun _ _ => True
 }.
-Proof. all: pros. Defined.
+Proof. all: easy. Defined.
 
 Definition Pros_delete (X : Pros) : ProsHom X Pros_term.
 Proof.
-  red. exists (CoqSetoid_delete X). pros.
+  now exists (CoqSetoid_delete X).
 Defined.
 
 #[refine]
@@ -176,7 +172,7 @@ Instance HasTerm_Pros : HasTerm ProsCat :=
   term := Pros_term;
   delete := Pros_delete
 }.
-Proof. pros. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -186,24 +182,27 @@ Instance Pros_product (X Y : Pros) : Pros :=
   leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
-  proper. destruct H, H0. now rewrite H, H0, H1, H2.
-  all: pros.
+  - intros f1 f2 [Hf1 Hf2] g1 g2 [Hg1 Hg2]; cbn in *.
+    now rewrite Hf1, Hf2, Hg1, Hg2.
+  - now pros.
+  - now pros.
 Defined.
 
 Definition Pros_outl (X Y : Pros) : ProsHom (Pros_product X Y) X.
 Proof.
-  red. exists (CoqSetoid_outl X Y). pros.
+  now exists (CoqSetoid_outl X Y); cbn.
 Defined.
 
 Definition Pros_outr (X Y : Pros) : ProsHom (Pros_product X Y) Y.
 Proof.
-  red. exists (CoqSetoid_outr X Y). pros.
+  now exists (CoqSetoid_outr X Y); cbn.
 Defined.
 
 Definition Pros_fpair
   {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B) : ProsHom X (Pros_product A B).
 Proof.
-  red. exists (CoqSetoid_fpair f g). pros.
+  exists (CoqSetoid_fpair f g).
+  now pros.
 Defined.
 
 #[refine]
@@ -216,8 +215,7 @@ Instance HasProducts_Pros : HasProducts ProsCat :=
   fpair := @Pros_fpair
 }.
 Proof.
-  proper.
-  pros'; setoid'.
+  now repeat split; cbn in *.
 Defined.
 
 Definition thin (C : Cat) : Prop :=
@@ -236,26 +234,27 @@ Instance Pros_coproduct (X Y : Pros) : Pros :=
     end
 }.
 Proof.
-  proper. destruct x, y, x0, y0; split; intros; rewrite ?H, ?H0 in *;
-    intuition.
-  destruct a, b; pros.
-  destruct a, b; destruct c1; pros.
+  - now intros [x1 | y1] [x2 | y2] H12 [x3 | y3] [x4 | y4] H34; cbn in *;
+      rewrite ?H12, ?H34; eauto.
+  - now intros [x1 | y1] [x2 | y2] Heq; cbn in *; eauto.
+  - now intros [x1 | y1] [x2 | y2] [x3 | y3] H12 H23; cbn in *; eauto.
 Defined.
 
 Definition Pros_finl (X Y : Pros) : ProsHom X (Pros_coproduct X Y).
 Proof.
-  red. exists (CoqSetoid_finl X Y). pros.
+  now exists (CoqSetoid_finl X Y).
 Defined.
 
 Definition Pros_finr (X Y : Pros) : ProsHom Y (Pros_coproduct X Y).
 Proof.
-  red. exists (CoqSetoid_finr X Y). pros.
+  now exists (CoqSetoid_finr X Y).
 Defined.
 
 Definition Pros_copair
   (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pros_coproduct A B) X.
 Proof.
-  red. exists (CoqSetoid_copair f g). destruct a, a'; pros.
+  exists (CoqSetoid_copair f g).
+  now intros [] []; pros.
 Defined.
 
 #[refine]
@@ -269,6 +268,7 @@ Instance HasCoproducts_Pros : HasCoproducts ProsCat :=
 }.
 Proof.
   split; cbn.
-    1-2: easy.
-    destruct x; pros.
+  - easy.
+  - easy.
+  - now intros P' h1 h2 HA HB [a | b].
 Defined.

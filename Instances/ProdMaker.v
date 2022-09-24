@@ -72,7 +72,7 @@ Instance ProdMakerHomSetoid
 {
   equiv := fun h h' : ProdMakerHom P1 P2 => @equiv _ (HomSetoid P1 P2) h h'
 }.
-Proof. pm. Defined.
+Proof. now solve_equiv. Defined.
 
 #[refine]
 #[export]
@@ -104,6 +104,6 @@ Instance ProdMaker (C : Cat) (A B : Ob C) : Cat :=
   comp := ProdMakerComp;
   id := ProdMakerId
 }.
-Proof. all: pm. Defined.
+Proof. all: now pm. Defined.
 
 (* TODO : prove this is equvalent to the usual products *)
