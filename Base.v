@@ -256,3 +256,78 @@ match l with
 | singl x => singl (f x)
 | h ::: t => f h ::: nel_map f t
 end.
+
+Fixpoint equiv_nel {X : Type} `{Setoid X} (l1 l2 : nel X) : Prop :=
+match l1, l2 with
+| singl h, singl h' => h == h'
+| h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
+| _, _ => False
+end.
+
+Lemma equiv_nel_refl :
+  forall {X : Type} `{Setoid X} (l : nel X),
+    equiv_nel l l.
+Proof.
+  now induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
+Qed.
+
+Lemma equiv_nel_sym :
+  forall {X : Type} `{Setoid X} (l1 l2 : nel X),
+    equiv_nel l1 l2 -> equiv_nel l2 l1.
+Proof.
+  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; solve_equiv.
+Qed.
+
+Lemma equiv_nel_trans :
+  forall {X : Type} `{Setoid X} (l1 l2 l3 : nel X),
+    equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
+Proof.
+  now induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
+Qed.
+
+#[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
+
+Fixpoint fp_equiv {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)) : Prop :=
+match l1, l2 with
+| singl (inl x), singl (inl x') => x == x'
+| singl (inr y), singl (inr y') => y == y'
+| cons_nel (inl h1) t1, cons_nel (inl h2) t2 => h1 == h2 /\ fp_equiv t1 t2
+| cons_nel (inr h1) t1, cons_nel (inr h2) t2 => h1 == h2 /\ fp_equiv t1 t2
+| _, _ => False
+end.
+
+Ltac fp_equiv := intros; repeat
+match goal with
+| x : _ + _ |- _ => destruct x; cbn in *
+| H : _ /\ _ |- _ => destruct H
+| |- _ /\ _ => split
+| |- ?x == ?x => reflexivity
+| H : ?P |- ?P => assumption
+| H : ?x == ?y |- ?y == ?x => symmetry; assumption
+| |- _ == _ => solve_equiv
+| H : False |- _ => inversion H
+| _ => eauto
+end.
+
+Lemma fp_equiv_refl :
+  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l : nel (X + Y)),
+    fp_equiv l l.
+Proof.
+  now induction l as [| h t]; fp_equiv.
+Qed.
+
+Lemma fp_equiv_sym :
+  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)),
+    fp_equiv l1 l2 -> fp_equiv l2 l1.
+Proof.
+  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
+Qed.
+
+Lemma fp_equiv_trans :
+  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 l3 : nel (X + Y)),
+    fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
+Proof.
+  now induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
+Qed.
+
+#[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.

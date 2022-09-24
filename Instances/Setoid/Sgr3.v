@@ -354,43 +354,12 @@ Defined.
 
 (* TODO: coproducts of semigroups *)
 
-Fixpoint equiv_nel {X : Setoid'} (l1 l2 : nel X) : Prop :=
-match l1, l2 with
-| singl h, singl h' => h == h'
-| h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
-| _, _ => False
-end.
-
-Lemma equiv_nel_refl :
-  forall (X : Setoid') (l : nel X),
-    equiv_nel l l.
-Proof.
-  now induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
-Qed.
-
-Lemma equiv_nel_sym :
-  forall (X : Setoid') (l1 l2 : nel X),
-    equiv_nel l1 l2 -> equiv_nel l2 l1.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn;
-  intros; solve_equiv.
-Qed.
-
-Lemma equiv_nel_trans :
-  forall (X : Setoid') (l1 l2 l3 : nel X),
-    equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
-Qed.
-
-#[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
-
 #[refine]
 #[export]
 Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
 {
   carrier := nel X;
-  setoid := {| equiv := @equiv_nel X |}
+  setoid := {| equiv := @equiv_nel X X |}
 }.
 Proof. now sgr. Defined.
 
@@ -414,80 +383,6 @@ match l with
   | t' => inr y ::: t'
   end
 end.
-
-#[export]
-Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
-{
-  carrier := nel (X + Y);
-  setoid := Setoid_kernel_equiv
-    (@CoqSetoid_nel (CoqSetoid_coproduct X Y)) (@normalize X Y)
-}.
-
-Definition Sgr_freeprod_setoid_finl
-  (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
-Proof.
-  now exists (fun x : X => singl (inl x)).
-Defined.
-
-Definition Sgr_freeprod_setoid_finr
-  (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
-Proof.
-  now exists (fun y : Y => singl (inr y)).
-Defined.
-
-(*
-Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (CoqSetoid_coproduct X Y)) : Prop :=
-match l1, l2 with
-| singl h, singl h' => h == h'
-| h1 ::: t1, h2 ::: t2 => h1 == h2 /\ fp_equiv t1 t2
-| _, _ => False
-end.
-*)
-
-Fixpoint fp_equiv {X Y : Setoid'} (l1 l2 : nel (X + Y)) : Prop :=
-match l1, l2 with
-| singl (inl x), singl (inl x') => x == x'
-| singl (inr y), singl (inr y') => y == y'
-| cons_nel (inl h1) t1, cons_nel (inl h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-| cons_nel (inr h1) t1, cons_nel (inr h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-| _, _ => False
-end.
-
-Ltac fp_equiv := intros; repeat
-match goal with
-| x : _ + _ |- _ => destruct x; cbn in *
-| H : _ /\ _ |- _ => destruct H
-| |- _ /\ _ => split
-| |- ?x == ?x => reflexivity
-| H : ?P |- ?P => assumption
-| H : ?x == ?y |- ?y == ?x => symmetry; assumption
-| |- _ == _ => solve_equiv
-| H : False |- _ => inversion H
-| _ => eauto
-end.
-
-Lemma fp_equiv_refl :
-  forall (X Y : Setoid') (l : nel (X + Y)),
-    fp_equiv l l.
-Proof.
-  now induction l as [| h t]; fp_equiv.
-Qed.
-
-Lemma fp_equiv_sym :
-  forall (X Y : Setoid') (l1 l2 : nel (X + Y)),
-    fp_equiv l1 l2 -> fp_equiv l2 l1.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
-Qed.
-
-Lemma fp_equiv_trans :
-  forall (X Y : Setoid') (l1 l2 l3 : nel (X + Y)),
-    fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
-Qed.
-
-#[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
 
 Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
   fp_equiv (normalize l1) (normalize l2).
@@ -528,6 +423,26 @@ Lemma Proper_app_nel :
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
 Abort.
+
+#[export]
+Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
+{
+  carrier := nel (X + Y);
+  setoid := Setoid_kernel_equiv
+    (@CoqSetoid_nel (CoqSetoid_coproduct X Y)) (@normalize X Y)
+}.
+
+Definition Sgr_freeprod_setoid_finl
+  (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
+Proof.
+  now exists (fun x : X => singl (inl x)).
+Defined.
+
+Definition Sgr_freeprod_setoid_finr
+  (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
+Proof.
+  now exists (fun y : Y => singl (inr y)).
+Defined.
 
 (*
 #[export]
