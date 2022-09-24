@@ -23,7 +23,7 @@ Lemma inv_involutive :
   forall (G : Grp) (g : G),
     inv (inv g) == g.
 Proof.
-  now intros; rewrite <- neutr_l, <- (inv_l (inv g)), <- assoc, inv_l, neutr_r.
+  now intros; rewrite <- neutr_r, <- (inv_l g), assoc, inv_l, neutr_l.
 Qed.
 
 Lemma neutr_unique_l :

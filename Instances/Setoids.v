@@ -517,3 +517,52 @@ Instance CoqSetoid_CartesianClosed : CartesianClosed CoqSetoid :=
   HasProducts_CartesianClosed := HasProducts_CoqSetoid;
   HasExponentials_CartesianClosed := HasExponentials_CoqSetoid;
 }.
+
+(** nel-related stuff *)
+
+#[export]
+Instance CoqSetoid_sumprod (A B : Setoid') : Setoid'.
+Proof.
+  esplit. Unshelve. all: cycle 1.
+  - exact (sumprod A B).
+  - esplit. Unshelve. all: cycle 1.
+    + refine (fun x1 x2 =>
+        match x1, x2 with
+        | inl' a1, inl' a2 => a1 == a2
+        | inr' b1, inr' b2 => b1 == b2
+        | pair' a1 b1, pair' a2 b2 => a1 == a2 /\ b1 == b2
+        | _, _ => False
+        end).
+    + split; red.
+      * now intros [a | b | a b].
+      * now intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2].
+      * intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2] [a3 | b3 | a3 b3]; cbn; try easy.
+        -- now intros -> ->.
+        -- now intros -> ->.
+        -- now intros [-> ->] [-> ->].
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_inl' (A B : Setoid') : SetoidHom A (CoqSetoid_sumprod A B) :=
+{
+  func := @inl' A B;
+}.
+Proof. easy. Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_inr' (A B : Setoid') : SetoidHom B (CoqSetoid_sumprod A B) :=
+{
+  func := @inr' A B;
+}.
+Proof. easy. Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
+{
+  carrier := nel X;
+  setoid := {| equiv := @equiv_nel X X |}
+}.
+Proof. now solve_equiv. Defined.

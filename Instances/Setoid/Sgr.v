@@ -331,54 +331,9 @@ Defined.
 
 (* TODO: coproducts of semigroups *)
 
-#[export]
-Instance CoqSetoid_sumprod (A B : Setoid') : Setoid'.
-Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact (sumprod A B).
-  - esplit. Unshelve. all: cycle 1.
-    + refine (fun x1 x2 =>
-        match x1, x2 with
-        | inl' a1, inl' a2 => a1 == a2
-        | inr' b1, inr' b2 => b1 == b2
-        | pair' a1 b1, pair' a2 b2 => a1 == a2 /\ b1 == b2
-        | _, _ => False
-        end).
-    + split; red.
-      * now intros [a | b | a b].
-      * now intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2].
-      * intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2] [a3 | b3 | a3 b3]; cbn; try easy.
-        -- now intros -> ->.
-        -- now intros -> ->.
-        -- now intros [-> ->] [-> ->].
-Defined.
+Require Import Recdef.
 
-#[refine]
-#[export]
-Instance CoqSetoid_inl' (A B : Setoid') : SetoidHom A (CoqSetoid_sumprod A B) :=
-{
-  func := @inl' A B;
-}.
-Proof. easy. Defined.
-
-#[refine]
-#[export]
-Instance CoqSetoid_inr' (A B : Setoid') : SetoidHom B (CoqSetoid_sumprod A B) :=
-{
-  func := @inr' A B;
-}.
-Proof. easy. Defined.
-
-#[refine]
-#[export]
-Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
-{
-  carrier := nel X;
-  setoid := {| equiv := @equiv_nel X X |}
-}.
-Proof. now solve_equiv. Defined.
-
-Fixpoint normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
+Function normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
 match l with
 | singl s => singl s
 | inl x ::: singl (inl x') => singl (inl (op x x'))
@@ -433,11 +388,17 @@ Qed.
 
 #[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
 
-Lemma Proper_app_nel :
+Lemma Proper_nel_app :
   forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
     fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
 Proof.
-Abort.
+Admitted.
+
+Lemma equiv_nel_normalize :
+  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+    equiv_nel (normalize l1) (normalize l2) <-> equiv_nel l1 l2.
+Proof.
+Admitted.
 
 #[export]
 Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
@@ -459,7 +420,8 @@ Proof.
   now exists (fun y : Y => singl (inr y)).
 Defined.
 
-(*
+Axiom cheat : False.
+
 #[refine]
 #[export]
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
@@ -468,22 +430,18 @@ Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
   op := nel_app
 }.
 Proof.
-  proper. induction x as [| h t].
-    destruct y, x0, y0, a, s, s0, s1; cbn in *; repeat
-    match goal with | |- op _ _ == op _ _ => apply WUUUT end; solve_equiv.
-  intros. now rewrite app_nel_assoc.
+  - intros l1 l1' H1 l2 l2' H2. cbn in *. destruct cheat.
+  - destruct cheat.
 Defined.
 
 Definition Sgr_finl (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
 Proof.
-  red. exists (Sgr_freeprod_setoid_finl X Y).
-  simpl. now unfold fpeq4; cbn.
+  now exists (Sgr_freeprod_setoid_finl X Y); cbn.
 Defined.
 
 Definition Sgr_finr (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
 Proof.
-  red. exists (Sgr_freeprod_setoid_finr X Y).
-  now cbn; unfold fpeq4; cbn.
+  now exists (Sgr_freeprod_setoid_finr X Y); cbn.
 Defined.
 
 Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A) (l : nel (X + Y)) : nel A :=
@@ -513,17 +471,12 @@ Abort.
 Definition Sgr_setoid_copair
   (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A) : SetoidHom (Sgr_freeprod X Y) A.
 Proof.
-  red. exists (fun l => fold (freemap f g l)). proper. fpeq4.
-  do 2 red; cbn. unfold fpeq4.
-  induction x as [| h t]; cbn; intro.
-    destruct a, (normalize y).
-    destruct y as [| h' t'].
-      fpeq4; sgr.
-      intros. cbn in H.
+  exists (fun l => fold (freemap f g l)).
+  intros l1 l2 Heq; cbn in *; revert l2 Heq.
+  induction l1 as [[x | y] | [x | y] t1]; cbn.
+Admitted.
 
 Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SgrHom (Sgr_freeprod X Y) A.
 Proof.
-  red.
-Abort.
-*)
+Admitted.

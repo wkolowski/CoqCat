@@ -8,8 +8,8 @@ Class Mon : Type :=
 {
   sgr :> Sgr;
   neutr : sgr;
-  neutr_l : forall a : sgr, op neutr a = a;
-  neutr_r : forall a : sgr, op a neutr = a
+  neutr_l : forall a : sgr, op neutr a == a;
+  neutr_r : forall a : sgr, op a neutr == a
 }.
 
 Arguments sgr _ : clear implicits.
@@ -355,7 +355,7 @@ Defined.
 Definition Mon_Sgr_create (X : Mon) : SgrHom Mon_init X.
 Proof.
   exists (Mon_Setoid_create X); cbn.
-  now rewrite neutr_l.
+  now intros; symmetry; apply neutr_l.
 Defined.
 
 Definition Mon_create (X : Mon) : Hom Mon_init X.
@@ -538,3 +538,397 @@ Proof.
     + change (S n') with (1 + n')%nat.
       now rewrite H1, Heq, IHn'.
 Defined.
+
+Inductive MCE {A B : Mon} : list (A + B) -> list (A + B) -> Prop :=
+| MCE_nil : MCE [] []
+| MCE_inl :
+  forall (a1 a2 : A) (t1 t2 : list (A + B)),
+    a1 == a2 -> MCE t1 t2 -> MCE (inl a1 :: t1) (inl a2 :: t2)
+| MCE_inr :
+  forall (b1 b2 : B) (t1 t2 : list (A + B)),
+    b1 == b2 -> MCE t1 t2 -> MCE (inr b1 :: t1) (inr b2 :: t2)
+| MCE_refl :
+  forall l : list (A + B), MCE l l
+| MCE_sym :
+  forall l1 l2 : list (A + B),
+    MCE l1 l2 -> MCE l2 l1
+| MCE_trans :
+  forall l1 l2 l3 : list (A + B),
+    MCE l1 l2 -> MCE l2 l3 -> MCE l1 l3
+| MCE_nil_neutr_l : forall t : list (A + B), MCE (inl neutr :: t) t
+| MCE_nil_neutr_r : forall t : list (A + B), MCE (inr neutr :: t) t
+| MCE_cons_op_l :
+  forall (a1 a2 : A) (t : list (A + B)),
+    MCE (inl a1 :: inl a2 :: t) (inl (op a1 a2) :: t)
+| MCE_cons_op_r :
+  forall (b1 b2 : B) (t : list (A + B)),
+    MCE (inr b1 :: inr b2 :: t) (inr (op b1 b2) :: t).
+
+#[export] Hint Constructors MCE : core.
+
+#[export]
+Instance Equivalence_MCE :
+  forall A B : Mon,
+    Equivalence (@MCE A B).
+Proof.
+  split; red.
+  - now apply MCE_refl.
+  - now apply MCE_sym.
+  - now apply MCE_trans.
+Defined.
+
+#[export]
+Instance Mon_coproduct_Setoid' (A B : Mon) : Setoid' :=
+{
+  carrier := list (A + B);
+  setoid :=
+  {|
+    equiv := MCE;
+    setoid_equiv := Equivalence_MCE A B;
+  |};
+}.
+
+Lemma MCE_app_l :
+  forall (A B : Mon) (l l1 l2 : list (A + B)),
+    MCE l1 l2 -> MCE (l ++ l1) (l ++ l2).
+Proof.
+  induction l as [| [a | b] t]; cbn; intros; [easy | |].
+  - now constructor; [| apply IHt].
+  - now constructor; [| apply IHt].
+Qed.
+
+#[refine]
+#[export]
+Instance Mon_coproduct_Sgr (A B : Mon) : Sgr :=
+{
+  setoid := Mon_coproduct_Setoid' A B;
+  op := fun l1 l2 => l1 ++ l2;
+}.
+Proof.
+  - intros l1 l1' H1 l2 l2' H2; cbn in *; revert l2 l2' H2.
+    induction H1; cbn; intros.
+    + easy.
+    + now eauto.
+    + now eauto.
+    + now apply MCE_app_l.
+    + now eauto.
+    + now eauto.
+    + now rewrite MCE_nil_neutr_l; apply MCE_app_l.
+    + now rewrite MCE_nil_neutr_r; apply MCE_app_l.
+    + now rewrite MCE_cons_op_l; constructor; [easy |]; apply MCE_app_l.
+    + now rewrite MCE_cons_op_r; constructor; [easy |]; apply MCE_app_l.
+  - now cbn; intros; rewrite app_assoc.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_coproduct (A B : Mon) : Mon :=
+{
+  sgr := Mon_coproduct_Sgr A B;
+  neutr := [];
+}.
+Proof.
+  - easy.
+  - now cbn; intros; rewrite app_nil_r.
+Defined.
+
+#[export]
+Instance Mon_finl_Setoid' (A B : Mon) : SetoidHom A (Mon_coproduct A B).
+Proof.
+  esplit. Unshelve. all: cycle 1.
+  - exact (fun a => [inl a]).
+  - now constructor.
+Defined.
+
+#[export]
+Instance Mon_finl_Sgr (A B : Mon) : SgrHom A (Mon_coproduct A B).
+Proof.
+  esplit with (Mon_finl_Setoid' A B); cbn.
+  now intros; rewrite MCE_cons_op_l.
+Defined.
+
+#[export]
+Instance Mon_finl (A B : Mon) : MonHom A (Mon_coproduct A B).
+Proof.
+  esplit with (Mon_finl_Sgr A B); cbn.
+  now rewrite MCE_nil_neutr_l.
+Defined.
+
+#[export]
+Instance Mon_finr_Setoid' (A B : Mon) : SetoidHom B (Mon_coproduct A B).
+Proof.
+  esplit. Unshelve. all: cycle 1.
+  - exact (fun b => [inr b]).
+  - now constructor.
+Defined.
+
+#[export]
+Instance Mon_finr_Sgr (A B : Mon) : SgrHom B (Mon_coproduct A B).
+Proof.
+  esplit with (Mon_finr_Setoid' A B); cbn.
+  now intros; rewrite MCE_cons_op_r.
+Defined.
+
+#[export]
+Instance Mon_finr (A B : Mon) : MonHom B (Mon_coproduct A B).
+Proof.
+  esplit with (Mon_finr_Sgr A B); cbn.
+  now rewrite MCE_nil_neutr_r.
+Defined.
+
+Fixpoint freemap
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l : list (A + B)) : list X :=
+match l with
+| [] => []
+| inl a :: t => f a :: freemap f g t
+| inr b :: t => g b :: freemap f g t
+end.
+
+Fixpoint fold {A : Mon} (l : list A) : A :=
+match l with
+| [] => neutr
+| h :: t => op h (fold t)
+end.
+
+Lemma freemap_app :
+  forall {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l1 l2 : list (A + B)),
+    freemap f g (l1 ++ l2) = freemap f g l1 ++ freemap f g l2.
+Proof.
+  induction l1 as [| h1 t1]; cbn; intros l2; [easy |].
+  now destruct h1 as [a | b]; cbn; rewrite IHt1.
+Qed.
+
+Lemma fold_app :
+  forall {A : Mon} (l1 l2 : list A),
+    fold (l1 ++ l2) == op (fold l1) (fold l2).
+Proof.
+  induction l1 as [| h1 t1]; cbn; intros l2.
+  - now rewrite neutr_l.
+  - now rewrite <- assoc, IHt1.
+Qed.
+
+Fixpoint Mon_copair''
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l : list (A + B)) : X :=
+match l with
+| [] => neutr
+| inl a :: t => op (f a) (Mon_copair'' f g t)
+| inr b :: t => op (g b) (Mon_copair'' f g t)
+end.
+
+Lemma Mon_copair''_app :
+  forall {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l1 l2 : list (A + B)),
+    Mon_copair'' f g (l1 ++ l2) == op (Mon_copair'' f g l1) (Mon_copair'' f g l2).
+Proof.
+  induction l1 as [| h1 t1]; cbn; intros l2.
+  - now rewrite neutr_l.
+  - now destruct h1 as [a | b]; cbn; rewrite IHt1, <- assoc.
+Qed.
+
+#[export]
+Instance Mon_copair_Setoid'
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : SetoidHom (Mon_coproduct A B) X.
+Proof.
+  esplit with (fun l => fold (freemap f g l)).
+  intros l1 l2 Heq; cbn in *.
+  induction Heq; cbn.
+  - easy.
+  - now rewrite IHHeq, H.
+  - now rewrite IHHeq, H.
+  - easy.
+  - easy.
+  - now rewrite IHHeq1, IHHeq2.
+  - now rewrite pres_neutr, neutr_l.
+  - now rewrite pres_neutr, neutr_l.
+  - now rewrite pres_op, <- assoc.
+  - now rewrite pres_op, <- assoc.
+Restart.
+  esplit with (Mon_copair'' f g).
+  intros l1 l2 Heq; cbn in *.
+  induction Heq; cbn.
+  - easy.
+  - now rewrite IHHeq, H.
+  - now rewrite IHHeq, H.
+  - easy.
+  - easy.
+  - now rewrite IHHeq1, IHHeq2.
+  - now rewrite pres_neutr, neutr_l.
+  - now rewrite pres_neutr, neutr_l.
+  - now rewrite pres_op, <- assoc.
+  - now rewrite pres_op, <- assoc.
+Defined.
+
+#[export]
+Instance Mon_copair_Sgr
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : SgrHom (Mon_coproduct A B) X.
+Proof.
+  esplit with (Mon_copair_Setoid' f g); cbn.
+(*   now intros; rewrite freemap_app, fold_app. *)
+  now intros; rewrite Mon_copair''_app.
+Defined.
+
+#[export]
+Instance Mon_copair
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : MonHom (Mon_coproduct A B) X.
+Proof.
+  now esplit with (Mon_copair_Sgr f g).
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoproducts_Mon : HasCoproducts MonCat :=
+{
+  coproduct := @Mon_coproduct;
+  finl := @Mon_finl;
+  finr := @Mon_finr;
+  copair := @Mon_copair;
+}.
+Proof.
+  split; cbn.
+  - now intros; rewrite neutr_r.
+  - now intros; rewrite neutr_r.
+  - intros P' h1 h2 HA HB l.
+    induction l as [| h t]; cbn.
+    + now rewrite <- MCE_nil_neutr_l, HA.
+    + change (h :: t) with (@op (Mon_coproduct A B) [h] t).
+      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
+Defined.
+
+Print Assumptions HasCoproducts_Mon.
+
+(*
+Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
+  fp_equiv (normalize l1) (normalize l2).
+
+Ltac fpeq4 := unfold fpeq4; repeat
+match goal with
+| x : _ + _ |- _ => destruct x; cbn in *
+| H : match normalize ?l with | _ => _ end |- _ => destruct (normalize l); cbn in *
+| |- match normalize ?l with | _ => _ end => destruct (normalize l); cbn in *
+| _ => solve_equiv
+end.
+
+Lemma fpeq4_refl :
+  forall (X Y : Sgr) (l : nel (X + Y)),
+    fpeq4 l l.
+Proof.
+  now induction l as [| h [| h' t]]; fpeq4.
+Qed.
+
+Lemma fpeq4_sym :
+  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+    fpeq4 l1 l2 -> fpeq4 l2 l1.
+Proof.
+  now induction l1 as [| h [| h' t]]; fpeq4.
+Qed.
+
+Lemma fpeq4_trans :
+  forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
+    fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
+Proof.
+  now induction l1 as [| h1 t1]; fpeq4.
+Qed.
+
+#[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
+
+Lemma Proper_nel_app :
+  forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
+    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
+Proof.
+Admitted.
+
+Lemma equiv_nel_normalize :
+  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
+    equiv_nel (normalize l1) (normalize l2) <-> equiv_nel l1 l2.
+Proof.
+Admitted.
+
+#[export]
+Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
+{
+  carrier := nel (X + Y);
+  setoid := Setoid_kernel_equiv
+    (@CoqSetoid_nel (CoqSetoid_coproduct X Y)) (@normalize X Y)
+}.
+
+Definition Sgr_freeprod_setoid_finl
+  (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
+Proof.
+  now exists (fun x : X => singl (inl x)).
+Defined.
+
+Definition Sgr_freeprod_setoid_finr
+  (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
+Proof.
+  now exists (fun y : Y => singl (inr y)).
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
+{
+  setoid := Sgr_freeprod_setoid X Y;
+  op := nel_app
+}.
+Proof.
+  - intros l1 l1' H1 l2 l2' H2.
+    apply (equiv_nel_normalize _ _ (nel_app l1 l2) (nel_app l1' l2')). equiv_nel_normalize.
+  proper. admit.
+  - induction x as [| h t]. cbn.
+    + destruct y, x0, y0, a, s, s0, s1; cbn in *; repeat
+    match goal with | |- op _ _ == op _ _ => apply WUUUT end; solve_equiv.
+  intros. now rewrite app_nel_assoc.
+Defined.
+
+Definition Sgr_finl (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
+Proof.
+  red. exists (Sgr_freeprod_setoid_finl X Y).
+  simpl. now unfold fpeq4; cbn.
+Defined.
+
+Definition Sgr_finr (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
+Proof.
+  red. exists (Sgr_freeprod_setoid_finr X Y).
+  now cbn; unfold fpeq4; cbn.
+Defined.
+
+Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A) (l : nel (X + Y)) : nel A :=
+match l with
+| singl (inl x) => singl (f x)
+| singl (inr y) => singl (g y)
+| inl x ::: t => f x ::: freemap f g t
+| inr y ::: t => g y ::: freemap f g t
+end.
+
+Fixpoint fold {A : Sgr} (l : nel A) : A :=
+match l with
+| singl a => a
+| a ::: singl a' => op a a'
+| a ::: t => op a (fold t)
+end.
+
+Lemma Proper_fold :
+  forall (A : Sgr) (l1 l2 : nel A),
+    equiv_nel l1 l2 -> fold l1 == fold l2.
+Proof.
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.
+  destruct t1, t2; cbn in *.
+    rewrite H, H0.
+Abort.
+
+Definition Sgr_setoid_copair
+  (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A) : SetoidHom (Sgr_freeprod X Y) A.
+Proof.
+  red. exists (fun l => fold (freemap f g l)). proper. fpeq4.
+  do 2 red; cbn. unfold fpeq4.
+  induction x as [| h t]; cbn; intro.
+    destruct a, (normalize y).
+    destruct y as [| h' t'].
+      fpeq4; sgr.
+      intros. cbn in H.
+
+Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
+    : SgrHom (Sgr_freeprod X Y) A.
+Proof.
+  red.
+Abort.
+*)

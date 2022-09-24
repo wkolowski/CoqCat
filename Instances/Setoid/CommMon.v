@@ -170,8 +170,10 @@ Proof.
           ==
         h2 (@op (CMon_coproduct A B) (a, neutr) (neutr, b)))
       by now rewrite !pres_op; f_equiv.
-    now cbn in Heq; rewrite neutr_l, neutr_r in Heq.
-Defined.
+    assert (Heq' : @equiv _ (Mon_product A B) (a, b) (op a neutr, op neutr b))
+      by now cbn; rewrite neutr_l, neutr_r.
+    rewrite Heq'. rewrite (@pres_op _ _ h1 (op a neutr) (op neutr b)).
+Admitted.
 
 #[refine]
 #[export]
