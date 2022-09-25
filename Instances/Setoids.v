@@ -1,9 +1,33 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Universal Require Export
-  Initial Terminal Product Coproduct Equalizer Coequalizer Exponential IndexedProduct IndexedCoproduct.
+  Initial Terminal Product Coproduct Equalizer Coequalizer Exponential
+  IndexedProduct IndexedCoproduct.
 
 Set Implicit Arguments.
+
+#[export]
+Instance CoqSetoid_sumprod (A B : Setoid') : Setoid' :=
+{
+  carrier := sumprod A B;
+  setoid := Setoid_sumprod A B;
+}.
+
+#[refine]
+#[export]
+Instance CoqSetoid_inl' (A B : Setoid') : SetoidHom A (CoqSetoid_sumprod A B) :=
+{
+  func := @inl' A B;
+}.
+Proof. easy. Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_inr' (A B : Setoid') : SetoidHom B (CoqSetoid_sumprod A B) :=
+{
+  func := @inr' A B;
+}.
+Proof. easy. Defined.
 
 #[export]
 Instance PROP : Setoid' :=
@@ -491,35 +515,4 @@ Instance CoqSetoid_CartesianClosed : CartesianClosed CoqSetoid :=
   HasTerm_CartesianClosed := HasTerm_CoqSetoid;
   HasProducts_CartesianClosed := HasProducts_CoqSetoid;
   HasExponentials_CartesianClosed := HasExponentials_CoqSetoid;
-}.
-
-(** nel-related stuff *)
-
-#[export]
-Instance CoqSetoid_sumprod (A B : Setoid') : Setoid' :=
-{
-  carrier := sumprod A B;
-  setoid := Setoid_sumprod A B;
-}.
-
-#[refine]
-#[export]
-Instance CoqSetoid_inl' (A B : Setoid') : SetoidHom A (CoqSetoid_sumprod A B) :=
-{
-  func := @inl' A B;
-}.
-Proof. easy. Defined.
-
-#[refine]
-#[export]
-Instance CoqSetoid_inr' (A B : Setoid') : SetoidHom B (CoqSetoid_sumprod A B) :=
-{
-  func := @inr' A B;
-}.
-Proof. easy. Defined.
-
-#[export]
-Instance CoqSetoid_nel (X : Setoid') : Setoid' :=
-{
-  carrier := nel X;
 }.

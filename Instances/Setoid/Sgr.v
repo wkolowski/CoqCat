@@ -58,33 +58,33 @@ Proof.
   - now destruct (simplify e); cbn in *; rewrite <- IHe, ?pres_op.
 Qed.
 
-Fixpoint expDenoteNel {X : Sgr} (l : nel X) : X :=
-match l with
-| singl x => x
-| h ::: t => op h (expDenoteNel t)
+Fixpoint expDenoteNel {X : Sgr} (l : Nel X) : X :=
+match tl l with
+| None => hd l
+| Some t => op (hd l) (expDenoteNel t)
 end.
 
-Lemma expDenoteNel_nel_app :
-  forall (X : Sgr) (l1 l2 : nel X),
-    expDenoteNel (nel_app l1 l2) == op (expDenoteNel l1) (expDenoteNel l2).
+Lemma expDenoteNel_napp :
+  forall (X : Sgr) (l1 l2 : Nel X),
+    expDenoteNel (napp l1 l2) == op (expDenoteNel l1) (expDenoteNel l2).
 Proof.
-  induction l1 as [| h1 t1]; cbn; intros; [easy |].
+  induction l1 as [| h1 t1] using Nel_ind'; cbn; intros; [easy |].
   now rewrite IHt1, assoc.
 Qed.
 
 Lemma expDenoteNel_hom :
-  forall (X Y : Sgr) (f : SgrHom X Y) (l : nel X),
-    expDenoteNel (nel_map f l) == f (expDenoteNel l).
+  forall (X Y : Sgr) (f : SgrHom X Y) (l : Nel X),
+    expDenoteNel (nmap f l) == f (expDenoteNel l).
 Proof.
-  induction l as [| h t]; cbn; [easy |].
+  induction l as [| h t] using Nel_ind'; cbn; [easy |].
   now rewrite pres_op, IHt.
 Qed.
 
-Fixpoint flatten {X : Sgr} (e : exp X) : nel X :=
+Fixpoint flatten {X : Sgr} (e : exp X) : Nel X :=
 match e with
-| Var v => singl v
-| Op e1 e2 => nel_app (flatten e1) (flatten e2)
-| Mor f e' => nel_map f (flatten e')
+| Var v => Cons v None
+| Op e1 e2 => napp (flatten e1) (flatten e2)
+| Mor f e' => nmap f (flatten e')
 end.
 
 Lemma flatten_correct :
@@ -92,7 +92,7 @@ Lemma flatten_correct :
     expDenoteNel (flatten e) == expDenote e.
 Proof.
   induction e; cbn; [easy | |].
-  - now rewrite expDenoteNel_nel_app, IHe1, IHe2.
+  - now rewrite expDenoteNel_napp, IHe1, IHe2.
   - now rewrite expDenoteNel_hom, IHe.
 Qed.
 
@@ -329,32 +329,26 @@ Proof.
   now repeat split; cbn in *.
 Defined.
 
-(*
-Inductive SCE {A B : Sgr} : nel (A + B) -> nel (A + B) -> Prop :=
-| SCE_singl_l :
-  forall a1 a2 : A, a1 == a2 -> SCE (singl (inl a1)) (singl (inl a2))
-| SCE_singl_r :
-  forall b1 b2 : B, b1 == b2 -> SCE (singl (inr b1)) (singl (inr b2))
-| SCE_cons_l :
-  forall (a1 a2 : A) (t1 t2 : nel (A + B)),
-    a1 == a2 -> SCE t1 t2 -> SCE (inl a1 ::: t1) (inl a2 ::: t2)
-| SCE_cons_r :
-  forall (b1 b2 : B) (t1 t2 : nel (A + B)),
-    b1 == b2 -> SCE t1 t2 -> SCE (inr b1 ::: t1) (inr b2 ::: t2)
+Inductive SCE {A B : Sgr} : Nel (A + B) -> Nel (A + B) -> Prop :=
 | SCE_refl :
-  forall l : nel (A + B), SCE l l
+  forall l : Nel (A + B), SCE l l
 | SCE_sym :
-  forall l1 l2 : nel (A + B),
+  forall l1 l2 : Nel (A + B),
     SCE l1 l2 -> SCE l2 l1
 | SCE_trans :
-  forall l1 l2 l3 : nel (A + B),
+  forall l1 l2 l3 : Nel (A + B),
     SCE l1 l2 -> SCE l2 l3 -> SCE l1 l3
+| SCE_hd :
+  forall {h1 h2 : A + B}, h1 == h2 -> SCE (Cons h1 None) (Cons h2 None)
+| SCE_cons :
+  forall {h1 h2 : A + B} {t1 t2 : Nel (A + B)},
+    h1 == h2 -> SCE t1 t2 -> SCE (Cons h1 (Some t1)) (Cons h2 (Some t2))
 | SCE_cons_op_l :
-  forall (a1 a2 : A) (t : nel (A + B)),
-    SCE (inl a1 ::: inl a2 ::: t) (inl (op a1 a2) ::: t)
+  forall (a1 a2 : A) (t : option (Nel (A + B))),
+    SCE (Cons (inl a1) (Some (Cons (inl a2) t))) (Cons (inl (op a1 a2)) t)
 | SCE_cons_op_r :
-  forall (b1 b2 : B) (t : nel (A + B)),
-    SCE (inr b1 ::: inr b2 ::: t) (inr (op b1 b2) ::: t).
+  forall (b1 b2 : B) (t : option (Nel (A + B))),
+    SCE (Cons (inr b1) (Some (Cons (inr b2) t))) (Cons (inr (op b1 b2)) t).
 
 #[export] Hint Constructors SCE : core.
 
@@ -370,41 +364,35 @@ Proof.
 Defined.
 
 Lemma SCE_app_l :
-  forall (A B : Sgr) (l l1 l2 : nel (A + B)),
-    SCE l1 l2 -> SCE (nel_app l l1) (nel_app l l2).
+  forall (A B : Sgr) (l l1 l2 : Nel (A + B)),
+    SCE l1 l2 -> SCE (napp l l1) (napp l l2).
 Proof.
-  induction l as [[a | b] | [a | b] t]; cbn; intros.
-  - now constructor.
-  - now constructor.
-  - now constructor; [| apply IHt].
-  - now constructor; [| apply IHt].
+  induction l as [h | h t] using Nel_ind'; cbn; intros.
+  - now apply SCE_cons.
+  - now apply SCE_cons; [| apply IHt].
 Qed.
 
 Lemma SCE_app :
-  forall {A B : Sgr} (l11 l12 l21 l22 : nel (A + B)),
-    SCE l11 l12 -> SCE l21 l22 -> SCE (nel_app l11 l21) (nel_app l12 l22).
+  forall {A B : Sgr} (l11 l12 l21 l22 : Nel (A + B)),
+    SCE l11 l12 -> SCE l21 l22 -> SCE (napp l11 l21) (napp l12 l22).
 Proof.
   intros * H1 H2; revert l21 l22 H2.
   induction H1; cbn; intros.
-  - now eauto.
-  - now eauto.
-  - now eauto.
-  - now eauto.
   - now apply SCE_app_l.
   - now eauto.
   - now eauto.
+  - now eauto.
+  - now eauto.
   - rewrite SCE_cons_op_l.
-    constructor; [easy |].
-    now apply SCE_app_l.
+    now destruct t; apply SCE_cons; [| apply SCE_app_l | |].
   - rewrite SCE_cons_op_r.
-    constructor; [easy |].
-    now apply SCE_app_l.
+    now destruct t; apply SCE_cons; [| apply SCE_app_l | |].
 Defined.
 
 #[export]
 Instance Sgr_coproduct_Setoid' (A B : Sgr) : Setoid' :=
 {
-  carrier := nel (A + B);
+  carrier := Nel (A + B);
   setoid :=
   {|
     equiv := SCE;
@@ -417,19 +405,19 @@ Instance Sgr_coproduct_Setoid' (A B : Sgr) : Setoid' :=
 Instance Sgr_coproduct (A B : Sgr) : Sgr :=
 {
   setoid := Sgr_coproduct_Setoid' A B;
-  op := fun l1 l2 => nel_app l1 l2;
+  op := fun l1 l2 => napp l1 l2;
 }.
 Proof.
   - intros l1 l1' H1 l2 l2' H2; cbn in *.
     now apply SCE_app.
-  - now cbn; intros; rewrite nel_app_assoc.
+  - now cbn; intros; rewrite napp_assoc.
 Defined.
 
 #[export]
 Instance Sgr_finl' (A B : Sgr) : SetoidHom A (Sgr_coproduct A B).
 Proof.
   esplit. Unshelve. all: cycle 1.
-  - exact (fun a => singl (inl a)).
+  - exact (fun a => Cons (inl a) None).
   - now constructor.
 Defined.
 
@@ -437,14 +425,14 @@ Defined.
 Instance Sgr_finl (A B : Sgr) : SgrHom A (Sgr_coproduct A B).
 Proof.
   esplit with (Sgr_finl' A B); cbn.
-  intros; rewrite SCE_cons_op_l.
+  now intros; rewrite SCE_cons_op_l.
 Defined.
 
 #[export]
 Instance Sgr_finr' (A B : Sgr) : SetoidHom B (Sgr_coproduct A B).
 Proof.
   esplit. Unshelve. all: cycle 1.
-  - exact (fun b => singl (inr b)).
+  - exact (fun b => Cons (inr b) None).
   - now constructor.
 Defined.
 
@@ -456,68 +444,26 @@ Proof.
 Defined.
 
 Fixpoint Sgr_copair'
-  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l : nel (A + B)) : X :=
-match l with
-| singl (inl a) => f a
-| singl (inr b) => g b
-| inl a ::: t => op (f a) (Sgr_copair' f g t)
-| inr b ::: t => op (g b) (Sgr_copair' f g t)
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l : Nel (A + B)) : X :=
+match tl l with
+| None =>
+  match hd l with
+  | inl a => f a
+  | inr b => g b
+  end
+| Some t =>
+  match hd l with
+  | inl a => op (f a) (Sgr_copair' f g t)
+  | inr b => op (g b) (Sgr_copair' f g t)
+  end
 end.
 
 Lemma Sgr_copair'_app :
-  forall {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l1 l2 : nel (A + B)),
-    Sgr_copair' f g (nel_app l1 l2) == op (Sgr_copair' f g l1) (Sgr_copair' f g l2).
+  forall {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l1 l2 : Nel (A + B)),
+    Sgr_copair' f g (napp l1 l2) == op (Sgr_copair' f g l1) (Sgr_copair' f g l2).
 Proof.
-  now induction l1 as [[a | b] | [a | b] t1]; cbn; intros l2; rewrite ?IHt1, ?assoc.
+  now induction l1 as [[] | [] t] using Nel_ind'; cbn; intros; rewrite ?IHt, ?assoc.
 Qed.
-
-Axiom cheat : False.
-
-Fixpoint list2nel {A : Type} (x : A) (l : list A) : nel A :=
-match l with
-| [] => singl x
-| [h] => singl h
-| h :: t => h ::: list2nel x t
-end.
-
-(* Lemma nel2list2nel :
-  forall {A : Type} (x : A) (l : nel A),
-    list2nel x (nel2list l) = x ::: l.
-Proof.
-  intros A x l; revert x.
-  now induction l as [h | h t]; cbn; intros; rewrite ?IHt.
-Qed.
- *)
-
-Definition hd {A : Type} (l : nel A) : A :=
-match l with
-| singl h => h
-| h ::: _ => h
-end.
-
-Lemma nel2list2nel :
-  forall {A : Type} (x : A) (l : nel A),
-    list2nel x (nel2list l) = l.
-Proof.
-  intros A x l; revert x.
-  induction l as [h | h t]; cbn; intros.
-  - easy.
-  - destruct (nel2list t) eqn: Heq.
-    + now destruct t; inversion Heq.
-    + now rewrite IHt.
-Qed.
-
-Lemma SCE_list2nel :
-  forall {A B : Sgr} (x : A + B) (l1 l2 : list (A + B)),
-    SCE l1 l2 -> SCE (nel2list (list2nel x l1)) (nel2list (list2nel x l2)).
-Proof.
-  intros A B x l1 l2 Heq; revert x.
-  induction Heq; cbn; intros.
-  - easy.
-  - destruct t1, t2; cbn.
-    + now constructor.
-    + 
-Abort.
 
 #[export]
 Instance Sgr_copair_Setoid'
@@ -525,18 +471,19 @@ Instance Sgr_copair_Setoid'
 Proof.
   esplit with (Sgr_copair' f g).
   intros l1 l2 Heq; cbn in *.
-  rewrite <- (nel2list2nel (hd l1) l1),
-          <- (nel2list2nel (hd l2) l2).
-  generalize dependent (nel2list l1);
-  generalize dependent (nel2list l2);
-  generalize dependent (hd l1);
-  generalize dependent (hd l2);
-  clear l1 l2.
-  intros z2 z1 l2 l1 Heq.
   induction Heq; cbn.
-  - admit.
-  - cbn in IHHeq.
-Abort.
+  - easy.
+  - easy.
+  - now rewrite IHHeq1, IHHeq2.
+  - destruct h1, h2; cbn in *; [| easy | easy |].
+    + now rewrite H.
+    + now rewrite H.
+  - destruct h1, h2; cbn in *; [| easy | easy |].
+    + now rewrite H, IHHeq.
+    + now rewrite H, IHHeq.
+  - now destruct t as [t |]; rewrite pres_op, ?assoc.
+  - now destruct t as [t |]; rewrite pres_op, ?assoc.
+Defined.
 
 #[export]
 Instance Sgr_copair
@@ -560,162 +507,9 @@ Proof.
   - easy.
   - easy.
   - intros P' h1 h2 HA HB l.
-    induction l as [[a | b] | h t]; cbn.
+    induction l as [[a | b] | h t] using Nel_ind'; cbn.
     + now apply HA.
     + now apply HB.
-    + change (h ::: t) with (@op (Sgr_coproduct A B) (singl h) t).
+    + change {| hd := h; tl := Some t; |} with (@op (Sgr_coproduct A B) (Cons h None) t).
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
-
-Print Assumptions HasCoproducts_Sgr.
-*)
-
-(*
-Require Import Recdef.
-
-Function normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
-match l with
-| singl s => singl s
-| inl x ::: singl (inl x') => singl (inl (op x x'))
-| inr y ::: singl (inr y') => singl (inr (op y y'))
-| inl _ ::: singl (inr _) => l
-| inr _ ::: singl (inl _) => l
-| inl x ::: t =>
-  match normalize t with
-  | singl (inl x') => singl (inl (op x x'))
-  | inl x' ::: t' => inl (op x x') ::: t'
-  | t' => inl x ::: t'
-  end
-| inr y ::: t =>
-  match normalize t with
-  | singl (inr y') => singl (inr (op y y'))
-  | inr y' ::: t' => inr (op y y') ::: t'
-  | t' => inr y ::: t'
-  end
-end.
-
-Definition fpeq4 {X Y : Sgr} (l1 l2 : nel (X + Y)) : Prop :=
-  fp_equiv (normalize l1) (normalize l2).
-
-Ltac fpeq4 := unfold fpeq4; repeat
-match goal with
-| x : _ + _ |- _ => destruct x; cbn in *
-| H : match normalize ?l with | _ => _ end |- _ => destruct (normalize l); cbn in *
-| |- match normalize ?l with | _ => _ end => destruct (normalize l); cbn in *
-| _ => solve_equiv
-end.
-
-Lemma fpeq4_refl :
-  forall (X Y : Sgr) (l : nel (X + Y)),
-    fpeq4 l l.
-Proof.
-  now induction l as [| h [| h' t]]; fpeq4.
-Qed.
-
-Lemma fpeq4_sym :
-  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
-    fpeq4 l1 l2 -> fpeq4 l2 l1.
-Proof.
-  now induction l1 as [| h [| h' t]]; fpeq4.
-Qed.
-
-Lemma fpeq4_trans :
-  forall (X Y : Sgr) (l1 l2 l3 : nel (X + Y)),
-    fpeq4 l1 l2 -> fpeq4 l2 l3 -> fpeq4 l1 l3.
-Proof.
-  now induction l1 as [| h1 t1]; fpeq4.
-Qed.
-
-#[global] Hint Resolve fpeq4_refl fpeq4_sym fpeq4_trans : core.
-
-Lemma Proper_nel_app :
-  forall (X Y : Sgr) (l1 l1' l2 l2' : nel (X + Y)),
-    fpeq4 l1 l1' -> fpeq4 l2 l2' -> fpeq4 (nel_app l1 l2) (nel_app l1' l2').
-Proof.
-Admitted.
-
-Lemma equiv_nel_normalize :
-  forall (X Y : Sgr) (l1 l2 : nel (X + Y)),
-    equiv_nel (normalize l1) (normalize l2) <-> equiv_nel l1 l2.
-Proof.
-Admitted.
-
-#[export]
-Instance Sgr_freeprod_setoid (X Y : Sgr) : Setoid' :=
-{
-  carrier := nel (X + Y);
-  setoid := Setoid_kernel_equiv
-    (@CoqSetoid_nel (CoqSetoid_coproduct X Y)) (@normalize X Y)
-}.
-
-Definition Sgr_freeprod_setoid_finl
-  (X Y : Sgr) : SetoidHom X (Sgr_freeprod_setoid X Y).
-Proof.
-  now exists (fun x : X => singl (inl x)).
-Defined.
-
-Definition Sgr_freeprod_setoid_finr
-  (X Y : Sgr) : SetoidHom Y (Sgr_freeprod_setoid X Y).
-Proof.
-  now exists (fun y : Y => singl (inr y)).
-Defined.
-
-#[refine]
-#[export]
-Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
-{
-  setoid := Sgr_freeprod_setoid X Y;
-  op := nel_app
-}.
-Proof.
-  - intros l1 l1' H1 l2 l2' H2. cbn in *. destruct cheat.
-  - destruct cheat.
-Defined.
-
-Definition Sgr_finl (X Y : Sgr) : SgrHom X (Sgr_freeprod X Y).
-Proof.
-  now exists (Sgr_freeprod_setoid_finl X Y); cbn.
-Defined.
-
-Definition Sgr_finr (X Y : Sgr) : SgrHom Y (Sgr_freeprod X Y).
-Proof.
-  now exists (Sgr_freeprod_setoid_finr X Y); cbn.
-Defined.
-
-Fixpoint freemap {X Y A : Sgr} (f : SgrHom X A) (g : SgrHom Y A) (l : nel (X + Y)) : nel A :=
-match l with
-| singl (inl x) => singl (f x)
-| singl (inr y) => singl (g y)
-| inl x ::: t => f x ::: freemap f g t
-| inr y ::: t => g y ::: freemap f g t
-end.
-
-Fixpoint fold {A : Sgr} (l : nel A) : A :=
-match l with
-| singl a => a
-| a ::: singl a' => op a a'
-| a ::: t => op a (fold t)
-end.
-
-Lemma Proper_fold :
-  forall (A : Sgr) (l1 l2 : nel A),
-    equiv_nel l1 l2 -> fold l1 == fold l2.
-Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; cat.
-  destruct t1, t2; cbn in *.
-    rewrite H, H0.
-Abort.
-
-Definition Sgr_setoid_copair
-  (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A) : SetoidHom (Sgr_freeprod X Y) A.
-Proof.
-  exists (fun l => fold (freemap f g l)).
-  intros l1 l2 Heq; cbn in *; revert l2 Heq.
-  induction l1 as [[x | y] | [x | y] t1]; cbn.
-Admitted.
-
-Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
-    : SgrHom (Sgr_freeprod X Y) A.
-Proof.
-Admitted.
-*)

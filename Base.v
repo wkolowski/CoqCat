@@ -21,47 +21,56 @@ Arguments pair' {A B} _ _.
 
 #[global] Hint Constructors sumprod : core.
 
-(** Non-empty lists *)
+(** Better non-empty lists *)
 
-Inductive nel (A : Type) : Type :=
-| singl    : A -> nel A
-| cons_nel : A -> nel A -> nel A.
+Inductive Nel (A : Type) : Type := Cons
+{
+  hd : A;
+  tl : option (Nel A);
+}.
 
-Arguments singl    {A} _.
-Arguments cons_nel {A} _ _.
+Arguments hd {A} _.
+Arguments tl {A} _.
+Arguments Cons {A} _ _.
 
-Notation "h ::: t" := (cons_nel h t) (right associativity, at level 30).
-
-Fixpoint nel_app {A : Type} (l1 l2 : nel A) : nel A :=
-match l1 with
-| singl a => cons_nel a l2
-| a ::: l1' => cons_nel a (nel_app l1' l2)
+Fixpoint Nel_ind'
+  (A : Type) (P : Nel A -> Prop)
+  (hd' : forall h : A, P (Cons h None))
+  (tl' : forall (h : A) (t : Nel A), P t -> P (Cons h (Some t)))
+  (l : Nel A) {struct l} : P l :=
+match l with
+| {| hd := h; tl := None |}   => hd' h
+| {| hd := h; tl := Some t |} => tl' h t (Nel_ind' A P hd' tl' t)
 end.
 
-Lemma nel_app_assoc :
-  forall (A : Type) (x y z : nel A),
-    nel_app x (nel_app y z) = nel_app (nel_app x y) z.
+Fixpoint nmap {A B : Type} (f : A -> B) (l : Nel A) : Nel B :=
+{|
+  hd := f (hd l);
+  tl := option_map (nmap f) (tl l);
+|}.
+
+Fixpoint napp {A : Type} (l1 l2 : Nel A) : Nel A :=
+{|
+  hd := hd l1;
+  tl :=
+    match tl l1 with
+    | None => Some l2
+    | Some t1 => Some (napp t1 l2)
+    end;
+|}.
+
+Lemma napp_assoc :
+  forall {A : Type} (l1 l2 l3 : Nel A),
+    napp (napp l1 l2) l3 = napp l1 (napp l2 l3).
 Proof.
-  now induction x as [h | h t]; cbn; intros; rewrite ?IHt.
+  now induction l1 as [h | h t] using Nel_ind'; cbn; intros; rewrite ?IHt.
 Qed.
 
-Fixpoint nel_map {A B : Type} (f : A -> B) (l : nel A) : nel B :=
-match l with
-| singl x => singl (f x)
-| h ::: t => f h ::: nel_map f t
-end.
-
-Fixpoint nel2list {A : Type} (l : nel A) : list A :=
-match l with
-| singl h => [h]
-| h ::: t => h :: nel2list t
-end.
-
-Lemma nel2list_app :
-  forall {A : Type} (l1 l2 : nel A),
-    nel2list (nel_app l1 l2) = nel2list l1 ++ nel2list l2.
+Lemma nmap_napp :
+  forall {A B : Type} (f : A -> B) (l1 l2 : Nel A),
+    nmap f (napp l1 l2) = napp (nmap f l1) (nmap f l2).
 Proof.
-  now induction l1 as [h | h t]; cbn; intros; rewrite ?IHt.
+  now induction l1 as [h | h t] using Nel_ind'; cbn; intros; rewrite ?IHt.
 Qed.
 
 (** * Equality *)
@@ -139,19 +148,6 @@ match p with
 | eq_sumprod_inl'  p   => f_equal inl' p
 | eq_sumprod_inr'    q => f_equal inr' q
 | eq_sumprod_pair' p q => f_equal2 pair' p q
-end.
-
-Inductive eq_nel {A : Type} : nel A -> nel A -> Prop :=
-| eq_singl :
-  forall {a1 a2 : A}, a1 = a2 -> eq_nel (singl a1) (singl a2)
-| eq_cons_nel :
-  forall {a1 a2 : A} {t1 t2 : nel A},
-    a1 = a2 -> eq_nel t1 t2 -> eq_nel (a1 ::: t1) (a2 ::: t2).
-
-Fixpoint eq_nel_intro {A : Type} {l1 l2 : nel A} (E : eq_nel l1 l2) : l1 = l2 :=
-match E with
-| eq_singl p => f_equal singl p
-| eq_cons_nel p E' => f_equal2 cons_nel p (eq_nel_intro E')
 end.
 
 (** * Setoids *)
@@ -427,97 +423,4 @@ Proof.
     now rewrite p, q.
 Defined.
 
-Fixpoint equiv_nel {X : Type} `{Setoid X} (l1 l2 : nel X) : Prop :=
-match l1, l2 with
-| singl h, singl h' => h == h'
-| h ::: t, h' ::: t' => h == h' /\ equiv_nel t t'
-| _, _ => False
-end.
-
-Lemma equiv_nel_refl :
-  forall {X : Type} `{Setoid X} (l : nel X),
-    equiv_nel l l.
-Proof.
-  now induction l as [| h t]; cbn; rewrite ?IHt.
-Qed.
-
-Lemma equiv_nel_sym :
-  forall {X : Type} `{Setoid X} (l1 l2 : nel X),
-    equiv_nel l1 l2 -> equiv_nel l2 l1.
-Proof.
-  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; [easy.. |].
-  now intros [-> H']; split; [| apply IHt1].
-Qed.
-
-Lemma equiv_nel_trans :
-  forall {X : Type} `{Setoid X} (l1 l2 l3 : nel X),
-    equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
-Proof.
-  induction l1 as [| h1 t1]; destruct l2, l3; cbn; try easy.
-  - now intros -> ->.
-  - now intros [-> H12] [-> H23]; split; [| apply (IHt1 l2)].
-Qed.
-
-#[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
-
-#[refine]
-#[export]
-Instance Setoid_nel {A : Type} (SA : Setoid A) : Setoid (nel A) :=
-{
-  equiv := equiv_nel;
-}.
-Proof.
-  split; red.
-  - now apply equiv_nel_refl.
-  - now apply equiv_nel_sym.
-  - now apply equiv_nel_trans.
-Defined.
-
-(** Old trash *)
-
-(*
-Fixpoint fp_equiv {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)) : Prop :=
-match l1, l2 with
-| singl (inl x), singl (inl x') => x == x'
-| singl (inr y), singl (inr y') => y == y'
-| cons_nel (inl h1) t1, cons_nel (inl h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-| cons_nel (inr h1) t1, cons_nel (inr h2) t2 => h1 == h2 /\ fp_equiv t1 t2
-| _, _ => False
-end.
-
-Ltac fp_equiv := intros; repeat
-match goal with
-| x : _ + _ |- _ => destruct x; cbn in *
-| H : _ /\ _ |- _ => destruct H
-| |- _ /\ _ => split
-| |- ?x == ?x => reflexivity
-| H : ?P |- ?P => assumption
-| H : ?x == ?y |- ?y == ?x => symmetry; assumption
-| |- _ == _ => solve_equiv
-| H : False |- _ => inversion H
-| _ => eauto
-end.
-
-Lemma fp_equiv_refl :
-  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l : nel (X + Y)),
-    fp_equiv l l.
-Proof.
-  now induction l as [| h t]; fp_equiv.
-Qed.
-
-Lemma fp_equiv_sym :
-  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)),
-    fp_equiv l1 l2 -> fp_equiv l2 l1.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; fp_equiv.
-Qed.
-
-Lemma fp_equiv_trans :
-  forall {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 l3 : nel (X + Y)),
-    fp_equiv l1 l2 -> fp_equiv l2 l3 -> fp_equiv l1 l3.
-Proof.
-  now induction l1 as [| h1 t1]; destruct l2, l3; fp_equiv.
-Qed.
-
-#[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
-*)
+(* TODO: Setoid_Nel *)
