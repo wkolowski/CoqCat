@@ -9,11 +9,11 @@ From Cat.Universal Require Export
 #[export]
 Instance CoqSet : Cat :=
 {|
-  Ob := Set;
-  Hom := fun A B : Set => A -> B;
-  HomSetoid := fun A B : Set => {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
-  comp := fun (A B C : Set) (f : A -> B) (g : B -> C) (a : A) => g (f a);
-  id := fun (A : Set) (a : A) => a
+  Ob := Type;
+  Hom := fun A B : Type => A -> B;
+  HomSetoid := fun A B : Type => {| equiv := fun f g : A -> B => forall x : A, f x = g x |};
+  comp := fun (A B C : Type) (f : A -> B) (g : B -> C) (a : A) => g (f a);
+  id := fun (A : Type) (a : A) => a
 |}.
 Proof.
   - now solve_equiv.
@@ -34,7 +34,7 @@ Proof.
 Defined.
 
 Lemma CoqSet_isRet_sur :
-  forall (X Y : Set) (f : Hom X Y),
+  forall (X Y : Type) (f : Hom X Y),
     isRet f <-> surjective f.
 Proof.
   unfold isRet, surjective; cbn.
@@ -47,7 +47,7 @@ Defined.
 (* TODO : characterize epimorphisms and sections *)
 
 Lemma CoqSet_isIso_bij :
-  forall (A B : Set) (f : Hom A B),
+  forall (A B : Type) (f : Hom A B),
     isIso f <-> bijective f.
 Proof.
   intros A B f.
@@ -60,7 +60,7 @@ Defined.
 Instance HasInit_CoqSet : HasInit CoqSet :=
 {
   init := Empty_set;
-  create := fun (X : Set) (e : Empty_set) => match e with end
+  create := fun (X : Type) (e : Empty_set) => match e with end
 }.
 Proof. easy. Defined.
 
@@ -79,17 +79,17 @@ Defined.
 Instance HasTerm_CoqSet : HasTerm CoqSet :=
 {
   term := unit;
-  delete := fun (X : Set) (x : X) => tt
+  delete := fun (X : Type) (x : X) => tt
 }.
 Proof.
   now intros A f g x; apply unit_eq_intro.
 Defined.
 
-Definition isSingleton (A : Set) : Prop :=
+Definition isSingleton (A : Type) : Prop :=
   exists a : A, True /\ forall x y : A, x = y.
 
 Definition isSingleton_delete :
-  forall A : Set, isSingleton A -> forall X : Set, X -> A.
+  forall A : Type, isSingleton A -> forall X : Type, X -> A.
 Proof.
   unfold isSingleton.
   intros A (a & _ & H)%constructive_indefinite_description X x.
@@ -97,13 +97,13 @@ Proof.
 Defined.
 
 Lemma isTerminal_CoqSet :
-  forall (A : Set) (H : isSingleton A),
+  forall (A : Type) (H : isSingleton A),
     @isTerminal CoqSet A (isSingleton_delete A H).
 Proof.
   now red; firstorder.
 Qed.
 
-Definition CoqSet_fpair (X Y A : Set) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
+Definition CoqSet_fpair (X Y A : Type) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
   fun x : A => (f x, g x).
 
 #[refine]
@@ -126,10 +126,10 @@ Defined.
 #[export]
 Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
 {
-  indexedProduct := fun (J : Set) (A : J -> Ob CoqSet) => forall j : J, A j;
-  out := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  indexedProduct := fun (J : Type) (A : J -> Ob CoqSet) => forall j : J, A j;
+  out := fun (J : Type) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
-    fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    fun (J : Type) (A : J -> Ob CoqSet) (X : Ob CoqSet)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
@@ -142,7 +142,7 @@ Definition CoqSet_coproduct := sum.
 Definition CoqSet_finl := @inl.
 Definition CoqSet_finr := @inr.
 
-Definition CoqSet_copair (X Y A : Set) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
+Definition CoqSet_copair (X Y A : Type) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
   fun p : X + Y =>
   match p with
   | inl x => f x
@@ -167,10 +167,10 @@ Defined.
 #[export]
 Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
 {
-  indexedCoproduct := fun (J : Set) (A : J -> Ob CoqSet) => {j : J & A j};
-  inj := fun (J : Set) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  indexedCoproduct := fun (J : Type) (A : J -> Ob CoqSet) => {j : J & A j};
+  inj := fun (J : Type) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
-    fun (J : Set) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    fun (J : Type) (A : J -> Ob CoqSet) (X : Ob CoqSet)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
         f (projT1 p) (projT2 p)
 }.
@@ -182,7 +182,7 @@ Proof.
 Defined.
 
 Lemma CoqSet_counterexample1 :
-  exists (A B C : Set) (f : Hom A B) (g : Hom B C),
+  exists (A B C : Type) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ injective g.
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
@@ -192,7 +192,7 @@ Proof.
 Qed.
 
 Lemma CoqSet_counterexample2 :
-  exists (A B C : Set) (f : Hom A B) (g : Hom B C),
+  exists (A B C : Type) (f : Hom A B) (g : Hom B C),
     surjective (f .> g) /\ ~ surjective f.
 Proof.
   exists unit, bool, unit, (fun _ => true), (fun _ => tt).
@@ -201,15 +201,15 @@ Proof.
   - destruct (H false). inversion H0.
 Qed.
 
-Definition CoqSet_equalizer {X Y : Set} (f g : X -> Y) : Set :=
+Definition CoqSet_equalizer {X Y : Type} (f g : X -> Y) : Type :=
   {x : X | f x = g x}.
 
-Definition CoqSet_equalize {X Y : Set} (f g : X -> Y)
+Definition CoqSet_equalize {X Y : Type} (f g : X -> Y)
   (p : {x : X | f x = g x}) : X := proj1_sig p.
 
 Definition CoqSet_factorize
-  (X Y : Set) (f g : X -> Y)
-  (E' : Set ) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
+  (X Y : Type) (f g : X -> Y)
+  (E' : Type) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
   : E' -> {x : X | f x = g x}
   := fun x : E' => exist _ (e' x) (H x).
 
@@ -234,9 +234,9 @@ Abort.
 #[export]
 Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
 {
-  exponential := fun X Y : Set => X -> Y;
-  eval := fun (X Y : Set) (fx : product (X -> Y) X) => (fst fx) (snd fx);
-  curry := fun (X Y Z : Set) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
+  exponential := fun X Y : Type => X -> Y;
+  eval := fun (X Y : Type) (fx : product (X -> Y) X) => (fst fx) (snd fx);
+  curry := fun (X Y Z : Type) (f : Z * X -> Y) (z : Z) => fun x : X => f (z, x)
 }.
 Proof.
   split; cbn.
@@ -255,22 +255,22 @@ Instance CoqSet_CartesianClosed : CartesianClosed CoqSet :=
 }.
 
 Definition CoqSet_pullback
-  {A B X : Set} (f : A -> X) (g : B -> X) : Set :=
+  {A B X : Type} (f : A -> X) (g : B -> X) : Type :=
     {p : A * B | f (fst p) = g (snd p)}.
 
 Definition CoqSet_pullL
-  {A B X : Set} (f : A -> X) (g : B -> X)
+  {A B X : Type} (f : A -> X) (g : B -> X)
   : CoqSet_pullback f g -> A
   := fun p => fst (proj1_sig p).
 
 Definition CoqSet_pullR
-  {A B X : Set} (f : A -> X) (g : B -> X)
+  {A B X : Type} (f : A -> X) (g : B -> X)
   : CoqSet_pullback f g -> B
   := fun p => snd (proj1_sig p).
 
 Definition CoqSet_triple
-  {A B X : Set} (f : A -> X) (g : B -> X)
-  (Γ : Set) (a : Γ -> A) (b : Γ -> B) (Heq : forall x : Γ, f (a x) = g (b x))
+  {A B X : Type} (f : A -> X) (g : B -> X)
+  (Γ : Type) (a : Γ -> A) (b : Γ -> B) (Heq : forall x : Γ, f (a x) = g (b x))
   : Γ -> CoqSet_pullback f g
   := fun x => exist _ (a x, b x) (Heq x).
 

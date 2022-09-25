@@ -3,7 +3,7 @@ From Cat.Universal Require Import Initial Terminal Product Coproduct.
 
 #[refine]
 #[export]
-Instance Discrete (X : Set) : Cat :=
+Instance Discrete (X : Type) : Cat :=
 {
   Ob := X;
   Hom := fun x x' : X => x = x';
@@ -23,7 +23,7 @@ Defined.
 #[export] Instance Unit : Cat := Discrete unit.
 
 Lemma Discrete_char_iso :
-  forall (X : Set) (x x' : X) (f : @Hom (Discrete X) x x'),
+  forall (X : Type) (x x' : X) (f : @Hom (Discrete X) x x'),
     isIso f.
 Proof.
   now unfold isIso; cbn.

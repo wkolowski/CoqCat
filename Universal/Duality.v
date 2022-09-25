@@ -220,7 +220,7 @@ Defined.
 
 Lemma isIndexedProduct_Dual :
   forall
-    (C : Cat) {J : Set} {A : J -> Ob C}
+    (C : Cat) {J : Type} {A : J -> Ob C}
     (P : Ob C) (inj : forall j : J, Hom (A j) P)
     (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X),
       isIndexedProduct (Dual C) P inj (@cotuple)
@@ -230,7 +230,7 @@ Proof. now firstorder. Defined.
 
 Lemma isIndexedCoproduct_Dual :
   forall
-    (C : Cat) {J : Set} {A : J -> Ob C}
+    (C : Cat) {J : Type} {A : J -> Ob C}
     (P : Ob C) (out : forall j : J, Hom P (A j))
     (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P),
       isIndexedCoproduct (Dual C) P out (@tuple)
@@ -240,7 +240,7 @@ Proof. now firstorder. Defined.
 
 Lemma isIndexedBiproduct_Dual :
   forall
-    (C : Cat) {J : Set} {A : J -> Ob C}
+    (C : Cat) {J : Type} {A : J -> Ob C}
     (P : Ob C) (out : forall j : J, Hom P (A j)) (inj : forall j : J, Hom (A j) P)
     (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
     (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X),

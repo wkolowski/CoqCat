@@ -2,7 +2,7 @@ From Cat Require Import Cat.
 From Cat.Universal Require Import Initial.
 
 Class isIndexedCoproduct
-  (C : Cat) {J : Set} {A : J -> Ob C}
+  (C : Cat) {J : Type} {A : J -> Ob C}
   (P : Ob C) (inj : forall j : J, Hom (A j) P)
   (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X)
   : Prop :=
@@ -20,7 +20,7 @@ Class isIndexedCoproduct
 
 Lemma equiv_indexedCoproduct' :
   forall
-    {C : Cat} {J : Set} {A : J -> Ob C}
+    {C : Cat} {J : Type} {A : J -> Ob C}
     {P : Ob C} {inj : forall j : J, Hom (A j) P}
     {cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X}
     {isIC : isIndexedCoproduct C P inj (@cotuple)}
@@ -35,7 +35,7 @@ Qed.
 Section isIndexedCoproduct.
 
 Context
-  {C : Cat} {J : Set} {A : J -> Ob C}
+  {C : Cat} {J : Type} {A : J -> Ob C}
   {P : Ob C} {inj : forall j : J, Hom (A j) P}
   {cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X}
   {isIC : isIndexedCoproduct C P inj (@cotuple)}
@@ -110,15 +110,15 @@ Qed.
 
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
-  indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;
+  indexedCoproduct : forall J : Type, (J -> Ob C) -> Ob C;
   inj :
-    forall (J : Set) (A : J -> Ob C) (j : J),
+    forall (J : Type) (A : J -> Ob C) (j : J),
       Hom (A j) (indexedCoproduct J A);
   cotuple :
-    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
+    forall (J : Type) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
       Hom (indexedCoproduct J A) X;
   isIndexedCoproduct_HasIndexedCoproducts' :>
-    forall (J : Set) (A : J -> Ob C),
+    forall (J : Type) (A : J -> Ob C),
       isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.
 
@@ -129,7 +129,7 @@ Arguments cotuple          {C _ J A X} _.
 Lemma cotuple_comp' :
   forall
     {C : Cat} {hip : HasIndexedCoproducts C}
-    {X : Ob C} {J : Set} {A B : J -> Ob C}
+    {X : Ob C} {J : Type} {A B : J -> Ob C}
     (f : forall j : J, Hom (A j) (B j)) (g : forall j : J, Hom (B j) X),
       cotuple (fun j : J => f j .> g j)
         ==

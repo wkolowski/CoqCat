@@ -1,4 +1,4 @@
-From Cat Require Export Cat.
+From Cat Require Import Cat.
 From Cat.Universal Require Import Product Coproduct.
 
 Set Implicit Arguments.

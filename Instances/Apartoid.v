@@ -37,7 +37,7 @@ end.
 #[export]
 Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
 {
-    equiv := fun x y : A => ~ neq x y
+  equiv := fun x y : A => ~ neq x y
 }.
 Proof.
 Abort.
@@ -297,7 +297,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Apartoid_indexedProduct {J : Set} (A : J -> Apartoid) : Apartoid :=
+Instance Apartoid_indexedProduct {J : Type} (A : J -> Apartoid) : Apartoid :=
 {
   carrier := forall j : J, A j;
   neq := fun f g : forall j : J, A j => exists j : J, f j # g j
@@ -314,7 +314,7 @@ Proof.
 Defined.
 
 Definition Apartoid_out
-  {J : Set} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
+  {J : Type} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
 Proof.
   exists (fun (f : forall j : J, A j) => f j).
   cbn; intros x y H1 H2.
@@ -323,7 +323,7 @@ Proof.
 Defined.
 
 Definition Apartoid_tuple
-  {J : Set} {A : J -> Apartoid} {X : Apartoid}
+  {J : Type} {A : J -> Apartoid} {X : Apartoid}
   (f : forall j : J, ApartoidHom X (A j))
   : ApartoidHom X (Apartoid_indexedProduct A).
 Proof.

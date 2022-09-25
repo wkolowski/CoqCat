@@ -4,7 +4,7 @@ From Cat.Universal Require Import Product Terminal.
 Set Implicit Arguments.
 
 Class isIndexedProduct
-  (C : Cat) {J : Set} {A : J -> Ob C}
+  (C : Cat) {J : Type} {A : J -> Ob C}
   (P : Ob C) (out : forall j : J, Hom P (A j))
   (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P)
   : Prop :=
@@ -22,7 +22,7 @@ Class isIndexedProduct
 
 Lemma equiv_indexedProduct' :
   forall
-    {C : Cat} {J : Set} {A : J -> Ob C}
+    {C : Cat} {J : Type} {A : J -> Ob C}
     {P : Ob C} {out : forall j : J, Hom P (A j)}
     {tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P}
     {isP : isIndexedProduct C P out (@tuple)}
@@ -37,7 +37,7 @@ Qed.
 Section isIndexedProduct.
 
 Context
-  {C : Cat} {J : Set} {A : J -> Ob C}
+  {C : Cat} {J : Type} {A : J -> Ob C}
   {P : Ob C} {out : forall j : J, Hom P (A j)}
   {tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P}
   {isP : isIndexedProduct C P out (@tuple)}
@@ -94,7 +94,7 @@ Ltac indexedProduct_simpl := repeat (
 
 Lemma isIndexedProduct_iso_unique :
   forall
-    (C : Cat) (J : Set) (A : J -> Ob C)
+    (C : Cat) (J : Type) (A : J -> Ob C)
     (P1 : Ob C) (proj1 : forall j : J, Hom P1 (A j))
     (tuple1 : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P1)
     (P2 : Ob C) (proj2 : forall j : J, Hom P2 (A j))
@@ -112,7 +112,7 @@ Qed.
 
 Lemma isIndexedProduct_iso_unique2 :
   forall
-    (C : Cat) (J : Set) (A B : J -> Ob C)
+    (C : Cat) (J : Type) (A B : J -> Ob C)
     (P1 : Ob C) (p1 : forall j : J, Hom P1 (A j))
     (t1 : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P1)
     (P2 : Ob C) (p2 : forall j : J, Hom P2 (B j))
@@ -218,7 +218,7 @@ Qed.
 (* Dependent type bullshit. This is harder than I thought. *)
 Lemma isIndexedProduct_comm :
   forall
-    (C : Cat) (J : Set) (A : J -> Ob C)
+    (C : Cat) (J : Type) (A : J -> Ob C)
     (P : Ob C) (p : forall j : J, Hom P (A j))
     (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
     (f : J -> J) 
@@ -244,14 +244,14 @@ Abort.
 
 Class HasIndexedProducts (C : Cat) : Type :=
 {
-  indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
+  indexedProduct : forall {J : Type} (A : J -> Ob C), Ob C;
   out :
-    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
+    forall {J : Type} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
   tuple :
-    forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
+    forall {J : Type} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
   HasIndexedProducts_isIndexedProduct :>
-    forall {J : Set} {A : J -> Ob C},
+    forall {J : Type} {A : J -> Ob C},
       isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.
 
@@ -262,7 +262,7 @@ Arguments tuple          {C _ J A X} _.
 Lemma tuple_comp' :
   forall
     {C : Cat} {hip : HasIndexedProducts C}
-    {X : Ob C} {J : Set} {A B : J -> Ob C}
+    {X : Ob C} {J : Type} {A B : J -> Ob C}
     (f : forall j : J, Hom X (A j)) (g : forall j : J, Hom (A j) (B j)),
       tuple (fun j : J => f j .> g j)
         ==

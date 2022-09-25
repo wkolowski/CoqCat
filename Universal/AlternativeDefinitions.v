@@ -141,15 +141,15 @@ Coercion HasProducts_HasBiproducts : HasBiproducts >-> HasProducts.
 Coercion HasCoproducts_HasBiproducts : HasBiproducts >-> HasCoproducts.
 
 Class HasIndexedProducts'
-  (C : Cat) (indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C) : Type :=
+  (C : Cat) (indexedProduct : forall {J : Type} (A : J -> Ob C), Ob C) : Type :=
 {
   out :
-    forall {J : Set} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
+    forall {J : Type} {A : J -> Ob C} (j : J), Hom (indexedProduct A) (A j);
   tuple :
-    forall {J : Set} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
+    forall {J : Type} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
   HasIndexedProducts_isIndexedProduct :>
-    forall {J : Set} {A : J -> Ob C},
+    forall {J : Type} {A : J -> Ob C},
       isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.
 
@@ -158,7 +158,7 @@ Arguments tuple {C _ _ J A X} _.
 
 Class HasIndexedProducts (C : Cat) : Type :=
 {
-  indexedProduct : forall {J : Set} (A : J -> Ob C), Ob C;
+  indexedProduct : forall {J : Type} (A : J -> Ob C), Ob C;
   HasIndexedProducts'_HasIndexedProducts :> HasIndexedProducts' C (@indexedProduct);
 }.
 
@@ -168,16 +168,16 @@ Coercion HasIndexedProducts'_HasIndexedProducts :
   HasIndexedProducts >-> HasIndexedProducts'.
 
 Class HasIndexedCoproducts'
-  (C : Cat) (indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C) : Type :=
+  (C : Cat) (indexedCoproduct : forall J : Type, (J -> Ob C) -> Ob C) : Type :=
 {
   inj :
-    forall (J : Set) (A : J -> Ob C) (j : J),
+    forall (J : Type) (A : J -> Ob C) (j : J),
       Hom (A j) (indexedCoproduct J A);
   cotuple :
-    forall (J : Set) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
+    forall (J : Type) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
       Hom (indexedCoproduct J A) X;
   isIndexedCoproduct_HasIndexedCoproducts' :>
-    forall (J : Set) (A : J -> Ob C),
+    forall (J : Type) (A : J -> Ob C),
       isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.
 
@@ -186,7 +186,7 @@ Arguments cotuple {C _ _ J A X} _.
 
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
-  indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C;
+  indexedCoproduct : forall J : Type, (J -> Ob C) -> Ob C;
   HasIndexedCoproducts'_HasIndexedCoproducts :> HasIndexedCoproducts' C (@indexedCoproduct);
 }.
 
@@ -197,7 +197,7 @@ Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
 
 Class HasIndexedBiproducts (C : Cat) : Type :=
 {
-  indexedBiproduct : forall {J : Set} (A : J -> Ob C), Ob C;
+  indexedBiproduct : forall {J : Type} (A : J -> Ob C), Ob C;
   HasIndexedProducts'_HasIndexedBiproducts :> HasIndexedProducts' C (@indexedBiproduct);
   HasIndexedCoproducts'_HasIndexedBiproducts :> HasIndexedCoproducts' C (@indexedBiproduct);
 }.
@@ -259,7 +259,7 @@ Defined.
 #[refine]
 #[export]
 Instance HasIndexedProducts'_Dual
-  {C : Cat} {indexedCoproduct : forall J : Set, (J -> Ob C) -> Ob C}
+  {C : Cat} {indexedCoproduct : forall J : Type, (J -> Ob C) -> Ob C}
   (hp : HasIndexedCoproducts' C indexedCoproduct)
   : HasIndexedProducts' (Dual C) indexedCoproduct :=
 {
@@ -273,7 +273,7 @@ Defined.
 #[refine]
 #[export]
 Instance HasIndexedCoproducts'_Dual
-  {C : Cat} {indexedProduct : forall J : Set, (J -> Ob C) -> Ob C}
+  {C : Cat} {indexedProduct : forall J : Type, (J -> Ob C) -> Ob C}
   (hp : HasIndexedProducts' C indexedProduct)
   : HasIndexedCoproducts' (Dual C) indexedProduct :=
 {

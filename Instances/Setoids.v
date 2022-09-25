@@ -325,7 +325,7 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_indexedProduct {J : Set} (A : J -> Setoid') : Setoid' :=
+Instance CoqSetoid_indexedProduct {J : Type} (A : J -> Setoid') : Setoid' :=
 {
   carrier := forall j : J, A j;
   setoid := Setoid_forall A;
@@ -333,7 +333,7 @@ Instance CoqSetoid_indexedProduct {J : Set} (A : J -> Setoid') : Setoid' :=
 
 #[export]
 Instance CoqSetoid_out
-  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_indexedProduct A) (A j).
+  {J : Type} (A : J -> Setoid') (j : J) : SetoidHom (CoqSetoid_indexedProduct A) (A j).
 Proof.
   exists (fun (f : forall j : J, A j) => f j).
   now proper.
@@ -341,7 +341,7 @@ Defined.
 
 #[export]
 Instance CoqSetoid_tuple
-  {J : Set} {A : J -> Setoid'} {X : Setoid'}
+  {J : Type} {A : J -> Setoid'} {X : Setoid'}
   (f : forall j : J, SetoidHom X (A j))
   : SetoidHom X (CoqSetoid_indexedProduct A).
 Proof.
@@ -362,7 +362,7 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSetoid_indexedCoproduct {J : Set} (A : J -> Setoid') : Setoid' :=
+Instance CoqSetoid_indexedCoproduct {J : Type} (A : J -> Setoid') : Setoid' :=
 {
   carrier := {j : J & A j};
   setoid := Setoid_sigT A;
@@ -371,7 +371,7 @@ Instance CoqSetoid_indexedCoproduct {J : Set} (A : J -> Setoid') : Setoid' :=
 #[refine]
 #[export]
 Instance CoqSetoid_inj
-  {J : Set} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_indexedCoproduct A) :=
+  {J : Type} (A : J -> Setoid') (j : J) : SetoidHom (A j) (CoqSetoid_indexedCoproduct A) :=
 {
   func := fun x : A j => existT _ j x
 }.
@@ -382,7 +382,7 @@ Defined.
 #[refine]
 #[export]
 Instance CoqSetoid_cotuple
-  {J : Set} {A : J -> Setoid'} {X : Setoid'}
+  {J : Type} {A : J -> Setoid'} {X : Setoid'}
   (f : forall j : J, SetoidHom (A j) X)
   : SetoidHom (CoqSetoid_indexedCoproduct A) X :=
 {

@@ -5,18 +5,18 @@ From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
 #[export]
 Instance SetP : Cat :=
 {
-  Ob := Set;
-  Hom := fun X Y : Set => X -> option Y;
-  HomSetoid := fun X Y : Set =>
+  Ob := Type;
+  Hom := fun X Y : Type => X -> option Y;
+  HomSetoid := fun X Y : Type =>
   {|
     equiv := fun f g : X -> option Y => forall x : X , f x = g x
   |};
-  comp := fun (X Y Z : Set) (f : X -> option Y) (g : Y -> option Z) => fun x : X =>
+  comp := fun (X Y Z : Type) (f : X -> option Y) (g : Y -> option Z) => fun x : X =>
     match f x with
     | None => None
     | Some y => g y
     end;
-  id := fun (X : Set) (x : X) => Some x
+  id := fun (X : Type) (x : X) => Some x
 }.
 Proof.
   - now solve_equiv.
@@ -53,14 +53,14 @@ Proof. now intros X f g x; destruct (f x), (g x). Defined.
 Instance HasZero_SetP : HasZero SetP := {}.
 Proof. easy. Defined.
 
-Definition SetP_outl (X Y : Set) (p : sumprod X Y) : option X :=
+Definition SetP_outl (X Y : Type) (p : sumprod X Y) : option X :=
 match p with
 | inl' x => Some x
 | pair' x _ => Some x
 | _ => None
 end.
 
-Definition SetP_outr (X Y : Set) (p : sumprod X Y) : option Y :=
+Definition SetP_outr (X Y : Type) (p : sumprod X Y) : option Y :=
 match p with
 | inr' y => Some y
 | pair' _ y => Some y
@@ -68,7 +68,7 @@ match p with
 end.
 
 Definition SetP_fpair
-  (A B X : Set) (f : Hom X A) (g : Hom X B) : Hom X (sumprod A B) := fun x : X =>
+  (A B X : Type) (f : Hom X A) (g : Hom X B) : Hom X (sumprod A B) := fun x : X =>
 match f x, g x with
 | None, None => None
 | Some a, None => Some (inl' a)
@@ -107,8 +107,8 @@ end.
 Instance HasCoproducts_SetP : HasCoproducts SetP :=
 {
   coproduct := sum;
-  finl := fun (A B : Set) (a : A) => Some (inl a);
-  finr := fun (A B : Set) (b : B) => Some (inr b);
+  finl := fun (A B : Type) (a : A) => Some (inl a);
+  finr := fun (A B : Type) (b : B) => Some (inr b);
   copair := SetP_copair
 }.
 Proof.

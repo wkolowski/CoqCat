@@ -2,7 +2,7 @@ From Cat Require Import Cat.
 From Cat.Universal Require Import IndexedProduct IndexedCoproduct.
 
 Class isIndexedBiproduct
-  (C : Cat) {J : Set} {A : J -> Ob C}
+  (C : Cat) {J : Type} {A : J -> Ob C}
   (P : Ob C) (out : forall j : J, Hom P (A j)) (inj : forall j : J, Hom (A j) P)
   (tuple : forall {X : Ob C} (f : forall j : J, Hom X (A j)), Hom X P)
   (cotuple : forall {X : Ob C} (f : forall j : J, Hom (A j) X), Hom P X)
