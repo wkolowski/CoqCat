@@ -1,3 +1,4 @@
+Require Import ProofIrrelevance.
 From Cat Require Import Instances.Setoids.
 
 (** Alternative formalization using SProp, the universe of definitionally

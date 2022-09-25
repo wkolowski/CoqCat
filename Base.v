@@ -1,6 +1,5 @@
-Require Export ProofIrrelevance FunctionalExtensionality IndefiniteDescription JMeq.
+Require Export IndefiniteDescription.
 Require Export Setoid Classes.SetoidClass.
-Require Export Equality.
 Require Export Bool Arith Lia.
 
 Require Export List.
@@ -254,22 +253,8 @@ match goal with
 | H : forall _, ?a _ == ?b _ |- ?b _ == ?a _ => rewrite H; reflexivity
 | H : forall _, ?a _ == ?b _, H' : forall _, ?b _ == ?c _
   |- ?a _ == ?c _ => rewrite H, H'; reflexivity
-    (* JMeq *)
-| |-  JMeq ?a ?a => reflexivity
-| H : JMeq ?a ?b |- JMeq ?b ?a => symmetry; assumption
-| H : JMeq ?a ?b, H' : JMeq ?b ?c |- ?a = ?c => rewrite H, H'; reflexivity
 | _ => my_simpl; eauto
 end.
-
-(** Proving equality of setoids *)
-
-Lemma setoid_split :
-  forall A A' equiv equiv' setoid_equiv setoid_equiv',
-    A = A' -> JMeq equiv equiv' ->
-      JMeq (@Build_Setoid A equiv setoid_equiv) (@Build_Setoid A' equiv' setoid_equiv').
-Proof.
-  now intros; subst; replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
-Qed.
 
 (** Generic instances. *)
 

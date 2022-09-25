@@ -4,10 +4,8 @@
 * Type of objects and Setoid of morphisms. Tried other configurations and this one seems best.
 * Axioms:
   - `constructive_indefinite_description` — very convenient, a real ass-saver.
-  - `functional_extensionality` — in general, working with custom extensional equalities is painful. Needed to prove that the category `CoqSet` has exponentials and all products.
-  - `proof_irrelevance` — needed for example to prove that CoqSet has equalizers.
-  - `JMeq_eq` — needed to prove that taking the dual category is involution with respect to equality.
-* Tried to stick to using ordinary equality `=`, but it's increasingly difficult. Did tests of other possible equality relations.
+  - `functional_extensionality` — only needed to prove that the category `CoqSet` has exponentials and indexed products.
+  - `proof_irrelevance` — only needed to prove `Dual (Dual C) = C`.
 * Using typeclasses and universe polymorphism where possible.
 
 ## Accomplished
@@ -74,6 +72,6 @@
 * Define heterogenous apartoids.
 
 ## Tips for future me
-* If Coq doesn't see that some morphism is `Proper`, put the corresponding theorem in context using `pose`, eg. `pose (P := fpair_Proper)`. This likely has something to do with registering morphisms as `Proper`. I should read the docs...
+* If Coq doesn't see that some morphism is `Proper`, put the corresponding theorem in context using `pose`, eg. `pose (P := Proper_fpair)`. This likely has something to do with registering morphisms as `Proper`. I should read the docs...
 * Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but not with the pairing (I think pairing is a property, not structure).
 * Coherences for dependent stuff can be stated by lifting standard equivalences to heterogenous ones. Coherence for objects can be stated using these heterogenous equivalences on their identity morphisms.

@@ -1,3 +1,4 @@
+Require Import FunctionalExtensionality.
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Universal Require Export

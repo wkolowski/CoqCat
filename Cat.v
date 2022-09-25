@@ -181,73 +181,31 @@ end; eauto).
 
 (** ** Duality and equality *)
 
-#[refine]
 #[export]
 Instance Dual (C : Cat) : Cat :=
 {|
   Ob := Ob C;
   Hom := fun A B : Ob C => Hom B A;
-  HomSetoid := fun A B : Ob C =>
-  {|
-    equiv := fun f g : Hom B A => @equiv (Hom B A) (@HomSetoid C B A) f g
-  |};
+  HomSetoid := fun A B => @HomSetoid C B A;
   comp := fun (X Y Z : Ob C) (f : @Hom C Y X) (g : @Hom C Z Y) => comp g f;
-  id := @id C
+  Proper_comp :=
+    fun (X Y Z : Ob C) (f1 f2 : Hom Y X) (Hf : f1 == f2) (g1 g2 : Hom Z Y) (Hg : g1 == g2) =>
+      Proper_comp Z Y X g1 g2 Hg f1 f2 Hf;
+  comp_assoc :=
+    fun (A B C0 D : Ob C) (f : Hom B A) (g : Hom C0 B) (h : Hom D C0) =>
+      symmetry (comp_assoc h g f);
+  id := @id C;
+  comp_id_l := fun (A B : Ob C) (f : Hom B A) => comp_id_r f;
+  comp_id_r := fun (A B : Ob C) (f : Hom B A) => comp_id_l f;
 |}.
-Proof.
-  - now apply HomSetoid.
-  - now proper.
-  - now intros; rewrite comp_assoc.
-  - now intros; rewrite comp_id_r.
-  - now intros; rewrite comp_id_l.
-Defined.
-
-(* The following uses the [JMeq_eq] axiom. *)
-Lemma cat_split : forall
-  (Ob Ob' : Type)
-  (Hom : Ob -> Ob -> Type)
-  (Hom': Ob' -> Ob' -> Type)
-  (HomSetoid : forall A B : Ob, Setoid (Hom A B))
-  (HomSetoid' : forall A B : Ob', Setoid (Hom' A B))
-  (comp : forall A B C : Ob, Hom A B -> Hom B C -> Hom A C)
-  (comp' : forall A B C : Ob', Hom' A B -> Hom' B C -> Hom' A C)
-  Proper_comp
-  Proper_comp'
-  comp_assoc
-  comp_assoc'
-  (id : forall A : Ob, Hom A A)
-  (id' : forall A : Ob', Hom' A A)
-  comp_id_l
-  id'_left
-  comp_id_r
-  id'_right,
-    Ob = Ob' -> JMeq Hom Hom' -> JMeq comp comp' -> JMeq id id' ->
-    JMeq HomSetoid HomSetoid' ->
-    @Build_Cat Ob Hom HomSetoid comp Proper_comp comp_assoc id comp_id_l comp_id_r =
-    @Build_Cat Ob' Hom' HomSetoid' comp' Proper_comp' comp_assoc' id' id'_left id'_right.
-Proof.
-  intros; repeat
-    match goal with
-    | H : _ = _ |- _ => subst
-    | H : JMeq _ _ |- _ => apply JMeq_eq in H
-    | |- ?x = ?x => reflexivity
-    end.
-  now f_equal; apply proof_irrelevance.
-Qed.
-
-Lemma eq_JMeq :
-  forall (A : Type) (x y : A), x = y -> JMeq x y.
-Proof.
-  now intros A x y [].
-Defined.
 
 Lemma Dual_Dual :
   forall C : Cat,
     Dual (Dual C) = C.
 Proof.
-  intros []; apply cat_split; cbn; [easy.. |].
-  apply eq_JMeq; extensionality A; extensionality B; apply JMeq_eq.
-  now destruct (HomSetoid0 A B); apply setoid_split.
+  intros []; cbv.
+  f_equal.
+  now apply ProofIrrelevance.proof_irrelevance.
 Qed.
 
 Lemma duality_principle :
