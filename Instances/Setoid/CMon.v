@@ -165,15 +165,18 @@ Proof.
   - now intros; rewrite pres_neutr, neutr_r.
   - now intros; rewrite pres_neutr, neutr_l.
   - intros P' h1 h2 HA HB [a b]; cbn.
+    assert (Heq' : @equiv _ (Mon_product A B) (a, b) (op a neutr, op neutr b))
+      by now cbn; rewrite neutr_l, neutr_r.
+    apply (Proper_func h1) in Heq'.
     assert (Heq :
         h1 (@op (CMon_coproduct A B) (a, neutr) (neutr, b))
           ==
         h2 (@op (CMon_coproduct A B) (a, neutr) (neutr, b)))
       by now rewrite !pres_op; f_equiv.
-    assert (Heq' : @equiv _ (Mon_product A B) (a, b) (op a neutr, op neutr b))
-      by now cbn; rewrite neutr_l, neutr_r.
-    rewrite Heq'. rewrite (@pres_op _ _ h1 (op a neutr) (op neutr b)).
-Admitted.
+    rewrite Heq', Heq.
+    apply (Proper_func h2); cbn.
+    now rewrite neutr_l, neutr_r.
+Defined.
 
 #[refine]
 #[export]

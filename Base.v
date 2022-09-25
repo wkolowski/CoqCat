@@ -331,3 +331,16 @@ Proof.
 Qed.
 
 #[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
+
+Fixpoint nel2list {A : Type} (l : nel A) : list A :=
+match l with
+| singl h => [h]
+| h ::: t => h :: nel2list t
+end.
+
+Lemma nel2list_app :
+  forall {A : Type} (l1 l2 : nel A),
+    nel2list (nel_app l1 l2) = nel2list l1 ++ nel2list l2.
+Proof.
+  now induction l1 as [h | h t]; cbn; intros; rewrite ?IHt.
+Qed.

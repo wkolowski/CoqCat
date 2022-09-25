@@ -502,6 +502,132 @@ Proof.
   - now split.
 Defined.
 
+Fixpoint Grp_coproduct_inv {A B : Grp} (l : list (A + B)) : list (A + B) :=
+match l with
+| [] => []
+| inl a :: t => Grp_coproduct_inv t ++ [inl (inv a)]
+| inr b :: t => Grp_coproduct_inv t ++ [inr (inv b)]
+end.
+
+#[refine]
+#[export]
+Instance Grp_coproduct_inv_Setoid' (A B : Grp)
+  : SetoidHom (Mon_coproduct A B) (Mon_coproduct A B) :=
+{
+  func := @Grp_coproduct_inv A B;
+}.
+Proof.
+  intros l1 l2 Heq.
+  induction Heq; cbn in *.
+  - easy.
+  - apply MCE_app; [easy |].
+    now constructor; [rewrite H |].
+  - apply MCE_app; [easy |].
+    now constructor; [rewrite H |].
+  - easy.
+  - easy.
+  - eauto.
+  - rewrite <- (app_nil_r (Grp_coproduct_inv t)) at 2.
+    apply MCE_app_l.
+    now transitivity [@inl A B neutr]; constructor.
+  - rewrite <- (app_nil_r (Grp_coproduct_inv t)) at 2.
+    apply MCE_app_l.
+    now transitivity [@inr A B neutr]; constructor.
+  - rewrite <- app_assoc.
+    apply MCE_app_l.
+    cbn; rewrite MCE_cons_op_l.
+    now constructor.
+  - rewrite <- app_assoc.
+    apply MCE_app_l.
+    cbn; rewrite MCE_cons_op_r.
+    now constructor.
+Defined.
+
+#[refine]
+#[export]
+Instance Grp_coproduct (A B : Grp) : Grp :=
+{
+  mon := Mon_coproduct A B;
+  inv := Grp_coproduct_inv_Setoid' A B;
+}.
+Proof.
+  - induction x as [| [a | b] t]; cbn in *.
+    + now constructor.
+    + transitivity (Grp_coproduct_inv t ++ t); [| easy].
+      rewrite <- app_assoc.
+      apply MCE_app_l.
+      cbn; rewrite MCE_cons_op_l.
+      transitivity (inl neutr :: t).
+      * now constructor.
+      * now rewrite MCE_nil_neutr_l.
+    + transitivity (Grp_coproduct_inv t ++ t); [| easy].
+      rewrite <- app_assoc.
+      apply MCE_app_l.
+      cbn; rewrite MCE_cons_op_r.
+      transitivity (inr neutr :: t).
+      * now constructor.
+      * now rewrite MCE_nil_neutr_r.
+  - induction x as [| [a | b] t]; cbn in *.
+    + now constructor.
+    + transitivity [@inl A B a; inl (inv a)].
+      * constructor; [easy |].
+        rewrite <- app_nil_l, app_assoc.
+        now apply MCE_app.
+      * rewrite MCE_cons_op_l.
+        now transitivity [@inl A B neutr]; [constructor |].
+    + transitivity [@inr A B b; inr (inv b)].
+      * constructor; [easy |].
+        rewrite <- app_nil_l, app_assoc.
+        now apply MCE_app.
+      * rewrite MCE_cons_op_r.
+        now transitivity [@inr A B neutr]; [constructor |].
+Defined.
+
+#[export]
+Instance Grp_finl (A B : Grp) : GrpHom A (Grp_coproduct A B).
+Proof.
+  now esplit with (Mon_finl A B); cbn.
+Defined.
+
+#[export]
+Instance Grp_finr (A B : Grp) : GrpHom B (Grp_coproduct A B).
+Proof.
+  now esplit with (Mon_finr A B); cbn.
+Defined.
+
+#[export]
+Instance Grp_copair
+  {A B X : Grp} (f : GrpHom A X) (g : GrpHom B X) : GrpHom (Grp_coproduct A B) X.
+Proof.
+  esplit with (Mon_copair f g); cbn.
+  induction x as [| [a | b] t]; cbn in *.
+  - easy.
+  - rewrite Mon_copair'_app, IHt, inv_op; cbn.
+    now rewrite neutr_r, pres_inv.
+  - rewrite Mon_copair'_app, IHt, inv_op; cbn.
+    now rewrite neutr_r, pres_inv.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoproducts_Grp : HasCoproducts GrpCat :=
+{
+  coproduct := @Grp_coproduct;
+  finl := @Grp_finl;
+  finr := @Grp_finr;
+  copair := @Grp_copair;
+}.
+Proof.
+  split; cbn.
+  - now intros; rewrite neutr_r.
+  - now intros; rewrite neutr_r.
+  - intros P' h1 h2 HA HB l.
+    induction l as [| h t]; cbn.
+    + now rewrite <- MCE_nil_neutr_l, HA.
+    + change (h :: t) with (@op (Grp_coproduct A B) [h] t).
+      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
+Defined.
+
 Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
 
 Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | isIso f}.

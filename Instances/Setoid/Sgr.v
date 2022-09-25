@@ -329,7 +329,248 @@ Proof.
   now repeat split; cbn in *.
 Defined.
 
-(* TODO: coproducts of semigroups *)
+Module wut.
+
+Inductive SCE {A B : Sgr} : nel (A + B) -> nel (A + B) -> Prop :=
+| SCE_singl_l :
+  forall a1 a2 : A, a1 == a2 -> SCE (singl (inl a1)) (singl (inl a2))
+| SCE_singl_r :
+  forall b1 b2 : B, b1 == b2 -> SCE (singl (inr b1)) (singl (inr b2))
+| SCE_cons_l :
+  forall (a1 a2 : A) (t1 t2 : nel (A + B)),
+    a1 == a2 -> SCE t1 t2 -> SCE (inl a1 ::: t1) (inl a2 ::: t2)
+| SCE_cons_r :
+  forall (b1 b2 : B) (t1 t2 : nel (A + B)),
+    b1 == b2 -> SCE t1 t2 -> SCE (inr b1 ::: t1) (inr b2 ::: t2)
+| SCE_refl :
+  forall l : nel (A + B), SCE l l
+| SCE_sym :
+  forall l1 l2 : nel (A + B),
+    SCE l1 l2 -> SCE l2 l1
+| SCE_trans :
+  forall l1 l2 l3 : nel (A + B),
+    SCE l1 l2 -> SCE l2 l3 -> SCE l1 l3
+| SCE_cons_op_l :
+  forall (a1 a2 : A) (t : nel (A + B)),
+    SCE (inl a1 ::: inl a2 ::: t) (inl (op a1 a2) ::: t)
+| SCE_cons_op_r :
+  forall (b1 b2 : B) (t : nel (A + B)),
+    SCE (inr b1 ::: inr b2 ::: t) (inr (op b1 b2) ::: t).
+
+#[export] Hint Constructors SCE : core.
+
+#[export]
+Instance Equivalence_SCE :
+  forall A B : Sgr,
+    Equivalence (@SCE A B).
+Proof.
+  split; red.
+  - now apply SCE_refl.
+  - now apply SCE_sym.
+  - now apply SCE_trans.
+Defined.
+
+Lemma SCE_app_l :
+  forall (A B : Sgr) (l l1 l2 : nel (A + B)),
+    SCE l1 l2 -> SCE (nel_app l l1) (nel_app l l2).
+Proof.
+  induction l as [[a | b] | [a | b] t]; cbn; intros.
+  - now constructor.
+  - now constructor.
+  - now constructor; [| apply IHt].
+  - now constructor; [| apply IHt].
+Qed.
+
+Lemma SCE_app :
+  forall {A B : Sgr} (l11 l12 l21 l22 : nel (A + B)),
+    SCE l11 l12 -> SCE l21 l22 -> SCE (nel_app l11 l21) (nel_app l12 l22).
+Proof.
+  intros * H1 H2; revert l21 l22 H2.
+  induction H1; cbn; intros.
+  - now eauto.
+  - now eauto.
+  - now eauto.
+  - now eauto.
+  - now apply SCE_app_l.
+  - now eauto.
+  - now eauto.
+  - rewrite SCE_cons_op_l.
+    constructor; [easy |].
+    now apply SCE_app_l.
+  - rewrite SCE_cons_op_r.
+    constructor; [easy |].
+    now apply SCE_app_l.
+Defined.
+
+#[export]
+Instance Sgr_coproduct_Setoid' (A B : Sgr) : Setoid' :=
+{
+  carrier := nel (A + B);
+  setoid :=
+  {|
+    equiv := SCE;
+    setoid_equiv := Equivalence_SCE A B;
+  |};
+}.
+
+#[refine]
+#[export]
+Instance Sgr_coproduct (A B : Sgr) : Sgr :=
+{
+  setoid := Sgr_coproduct_Setoid' A B;
+  op := fun l1 l2 => nel_app l1 l2;
+}.
+Proof.
+  - intros l1 l1' H1 l2 l2' H2; cbn in *.
+    now apply SCE_app.
+  - now cbn; intros; rewrite nel_app_assoc.
+Defined.
+
+#[export]
+Instance Sgr_finl' (A B : Sgr) : SetoidHom A (Sgr_coproduct A B).
+Proof.
+  esplit. Unshelve. all: cycle 1.
+  - exact (fun a => singl (inl a)).
+  - now constructor.
+Defined.
+
+#[export]
+Instance Sgr_finl (A B : Sgr) : SgrHom A (Sgr_coproduct A B).
+Proof.
+  esplit with (Sgr_finl' A B); cbn.
+  intros; rewrite SCE_cons_op_l.
+Defined.
+
+#[export]
+Instance Sgr_finr' (A B : Sgr) : SetoidHom B (Sgr_coproduct A B).
+Proof.
+  esplit. Unshelve. all: cycle 1.
+  - exact (fun b => singl (inr b)).
+  - now constructor.
+Defined.
+
+#[export]
+Instance Sgr_finr (A B : Sgr) : SgrHom B (Sgr_coproduct A B).
+Proof.
+  esplit with (Sgr_finr' A B); cbn.
+  now intros; rewrite SCE_cons_op_r.
+Defined.
+
+Fixpoint Sgr_copair'
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l : nel (A + B)) : X :=
+match l with
+| singl (inl a) => f a
+| singl (inr b) => g b
+| inl a ::: t => op (f a) (Sgr_copair' f g t)
+| inr b ::: t => op (g b) (Sgr_copair' f g t)
+end.
+
+Lemma Sgr_copair'_app :
+  forall {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) (l1 l2 : nel (A + B)),
+    Sgr_copair' f g (nel_app l1 l2) == op (Sgr_copair' f g l1) (Sgr_copair' f g l2).
+Proof.
+  now induction l1 as [[a | b] | [a | b] t1]; cbn; intros l2; rewrite ?IHt1, ?assoc.
+Qed.
+
+Axiom cheat : False.
+
+Fixpoint list2nel {A : Type} (x : A) (l : list A) : nel A :=
+match l with
+| [] => singl x
+| [h] => singl h
+| h :: t => h ::: list2nel x t
+end.
+
+(* Lemma nel2list2nel :
+  forall {A : Type} (x : A) (l : nel A),
+    list2nel x (nel2list l) = x ::: l.
+Proof.
+  intros A x l; revert x.
+  now induction l as [h | h t]; cbn; intros; rewrite ?IHt.
+Qed.
+ *)
+
+Definition hd {A : Type} (l : nel A) : A :=
+match l with
+| singl h => h
+| h ::: _ => h
+end.
+
+Lemma nel2list2nel :
+  forall {A : Type} (x : A) (l : nel A),
+    list2nel x (nel2list l) = l.
+Proof.
+  intros A x l; revert x.
+  induction l as [h | h t]; cbn; intros.
+  - easy.
+  - destruct (nel2list t) eqn: Heq.
+    + now destruct t; inversion Heq.
+    + now rewrite IHt.
+Qed.
+
+Lemma SCE_list2nel :
+  forall {A B : Sgr} (x : A + B) (l1 l2 : list (A + B)),
+    SCE l1 l2 -> SCE (nel2list (list2nel x l1)) (nel2list (list2nel x l2)).
+Proof.
+  intros A B x l1 l2 Heq; revert x.
+  induction Heq; cbn; intros.
+  - easy.
+  - destruct t1, t2; cbn.
+    + now constructor.
+    + 
+Abort.
+
+#[export]
+Instance Sgr_copair_Setoid'
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SetoidHom (Sgr_coproduct A B) X.
+Proof.
+  esplit with (Sgr_copair' f g).
+  intros l1 l2 Heq; cbn in *.
+  rewrite <- (nel2list2nel (hd l1) l1),
+          <- (nel2list2nel (hd l2) l2).
+  generalize dependent (nel2list l1);
+  generalize dependent (nel2list l2);
+  generalize dependent (hd l1);
+  generalize dependent (hd l2);
+  clear l1 l2.
+  intros z2 z1 l2 l1 Heq.
+  induction Heq; cbn.
+  - admit.
+  - cbn in IHHeq.
+Abort.
+
+#[export]
+Instance Sgr_copair
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SgrHom (Sgr_coproduct A B) X.
+Proof.
+  esplit with (Sgr_copair_Setoid' f g); cbn.
+  now intros; rewrite Sgr_copair'_app.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoproducts_Sgr : HasCoproducts SgrCat :=
+{
+  coproduct := @Sgr_coproduct;
+  finl := @Sgr_finl;
+  finr := @Sgr_finr;
+  copair := @Sgr_copair;
+}.
+Proof.
+  split; cbn.
+  - easy.
+  - easy.
+  - intros P' h1 h2 HA HB l.
+    induction l as [[a | b] | h t]; cbn.
+    + now apply HA.
+    + now apply HB.
+    + change (h ::: t) with (@op (Sgr_coproduct A B) (singl h) t).
+      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
+Defined.
+
+Print Assumptions HasCoproducts_Sgr.
+
+End wut.
 
 Require Import Recdef.
 
@@ -420,8 +661,6 @@ Proof.
   now exists (fun y : Y => singl (inr y)).
 Defined.
 
-Axiom cheat : False.
-
 #[refine]
 #[export]
 Instance Sgr_freeprod (X Y : Sgr) : Sgr :=
@@ -480,3 +719,4 @@ Definition Sgr_copair (X Y A : Sgr) (f : SgrHom X A) (g : SgrHom Y A)
     : SgrHom (Sgr_freeprod X Y) A.
 Proof.
 Admitted.
+*)

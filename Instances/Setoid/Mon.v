@@ -577,6 +577,39 @@ Proof.
   - now apply MCE_trans.
 Defined.
 
+Lemma MCE_app_l :
+  forall (A B : Mon) (l l1 l2 : list (A + B)),
+    MCE l1 l2 -> MCE (l ++ l1) (l ++ l2).
+Proof.
+  induction l as [| [a | b] t]; cbn; intros; [easy | |].
+  - now constructor; [| apply IHt].
+  - now constructor; [| apply IHt].
+Qed.
+
+Lemma MCE_app :
+  forall {A B : Mon} (l11 l12 l21 l22 : list (A + B)),
+    MCE l11 l12 -> MCE l21 l22 -> MCE (l11 ++ l21) (l12 ++ l22).
+Proof.
+  intros * H1 H2; revert l21 l22 H2.
+  induction H1; cbn; intros.
+  - easy.
+  - now eauto.
+  - now eauto.
+  - now apply MCE_app_l.
+  - now eauto.
+  - now transitivity (l2 ++ l22); eauto.
+  - rewrite MCE_nil_neutr_l.
+    now apply MCE_app_l.
+  - rewrite MCE_nil_neutr_r.
+    now apply MCE_app_l.
+  - rewrite MCE_cons_op_l.
+    constructor; [easy |].
+    now apply MCE_app_l.
+  - rewrite MCE_cons_op_r.
+    constructor; [easy |].
+    now apply MCE_app_l.
+Defined.
+
 #[export]
 Instance Mon_coproduct_Setoid' (A B : Mon) : Setoid' :=
 {
@@ -588,15 +621,6 @@ Instance Mon_coproduct_Setoid' (A B : Mon) : Setoid' :=
   |};
 }.
 
-Lemma MCE_app_l :
-  forall (A B : Mon) (l l1 l2 : list (A + B)),
-    MCE l1 l2 -> MCE (l ++ l1) (l ++ l2).
-Proof.
-  induction l as [| [a | b] t]; cbn; intros; [easy | |].
-  - now constructor; [| apply IHt].
-  - now constructor; [| apply IHt].
-Qed.
-
 #[refine]
 #[export]
 Instance Mon_coproduct_Sgr (A B : Mon) : Sgr :=
@@ -605,18 +629,8 @@ Instance Mon_coproduct_Sgr (A B : Mon) : Sgr :=
   op := fun l1 l2 => l1 ++ l2;
 }.
 Proof.
-  - intros l1 l1' H1 l2 l2' H2; cbn in *; revert l2 l2' H2.
-    induction H1; cbn; intros.
-    + easy.
-    + now eauto.
-    + now eauto.
-    + now apply MCE_app_l.
-    + now eauto.
-    + now eauto.
-    + now rewrite MCE_nil_neutr_l; apply MCE_app_l.
-    + now rewrite MCE_nil_neutr_r; apply MCE_app_l.
-    + now rewrite MCE_cons_op_l; constructor; [easy |]; apply MCE_app_l.
-    + now rewrite MCE_cons_op_r; constructor; [easy |]; apply MCE_app_l.
+  - intros l1 l1' H1 l2 l2' H2; cbn in *.
+    now apply MCE_app.
   - now cbn; intros; rewrite app_assoc.
 Defined.
 
@@ -676,48 +690,17 @@ Proof.
   now rewrite MCE_nil_neutr_r.
 Defined.
 
-Fixpoint freemap
-  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l : list (A + B)) : list X :=
-match l with
-| [] => []
-| inl a :: t => f a :: freemap f g t
-| inr b :: t => g b :: freemap f g t
-end.
-
-Fixpoint fold {A : Mon} (l : list A) : A :=
-match l with
-| [] => neutr
-| h :: t => op h (fold t)
-end.
-
-Lemma freemap_app :
-  forall {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l1 l2 : list (A + B)),
-    freemap f g (l1 ++ l2) = freemap f g l1 ++ freemap f g l2.
-Proof.
-  induction l1 as [| h1 t1]; cbn; intros l2; [easy |].
-  now destruct h1 as [a | b]; cbn; rewrite IHt1.
-Qed.
-
-Lemma fold_app :
-  forall {A : Mon} (l1 l2 : list A),
-    fold (l1 ++ l2) == op (fold l1) (fold l2).
-Proof.
-  induction l1 as [| h1 t1]; cbn; intros l2.
-  - now rewrite neutr_l.
-  - now rewrite <- assoc, IHt1.
-Qed.
-
-Fixpoint Mon_copair''
+Fixpoint Mon_copair'
   {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l : list (A + B)) : X :=
 match l with
 | [] => neutr
-| inl a :: t => op (f a) (Mon_copair'' f g t)
-| inr b :: t => op (g b) (Mon_copair'' f g t)
+| inl a :: t => op (f a) (Mon_copair' f g t)
+| inr b :: t => op (g b) (Mon_copair' f g t)
 end.
 
-Lemma Mon_copair''_app :
+Lemma Mon_copair'_app :
   forall {A B X : Mon} (f : MonHom A X) (g : MonHom B X) (l1 l2 : list (A + B)),
-    Mon_copair'' f g (l1 ++ l2) == op (Mon_copair'' f g l1) (Mon_copair'' f g l2).
+    Mon_copair' f g (l1 ++ l2) == op (Mon_copair' f g l1) (Mon_copair' f g l2).
 Proof.
   induction l1 as [| h1 t1]; cbn; intros l2.
   - now rewrite neutr_l.
@@ -728,21 +711,7 @@ Qed.
 Instance Mon_copair_Setoid'
   {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : SetoidHom (Mon_coproduct A B) X.
 Proof.
-  esplit with (fun l => fold (freemap f g l)).
-  intros l1 l2 Heq; cbn in *.
-  induction Heq; cbn.
-  - easy.
-  - now rewrite IHHeq, H.
-  - now rewrite IHHeq, H.
-  - easy.
-  - easy.
-  - now rewrite IHHeq1, IHHeq2.
-  - now rewrite pres_neutr, neutr_l.
-  - now rewrite pres_neutr, neutr_l.
-  - now rewrite pres_op, <- assoc.
-  - now rewrite pres_op, <- assoc.
-Restart.
-  esplit with (Mon_copair'' f g).
+  esplit with (Mon_copair' f g).
   intros l1 l2 Heq; cbn in *.
   induction Heq; cbn.
   - easy.
@@ -762,8 +731,7 @@ Instance Mon_copair_Sgr
   {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : SgrHom (Mon_coproduct A B) X.
 Proof.
   esplit with (Mon_copair_Setoid' f g); cbn.
-(*   now intros; rewrite freemap_app, fold_app. *)
-  now intros; rewrite Mon_copair''_app.
+  now intros; rewrite Mon_copair'_app.
 Defined.
 
 #[export]
