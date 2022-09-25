@@ -106,22 +106,12 @@ Instance HasZero_SetoidRel : HasZero SetoidRelCat :=
 }.
 Proof. easy. Defined.
 
-#[refine]
 #[export]
 Instance SetoidRel_product (X Y : Setoid') : Setoid' :=
 {
   carrier := X + Y;
-  setoid :=
-  {|
-    equiv := fun p1 p2 : X + Y =>
-    match p1, p2 with
-    | inl x, inl x' => @equiv _ X x x'
-    | inr y, inr y' => @equiv _ Y y y'
-    | _, _ => False
-    end
-  |}
+  setoid := Setoid_sum X Y;
 }.
-Proof. now rel. Defined.
 
 #[refine]
 #[export]

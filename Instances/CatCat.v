@@ -113,28 +113,14 @@ Proof.
   - now cbn; intros; rewrite !fmap_id.
 Defined.
 
-Lemma pair_eq :
-  forall {A B : Type} (a : A) (b : B) (p : A * B),
-    a = fst p -> b = snd p -> (a, b) = p.
-Proof.
-  now intros A B a b []; cbn; intros [] [].
-Defined.
-
-Lemma pair_eq' :
-  forall {A B : Type} (x y : A * B),
-    fst x = fst y -> snd x = snd y -> x = y.
-Proof.
-  now intros A B [] []; cbn; intros [] [].
-Defined.
-
 Lemma CAT_fpair_unique :
   forall (X C D : Cat) (F : @Hom CAT X C) (G : @Hom CAT X D) (FG : @Hom CAT X (CAT_product C D)),
     F == FG .> CAT_outl C D -> G == FG .> CAT_outr C D -> CAT_fpair F G == FG.
 Proof.
   intros X C D F G FG [p q] [r s].
   esplit. Unshelve. all: cycle 1; cbn in *; intros.
-  - apply pair_eq; cbn; [apply p | apply r].
-  - apply pair_eq'.
+  - apply prod_eq_intro; cbn; [apply p | apply r].
+  - apply prod_eq_intro.
     + rewrite <- q; clear q s.
       generalize (p A), (p B), (r A), (r B).
       destruct (fob FG A), (fob FG B); cbn.

@@ -92,14 +92,12 @@ Instance ReloidCat : Cat :=
 }.
 Proof. all: now reloid. Defined.
 
-#[refine]
 #[export]
 Instance Reloid_init : Reloid :=
 {
   carrier := CoqSetoid_init;
   rel := fun _ _ => True
 }.
-Proof. now proper. Defined.
 
 #[refine]
 #[export]

@@ -8,6 +8,64 @@ Export ListNotations.
 
 #[global] Set Universe Polymorphism.
 
+(** * Useful custom types *)
+
+(** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
+
+Inductive sumprod (A B : Type) : Type :=
+| inl'  : A -> sumprod A B
+| inr'  : B -> sumprod A B
+| pair' : A -> B -> sumprod A B.
+
+Arguments inl'  {A B} _.
+Arguments inr'  {A B} _.
+Arguments pair' {A B} _ _.
+
+#[global] Hint Constructors sumprod : core.
+
+(** Non-empty lists *)
+
+Inductive nel (A : Type) : Type :=
+| singl    : A -> nel A
+| cons_nel : A -> nel A -> nel A.
+
+Arguments singl    {A} _.
+Arguments cons_nel {A} _ _.
+
+Notation "h ::: t" := (cons_nel h t) (right associativity, at level 30).
+
+Fixpoint nel_app {A : Type} (l1 l2 : nel A) : nel A :=
+match l1 with
+| singl a => cons_nel a l2
+| a ::: l1' => cons_nel a (nel_app l1' l2)
+end.
+
+Lemma nel_app_assoc :
+  forall (A : Type) (x y z : nel A),
+    nel_app x (nel_app y z) = nel_app (nel_app x y) z.
+Proof.
+  now induction x as [h | h t]; cbn; intros; rewrite ?IHt.
+Qed.
+
+Fixpoint nel_map {A B : Type} (f : A -> B) (l : nel A) : nel B :=
+match l with
+| singl x => singl (f x)
+| h ::: t => f h ::: nel_map f t
+end.
+
+Fixpoint nel2list {A : Type} (l : nel A) : list A :=
+match l with
+| singl h => [h]
+| h ::: t => h :: nel2list t
+end.
+
+Lemma nel2list_app :
+  forall {A : Type} (l1 l2 : nel A),
+    nel2list (nel_app l1 l2) = nel2list l1 ++ nel2list l2.
+Proof.
+  now induction l1 as [h | h t]; cbn; intros; rewrite ?IHt.
+Qed.
+
 (** * Equality *)
 
 Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) : P y :=
@@ -22,11 +80,23 @@ Proof.
   now intros A P x y z [] [] u; cbn.
 Defined.
 
-Lemma unit_eq_intro :
-  forall x y : unit, x = y.
-Proof.
-  now intros [] [].
-Defined.
+Definition unit_eq_intro (x y : unit) : x = y :=
+match x, y with
+| tt, tt => eq_refl
+end.
+
+Definition Empty_eq_intro (x y : Empty_set) : x = y :=
+  match x with end.
+
+Inductive eq_bool : bool -> bool -> Prop :=
+| eq_bool_false : eq_bool false false
+| eq_bool_true  : eq_bool true true.
+
+Definition eq_bool_intro {x y : bool} (E : eq_bool x y) : x = y :=
+match E with
+| eq_bool_false => eq_refl
+| eq_bool_true  => eq_refl
+end.
 
 Lemma prod_eq_intro :
   forall {A B : Type} (x y : A * B),
@@ -34,6 +104,57 @@ Lemma prod_eq_intro :
 Proof.
   now intros A B [] []; cbn; intros [] [].
 Defined.
+
+Inductive eq_sum {A B : Type} : A + B -> A + B -> Prop :=
+| eq_sum_inl : forall {a1 a2 : A}, a1 = a2 -> eq_sum (inl a1) (inl a2)
+| eq_sum_inr : forall {b1 b2 : B}, b1 = b2 -> eq_sum (inr b1) (inr b2).
+
+Definition eq_sum_intro
+  {A B : Type} {x y : A + B} (E : eq_sum x y) : x = y :=
+match E with
+| eq_sum_inl p => f_equal inl p
+| eq_sum_inr q => f_equal inr q
+end.
+
+Inductive eq_option {A : Type} : option A -> option A -> Prop :=
+| eq_option_None : eq_option None None
+| eq_option_Some : forall a1 a2 : A, a1 = a2 -> eq_option (Some a1) (Some a2).
+
+Definition eq_option_intro
+  {A : Type} {x y : option A} (E : eq_option x y) : x = y :=
+match E with
+| eq_option_None => eq_refl
+| eq_option_Some a1 a2 p => f_equal Some p
+end.
+
+Inductive eq_sumprod {A B : Type} : sumprod A B -> sumprod A B -> Prop :=
+| eq_sumprod_inl'  :
+  forall {a1 a2 : A}, a1 = a2 -> eq_sumprod (inl' a1) (inl' a2)
+| eq_sumprod_inr'  :
+  forall {b1 b2 : B}, b1 = b2 -> eq_sumprod (inr' b1) (inr' b2)
+| eq_sumprod_pair' :
+  forall {a1 a2 : A} {b1 b2 : B}, a1 = a2 -> b1 = b2 -> eq_sumprod (pair' a1 b1) (pair' a2 b2).
+
+Definition eq_sumprod_intro
+  {A B : Type} {x y : sumprod A B} (p : eq_sumprod x y) : x = y :=
+match p with
+| eq_sumprod_inl'  p   => f_equal inl' p
+| eq_sumprod_inr'    q => f_equal inr' q
+| eq_sumprod_pair' p q => f_equal2 pair' p q
+end.
+
+Inductive eq_nel {A : Type} : nel A -> nel A -> Prop :=
+| eq_singl :
+  forall {a1 a2 : A}, a1 = a2 -> eq_nel (singl a1) (singl a2)
+| eq_cons_nel :
+  forall {a1 a2 : A} {t1 t2 : nel A},
+    a1 = a2 -> eq_nel t1 t2 -> eq_nel (a1 ::: t1) (a2 ::: t2).
+
+Fixpoint eq_nel_intro {A : Type} {l1 l2 : nel A} (E : eq_nel l1 l2) : l1 = l2 :=
+match E with
+| eq_singl p => f_equal singl p
+| eq_cons_nel p E' => f_equal2 cons_nel p (eq_nel_intro E')
+end.
 
 (** * Setoids *)
 
@@ -150,17 +271,7 @@ Proof.
   now intros; subst; replace setoid_equiv with setoid_equiv' by apply proof_irrelevance.
 Qed.
 
-(** Some setoid instances. *)
-
-#[refine]
-#[export]
-Instance Setoid_forall
-  {A : Type} {B : A -> Type} (H : forall x : A, Setoid (B x))
-  : Setoid (forall x : A, B x) :=
-{
-  equiv := fun f g => forall x : A, f x == g x;
-}.
-Proof. now solve_equiv. Defined.
+(** Generic instances. *)
 
 Definition Setoid_kernel {A B : Type} (f : A -> B) : Setoid A.
 Proof.
@@ -174,48 +285,158 @@ Proof.
   now solve_equiv.
 Defined.
 
-(** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
+(** Some useful setoid instances. *)
 
-Inductive sumprod (X Y : Set) : Set :=
-| inl'  : X -> sumprod X Y
-| inr'  : Y -> sumprod X Y
-| pair' : X -> Y -> sumprod X Y.
+#[refine]
+#[export]
+Instance Setoid_unit : Setoid unit :=
+{
+  equiv := fun _ _ => True;
+}.
+Proof. now solve_equiv. Defined.
 
-Arguments inl'  [X Y] _.
-Arguments inr'  [X Y] _.
-Arguments pair' [X Y] _ _.
+#[refine]
+#[export]
+Instance Setoid_Empty : Setoid Empty_set :=
+{
+  equiv := fun _ _ => True;
+}.
+Proof. now solve_equiv. Defined.
 
-#[global] Hint Constructors sumprod : core.
+#[export]
+Instance Setoid_bool : Setoid bool :=
+{
+  equiv := fun b1 b2 => b1 = b2;
+}.
 
-(** Non-empty lists *)
+#[export]
+Instance Setoid_nat : Setoid nat :=
+{
+  equiv := fun n1 n2 => n1 = n2;
+}.
 
-Inductive nel (A : Type) : Type :=
-| singl    : A -> nel A
-| cons_nel : A -> nel A -> nel A.
-
-Arguments singl [A] _.
-Arguments cons_nel [A] _ _.
-
-Notation "h ::: t" := (cons_nel h t) (right associativity, at level 30).
-
-Fixpoint nel_app {A : Type} (l1 l2 : nel A) : nel A :=
-match l1 with
-| singl a => cons_nel a l2
-| a ::: l1' => cons_nel a (nel_app l1' l2)
-end.
-
-Lemma nel_app_assoc :
-  forall (A : Type) (x y z : nel A),
-    nel_app x (nel_app y z) = nel_app (nel_app x y) z.
+#[refine]
+#[export]
+Instance Setoid_prod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A * B) :=
+{
+  equiv := fun x y => fst x == fst y /\ snd x == snd y;
+}.
 Proof.
-  now induction x as [h | h t]; cbn; intros; rewrite ?IHt.
-Qed.
+  split; red.
+  - now intros [a b].
+  - now intros [a1 b1] [a2 b2] [-> ->].
+  - now intros [a1 b1] [a2 b2] [a3 b3] [-> ->] [-> ->].
+Defined.
 
-Fixpoint nel_map {A B : Type} (f : A -> B) (l : nel A) : nel B :=
-match l with
-| singl x => singl (f x)
-| h ::: t => f h ::: nel_map f t
-end.
+#[refine]
+#[export]
+Instance Setoid_sum {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A + B) :=
+{
+  equiv := fun x y =>
+    match x, y with
+    | inl a1, inl a2 => a1 == a2
+    | inr b1, inr b2 => b1 == b2
+    | _     , _      => False
+    end;
+}.
+Proof.
+  split; red.
+  - now intros [a | b].
+  - now intros [a1 | b1] [a2 | b2].
+  - intros [a1 | b1] [a2 | b2] [a3 | b3]; try easy.
+    + now intros -> ->.
+    + now intros -> ->.
+Defined.
+
+#[refine]
+#[export]
+Instance Setoid_option {A : Type} (SA : Setoid A) : Setoid (option A) :=
+{
+  equiv := fun x y =>
+    match x, y with
+    | None   , None    => True
+    | Some a1, Some a2 => a1 == a2
+    | _      , _       => False
+    end;
+}.
+Proof.
+  split; red.
+  - now intros [a |].
+  - now intros [a1 |] [a2 |].
+  - intros [a1 |] [a2 |] [a3 |]; try easy.
+    now intros -> ->.
+Defined.
+
+#[refine]
+#[export]
+Instance Setoid_sumprod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (sumprod A B) :=
+{
+  equiv := fun x y =>
+    match x, y with
+    | inl' a1    , inl' a2     => a1 == a2
+    | inr' b1    , inr' b2     => b1 == b2
+    | pair' a1 b1, pair' a2 b2 => a1 == a2 /\ b1 == b2
+    | _          , _           => False
+    end;
+}.
+Proof.
+  split; red.
+  - now intros [a | b | a b].
+  - now intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2].
+  - intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2] [a3 | b3 | a3 b3]; try easy.
+    + now intros -> ->.
+    + now intros -> ->.
+    + now intros [-> ->] [-> ->].
+Defined.
+
+#[refine]
+#[export]
+Instance Setoid_fun {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A -> B) :=
+{
+  equiv := fun f g => forall a : A, f a == g a;
+}.
+Proof. now solve_equiv. Defined.
+
+#[refine]
+#[export]
+Instance Setoid_forall
+  {A : Type} {B : A -> Type} (SB : forall x : A, Setoid (B x))
+  : Setoid (forall x : A, B x) :=
+{
+  equiv := fun f g => forall x : A, f x == g x;
+}.
+Proof. now solve_equiv. Defined.
+
+#[refine]
+#[export]
+Instance Setoid_sig
+  {A : Type} (SA : Setoid A) {B : A -> Prop}
+  : Setoid {a : A | B a} :=
+{
+  equiv := fun x y => proj1_sig x == proj1_sig y;
+}.
+Proof.
+  split; red.
+  - now intros [x x']; cbn.
+  - now intros [x x'] [y y']; cbn.
+  - now intros [x x'] [y y'] [z z']; cbn; intros -> ->.
+Defined.
+
+#[refine]
+#[export]
+Instance Setoid_sigT
+  {A : Type} {B : A -> Type} (SB : forall x : A, Setoid (B x))
+  : Setoid {a : A & B a} :=
+{
+  equiv := fun x y => {p : projT1 x = projT1 y & transport B p (projT2 x) == projT2 y};
+}.
+Proof.
+  split; red.
+  - now intros [x x']; exists eq_refl; cbn.
+  - now intros [x x'] [y y']; cbn; intros [-> p]; exists eq_refl; cbn in *.
+  - intros [x x'] [y y'] [z z']; cbn; intros [-> p] [-> q]; exists eq_refl; cbn in *.
+    now rewrite p, q.
+Defined.
 
 Fixpoint equiv_nel {X : Type} `{Setoid X} (l1 l2 : nel X) : Prop :=
 match l1, l2 with
@@ -228,24 +449,42 @@ Lemma equiv_nel_refl :
   forall {X : Type} `{Setoid X} (l : nel X),
     equiv_nel l l.
 Proof.
-  now induction l as [| h t]; cbn; try rewrite IHt; solve_equiv.
+  now induction l as [| h t]; cbn; rewrite ?IHt.
 Qed.
 
 Lemma equiv_nel_sym :
   forall {X : Type} `{Setoid X} (l1 l2 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l1.
 Proof.
-  now induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; solve_equiv.
+  induction l1 as [| h1 t1]; destruct l2 as [| h2 t2]; cbn; [easy.. |].
+  now intros [-> H']; split; [| apply IHt1].
 Qed.
 
 Lemma equiv_nel_trans :
   forall {X : Type} `{Setoid X} (l1 l2 l3 : nel X),
     equiv_nel l1 l2 -> equiv_nel l2 l3 -> equiv_nel l1 l3.
 Proof.
-  now induction l1 as [| h1 t1]; destruct l2, l3; solve_equiv.
+  induction l1 as [| h1 t1]; destruct l2, l3; cbn; try easy.
+  - now intros -> ->.
+  - now intros [-> H12] [-> H23]; split; [| apply (IHt1 l2)].
 Qed.
 
 #[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
+
+#[refine]
+#[export]
+Instance Setoid_nel {A : Type} (SA : Setoid A) : Setoid (nel A) :=
+{
+  equiv := equiv_nel;
+}.
+Proof.
+  split; red.
+  - now apply equiv_nel_refl.
+  - now apply equiv_nel_sym.
+  - now apply equiv_nel_trans.
+Defined.
+
+(** Old trash *)
 
 (*
 Fixpoint fp_equiv {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)) : Prop :=
@@ -293,16 +532,3 @@ Qed.
 
 #[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
 *)
-
-Fixpoint nel2list {A : Type} (l : nel A) : list A :=
-match l with
-| singl h => [h]
-| h ::: t => h :: nel2list t
-end.
-
-Lemma nel2list_app :
-  forall {A : Type} (l1 l2 : nel A),
-    nel2list (nel_app l1 l2) = nel2list l1 ++ nel2list l2.
-Proof.
-  now induction l1 as [h | h t]; cbn; intros; rewrite ?IHt.
-Qed.

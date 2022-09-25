@@ -21,13 +21,6 @@ Class Enriched (V : Monoidal) : Type :=
     forall A B : EOb, bimap (id (EHom A B)) (EId B) .> EComp A B B == right_unitor (EHom A B);
 }.
 
-#[export]
-Instance wut (C : Cat) (X Y : Ob C) : Setoid' :=
-{
-  carrier := @Hom C X Y;
-  setoid := @HomSetoid C X Y;
-}.
-
 #[refine]
 #[export]
 Instance Enriched_CoqSetoid

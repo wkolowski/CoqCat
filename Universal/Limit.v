@@ -118,13 +118,6 @@ Definition isContinuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
     isLimit' K -> isLimit' (ConeImage F K).
 
-#[export]
-Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
-{
-  carrier := Hom X Y;
-  setoid := HomSetoid X Y
-}.
-
 (* Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F. *)
 
 (* Lemma isLimit_char
@@ -133,6 +126,6 @@ Instance HomSetoid' (C : Cat) (X Y : Ob C) : Setoid' :=
     @isLimit J C F K del
       <->
     forall c : Ob C,
-      @isomorphic CoqSetoid (HomSetoid' C c (apex K)) (HomSetoid' (FunCat J C) (ConstFunctor c J) F).
+      @isomorphic CoqSetoid (HomSetoid C c (apex K)) (HomSetoid (FunCat J C) (ConstFunctor c J) F).
 Proof.
 Abort. *)

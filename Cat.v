@@ -707,6 +707,14 @@ Arguments Proper_func [X Y] _.
 
 Coercion func : SetoidHom >-> Funclass.
 
+#[refine]
+#[export]
+Instance Setoid_SetoidHom (X Y : Setoid') : Setoid (SetoidHom X Y) :=
+{
+  equiv := fun f g : SetoidHom X Y => forall x : X, f x == g x
+}.
+Proof. now solve_equiv. Defined.
+
 Ltac setoidhom f := try intros until f;
 match type of f with
 | SetoidHom _ _ =>
@@ -754,14 +762,17 @@ Instance CoqSetoid : Cat :=
 {|
   Ob := Setoid';
   Hom := SetoidHom;
-  HomSetoid := fun X Y : Setoid' =>
-  {|
-    equiv := fun f g : SetoidHom X Y => forall x : X, @equiv _ (@setoid Y) (f x) (g x)
-  |};
+  HomSetoid := Setoid_SetoidHom;
   comp := SetoidComp;
   id := SetoidId
 |}.
-Proof. all: now setoid. Defined.
+Proof.
+  - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
+    now rewrite Hf, Hg.
+  - easy.
+  - easy.
+  - easy.
+Defined.
 
 (** * Functors *)
 
