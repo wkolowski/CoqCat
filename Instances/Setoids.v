@@ -402,16 +402,18 @@ Instance CoqSetoid_indexedCoproduct {J : Set} (A : J -> Setoid') : Setoid' :=
   setoid :=
   {|
     equiv := fun x y : {j : J & A j} =>
-      projT1 x = projT1 y /\ @JMequiv _ (A (projT1 x)) (projT2 x) (A (projT1 y)) (projT2 y)
-  |}
+      match x, y with
+      | existT _ x x', existT _ y y' => {p : x = y & transport A p x' == y'}
+      end;
+  |};
 }.
 Proof.
-  split; red.
-  - now intros [x x']; cbn.
-  - intros [x x'] [y y']; cbn; intros [-> H]; split; [easy |].
-    now eapply JMequiv_sym.
-  - intros [x x'] [y y'] [z z']; cbn; intros [-> H1] [-> H2]; split; [easy |].
-    now eapply (JMequiv_trans (eq_refl) (JMeq_refl) H1 H2).
+  - exact (A y).
+  - split; red.
+    + now intros [x x']; exists eq_refl; cbn.
+    + now intros [x x'] [y y'] [-> p]; exists eq_refl; cbn in *.
+    + intros [x x'] [y y'] [z z'] [-> p] [-> q]; exists eq_refl; cbn in *.
+      now transitivity y'.
 Defined.
 
 #[refine]
@@ -421,7 +423,9 @@ Instance CoqSetoid_inj
 {
   func := fun x : A j => existT _ j x
 }.
-Proof. now proper. Defined.
+Proof.
+  now intros a1 a2 Heq; cbn; exists eq_refl.
+Defined.
 
 #[refine]
 #[export]
@@ -433,9 +437,7 @@ Instance CoqSetoid_cotuple
   func := fun x => f (projT1 x) (projT2 x)
 }.
 Proof.
-  intros [x x'] [y y']; cbn; intros [-> H].
-  inversion H as [y'' Heq Hy'' H']; apply inj_pair2 in H'; subst.
-  now rewrite Heq.
+  now intros [x x'] [y y']; cbn; intros [-> ->].
 Defined.
 
 #[refine]
@@ -447,7 +449,9 @@ Instance HasIndexedCoproducts_CoqSetoid : HasIndexedCoproducts CoqSetoid :=
   cotuple := @CoqSetoid_cotuple
 }.
 Proof.
-  now setoid.
+  split; cbn.
+  - easy.
+  - now intros X h1 h2 Heq [x x'].
 Defined.
 
 #[refine]

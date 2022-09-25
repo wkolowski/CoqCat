@@ -235,6 +235,12 @@ Proof.
   now f_equal; apply proof_irrelevance.
 Qed.
 
+Lemma eq_JMeq :
+  forall (A : Type) (x y : A), x = y -> JMeq x y.
+Proof.
+  now intros A x y [].
+Defined.
+
 Lemma Dual_Dual :
   forall C : Cat,
     Dual (Dual C) = C.

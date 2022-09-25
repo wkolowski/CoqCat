@@ -83,7 +83,7 @@ Instance HasProducts_SetP : HasProducts SetP :=
   product := sumprod;
   outl := SetP_outl;
   outr := SetP_outr;
-  fpair := SetP_fpair
+  fpair := SetP_fpair;
 }.
 Proof.
   split; unfold SetP_fpair; cbn; intros X f g.
@@ -96,7 +96,7 @@ Proof.
 Defined.
 
 Definition SetP_copair
-  (A B X : Ob SetP) (f : Hom A X) (g : Hom B X) : Hom (sum A B) X := fun p : A + B =>
+  (A B X : Ob SetP) (f : Hom A X) (g : Hom B X) (p : A + B) : option X :=
 match p with
 | inl a => f a
 | inr b => g b

@@ -444,13 +444,6 @@ Proof.
     left; intros Hl; apply Hl; intros Hl'.
 Abort.
 
-Lemma JMeq_cotrans :
-  forall (X Y Z : Type) (x : X) (y : Y) (z : Z),
-    ~ JMeq x y -> ~ JMeq z x \/ ~ JMeq z y.
-Proof.
-Abort.
-
-(* TODO: make this more dependent (change JMeq to some lifted heterogenous apartness... *)
 #[refine]
 #[export]
 Instance Apartoid_indexedCoproduct {J : Apartoid} (A : J -> Apartoid) : Apartoid :=

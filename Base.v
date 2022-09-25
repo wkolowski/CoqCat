@@ -35,14 +35,6 @@ Proof.
   now intros A B [] []; cbn; intros [] [].
 Defined.
 
-(** * JMeq *)
-
-Lemma eq_JMeq :
-  forall (A : Type) (x y : A), x = y -> JMeq x y.
-Proof.
-  now intros A x y [].
-Defined.
-
 (** * Setoids *)
 
 (** Uniqueness up to a custom equivalence relation, using setoids. *)
@@ -170,49 +162,17 @@ Instance Setoid_forall
 }.
 Proof. now solve_equiv. Defined.
 
-#[refine]
-#[export]
-Instance Setoid_kernel {A B : Type} (f : A -> B) : Setoid A :=
-{|
-  equiv := fun a a' : A => f a = f a'
-|}.
-Proof. now solve_equiv. Defined.
-
-#[refine]
-#[export]
-Instance Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A :=
-{|
-  equiv := fun a1 a2 : A => @equiv _ S (f a1) (f a2);
-|}.
-Proof. now solve_equiv. Defined.
-
-(** Extension of an equivalence relation to a heterogenous equivalence relation.  *)
-
-Inductive JMequiv {A : Type} {S : Setoid A} (x : A) : forall {B : Type}, B -> Prop :=
-| JMequiv_refl : forall y : A, x == y -> JMequiv x y.
-
-#[global] Hint Constructors JMequiv : core.
-
-Lemma JMequiv_sym :
-  forall (A B : Type) (SA : Setoid A) (SB : Setoid B) (a : A) (b : B),
-    JMeq SA SB -> JMequiv (S := SA) a b -> JMequiv (S := SB) b a.
+Definition Setoid_kernel {A B : Type} (f : A -> B) : Setoid A.
 Proof.
-  inversion 2; subst.
-  apply inj_pair2 in H4; subst.
-  now constructor; symmetry.
-Qed.
+  split with (fun a1 a2 : A => f a1 = f a2).
+  now solve_equiv.
+Defined.
 
-Lemma JMequiv_trans :
-  forall (A B C : Type) (SA : Setoid A) (SB : Setoid B) (x : A) (y : B) (z : C),
-    A = B -> JMeq SA SB -> JMequiv (S := SA) x y -> JMequiv (S := SB) y z ->
-      JMequiv (S := SA) x z.
+Definition Setoid_kernel_equiv {A B : Type} (S : Setoid B) (f : A -> B) : Setoid A.
 Proof.
-  intros; subst.
-  dependent destruction H1; dependent destruction H2.
-  now constructor; rewrite H, H0.
-Qed.
-
-Arguments JMequiv_trans [A B C SA SB x y z] _ _ _ _.
+  split with (fun a1 a2 : A => @equiv _ S (f a1) (f a2)).
+  now solve_equiv.
+Defined.
 
 (** Sum-product hybrid. Useful for a few categories that behave like [Rel]. *)
 
@@ -230,7 +190,7 @@ Arguments pair' [X Y] _ _.
 (** Non-empty lists *)
 
 Inductive nel (A : Type) : Type :=
-| singl : A -> nel A
+| singl    : A -> nel A
 | cons_nel : A -> nel A -> nel A.
 
 Arguments singl [A] _.
@@ -287,6 +247,7 @@ Qed.
 
 #[global] Hint Resolve equiv_nel_refl equiv_nel_sym equiv_nel_trans : core.
 
+(*
 Fixpoint fp_equiv {X Y : Type} `{Setoid X} `{Setoid Y} (l1 l2 : nel (X + Y)) : Prop :=
 match l1, l2 with
 | singl (inl x), singl (inl x') => x == x'
@@ -331,6 +292,7 @@ Proof.
 Qed.
 
 #[global] Hint Resolve fp_equiv_refl fp_equiv_sym fp_equiv_trans : core.
+*)
 
 Fixpoint nel2list {A : Type} (l : nel A) : list A :=
 match l with
