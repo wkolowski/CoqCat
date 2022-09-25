@@ -5,6 +5,13 @@ From Cat.Universal Require Export
 
 Set Implicit Arguments.
 
+#[export]
+Instance PROP : Setoid' :=
+{
+  carrier := Prop;
+  setoid := Setoid_Prop;
+}.
+
 #[refine]
 #[export]
 Instance const (X Y : Setoid') (y : Y) : SetoidHom X Y :=
@@ -32,6 +39,26 @@ Proof.
   cbn; intros X Y f Hsur Z g h Heq y.
   destruct (Hsur y) as [x <-].
   now apply Heq.
+Defined.
+
+Lemma CoqSetoid_surjectiveS :
+  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
+    isEpi f -> surjectiveS f.
+Proof.
+  unfold isEpi, surjectiveS.
+  cbn; intros X Y f HEpi y.
+  pose (g := (fun y => exists a : X, f a == y) : Y -> PROP).
+  assert (Proper_g : Proper (equiv ==> equiv) g)
+    by now intros y1 y2 Heq; unfold g; cbn; setoid_rewrite Heq.
+  pose (h := (fun _ : Y => True) : Y -> PROP).
+  assert (Proper_h : Proper (equiv ==> equiv) h)
+    by firstorder.
+  pose (g' := {| func := g; Proper_func := Proper_g; |}).
+  pose (h' := {| func := h; Proper_func := Proper_h; |}).
+  specialize (HEpi PROP g' h').
+  unfold g', g, h', h in HEpi; cbn in HEpi.
+  rewrite HEpi; [easy |].
+  now intuition eexists.
 Defined.
 
 Lemma CoqSetoid_isSec :

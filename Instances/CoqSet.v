@@ -1,4 +1,4 @@
-Require Import FunctionalExtensionality.
+Require Import FunctionalExtensionality PropExtensionality.
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Universal Require Export
@@ -33,18 +33,26 @@ Proof.
   - now apply H, H0.
 Defined.
 
-Lemma CoqSet_isRet_sur :
+Lemma CoqSet_isEpi_sur :
   forall (X Y : Type) (f : Hom X Y),
-    isRet f <-> surjective f.
+    isEpi f <-> surjective f.
 Proof.
-  unfold isRet, surjective; cbn.
-  split; intros.
-  - now destruct H as [g eq]; exists (g b).
-  - exists (fun y : Y => proj1_sig (constructive_indefinite_description _ (H y))).
-    now intros y; destruct (constructive_indefinite_description _ (H y)).
-Defined.
+  unfold isEpi, surjective; cbn.
+  split; cycle 1.
+  - intros Hsur Z h1 h2 Heq y.
+    destruct (Hsur y) as [x <-].
+    now apply Heq.
+  - intros HEpi y.
+    pose (g := fun y => exists a : X, f a = y).
+    pose (h := fun _ : Y => True).
+    specialize (HEpi Prop g h).
+    unfold g, h in HEpi.
+    rewrite HEpi; [easy |].
+    intros x.
+    now apply propositional_extensionality; intuition eauto.
+Qed.
 
-(* TODO : characterize epimorphisms and sections *)
+(* TODO : characterize and sections and isomorphisms of sets *)
 
 Lemma CoqSet_isIso_bij :
   forall (A B : Type) (f : Hom A B),
@@ -52,8 +60,8 @@ Lemma CoqSet_isIso_bij :
 Proof.
   intros A B f.
   unfold bijective.
-  now rewrite isIso_iff_isMono_isRet, <- CoqSet_isMono_inj, <- CoqSet_isRet_sur.
-Defined.
+  rewrite isIso_iff_isMono_isRet, <- CoqSet_isMono_inj, <- CoqSet_isEpi_sur.
+Admitted.
 
 #[refine]
 #[export]
