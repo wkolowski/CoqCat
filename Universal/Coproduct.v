@@ -168,18 +168,15 @@ Lemma iso_to_coproduct :
     (copair : forall P' : Ob C, Hom A P' -> Hom B P' -> Hom P P'),
       isCoproduct C P finl finr copair ->
         forall {P' : Ob C} (f : Hom P P') (H : isIso f),
-          isCoproduct C P' (finl .> f) (finr .> f)
-            (fun (P'' : Ob C) (finl' : Hom A P'') (finr' : Hom B P'') =>
-              match constructive_indefinite_description _ H with
-              | exist _ g _ => g .> copair P'' finl' finr'
-              end).
+          exists g : Hom P' P,
+            isCoproduct C P' (finl .> f) (finr .> f) (fun Γ a b => g .> copair Γ a b).
 Proof.
-  intros.
-  destruct (constructive_indefinite_description _ _) as (f_inv & Heq1 & Heq2).
+  intros * H P' f (g & Hfg & Hgf).
+  exists g.
   split; intros.
-  - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finl_copair.
-  - now rewrite comp_assoc, <- (comp_assoc f f_inv), Heq1, comp_id_l, finr_copair.
-  - rewrite <- (comp_id_l h1), <- (comp_id_l h2), <- Heq2, !comp_assoc; f_equiv.
+  - now rewrite comp_assoc, <- (comp_assoc f g), Hfg, comp_id_l, finl_copair.
+  - now rewrite comp_assoc, <- (comp_assoc f g), Hfg, comp_id_l, finr_copair.
+  - rewrite <- (comp_id_l h1), <- (comp_id_l h2), <- Hgf, !comp_assoc; f_equiv.
     now rewrite equiv_coproduct', <- !comp_assoc.
 Qed.
 

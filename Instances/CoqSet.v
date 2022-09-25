@@ -93,14 +93,14 @@ Proof.
   now intros A f g x; apply unit_eq_intro.
 Defined.
 
-Definition isSingleton (A : Type) : Prop :=
-  exists a : A, True /\ forall x y : A, x = y.
+Definition isSingleton (A : Type) : Type :=
+  {a : A | True /\ forall x y : A, x = y}.
 
 Definition isSingleton_delete :
   forall A : Type, isSingleton A -> forall X : Type, X -> A.
 Proof.
   unfold isSingleton.
-  intros A (a & _ & H)%constructive_indefinite_description X x.
+  intros A (a & _ & H) X x.
   exact a.
 Defined.
 

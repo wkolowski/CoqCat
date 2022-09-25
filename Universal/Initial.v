@@ -135,8 +135,8 @@ Qed.
 
 End wut.
 
-Class HasStrictInit (C : Cat) {hi : HasInit C} : Prop :=
-  isStrictlyInitial : forall {X : Ob C} (f : Hom X (init C)), isIso f.
+Class HasStrictInit (C : Cat) {hi : HasInit C} : Type :=
+  isStrictlyInitial : forall {X : Ob C} (f : Hom X (init C)), isIso' f.
 
 #[export] Hint Mode HasStrictInit ! ! : core.
 #[export] Hint Mode HasStrictInit ! - : core.

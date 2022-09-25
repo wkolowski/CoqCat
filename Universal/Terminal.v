@@ -93,8 +93,8 @@ Proof.
   now apply equiv_terminal.
 Qed.
 
-Class HasStrictTerm {C : Cat} (ht : HasTerm C) : Prop :=
-  isStrictlyTerminal : forall {X : Ob C} (f : Hom (term C) X), isIso f.
+Class HasStrictTerm {C : Cat} (ht : HasTerm C) : Type :=
+  isStrictlyTerminal : forall {X : Ob C} (f : Hom (term C) X), isIso' f.
 
 #[export] Hint Mode HasStrictTerm ! ! : core.
 #[export] Hint Mode HasStrictTerm ! - : core.

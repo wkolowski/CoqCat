@@ -117,41 +117,27 @@ Lemma isIndexedProduct_iso_unique2 :
     (t1 : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P1)
     (P2 : Ob C) (p2 : forall j : J, Hom P2 (B j))
     (t2 : forall (X : Ob C) (f : forall j : J, Hom X (B j)), Hom X P2),
-      (forall j : J, A j ~ B j) ->
+      (forall j : J, {f : Hom (A j) (B j) & {g : Hom (B j) (A j) |
+        f .> g == id (A j) /\ g .> f == id (B j)}}) ->
       isIndexedProduct C P1 p1 t1 ->
       isIndexedProduct C P2 p2 t2 ->
         P1 ~ P2.
 Proof.
   unfold isomorphic, isIso.
-  intros.
-  assert (f : forall j : J, {f : Hom (A j) (B j) &
-    {g : Hom (B j) (A j) | f .> g == id (A j) /\ g .> f == id (B j)}}).
-  {
-    intros j.
-    specialize (H j).
-    apply constructive_indefinite_description in H as [f f_iso].
-    apply constructive_indefinite_description in f_iso as (g & eq1 & eq2).
-    now exists f, g; auto.
-  }
-  assert (f' : {f : forall j : J, Hom (A j) (B j) &
-    {g : forall j : J, Hom (B j) (A j) |
-      (forall j : J, f j .> g j == id (A j)) /\
-      (forall j : J, g j .> f j == id (B j))}}).
-  {
-    exists (fun j : J => projT1 (f j)).
-    exists (fun j : J => proj1_sig (projT2 (f j))).
-    now split; intro; destruct (f j) as (f' & g' & eq1 & eq2); cat.
-  }
-  destruct f' as [f' [g' [iso1 iso2]]].
-  exists (t2 P1 (fun j => p1 j .> f' j)),
-         (t1 P2 (fun j : J => (p2 j .> g' j))).
-  split.
-  - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
-      iso1, comp_id_l, comp_id_r.
-  - rewrite equiv_indexedProduct'; intros j.
-    now rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc,
-      iso2, comp_id_l, comp_id_r.
+  intros * H H1 H2.
+  esplit. Unshelve. all: cycle 1.
+  - apply t2. exact (fun j => p1 j .> projT1 (H j)).
+  - esplit. Unshelve. all: cycle 1.
+    + apply t1. exact (fun j => p2 j .> proj1_sig (projT2 (H j))).
+    + split.
+      * rewrite equiv_indexedProduct'; intros j.
+        rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
+        destruct (H j) as (f & g & Hfg & Hgf); cbn.
+        now rewrite  Hfg, comp_id_l, comp_id_r.
+      * rewrite equiv_indexedProduct'; intros j.
+        rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
+        destruct (H j) as (f & g & Hfg & Hgf); cbn.
+        now rewrite  Hgf, comp_id_l, comp_id_r.
 Defined.
 
 Lemma small_and_isIndexedProducts :
@@ -229,14 +215,8 @@ Lemma isIndexedProduct_comm :
 Proof.
   unfold bijective, injective, surjective.
   destruct 2 as [inj sur]; intros.
-  assert (g : {g : J -> J |
-    (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)}).
-  {
-    exists (fun j : J => proj1_sig (constructive_indefinite_description _ (sur j))).
-    split; intros.
-    - now destruct (constructive_indefinite_description _ (sur j)); auto.
-    - now destruct (constructive_indefinite_description _ (sur (f j))); auto.
-  }
+  assert (g : {g : J -> J | (forall j : J, f (g j) = j) /\ (forall j : J, g (f j) = j)})
+    by admit.
   destruct g as [g [g_inv1 g_inv2]].
   assert (h : {h : forall j : J, Hom P (A (f (g j))) |
   (forall j : J, h j = p (f (g j)))}).

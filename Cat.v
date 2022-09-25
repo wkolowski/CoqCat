@@ -232,6 +232,15 @@ Definition isIso {C : Cat} {A B : Ob C} (f : Hom A B ) : Prop :=
 Definition isAut {C : Cat} {A : Ob C} (f : Hom A A) : Prop :=
   isIso f.
 
+Definition isSec' {C : Cat} {A B : Ob C} (f : Hom A B) : Type :=
+  {g : Hom B A | f .> g == id A}.
+Definition isRet' {C : Cat} {A B : Ob C} (f : Hom A B) : Type :=
+  {g : Hom B A | g .> f == id B}.
+Definition isIso' {C : Cat} {A B : Ob C} (f : Hom A B ) : Type :=
+  {g : Hom B A | f .> g == id A /\ g .> f == id B}.
+Definition isAut' {C : Cat} {A : Ob C} (f : Hom A A) : Type :=
+  isIso' f.
+
 #[global] Hint Unfold isEndo isMono isEpi isBi isSec isRet isIso isAut : core.
 
 (** *** Duality and subsumption *)
@@ -901,7 +910,8 @@ Class Contravariant (C : Cat) (D : Cat) : Type :=
   coob : Ob C -> Ob D;
   comap : forall {X Y : Ob C}, Hom X Y -> Hom (coob Y) (coob X);
   Proper_comap :> forall X Y : Ob C, Proper (equiv ==> equiv) (@comap X Y);
-  comap_comp : forall (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z), comap (f .> g) == comap g .> comap f;
+  comap_comp :
+    forall (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z), comap (f .> g) == comap g .> comap f;
   comap_id : forall A : Ob C, comap (id A) == id (coob A)
 }.
 
@@ -1265,45 +1275,52 @@ Defined.
 (** ** Natural isomorphisms and representable functors *)
 
 Definition natural_isomorphism
-  {C D : Cat} {F G : Functor C D} (α : NatTrans F G) : Prop :=
-    exists β : NatTrans G F,
-      NatTransComp α β == NatTransId F /\
-      NatTransComp β α == NatTransId G.
+  {C D : Cat} {F G : Functor C D} (α : NatTrans F G) : Type :=
+    {β : NatTrans G F | NatTransComp α β == NatTransId F /\ NatTransComp β α == NatTransId G}.
+
+Lemma natural_isomorphism_char' :
+  forall {C D : Cat} {F G : Functor C D} (α : NatTrans F G),
+    (forall X : Ob C, isIso' (component α X)) -> NatTrans G F.
+Proof.
+  intros C D F G α H.
+  esplit. Unshelve. all: cycle 1.
+  - exact (fun X => proj1_sig (H X)).
+  - intros X Y f; cbn.
+    destruct (H X) as (g1 & Hg11 & Hg12), (H Y) as (g2 & Hg21 & Hg22); cbn.
+    destruct α. cbn in *.
+    rewrite <- comp_id_r, <- Hg21.
+    rewrite comp_assoc, <- (comp_assoc (fmap F f)).
+    rewrite <- natural0.
+    now rewrite <- !comp_assoc, Hg12, comp_id_l.
+Defined.
 
 Lemma natural_isomorphism_char :
   forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
-    natural_isomorphism α <-> forall X : Ob C, isIso (component α X).
+    (forall X : Ob C, isIso' (component α X)) -> natural_isomorphism α.
 Proof.
-  unfold natural_isomorphism; split; cbn; intros.
-  - destruct H as (β & Η1 & Η2). red. now exists (component β X).
-  - destruct α as [component_α natural_α]; cbn in *.
-    assert (component_β : {f : forall X : Ob C, Hom (fob G X) (fob F X) |
-      (forall X : Ob C,
-        component_α X .> f X == id (fob F X)
-          /\
-        f X .> component_α X == id (fob G X))
-      /\
-    (forall (X Y : Ob C) (g : Hom X Y), f X .> fmap F g == fmap G g .> f Y)}).
-    {
-      pose (H' := fun X : Ob C => constructive_indefinite_description _ (H X)).
-      exists (fun X : Ob C => proj1_sig (H' X)). split.
-      - now split; destruct (H' X); cbn.
-      - intros; destruct (H' X), (H' Y); cbn in *; clear H H'.
-        destruct a as [a1 a2], a0 as [b1 b2].
-        rewrite <- comp_id_l, <- comp_id_r, <- a2, <- b1.
-        rewrite !comp_assoc, <- (comp_assoc (fmap F g) _).
-        rewrite <- natural_α.
-        rewrite <- (comp_assoc (component_α X)).
-        rewrite a1, comp_id_l, <- !comp_assoc, a2, comp_id_l.
-        easy.
-    }
-    destruct component_β as (component_β & inverse_α_β & natural_β).
-    eexists {| component := component_β; natural := natural_β |}.
-    now cbn; split; intros; apply inverse_α_β.
-Defined.
+  intros C D F G α H.
+  split with (natural_isomorphism_char' α H).
+  now split; cbn; intros X; destruct (H X).
+Qed.
 
+Lemma natural_isomorphism_char_conv :
+  forall (C D : Cat) (F G : Functor C D) (α : NatTrans F G),
+    natural_isomorphism α -> forall X : Ob C, isIso (component α X).
+Proof.
+  intros * (β & H1 & H2) X; red; cbn in *.
+  now exists (component β X).
+Qed.
+
+Definition represents {C : Cat} (X : Ob C) (F : Functor C CoqSetoid) : Type :=
+  {α : NatTrans F (HomFunctor C X) & natural_isomorphism α}.
+
+Definition corepresents {C : Cat} (X : Ob C) (F : Functor (Dual C) CoqSetoid) : Type :=
+  {α : NatTrans F (HomFunctor (Dual C) X) & natural_isomorphism α}.
+
+(* TODO: redefine representable
 Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
   exists (X : Ob C) (α : NatTrans F (HomFunctor C X)), natural_isomorphism α.
 
 Definition corepresentable {C : Cat} (F : Functor (Dual C) CoqSetoid) : Prop :=
   exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)), natural_isomorphism α.
+*)

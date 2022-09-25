@@ -2,11 +2,11 @@
 
 ## Design choices
 * Type of objects and Setoid of morphisms. Tried other configurations and this one seems best.
+* Using typeclasses and universe polymorphism where possible.
 * Axioms:
-  - `constructive_indefinite_description` — very convenient, a real ass-saver.
   - `functional_extensionality` — only needed to prove that the category `CoqSet` has exponentials and indexed products.
   - `proof_irrelevance` — only needed to prove `Dual (Dual C) = C`.
-* Using typeclasses and universe polymorphism where possible.
+  - `propositional_extensionality` — only needed to prove that epimorphisms in Set are surjections.
 
 ## Accomplished
 * Basics: defined categories and proved properties of different kinds of morphisms.

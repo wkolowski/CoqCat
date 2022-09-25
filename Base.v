@@ -1,4 +1,3 @@
-Require Export IndefiniteDescription.
 Require Export Setoid Classes.SetoidClass.
 Require Export Bool Arith Lia.
 
@@ -219,10 +218,9 @@ match goal with
 | H : _ /\ _ |- _ => destruct H
 | |- _ /\ _ => split
 | |- _ <-> _ => split
-| H : exists x, _ |- _ => apply constructive_indefinite_description in H
-| H : exists! x, _ |- _ => apply constructive_indefinite_description in H
-| H : exists!! x : _, _ |- _ => 
-  apply constructive_indefinite_description in H; destruct H; unfold setoid_unique in *
+| H : exists x, _ |- _ => destruct H
+| H : exists! x, _ |- _ => destruct H
+| H : exists!! x : _, _ |- _ => destruct H; unfold setoid_unique in *
 | H : {_ | _} |- _ => destruct H
 | H : {_ : _ | _} |- _ => destruct H
 | H : {_ : _ & _} |- _ => destruct H
@@ -271,6 +269,12 @@ Proof.
 Defined.
 
 (** Some useful setoid instances. *)
+
+#[export]
+Instance Setoid_Prop : Setoid Prop :=
+{
+  equiv := iff;
+}.
 
 #[refine]
 #[export]

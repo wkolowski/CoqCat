@@ -162,25 +162,22 @@ Proof.
   now intros; rewrite <- fpair_outr, fpair_id, comp_id_l.
 Qed.
 
-Lemma iso_to_product : (* TODO: dual *)
+Lemma iso_to_product :
   forall
     (C : Cat) (A B : Ob C)
     (P : Ob C) (outl : Hom P A) (outr : Hom P B)
     (fpair : forall {Γ : Ob C}, Hom Γ A -> Hom Γ B -> Hom Γ P),
       isProduct C P outl outr (@fpair) ->
-      forall (Q : Ob C) (f : Hom Q P) (H : isIso f),
-      isProduct C Q (f .> outl) (f .> outr)
-        (fun (Γ : Ob C) (a : Hom Γ A) (b : Hom Γ B) =>
-          match constructive_indefinite_description _ H with
-          | exist _ g _ => fpair a b .> g
-          end).
+        forall (Q : Ob C) (f : Hom Q P) (H : isIso f),
+          exists g : Hom P Q,
+            isProduct C Q (f .> outl) (f .> outr) (fun Γ a b => fpair a b .> g).
 Proof.
-  intros.
-  destruct (constructive_indefinite_description _ _) as (f_inv & eoutl2 & eoutr2).
-  constructor; intros.
-  - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outl.
-  - now rewrite comp_assoc, <- (comp_assoc f_inv f), eoutr2, comp_id_l, fpair_outr.
-  - rewrite <- (comp_id_r x), <- (comp_id_r y), <- !eoutl2, <- !comp_assoc; f_equiv.
+  intros * H Q f (g & Hfg & Hgf).
+  exists g.
+  split; intros.
+  - now rewrite comp_assoc, <- (comp_assoc g f), Hgf, comp_id_l, fpair_outl.
+  - now rewrite comp_assoc, <- (comp_assoc g f), Hgf, comp_id_l, fpair_outr.
+  - rewrite <- (comp_id_r x), <- (comp_id_r y), <- !Hfg, <- !comp_assoc; f_equiv.
     now rewrite equiv_product', !comp_assoc.
 Qed.
 
