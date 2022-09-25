@@ -32,9 +32,9 @@ Inductive exp (X : Mon) : Type :=
 | Op : exp X -> exp X -> exp X
 | Mor : forall A : Mon, MonHom A X -> exp A -> exp X.
 
-Arguments Id {X}.
+Arguments Id  {X}.
 Arguments Var {X} _.
-Arguments Op {X} _ _.
+Arguments Op  {X} _ _.
 Arguments Mor {X A} _ _ .
 
 Fixpoint expDenote {X : Mon} (e : exp X) : X :=

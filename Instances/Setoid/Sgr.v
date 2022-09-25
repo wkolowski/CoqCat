@@ -329,8 +329,7 @@ Proof.
   now repeat split; cbn in *.
 Defined.
 
-Module wut.
-
+(*
 Inductive SCE {A B : Sgr} : nel (A + B) -> nel (A + B) -> Prop :=
 | SCE_singl_l :
   forall a1 a2 : A, a1 == a2 -> SCE (singl (inl a1)) (singl (inl a2))
@@ -569,9 +568,9 @@ Proof.
 Defined.
 
 Print Assumptions HasCoproducts_Sgr.
+*)
 
-End wut.
-
+(*
 Require Import Recdef.
 
 Function normalize {X Y : Sgr} (l : nel (X + Y)) {struct l} : nel (X + Y) :=
