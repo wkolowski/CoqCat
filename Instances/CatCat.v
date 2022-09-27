@@ -119,8 +119,8 @@ Lemma CAT_fpair_unique :
 Proof.
   intros X C D F G FG [p q] [r s].
   esplit. Unshelve. all: cycle 1; cbn in *; intros.
-  - apply prod_eq_intro; cbn; [apply p | apply r].
-  - apply prod_eq_intro.
+  - apply eq_prod_intro; cbn; [apply p | apply r].
+  - apply eq_prod_intro.
     + rewrite <- q; clear q s.
       generalize (p A), (p B), (r A), (r B).
       destruct (fob FG A), (fob FG B); cbn.

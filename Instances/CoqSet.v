@@ -90,7 +90,7 @@ Instance HasTerm_CoqSet : HasTerm CoqSet :=
   delete := fun (X : Type) (x : X) => tt
 }.
 Proof.
-  now intros A f g x; apply unit_eq_intro.
+  now intros A f g x; apply eq_unit_intro.
 Defined.
 
 Definition isSingleton (A : Type) : Type :=
