@@ -132,6 +132,9 @@ Proof.
   now cbn; intuition.
 Defined.
 
+(* TODO : products of linear orders suck because of constructivity *)
+
+(*
 #[refine]
 #[export]
 Instance Lin_product (X Y : Lin) : Lin :=
@@ -141,11 +144,9 @@ Instance Lin_product (X Y : Lin) : Lin :=
 Proof.
   intros [x1 y1] [x2 y2]; cbn in *.
   destruct (leq_total x1 x2), (leq_total x2 x1), (leq_total y1 y2), (leq_total y2 y1).
+  all: firstorder.
 Abort.
 
-(* TODO : products of linear orders suck because of constructivity *)
-
-(*
 Definition Lin_outl (X Y : Lin) : ProsHom (Lin_product X Y) X.
 Proof.
   red. exists fst. destruct 1, H; try rewrite H; lin.
@@ -172,17 +173,6 @@ Proof.
 Defined.
 *)
 
-Ltac proper_lin := proper; repeat
-match goal with
-| p : _ + _ |- _ => destruct p
-end;
-intuition eauto;
-match goal with
-| H : _ == _, H' : _ == _ |- _ =>
-  rewrite <- ?H, <- ?H'; auto;
-  rewrite ?H, ?H'; auto
-end.
-
 #[refine]
 #[export]
 Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
@@ -197,7 +187,9 @@ Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
     end
 }.
 Proof.
-  - now proper_lin.
+  - intros [a1 | b1] [a2 | b2] H12 [a3 | b3] [a4 | b4] H34; cbn in *; try easy.
+    + now rewrite H12, H34.
+    + now rewrite H12, H34.
   - now intros [x1 | y1] [x2 | y2] Heq; cbn in *; eauto.
   - now intros [x1 | y1] [x2 | y2] [x3 | y3] H12 H23; cbn in *; eauto.
 Defined.
@@ -208,21 +200,10 @@ Instance Lin_coproduct (X Y : Lin) : Lin :=
 {
   pos :=
   {|
-    pros :=
-    {|
-      carrier := CoqSetoid_coproduct X Y;
-      leq := fun p1 p2 : X + Y =>
-        match p1, p2 with
-        | inl x, inl x' => leq x x'
-        | inr y, inr y' => leq y y'
-        | inl _, inr _ => True
-        | inr _, inl _ => False
-        end
-    |}
+    pros := Lin_Pros_coproduct X Y;
   |}
 }.
 Proof.
-  1: now proper_lin.
   all: now intros; repeat (try
     match goal with
     | p : _ + _ |- _ => destruct p
@@ -244,4 +225,6 @@ Definition Lin_copair
   (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coproduct A B) X.
 Proof.
   exists (CoqSetoid_copair f g).
+  intros [a1 | b1] [a2 | b2] H; cbn in *.
+  - now lin.
 Abort.

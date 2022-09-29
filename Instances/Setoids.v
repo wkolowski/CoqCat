@@ -177,7 +177,7 @@ Instance CoqSetoid_outl (X Y : Setoid') : SetoidHom (CoqSetoid_product X Y) X :=
 {
   func := fst
 }.
-Proof. now setoid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -185,7 +185,7 @@ Instance CoqSetoid_outr (X Y : Setoid') : SetoidHom (CoqSetoid_product X Y) Y :=
 {
   func := snd
 }.
-Proof. now setoid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -206,7 +206,9 @@ Instance HasProducts_CoqSetoid : HasProducts CoqSetoid :=
   outr := CoqSetoid_outr;
   fpair := CoqSetoid_fpair
 }.
-Proof. all: now setoid'. Defined.
+Proof.
+  now split; cbn.
+Defined.
 
 #[export]
 Instance CoqSetoid_coproduct (X Y : Setoid') : Setoid' :=

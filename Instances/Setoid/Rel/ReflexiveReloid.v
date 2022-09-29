@@ -120,7 +120,7 @@ Instance ReflexiveReloid_product (X Y : ReflexiveReloid) : ReflexiveReloid :=
   reloid := Reloid_product X Y;
 }.
 Proof.
-  easy.
+  now intros [x y]; cbn.
 Defined.
 
 #[refine]
@@ -131,7 +131,7 @@ Instance ReflexiveReloid_outl
   func := Reloid_outl X Y
 }.
 Proof.
-  now intros f1 f2 Hf; cbn in *.
+  now intros [a1 b1] [a2 b2] H; cbn in *.
 Defined.
 
 #[refine]
@@ -142,7 +142,7 @@ Instance ReflexiveReloid_outr
   func := Reloid_outr X Y
 }.
 Proof.
-  now intros f1 f2 Hf; cbn in *.
+  now intros [a1 b1] [a2 b2] H; cbn in *.
 Defined.
 
 #[refine]

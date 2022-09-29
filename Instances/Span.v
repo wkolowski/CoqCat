@@ -46,4 +46,15 @@ Instance Span (C' : Cat) (hp : HasPullbacks C') : Cat :=
   id := SpanId hp;
 }.
 Proof.
+  - intros A B C [X l1 r1] [Y l2 r2].
+    exists (pullback r1 l2).
+    + exact (pullL .> l1).
+    + exact (pullR .> r2).
+  - intros A B C [X1 l1 r1] [X2 l2 r2] (p & Hp1 & Hp2)
+                 [X3 l3 r3] [X4 l4 r4] (q & Hq1 & Hq2); cbn in *.
+    destruct p, q. cbn in *.
+    admit.
+  - intros A B C D [X1 l1 r1] [X2 l2 r2] [X3 l3 r3]; cbn in *.
+    admit.
+  - intros A B [X l1 r1]; cbn.
 Abort.

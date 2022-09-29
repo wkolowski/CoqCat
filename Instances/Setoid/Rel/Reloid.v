@@ -96,7 +96,7 @@ Proof. all: now reloid. Defined.
 Instance Reloid_init : Reloid :=
 {
   carrier := CoqSetoid_init;
-  rel := fun _ _ => True
+  rel := relate_Empty;
 }.
 
 #[refine]
@@ -129,7 +129,7 @@ Defined.
 Instance Reloid_term : Reloid :=
 {
   carrier := CoqSetoid_term;
-  rel := fun _ _ => True
+  rel := relate_unit;
 }.
 
 #[refine]
@@ -154,10 +154,10 @@ Proof. easy. Defined.
 Instance Reloid_product (X Y : Reloid) : Reloid :=
 {
   carrier := CoqSetoid_product X Y;
-  rel := fun p p' => @rel X (fst p) (fst p') /\ @rel Y (snd p) (snd p')
+  rel := relate_prod' rel rel;
 }.
 Proof.
-  intros [f1 Hf1] [f2 Hf2] [Hf1' Hf2'] [g1 Hg1] [g2 Hg2] [Hg1' Hg2']; cbn in *.
+  intros [f1 Hf1] [f2 Hf2] [Hf1' Hf2'] [g1 Hg1] [g2 Hg2] [Hg1' Hg2']; cbn.
   now rewrite Hf1', Hf2', Hg1', Hg2'.
 Defined.
 
@@ -167,7 +167,7 @@ Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_product X Y) X :=
 {
   func := CoqSetoid_outl X Y
 }.
-Proof. now reloid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -175,7 +175,7 @@ Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_product X Y) Y :=
 {
   func := CoqSetoid_outr X Y
 }.
-Proof. now reloid. Defined.
+Proof. now intros [] []; cbn. Defined.
 
 #[refine]
 #[export]
@@ -185,7 +185,9 @@ Instance Reloid_fpair (X Y A : Reloid)
 {
   func := CoqSetoid_fpair f g
 }.
-Proof. now reloid. Defined.
+Proof.
+  now intros a1 a2 ra; cbn; split; apply pres_rel.
+Defined.
 
 #[refine]
 #[export]
@@ -205,15 +207,10 @@ Defined.
 Instance Reloid_coproduct (X Y : Reloid) : Reloid :=
 {
   carrier := CoqSetoid_coproduct X Y;
-  rel := fun p p' =>
-  match p, p' with
-  | inl x, inl x' => rel x x'
-  | inr y, inr y' => rel y y'
-  | _, _ => False
-  end
+  rel := relate_sum rel rel;
 }.
 Proof.
-  now proper; destruct x, x0, y, y0; rewrite ?H, ?H0 in *.
+  now proper; destruct x, x0, y, y0; cbn in *; rewrite ?H, ?H0 in *.
 Defined.
 
 #[refine]

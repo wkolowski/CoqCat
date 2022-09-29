@@ -75,105 +75,6 @@ Qed.
 
 (** * Parametric translations *)
 
-Module wut.
-
-Definition relate_unit (u1 u2 : unit) : Prop := True.
-
-Definition relate_Empty (e1 e2 : Empty_set) : Prop := True.
-
-Inductive relate_bool : bool -> bool -> Prop :=
-| relate_false : relate_bool false false
-| relate_true  : relate_bool true true.
-
-Record relate_prod
-  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (p1 p2 : A * B) : Prop :=
-{
-  relate_fst : RA (fst p1) (fst p2);
-  relate_snd : RB (snd p1) (snd p2);
-}.
-
-Arguments relate_fst {A B RA RB p1 p2} _.
-Arguments relate_snd {A B RA RB p1 p2} _.
-
-Inductive relate_sum
-  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) : A + B -> A + B -> Prop :=
-| relate_inl : forall {a1 a2 : A}, RA a1 a2 -> relate_sum RA RB (inl a1) (inl a2)
-| relate_inr : forall {b1 b2 : B}, RB b1 b2 -> relate_sum RA RB (inr b1) (inr b2).
-
-Arguments relate_inl {A B RA RB a1 a2} _.
-Arguments relate_inr {A B RA RB b1 b2} _.
-
-Inductive relate_option
-  {A : Type} (R : A -> A -> Prop) : option A -> option A -> Prop :=
-| relate_None : relate_option R None None
-| relate_Some : forall {a1 a2 : A}, R a1 a2 -> relate_option R (Some a1) (Some a2).
-
-Arguments relate_None {A R}.
-Arguments relate_Some {A R a1 a2} _.
-
-Record relate_sig
-  {A : Type} {B : A -> Prop}
-  (RA : A -> A -> Prop) (RB : forall {a1 a2 : A}, B a1 -> B a2 -> Prop)
-  (p1 p2 : {a : A | B a}) : Prop :=
-{
-  relate_proj1_sig : RA (proj1_sig p1) (proj1_sig p2);
-  relate_proj2_sig : RB (proj2_sig p1) (proj2_sig p2);
-}.
-
-Arguments relate_proj1_sig {A B RA RB p1 p2} _.
-Arguments relate_proj2_sig {A B RA RB p1 p2} _.
-
-Record relate_sigT
-  {A : Type} {B : A -> Type}
-  (RA : A -> A -> Prop) (RB : forall {a1 a2 : A}, B a1 -> B a2 -> Prop)
-  (p1 p2 : {a : A & B a}) : Prop :=
-{
-  relate_projT1 : RA (projT1 p1) (projT1 p2);
-  relate_projT2 : RB (projT2 p1) (projT2 p2);
-}.
-
-Arguments relate_projT1 {A B RA RB p1 p2} _.
-Arguments relate_projT2 {A B RA RB p1 p2} _.
-
-Definition relate_fun
-  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (f1 f2 : A -> B) : Prop :=
-    forall a1 a2 : A, RA a1 a2 -> RB (f1 a1) (f2 a2).
-
-Definition relate_forall
-  {A : Type} {B : A -> Type}
-  (RA : A -> A -> Prop) (RB : forall {a1 a2 : A}, B a1 -> B a2 -> Prop)
-  (f1 f2 : forall a : A, B a) : Prop :=
-    forall a1 a2 : A, RA a1 a2 -> RB (f1 a1) (f2 a2).
-
-Definition relate_Prop (P1 P2 : Prop) : Prop := P1 <-> P2.
-
-Inductive relate_sumprod
-  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) : sumprod A B -> sumprod A B -> Prop :=
-| relate_inl'  :
-  forall {a1 a2 : A}, RA a1 a2 -> relate_sumprod RA RB (inl' a1) (inl' a2)
-| relate_inr'  :
-  forall {b1 b2 : B}, RB b1 b2 -> relate_sumprod RA RB (inr' b1) (inr' b2)
-| relate_pair' :
-  forall {a1 a2 : A} {b1 b2 : B},
-    RA a1 a2 -> RB b1 b2 -> relate_sumprod RA RB (pair' a1 b1) (pair' a2 b2).
-
-Arguments relate_inl' {A B RA RB a1 a2} _.
-Arguments relate_inr' {A B RA RB b1 b2} _.
-Arguments relate_pair' {A B RA RB a1 a2 b1 b2} _ _.
-
-Inductive relate_Nel {A : Type} (R : A -> A -> Prop) (l1 l2 : Nel A) : Prop :=
-{
-  relate_hd : R (hd l1) (hd l2);
-  relate_tl : relate_option (relate_Nel R) (tl l1) (tl l2);
-}.
-
-Arguments relate_hd {A R l1 l2} _.
-Arguments relate_tl {A R l1 l2} _.
-
-End wut.
-
-(** * Parametric translations using recursion *)
-
 Definition relate_unit (u1 u2 : unit) : Prop := True.
 
 Definition relate_Empty (e1 e2 : Empty_set) : Prop := True.
@@ -185,7 +86,37 @@ match b1, b2 with
 | _    , _     => False
 end.
 
-Record relate_prod
+Inductive Relate_bool : bool -> bool -> Prop :=
+| relate_false : Relate_bool false false
+| relate_true  : Relate_bool true true.
+
+Definition relate_option
+  {A : Type} (R : A -> A -> Prop) (o1 o2 : option A) : Prop :=
+match o1, o2 with
+| None   , None    => True
+| Some a1, Some a2 => R a1 a2
+| _      , _       => False
+end.
+
+Inductive Relate_option
+  {A : Type} (R : A -> A -> Prop) : option A -> option A -> Prop :=
+| relate_None : Relate_option R None None
+| relate_Some : forall {a1 a2 : A}, R a1 a2 -> Relate_option R (Some a1) (Some a2).
+
+Arguments relate_None {A R}.
+Arguments relate_Some {A R a1 a2} _.
+
+Definition relate_prod
+  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (p1 p2 : A * B) : Prop :=
+    RA (fst p1) (fst p2) /\ RB (snd p1) (snd p2).
+
+Definition relate_prod'
+  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (p1 p2 : A * B) : Prop :=
+match p1, p2 with
+| (a1, b1), (a2, b2) => RA a1 a2 /\ RB b1 b2
+end.
+
+Record Relate_prod
   {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (p1 p2 : A * B) : Prop :=
 {
   relate_fst : RA (fst p1) (fst p2);
@@ -203,15 +134,19 @@ match s1, s2 with
 | _     , _      => False
 end.
 
-Definition relate_option
-  {A : Type} (R : A -> A -> Prop) (o1 o2 : option A) : Prop :=
-match o1, o2 with
-| None   , None    => True
-| Some a1, Some a2 => R a1 a2
-| _      , _       => False
-end.
+Inductive Relate_sum
+  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) : A + B -> A + B -> Prop :=
+| relate_inl : forall {a1 a2 : A}, RA a1 a2 -> Relate_sum RA RB (inl a1) (inl a2)
+| relate_inr : forall {b1 b2 : B}, RB b1 b2 -> Relate_sum RA RB (inr b1) (inr b2).
 
-Record relate_sig
+Arguments relate_inl {A B RA RB a1 a2} _.
+Arguments relate_inr {A B RA RB b1 b2} _.
+
+Definition relate_fun
+  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (f1 f2 : A -> B) : Prop :=
+    forall a1 a2 : A, RA a1 a2 -> RB (f1 a1) (f2 a2).
+
+Record Relate_sig
   {A : Type} {B : A -> Prop}
   (RA : A -> A -> Prop) (RB : forall {a1 a2 : A}, B a1 -> B a2 -> Prop)
   (p1 p2 : {a : A | B a}) : Prop :=
@@ -223,7 +158,7 @@ Record relate_sig
 Arguments relate_proj1_sig {A B RA RB p1 p2} _.
 Arguments relate_proj2_sig {A B RA RB p1 p2} _.
 
-Record relate_sigT
+Record Relate_sigT
   {A : Type} {B : A -> Type}
   (RA : A -> A -> Prop) (RB : forall {a1 a2 : A}, B a1 -> B a2 -> Prop)
   (p1 p2 : {a : A & B a}) : Prop :=
@@ -234,10 +169,6 @@ Record relate_sigT
 
 Arguments relate_projT1 {A B RA RB p1 p2} _.
 Arguments relate_projT2 {A B RA RB p1 p2} _.
-
-Definition relate_fun
-  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) (f1 f2 : A -> B) : Prop :=
-    forall a1 a2 : A, RA a1 a2 -> RB (f1 a1) (f2 a2).
 
 Definition relate_forall
   {A : Type} {B : A -> Type}
@@ -256,6 +187,27 @@ match s1, s2 with
 | _          , _           => False
 end.
 
+Inductive Relate_sumprod
+  {A B : Type} (RA : A -> A -> Prop) (RB : B -> B -> Prop) : sumprod A B -> sumprod A B -> Prop :=
+| relate_inl'  :
+  forall {a1 a2 : A}, RA a1 a2 -> Relate_sumprod RA RB (inl' a1) (inl' a2)
+| relate_inr'  :
+  forall {b1 b2 : B}, RB b1 b2 -> Relate_sumprod RA RB (inr' b1) (inr' b2)
+| relate_pair' :
+  forall {a1 a2 : A} {b1 b2 : B},
+    RA a1 a2 -> RB b1 b2 -> Relate_sumprod RA RB (pair' a1 b1) (pair' a2 b2).
+
+Arguments relate_inl'  {A B RA RB a1 a2} _.
+Arguments relate_inr'  {A B RA RB b1 b2} _.
+Arguments relate_pair' {A B RA RB a1 a2 b1 b2} _ _.
+
+Fixpoint relate_list {A : Type} (R : A -> A -> Prop) (l1 l2 : list A) : Prop :=
+match l1, l2 with
+| []      , []       => True
+| h1 :: t1, h2 :: t2 => R h1 h2 /\ relate_list R t1 t2
+| _       , _        => False
+end.
+
 Fixpoint relate_Nel {A : Type} (RA : A -> A -> Prop) (l1 l2 : Nel A) : Prop :=
   RA (hd l1) (hd l2) /\
 match tl l1, tl l2 with
@@ -263,6 +215,15 @@ match tl l1, tl l2 with
 | Some t1, Some t2 => relate_Nel RA t1 t2
 | _      , _       => False
 end.
+
+Inductive Relate_Nel {A : Type} (R : A -> A -> Prop) (l1 l2 : Nel A) : Prop :=
+{
+  relate_hd : R (hd l1) (hd l2);
+  relate_tl : Relate_option (Relate_Nel R) (tl l1) (tl l2);
+}.
+
+Arguments relate_hd {A R l1 l2} _.
+Arguments relate_tl {A R l1 l2} _.
 
 (** * Equality *)
 
@@ -286,11 +247,18 @@ end.
 Definition eq_Empty_intro (x y : Empty_set) : x = y :=
   match x with end.
 
-(* Definition eq_bool_intro {x y : bool} (E : relate_bool x y) : x = y :=
+Definition eq_bool_intro {x y : bool} (E : Relate_bool x y) : x = y :=
 match E with
 | relate_false => eq_refl
 | relate_true  => eq_refl
-end. *)
+end.
+
+Definition eq_option_intro
+  {A : Type} {x y : option A} (E : Relate_option eq x y) : x = y :=
+match E with
+| relate_None => eq_refl
+| relate_Some p => f_equal Some p
+end.
 
 Lemma eq_prod_intro :
   forall {A B : Type} (x y : A * B),
@@ -299,40 +267,45 @@ Proof.
   now intros A B [] []; cbn; intros [] [].
 Defined.
 
-(* Definition eq_sum_intro
-  {A B : Type} {x y : A + B} (E : relate_sum eq eq x y) : x = y :=
+Definition eq_sum_intro
+  {A B : Type} {x y : A + B} (E : Relate_sum eq eq x y) : x = y :=
 match E with
 | relate_inl p => f_equal inl p
 | relate_inr q => f_equal inr q
-end. *)
+end.
 
-(* Definition eq_option_intro
-  {A : Type} {x y : option A} (E : relate_option eq x y) : x = y :=
-match E with
-| relate_None => eq_refl
-| relate_Some p => f_equal Some p
-end. *)
-
-(* Definition eq_sumprod_intro
-  {A B : Type} {x y : sumprod A B} (p : relate_sumprod eq eq x y) : x = y :=
+Definition eq_sumprod_intro
+  {A B : Type} {x y : sumprod A B} (p : Relate_sumprod eq eq x y) : x = y :=
 match p with
 | relate_inl'  p   => f_equal inl' p
 | relate_inr'    q => f_equal inr' q
 | relate_pair' p q => f_equal2 pair' p q
-end. *)
+end.
 
 Lemma eq_Nel_intro :
+  forall {A : Type} {l1 l2 : Nel A},
+    Relate_Nel eq l1 l2 -> l1 = l2.
+Proof.
+  fix IH 4.
+  destruct 1, l1 as [h1 t1], l2 as [h2 t2]; cbn in *.
+  apply f_equal2.
+  - easy.
+  - inversion relate_tl0.
+    + easy.
+    + now apply f_equal, IH.
+Defined.
+
+Lemma eq_Nel_intro' :
   forall {A : Type} {l1 l2 : Nel A},
     relate_Nel eq l1 l2 -> l1 = l2.
 Proof.
   fix IH 2.
-  intros A [h1 [t1 |]] [h2 [t2 |]]; intros [Hhd Htl]; cbn in *.
-  - apply f_equal2.
-    + easy.
-    + now apply f_equal, IH.
+  destruct l1 as [h1 [t1 |]], l2 as [h2 [t2 |]];  intros [p E]; cbn in *.
+  - apply f_equal2; [easy |].
+    now apply f_equal, IH.
   - easy.
   - easy.
-  - now apply f_equal2. Show Proof.
+  - now apply f_equal2.
 Defined.
 
 (** * Setoids *)
@@ -343,7 +316,7 @@ Defined.
 #[export]
 Instance Setoid_unit : Setoid unit :=
 {
-  equiv := fun _ _ => True;
+  equiv := relate_unit;
 }.
 Proof. now split. Defined.
 
@@ -351,7 +324,7 @@ Proof. now split. Defined.
 #[export]
 Instance Setoid_Empty : Setoid Empty_set :=
 {
-  equiv := fun _ _ => True;
+  equiv := relate_Empty;
 }.
 Proof. now split. Defined.
 
@@ -369,6 +342,20 @@ Instance Setoid_nat : Setoid nat :=
 
 #[refine]
 #[export]
+Instance Setoid_option {A : Type} (SA : Setoid A) : Setoid (option A) :=
+{
+  equiv := relate_option equiv;
+}.
+Proof.
+  split; red.
+  - now intros [a |]; cbn.
+  - now intros [a1 |] [a2 |]; cbn.
+  - intros [a1 |] [a2 |] [a3 |]; cbn; try easy.
+    now intros -> ->.
+Defined.
+
+#[refine]
+#[export]
 Instance Setoid_prod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A * B) :=
 {
   equiv := fun x y => fst x == fst y /\ snd x == snd y;
@@ -376,92 +363,30 @@ Instance Setoid_prod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A * 
 Proof.
   split; red.
   - now intros [a b].
-  - now intros [a1 b1] [a2 b2] [-> ->].
-  - now intros [a1 b1] [a2 b2] [a3 b3] [-> ->] [-> ->].
+  - now intros [a1 b1] [a2 b2]; cbn; intros [-> ->].
+  - now intros [a1 b1] [a2 b2] [a3 b3]; cbn; intros [-> ->] [-> ->].
 Defined.
 
 #[refine]
 #[export]
 Instance Setoid_sum {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A + B) :=
 {
-  equiv := fun x y =>
-    match x, y with
-    | inl a1, inl a2 => a1 == a2
-    | inr b1, inr b2 => b1 == b2
-    | _     , _      => False
-    end;
+  equiv := relate_sum equiv equiv;
 }.
 Proof.
   split; red.
-  - now intros [a | b].
-  - now intros [a1 | b1] [a2 | b2].
-  - intros [a1 | b1] [a2 | b2] [a3 | b3]; try easy.
+  - now intros [a | b]; cbn.
+  - now intros [a1 | b1] [a2 | b2]; cbn.
+  - intros [a1 | b1] [a2 | b2] [a3 | b3]; cbn; try easy.
     + now intros -> ->.
     + now intros -> ->.
 Defined.
 
 #[refine]
 #[export]
-Instance Setoid_option {A : Type} (SA : Setoid A) : Setoid (option A) :=
-{
-  equiv := fun x y =>
-    match x, y with
-    | None   , None    => True
-    | Some a1, Some a2 => a1 == a2
-    | _      , _       => False
-    end;
-}.
-Proof.
-  split; red.
-  - now intros [a |].
-  - now intros [a1 |] [a2 |].
-  - intros [a1 |] [a2 |] [a3 |]; try easy.
-    now intros -> ->.
-Defined.
-
-#[refine]
-#[export]
-Instance Setoid_sumprod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (sumprod A B) :=
-{
-  equiv := fun x y =>
-    match x, y with
-    | inl' a1    , inl' a2     => a1 == a2
-    | inr' b1    , inr' b2     => b1 == b2
-    | pair' a1 b1, pair' a2 b2 => a1 == a2 /\ b1 == b2
-    | _          , _           => False
-    end;
-}.
-Proof.
-  split; red.
-  - now intros [a | b | a b].
-  - now intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2].
-  - intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2] [a3 | b3 | a3 b3]; try easy.
-    + now intros -> ->.
-    + now intros -> ->.
-    + now intros [-> ->] [-> ->].
-Defined.
-
-#[refine]
-#[export]
-Instance Setoid_fun {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (A -> B) :=
+Instance Setoid_fun {A B : Type} (SB : Setoid B) : Setoid (A -> B) :=
 {
   equiv := fun f g => forall a : A, f a == g a;
-}.
-Proof.
-  split; red.
-  - easy.
-  - easy.
-  - intros f g h H1 H2 a.
-    now rewrite H1, H2.
-Defined.
-
-#[refine]
-#[export]
-Instance Setoid_forall
-  {A : Type} {B : A -> Type} (SB : forall x : A, Setoid (B x))
-  : Setoid (forall x : A, B x) :=
-{
-  equiv := fun f g => forall x : A, f x == g x;
 }.
 Proof.
   split; red.
@@ -504,6 +429,61 @@ Defined.
 
 #[refine]
 #[export]
+Instance Setoid_forall
+  {A : Type} {B : A -> Type} (SB : forall x : A, Setoid (B x))
+  : Setoid (forall x : A, B x) :=
+{
+  equiv := fun f g => forall x : A, f x == g x;
+}.
+Proof.
+  split; red.
+  - easy.
+  - easy.
+  - intros f g h H1 H2 a.
+    now rewrite H1, H2.
+Defined.
+
+#[export]
+Instance Setoid_Prop : Setoid Prop :=
+{
+  equiv := iff;
+}.
+
+#[refine]
+#[export]
+Instance Setoid_sumprod {A B : Type} (SA : Setoid A) (SB : Setoid B) : Setoid (sumprod A B) :=
+{
+  equiv := relate_sumprod equiv equiv;
+}.
+Proof.
+  split; red.
+  - now intros [a | b | a b]; cbn.
+  - now intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2]; cbn.
+  - intros [a1 | b1 | a1 b1] [a2 | b2 | a2 b2] [a3 | b3 | a3 b3]; cbn; try easy.
+    + now intros -> ->.
+    + now intros -> ->.
+    + now intros [-> ->] [-> ->].
+Defined.
+
+#[refine]
+#[export]
+Instance Setoid_list {A : Type} (SA : Setoid A) : Setoid (list A) :=
+{
+  equiv := relate_list equiv;
+}.
+Proof.
+  split; red.
+  - now induction x; cbn.
+  - induction x as [| h1 t1]; destruct y as [| h2 t2]; cbn; try easy.
+    now intros [-> E]; split; [| apply IHt1].
+  - induction x as [| h1 t1];
+      destruct y as [| h2 t2], z as [| h3 t3]; cbn; try easy.
+    intros [-> E1] [-> E2].
+    now split; [| apply (IHt1 t2)].
+Defined.
+
+#[refine]
+#[export]
 Instance Setoid_Nel {A : Type} (SA : Setoid A) : Setoid (Nel A) :=
 {
   equiv := relate_Nel equiv;
@@ -519,12 +499,6 @@ Proof.
     + intros [-> E1] [-> E2].
       now split; [| apply (IHt1 t2)].
 Defined.
-
-#[export]
-Instance Setoid_Prop : Setoid Prop :=
-{
-  equiv := iff;
-}.
 
 (** Generic instances. *)
 

@@ -113,7 +113,9 @@ Instance TransReloid_product (X Y : TransReloid) : TransReloid :=
 {
   reloid := Reloid_product X Y;
 }.
-Proof. now split; cbn; treloid. Defined.
+Proof.
+  now intros [a1 b1] [a2 b2] [a3 b3]; cbn; treloid.
+Defined.
 
 #[refine]
 #[export]

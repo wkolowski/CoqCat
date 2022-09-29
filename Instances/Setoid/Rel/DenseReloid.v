@@ -102,7 +102,7 @@ Instance DenseReloid_term : DenseReloid :=
   reloid := Reloid_term
 }.
 Proof.
-  now cbn.
+  now cbv.
 Defined.
 
 #[refine]
