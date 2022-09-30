@@ -19,6 +19,7 @@
   - equalizers and coequalizers
   - pullbacks and pushouts
   - exponentials
+
   The definitions are quite far from what you can find in a typical textbook a- they are equational and stated in a way that strongly resembles the rules of type theory (formation, introduction, elimination, computation and uniqueness), but with the uniqueness rules being "symmetric".
 
   This is one of my greatest accomplishments — after changing, improving and correcting the definitions a gazillion times I'm starting to be pretty sure that they are correct and convenient. However, they're not perfect yet: there are issues with coherence conditions.

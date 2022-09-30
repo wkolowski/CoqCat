@@ -513,3 +513,175 @@ Proof.
     + change {| hd := h; tl := Some t; |} with (@op (Sgr_coproduct A B) (Cons h None) t).
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
+
+#[refine]
+#[export]
+Instance Sgr_equalizer {A B : Sgr} (f g : SgrHom A B) : Sgr :=
+{
+  setoid := CoqSetoid_equalizer f g;
+}.
+Proof.
+  - cbn; intros [x Hx] [y Hy].
+    exists (op x y).
+    now rewrite !pres_op, Hx, Hy.
+  - intros [a1 H1] [a2 H2] Heq1 [a3 H3] [a4 H4] Heq2; cbn in *.
+    now rewrite Heq1, Heq2.
+  - intros [x Hx] [y Hy] [z Hz]; cbn in *.
+    now rewrite assoc.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_equalize {A B : Sgr} (f g : SgrHom A B) : SgrHom (Sgr_equalizer f g) A :=
+{
+  setoidHom := CoqSetoid_equalize f g;
+}.
+Proof.
+  now intros [x Hx] [y Hy]; cbn.
+Defined.
+
+#[export]
+#[refine]
+Instance Sgr_factorize
+  {A B : Sgr} {f g : SgrHom A B}
+  {E' : Sgr} (e' : Hom E' A) (Heq : (e' .> f) == (e' .> g))
+  : SgrHom E' (Sgr_equalizer f g) :=
+{
+  setoidHom := CoqSetoid_factorize e' Heq;
+}.
+Proof.
+  now cbn; intros; rewrite pres_op.
+Defined.
+
+#[refine]
+#[export]
+Instance HasEqualizers_Sgr : HasEqualizers SgrCat :=
+{
+  equalizer := @Sgr_equalizer;
+  equalize := @Sgr_equalize;
+  factorize := @Sgr_factorize;
+}.
+Proof.
+  split; cbn.
+  - now intros [x H]; cbn.
+  - easy.
+  - easy.
+Defined.
+
+Inductive Sgr_coeq_equiv {A B : Sgr} (f g : SgrHom A B) : B -> B -> Prop :=
+| SgrCE_quot : forall a : A, Sgr_coeq_equiv f g (f a) (g a)
+| SgrCE_op   :
+  forall {l1 r1 l2 r2 : B},
+    Sgr_coeq_equiv f g l1 l2 ->
+    Sgr_coeq_equiv f g r1 r2 ->
+      Sgr_coeq_equiv f g (op l1 r1) (op l2 r2)
+| SgrCE_refl : forall {b1 b2 : B}, b1 == b2 -> Sgr_coeq_equiv f g b1 b2
+| SgrCE_sym  :
+  forall {b1 b2 : B}, Sgr_coeq_equiv f g b1 b2 -> Sgr_coeq_equiv f g b2 b1
+| SgrCE_trans :
+  forall {b1 b2 b3 : B},
+    Sgr_coeq_equiv f g b1 b2 ->
+    Sgr_coeq_equiv f g b2 b3 ->
+      Sgr_coeq_equiv f g b1 b3.
+
+#[export] Hint Constructors Sgr_coeq_equiv : core.
+
+#[refine]
+#[export]
+Instance Sgr_coequalizer_Setoid {A B : Sgr} (f g : SgrHom A B) : Setoid' :=
+{
+  carrier := B;
+  Setoids.setoid :=
+  {|
+    equiv := Sgr_coeq_equiv f g;
+  |};
+}.
+Proof.
+  split; red.
+  - now constructor.
+  - now apply SgrCE_sym.
+  - now intros; apply SgrCE_trans with y.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_coequalizer {A B : Sgr} (f g : SgrHom A B) : Sgr :=
+{
+  setoid := Sgr_coequalizer_Setoid f g;
+  op := op;
+}.
+Proof.
+  - intros x1 x2 H12 x3 x4 H34; cbn in *.
+    now constructor.
+  - cbn; intros.
+    apply SgrCE_refl.
+    now rewrite assoc.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_coequalize' {A B : Sgr} (f g : SgrHom A B) : SetoidHom B (Sgr_coequalizer f g) :=
+{
+  func := fun b => b;
+}.
+Proof.
+  intros b1 b2 Heq; cbn.
+  now constructor.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_coequalize {A B : Sgr} (f g : SgrHom A B) : SgrHom B (Sgr_coequalizer f g) :=
+{
+  setoidHom := Sgr_coequalize' f g;
+}.
+Proof.
+  now constructor; cbn.
+Defined.
+
+#[export]
+#[refine]
+Instance Sgr_cofactorize'
+  {A B : Sgr} {f g : Hom A B}
+  {Q : Sgr} (q : Hom B Q) (Heq : f .> q == g .> q)
+  : SetoidHom (Sgr_coequalizer f g) Q :=
+{
+  func := q;
+}.
+Proof.
+  intros x y H. cbn in *.
+  induction H.
+  - easy.
+  - now rewrite !pres_op, IHSgr_coeq_equiv1, IHSgr_coeq_equiv2.
+  - now rewrite H.
+  - now symmetry.
+  - now transitivity (q b2).
+Defined.
+
+#[export]
+#[refine]
+Instance Sgr_cofactorize
+  {A B : Sgr} {f g : Hom A B}
+  {Q : Sgr} (q : Hom B Q) (Heq : f .> q == g .> q)
+  : SgrHom (Sgr_coequalizer f g) Q :=
+{
+  setoidHom := Sgr_cofactorize' Heq;
+}.
+Proof.
+  now cbn; intros; rewrite pres_op.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoequalizers_Sgr : HasCoequalizers SgrCat :=
+{
+  coequalizer := @Sgr_coequalizer;
+  coequalize := @Sgr_coequalize;
+  cofactorize := @Sgr_cofactorize;
+}.
+Proof.
+  split; cbn.
+  - now constructor.
+  - easy.
+  - easy.
+Defined.

@@ -118,7 +118,7 @@ Proof.
   exists (factorize2 E1 equalize1 ok).
   repeat split.
   - exists (factorize1 E2 equalize2 ok).
-    now rewrite equiv_equalizer', equiv_equalizer', !comp_assoc, !factorize_equalize, !comp_id_l.
+    now rewrite !equiv_equalizer', !comp_assoc, !factorize_equalize, !comp_id_l.
   - now rewrite factorize_equalize.
   - now intros y [_ ?]; rewrite equiv_equalizer', factorize_equalize.
 Qed.
@@ -150,7 +150,8 @@ Qed.
 Lemma isEqualizer_equiv_factorize :
   forall
     (E : Ob C) (equalize : Hom E X)
-    (factorize1 factorize2 : forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
+    (factorize1 factorize2 :
+      forall (E' : Ob C) (e' : Hom E' X), e' .> f == e' .> g -> Hom E' E),
       isEqualizer C f g E equalize factorize1 ->
       isEqualizer C f g E equalize factorize2 ->
         forall (E' : Ob C) (e' : Hom E' X) (H : e' .> f == e' .> g),
@@ -187,6 +188,6 @@ Class HasEqualizers (C : Cat) : Type :=
       isEqualizer C f g (equalizer f g) (equalize f g) (@factorize _ _ f g)
 }.
 
-Arguments equalizer     [C _ X Y] _ _.
-Arguments equalize    [C _ X Y] _ _.
+Arguments equalizer [C _ X Y] _ _.
+Arguments equalize  [C _ X Y] _ _.
 Arguments factorize [C _ X Y f g E'] _ _.

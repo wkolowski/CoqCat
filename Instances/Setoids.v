@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Universal Require Export
-  Initial Terminal Product Coproduct Equalizer Coequalizer Exponential
+  Initial Terminal Product Coproduct Equalizer Coequalizer Pullback Pushout Exponential
   IndexedProduct IndexedCoproduct.
 
 Set Implicit Arguments.
@@ -288,8 +288,8 @@ Proof. now setoid. Defined.
 
 #[export]
 Program Instance CoqSetoid_factorize
-  {X Y : Setoid'} (f g : SetoidHom X Y)
-  (E' : Setoid') (e' : SetoidHom E' X) (H : forall x : E', f (e' x) == g (e' x))
+  {X Y : Setoid'} {f g : SetoidHom X Y}
+  {E' : Setoid'} (e' : SetoidHom E' X) (Heq : forall x : E', f (e' x) == g (e' x))
   : SetoidHom E' (CoqSetoid_equalizer f g) :=
 {
   func := fun x => e' x
@@ -518,3 +518,87 @@ Instance CoqSetoid_CartesianClosed : CartesianClosed CoqSetoid :=
   HasProducts_CartesianClosed := HasProducts_CoqSetoid;
   HasExponentials_CartesianClosed := HasExponentials_CoqSetoid;
 }.
+
+Record CoqSetoid_pullback'
+  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X) : Type := triple
+{
+  pullL : A;
+  pullR : B;
+  ok : f pullL == g pullR;
+}.
+
+Arguments triple {A B X f g} _ _ _.
+Arguments pullL  {A B X f g} _.
+Arguments pullR  {A B X f g} _.
+Arguments ok     {A B X f g} _.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pullback
+  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X) : Setoid' :=
+{
+  carrier := CoqSetoid_pullback' f g;
+}.
+Proof.
+  unshelve esplit.
+  - refine (fun x y => pullL x == pullL y /\ pullR x == pullR y).
+  - split; red.
+    + easy.
+    + easy.
+    + now intros x y z [-> ->] [-> ->].
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pullL
+  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  : SetoidHom (CoqSetoid_pullback f g) A :=
+{
+  func := pullL
+}.
+Proof.
+  now intros x y [H _]; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pullR
+  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  : SetoidHom (CoqSetoid_pullback f g) B :=
+{
+  func := pullR;
+}.
+Proof.
+  now intros x y [_ H]; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_triple
+  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  {Γ : Setoid'} (a : SetoidHom Γ A) (b : SetoidHom Γ B) (Heq : forall x : Γ, f (a x) == g (b x))
+  : SetoidHom Γ (CoqSetoid_pullback f g) :=
+{
+   func := fun x => triple (a x) (b x) (Heq x);
+}.
+Proof.
+  intros x y H; cbn.
+  now rewrite H.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_CoqSetoid : HasPullbacks CoqSetoid :=
+{
+  pullback := @CoqSetoid_pullback;
+  pullL := @CoqSetoid_pullL;
+  pullR := @CoqSetoid_pullR;
+  triple := @CoqSetoid_triple;
+}.
+Proof.
+  split; cbn.
+  - now apply ok.
+  - easy.
+  - easy.
+  - easy.
+Defined.
