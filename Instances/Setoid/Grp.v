@@ -588,3 +588,173 @@ Proof.
     + change (h :: t) with (@op (Grp_coproduct A B) [h] t).
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
+
+#[export]
+Instance Grp_equalizer_inv
+  {A B : Grp} (f g : MonHom A B)
+  : SetoidHom (Mon_equalizer f g) (Mon_equalizer f g).
+Proof.
+  unshelve esplit.
+  - refine (fun '(exist _ x H) => exist _ (inv x) _).
+    abstract (now rewrite !pres_inv, H).
+  - intros [x Hx] [y Hy] Heq; cbn in *.
+    now rewrite Heq.
+Defined.
+
+#[refine]
+#[export]
+Instance Grp_equalizer {A B : Grp} (f g : MonHom A B) : Grp :=
+{
+  mon := Mon_equalizer f g;
+  inv := Grp_equalizer_inv f g;
+}.
+Proof.
+  - intros [x H]; cbn.
+    now apply inv_l.
+  - intros [x H]; cbn.
+    now apply inv_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasEqualizers_Grp : HasEqualizers GrpCat :=
+{
+  equalizer := @Grp_equalizer;
+  equalize  := @Mon_equalize;
+  factorize := @Mon_factorize;
+}.
+Proof.
+  split; cbn.
+  - now intros [x H]; cbn.
+  - easy.
+  - easy.
+Defined.
+
+#[refine]
+#[export]
+Instance Grp_coequalizer_inv
+  {A B : Grp} (f g : MonHom A B)
+  : SetoidHom (Mon_coequalizer f g) (Mon_coequalizer f g) :=
+{
+  func := inv;
+}.
+Proof.
+  intros b1 b2 Heq; cbn in *.
+  induction Heq.
+  - transitivity (f (inv a)).
+    + now constructor; rewrite pres_inv.
+    + transitivity (g (inv a)); cycle 1.
+      * now constructor; rewrite pres_inv.
+      * now constructor.
+  - transitivity (op (inv r1) (inv l1)).
+    + now constructor; rewrite inv_op.
+    + transitivity (op (inv r2) (inv l2)); cycle 1.
+      * now constructor; rewrite inv_op.
+      * now constructor.
+  - now constructor; rewrite H.
+  - now symmetry.
+  - now transitivity (inv b2).
+Defined.
+
+#[refine]
+#[export]
+Instance Grp_coequalizer {A B : Grp} (f g : MonHom A B) : Grp :=
+{
+  mon := Mon_coequalizer f g;
+  inv := Grp_coequalizer_inv f g;
+}.
+Proof.
+  - now cbn; constructor; apply inv_l.
+  - now cbn; constructor; apply inv_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoequalizers_Grp : HasCoequalizers GrpCat :=
+{
+  coequalizer := @Grp_coequalizer;
+  coequalize  := @Mon_coequalize;
+  cofactorize := @Mon_cofactorize;
+}.
+Proof.
+  split; cbn.
+  - now constructor.
+  - easy.
+  - easy.
+Defined.
+
+#[export]
+Instance Grp_pullback_inv
+  {A B X : Grp} (f : MonHom A X) (g : MonHom B X)
+  : SetoidHom (Mon_pullback f g) (Mon_pullback f g).
+Proof.
+  unshelve esplit.
+  - refine (fun x => {| pullL := inv (pullL x); pullR := inv (pullR x); |}).
+    now rewrite !pres_inv, ok.
+  - intros [a1 b1 ok1] [a2 b2 ok2]; cbn.
+    now intros [-> ->].
+Defined.
+
+#[refine]
+#[export]
+Instance Grp_pullback
+  {A B X : Grp} (f : MonHom A X) (g : MonHom B X) : Grp :=
+{
+  mon := Mon_pullback f g;
+  inv := Grp_pullback_inv f g;
+}.
+Proof.
+  - intros [a b ok]; cbn.
+    now rewrite !inv_l.
+  - intros [a b ok]; cbn.
+    now rewrite !inv_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_Grp : HasPullbacks GrpCat :=
+{
+  pullback := @Grp_pullback;
+  pullL    := @Mon_pullL;
+  pullR    := @Mon_pullR;
+  triple   := @Mon_triple;
+}.
+Proof.
+  split; cbn.
+  - now apply ok.
+  - easy.
+  - easy.
+  - now split.
+Defined.
+
+(*
+  We construct the pushout group from coproduct and coequalizer, but the rest
+  is inherited from monoids.
+*)
+
+#[export]
+Instance Grp_pushout
+  {A B Γ : Grp} (f : MonHom Γ A) (g : MonHom Γ B) : Grp :=
+    @Grp_coequalizer Γ (Grp_coproduct A B) (f .> finl) (g .> finr).
+
+#[refine]
+#[export]
+Instance HasPushouts_Grp : HasPushouts GrpCat :=
+{
+  pushout  := @Grp_pushout;
+  pushl    := @Mon_pushl;
+  pushr    := @Mon_pushr;
+  cotriple := @Mon_cotriple;
+}.
+Proof.
+  split; cbn.
+  - intros x.
+    change [inl (f x)] with (@MonComp _ _ (Grp_coproduct A B) f Mon_finl x).
+    change [inr (g x)] with (@MonComp _ _ (Grp_coproduct A B) g Mon_finr x).
+    now constructor.
+  - easy.
+  - easy.
+  - intros Q h1 h2 HA HB.
+    now apply (equiv_pushout (isPushout := HasPushouts_isPushout
+      (HasPushouts := HasPushouts_Mon))).
+Defined.
