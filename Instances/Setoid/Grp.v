@@ -63,19 +63,26 @@ Defined.
 
 #[global] Hint Resolve inv_involutive neutr_unique_l neutr_unique_r inv_op inv_neutr : core.
 
-Class GrpHom (X Y : Grp) : Type :=
-{
-  monHom :> MonHom X Y;
-  pres_inv : forall x : X, monHom (inv x) == inv (monHom x)
-}.
-
-Coercion monHom : GrpHom >-> MonHom.
+Lemma pres_inv :
+  forall {A B : Grp} (f : MonHom A B) (x : A),
+    f (inv x) == inv (f x).
+Proof.
+  intros A B f x.
+  rewrite <- (neutr_l (inv (f x))).
+  rewrite <- pres_neutr.
+  rewrite <- (inv_l x).
+  rewrite pres_op.
+  rewrite <- assoc.
+  rewrite inv_r.
+  rewrite neutr_r.
+  easy.
+Qed.
 
 Inductive exp (X : Grp) : Type :=
 | Id : exp X
 | Var : X -> exp X
 | Op : exp X -> exp X -> exp X
-| Mor : forall A : Grp, GrpHom A X -> exp A -> exp X
+| Mor : forall A : Grp, MonHom A X -> exp A -> exp X
 | Inv : exp X -> exp X.
 
 Arguments Id  {X}.
@@ -224,7 +231,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance ReifyHom (X Y : Grp) (f : GrpHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
+Instance ReifyHom (X Y : Grp) (f : MonHom X Y) (x : X) (Rx : Reify x) : Reify (f x) | 0 :=
 {
   reify := Mor f (reify x)
 }.
@@ -259,7 +266,7 @@ match goal with
   apply grp_reflect2; cbn
 end.
 
-Ltac grp_simpl := mon_simpl. 
+Ltac grp_simpl := mon_simpl.
 
 Ltac grpob G := try intros until G;
 match type of G with
@@ -281,30 +288,12 @@ end.
 Ltac grpobs := grpobs_template grpob.
 Ltac grpobs' := grpobs_template grpob'.
 
-Ltac grphom f :=
-match type of f with
-| GrpHom _ _ =>
-  let a := fresh f "_pres_inv" in destruct f as [f a]
-| Hom _ _ => progress cbn in f; grphom f
-end; cbn in *.
-
-Ltac grphom' f := grphom f; monhom' f.
-
-Ltac grphoms_template tac := intros; repeat
-match goal with
-| f : GrpHom _ _ |- _ => tac f
-| f : Hom _ _ |- _ => tac f
-end; grp_simpl.
-
-Ltac grphoms := grphoms_template grphom.
-Ltac grphoms' := grphoms_template grphom'.
-
 Ltac grp := intros; try (cat; fail); repeat
 match goal with
 | |- _ == _ => now reflect_grp
 | |- Equivalence _ => solve_equiv
 | |- Proper _ _ => proper
-| _ => grp_simpl || grpobs' || grphoms' || cat
+| _ => grp_simpl || grpobs' || monhoms' || cat
 end.
 
 Section test.
@@ -315,9 +304,9 @@ Variables x x' a b c : X.
 Variables y y' : Y.
 Variables z z' : Z.
 
-Variable f : GrpHom X Y.
-Variable g : GrpHom Y Z.
-Variable h : GrpHom X X.
+Variable f : MonHom X Y.
+Variable g : MonHom Y Z.
+Variable h : MonHom X X.
 
 (** Associativity *)
 Goal op a (op b c) == op (op a b) c.
@@ -363,32 +352,13 @@ End test.
 
 #[refine]
 #[export]
-Instance GrpHomSetoid (X Y : Grp) : Setoid (GrpHom X Y) :=
-{
-  equiv := fun f g : GrpHom X Y => @equiv _ (SgrHomSetoid X Y) f g
-}.
-Proof. now apply Setoid_kernel_equiv. Defined.
-
-Definition GrpComp (X Y Z : Grp) (f : GrpHom X Y) (g : GrpHom Y Z) : GrpHom X Z.
-Proof.
-  exists (MonComp f g); cbn.
-  now intros; rewrite !pres_inv.
-Defined.
-
-Definition GrpId (X : Grp) : GrpHom X X.
-Proof.
-  now exists (MonId X).
-Defined.
-
-#[refine]
-#[export]
 Instance GrpCat : Cat :=
 {
   Ob := Grp;
-  Hom := GrpHom;
-  HomSetoid := GrpHomSetoid;
-  comp := GrpComp;
-  id := GrpId;
+  Hom := MonHom;
+  HomSetoid := MonHomSetoid;
+  comp := MonComp;
+  id := MonId;
 }.
 Proof.
   - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
@@ -455,38 +425,27 @@ Defined.
 Instance Grp_zero : Grp :=
 {
   mon := Mon_init;
-  inv := Grp_zero_inv
+  inv := Grp_zero_inv;
 }.
-Proof. all: now grp. Defined.
-
-Definition Grp_create (X : Grp) : Hom Grp_zero X.
-Proof.
-  exists (Mon_create X); cbn.
-  now intros; rewrite inv_neutr.
-Defined.
+Proof. all: easy. Defined.
 
 #[refine]
 #[export]
 Instance HasInit_Grp : HasInit GrpCat :=
 {
     init := Grp_zero;
-    create := Grp_create
+    create := Mon_create
 }.
 Proof. now grp. Defined.
-
-Definition Grp_delete (X : Grp) : Hom X Grp_zero.
-Proof.
-  now exists (Mon_delete X).
-Defined.
 
 #[refine]
 #[export]
 Instance HasTerm_Grp : HasTerm GrpCat :=
 {
   term := Grp_zero;
-  delete := Grp_delete
+  delete := Mon_delete;
 }.
-Proof. now grp. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -495,7 +454,7 @@ Instance HasZero_Grp : HasZero GrpCat :=
   HasInit_HasZero := HasInit_Grp;
   HasTerm_HasZero := HasTerm_Grp
 }.
-Proof. now grp. Defined.
+Proof. now cbn. Defined.
 
 Definition Grp_product_inv (X Y : Grp) : SetoidHom (Mon_product X Y) (Mon_product X Y).
 Proof.
@@ -509,34 +468,18 @@ Defined.
 Instance Grp_product (X Y : Grp) : Grp :=
 {
   mon := Mon_product X Y;
-  inv := Grp_product_inv X Y
+  inv := Grp_product_inv X Y;
 }.
 Proof. all: now destruct x; grp. Defined.
-
-Definition Grp_outl (X Y : Grp) : Hom (Grp_product X Y) X.
-Proof.
-  now exists (Mon_outl X Y).
-Defined.
-
-Definition Grp_outr (X Y : Grp) : Hom (Grp_product X Y) Y.
-Proof.
-  now exists (Mon_outr X Y).
-Defined.
-
-Definition Grp_fpair (A B X : Grp) (f : Hom X A) (g : Hom X B) : Hom X (Grp_product A B).
-Proof.
-  exists (Mon_fpair f g); cbn.
-  now intros; rewrite !pres_inv.
-Defined.
 
 #[refine]
 #[export]
 Instance HasProducts_Grp : HasProducts GrpCat :=
 {
   product := Grp_product;
-  outl := Grp_outl;
-  outr := Grp_outr;
-  fpair := Grp_fpair
+  outl := Mon_outl;
+  outr := Mon_outr;
+  fpair := Mon_fpair;
 }.
 Proof.
   split; cbn.
@@ -626,39 +569,14 @@ Proof.
         now transitivity [@inr A B neutr]; [constructor |].
 Defined.
 
-#[export]
-Instance Grp_finl (A B : Grp) : GrpHom A (Grp_coproduct A B).
-Proof.
-  now split with Mon_finl; cbn.
-Defined.
-
-#[export]
-Instance Grp_finr (A B : Grp) : GrpHom B (Grp_coproduct A B).
-Proof.
-  now split with Mon_finr; cbn.
-Defined.
-
-#[export]
-Instance Grp_copair
-  {A B X : Grp} (f : GrpHom A X) (g : GrpHom B X) : GrpHom (Grp_coproduct A B) X.
-Proof.
-  esplit with (Mon_copair f g); cbn.
-  induction x as [| [a | b] t]; cbn in *.
-  - easy.
-  - rewrite Mon_copair'_app, IHt, inv_op; cbn.
-    now rewrite neutr_r, pres_inv.
-  - rewrite Mon_copair'_app, IHt, inv_op; cbn.
-    now rewrite neutr_r, pres_inv.
-Defined.
-
 #[refine]
 #[export]
 Instance HasCoproducts_Grp : HasCoproducts GrpCat :=
 {
   coproduct := @Grp_coproduct;
-  finl := @Grp_finl;
-  finr := @Grp_finr;
-  copair := @Grp_copair;
+  finl      := @Mon_finl;
+  finr      := @Mon_finr;
+  copair    := @Mon_copair;
 }.
 Proof.
   split; cbn.
@@ -670,4 +588,3 @@ Proof.
     + change (h :: t) with (@op (Grp_coproduct A B) [h] t).
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
-

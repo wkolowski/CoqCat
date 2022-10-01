@@ -975,8 +975,8 @@ Proof.
     now constructor.
   - easy.
   - easy.
-  - intros Q h1 h2 HA HB.
-    induction x as [| h t]; cbn.
+  - intros Q h1 h2 HA HB; cbn.
+    induction x as [| h t].
     + change [] with (@neutr (Mon_pushout f g)).
       now rewrite (@pres_neutr _ _ h1), (@pres_neutr _ _ h2).
     + change (h :: t) with (@op (Mon_pushout f g) [h] t).
