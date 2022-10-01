@@ -43,6 +43,12 @@ match l with
 | {| hd := h; tl := Some t |} => tl' h t (Nel_ind' A P hd' tl' t)
 end.
 
+Definition nsingl {A : Type} (x : A) : Nel A :=
+{|
+  hd := x;
+  tl := None;
+|}.
+
 Fixpoint nmap {A B : Type} (f : A -> B) (l : Nel A) : Nel B :=
 {|
   hd := f (hd l);

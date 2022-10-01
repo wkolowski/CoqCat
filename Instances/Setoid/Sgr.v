@@ -634,7 +634,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Sgr_coequalize {A B : Sgr} (f g : SgrHom A B) : SgrHom B (Sgr_coequalizer f g) :=
+Instance Sgr_coequalize {A B : Sgr} {f g : SgrHom A B} : SgrHom B (Sgr_coequalizer f g) :=
 {
   setoidHom := Sgr_coequalize' f g;
 }.
@@ -700,9 +700,6 @@ Proof.
   - intros [a1 b1 H1] [a2 b2 H2]; cbn.
     refine {| pullL := op a1 a2; pullR := op b1 b2; |}.
     now rewrite !pres_op, H1, H2.
-    (* intros x y.
-    refine {| pullL := op (pullL x) (pullL y); pullR := op (pullR x) (pullR y); |}.
-    now rewrite !pres_op, !ok. *)
   - intros [a1 b1 H1] [a2 b2 H2] [Ha12 Hb12] [a3 b3 H3] [a4 b4 H4] [Ha34 Hb34]; cbn in *.
     now rewrite Ha12, Hb12, Ha34, Hb34.
   - intros [a1 b1 H1] [a2 b2 H2] [a3 b3 H3]; cbn.
@@ -763,10 +760,9 @@ Defined.
 
 (* We construct pushouts from coproducts and coequalizers. *)
 
-(* #[refine] *)
 #[export]
 Instance Sgr_pushout'
-  {Γ A B : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Setoid'.
+  {A B Γ : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Setoid'.
 Proof.
   split with (Nel (A + B)).
   unshelve esplit.
@@ -777,33 +773,52 @@ Proof.
     + now intros x y z Hxy Hyz; apply SgrCE_trans with y.
 Defined.
 
-(*
-Lemma SgrCE_napp_l :
-  forall {Γ A B : Sgr} (f g : SgrHom Γ (Sgr_coproduct A B)) (l1 l2 l2' : Nel (A + B)),
-    Sgr_coeq_equiv f g l2 l2' -> Sgr_coeq_equiv f g (napp l1 l2) (napp l1 l2').
-Proof.
-  induction l1 as [h1 | h1 t1] using Nel_ind'.
-  - intros l2 l2' Heqv.
-    Print Sgr_coeq_equiv.
-Lemma SgrCE_napp :
-  forall {A B : Sgr} (f g : SgrHom A B) (l1 l1' l2 : Nel B),
-    Sgr_coeq_equiv l1 l1' -> Sgr_coeq_equiv (napp l1 l2) (napp l1' l2).
-Proof.
+#[export]
+Instance Sgr_pushout
+  {A B Γ : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Sgr :=
+    @Sgr_coequalizer Γ (Sgr_coproduct A B) (f .> Sgr_finl) (g .> Sgr_finr).
 
+#[export]
+Instance Sgr_pushl
+  {A B Γ : Sgr} {f : SgrHom Γ A} {g : SgrHom Γ B} : SgrHom A (Sgr_pushout f g) :=
+    @Sgr_finl A B .> @Sgr_coequalize Γ (Sgr_coproduct A B) (f .> Sgr_finl) (g .> Sgr_finr).
+
+#[export]
+Instance Sgr_pushr
+  {A B Γ : Sgr} {f : SgrHom Γ A} {g : SgrHom Γ B} : SgrHom B (Sgr_pushout f g) :=
+    @Sgr_finr A B .> @Sgr_coequalize Γ (Sgr_coproduct A B) (f .> Sgr_finl) (g .> Sgr_finr).
+
+#[export]
+Instance Sgr_cotriple
+  {A B Γ : Sgr} {f : Hom Γ A} {g : Hom Γ B}
+  {X : Sgr} (h1 : Hom A X) (h2 : Hom B X) (Heq : f .> h1 == g .> h2)
+  : SgrHom (Sgr_pushout f g) X.
+Proof.
+  apply (@Sgr_cofactorize _ _ _ _ _ (Sgr_copair h1 h2)).
+  now cbn in *.
+Defined.
 
 #[refine]
 #[export]
-Instance Sgr_pushout
-  {Γ A B : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Sgr :=
+Instance HasPushouts_Sgr : HasPushouts SgrCat :=
 {
-  setoid := Sgr_pushout' f g;
-  op := napp;
+  pushout  := @Sgr_pushout;
+  pushl    := @Sgr_pushl;
+  pushr    := @Sgr_pushr;
+  cotriple := @Sgr_cotriple;
 }.
 Proof.
-  - intros l1 l1' Heq1 l2 l2' Heq2; cbn in *.
-    transitivity (napp l1 l2').
-    + admit.
-    + 
-    induction Heq1. cbn.
+  split; cbn.
+  - intros x.
+    change {| hd := inl (f x); tl := None |} with (@SgrComp _ _ (Sgr_coproduct A B) f Sgr_finl x).
+    change {| hd := inr (g x); tl := None |} with (@SgrComp _ _ (Sgr_coproduct A B) g Sgr_finr x).
+    now constructor.
+  - easy.
+  - easy.
+  - intros Q h1 h2 HA HB.
+    induction x as [[a | b] | h t] using Nel_ind'.
+    + now apply HA.
+    + now apply HB.
+    + change {| hd := h; tl := Some t; |} with (@op (Sgr_pushout f g) (Cons h None) t).
+      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
-*)

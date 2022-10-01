@@ -586,13 +586,13 @@ Defined.
 #[export]
 Instance Grp_finl (A B : Grp) : GrpHom A (Grp_coproduct A B).
 Proof.
-  now esplit with (Mon_finl A B); cbn.
+  now split with Mon_finl; cbn.
 Defined.
 
 #[export]
 Instance Grp_finr (A B : Grp) : GrpHom B (Grp_coproduct A B).
 Proof.
-  now esplit with (Mon_finr A B); cbn.
+  now split with Mon_finr; cbn.
 Defined.
 
 #[export]

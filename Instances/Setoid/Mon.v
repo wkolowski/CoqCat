@@ -662,7 +662,7 @@ Proof.
 Defined.
 
 #[export]
-Instance Mon_finl (A B : Mon) : MonHom A (Mon_coproduct A B).
+Instance Mon_finl {A B : Mon} : MonHom A (Mon_coproduct A B).
 Proof.
   esplit with (Mon_finl_Sgr A B); cbn.
   now rewrite MCE_nil_neutr_l.
@@ -684,7 +684,7 @@ Proof.
 Defined.
 
 #[export]
-Instance Mon_finr (A B : Mon) : MonHom B (Mon_coproduct A B).
+Instance Mon_finr {A B : Mon} : MonHom B (Mon_coproduct A B).
 Proof.
   esplit with (Mon_finr_Sgr A B); cbn.
   now rewrite MCE_nil_neutr_r.
@@ -758,5 +758,228 @@ Proof.
     induction l as [| h t]; cbn.
     + now rewrite <- MCE_nil_neutr_l, HA.
     + change (h :: t) with (@op (Mon_coproduct A B) [h] t).
+      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_equalizer {A B : Mon} (f g : MonHom A B) : Mon :=
+{
+  sgr := Sgr_equalizer f g;
+}.
+Proof.
+  - exists neutr.
+    now rewrite !pres_neutr.
+  - intros [a H]; cbn.
+    now rewrite neutr_l.
+  - intros [a H]; cbn.
+    now rewrite neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_equalize {A B : Mon} (f g : MonHom A B) : MonHom (Mon_equalizer f g) A :=
+{
+  sgrHom := Sgr_equalize f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_factorize
+  {A B : Mon} {f g : MonHom A B}
+  {E' : Mon} (e' : Hom E' A) (Heq : (e' .> f) == (e' .> g))
+  : MonHom E' (Mon_equalizer f g) :=
+{
+  sgrHom := Sgr_factorize Heq;
+}.
+Proof.
+  now cbn; rewrite pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasEqualizers_Mon : HasEqualizers MonCat :=
+{
+  equalizer := @Mon_equalizer;
+  equalize  := @Mon_equalize;
+  factorize := @Mon_factorize;
+}.
+Proof.
+  split; cbn.
+  - now intros [x H]; cbn.
+  - easy.
+  - easy.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_coequalizer {A B : Mon} (f g : MonHom A B) : Mon :=
+{
+  sgr := Sgr_coequalizer f g;
+  neutr := neutr;
+}.
+Proof.
+  - now constructor; cbn; rewrite neutr_l.
+  - now constructor; cbn; rewrite neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_coequalize {A B : Mon} {f g : MonHom A B} : MonHom B (Mon_coequalizer f g) :=
+{
+  sgrHom := @Sgr_coequalize A B f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[export]
+#[refine]
+Instance Mon_cofactorize
+  {A B : Mon} {f g : Hom A B}
+  {Q : Mon} (q : Hom B Q) (Heq : f .> q == g .> q)
+  : MonHom (Mon_coequalizer f g) Q :=
+{
+  sgrHom := Sgr_cofactorize Heq;
+}.
+Proof.
+  now cbn; rewrite pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoequalizers_Mon : HasCoequalizers MonCat :=
+{
+  coequalizer := @Mon_coequalizer;
+  coequalize  := @Mon_coequalize;
+  cofactorize := @Mon_cofactorize;
+}.
+Proof.
+  split; cbn.
+  - now constructor.
+  - easy.
+  - easy.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_pullback
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : Mon :=
+{
+  sgr := Sgr_pullback f g;
+}.
+Proof.
+  - refine {| pullL := neutr; pullR := neutr; |}.
+    now rewrite !pres_neutr.
+  - intros [a b H]; cbn.
+    now rewrite !neutr_l.
+  - intros [a b H]; cbn.
+    now rewrite !neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_pullL
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : MonHom (Mon_pullback f g) A :=
+{
+  sgrHom := Sgr_pullL f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_pullR
+  {A B X : Mon} (f : MonHom A X) (g : MonHom B X) : MonHom (Mon_pullback f g) B :=
+{
+  sgrHom := Sgr_pullR f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Mon_triple
+  {A B X : Mon} (f : Hom A X) (g : Hom B X)
+  {Γ : Mon} (a : Hom Γ A) (b : Hom Γ B) (Heq : a .> f == b .> g)
+  : MonHom Γ (Mon_pullback f g) :=
+{
+  sgrHom := Sgr_triple Heq;
+}.
+Proof.
+  now cbn; rewrite !pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_Mon : HasPullbacks MonCat :=
+{
+  pullback := @Mon_pullback;
+  pullL    := @Mon_pullL;
+  pullR    := @Mon_pullR;
+  triple   := @Mon_triple;
+}.
+Proof.
+  split; cbn.
+  - now apply ok.
+  - easy.
+  - easy.
+  - now split.
+Defined.
+
+(* We construct pushouts from coproducts and coequalizers. *)
+
+#[export]
+Instance Mon_pushout
+  {A B Γ : Mon} (f : MonHom Γ A) (g : MonHom Γ B) : Mon :=
+    @Mon_coequalizer Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
+
+#[export]
+Instance Mon_pushl
+  {A B Γ : Mon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom A (Mon_pushout f g) :=
+    @Mon_finl A B .> @Mon_coequalize Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
+
+#[export]
+Instance Mon_pushr
+  {A B Γ : Mon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom B (Mon_pushout f g) :=
+    @Mon_finr A B .> @Mon_coequalize Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
+
+#[export]
+Instance Mon_cotriple
+  {A B Γ : Mon} {f : Hom Γ A} {g : Hom Γ B}
+  {X : Mon} (h1 : Hom A X) (h2 : Hom B X) (Heq : f .> h1 == g .> h2)
+  : MonHom (Mon_pushout f g) X.
+Proof.
+  apply (@Mon_cofactorize _ _ _ _ _ (Mon_copair h1 h2)).
+  now cbn in *; intros x; rewrite Heq.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPushouts_Mon : HasPushouts MonCat :=
+{
+  pushout  := @Mon_pushout;
+  pushl    := @Mon_pushl;
+  pushr    := @Mon_pushr;
+  cotriple := @Mon_cotriple;
+}.
+Proof.
+  split; cbn.
+  - intros x.
+    change [inl (f x)] with (@MonComp _ _ (Mon_coproduct A B) f Mon_finl x).
+    change [inr (g x)] with (@MonComp _ _ (Mon_coproduct A B) g Mon_finr x).
+    now constructor.
+  - easy.
+  - easy.
+  - intros Q h1 h2 HA HB.
+    induction x as [| h t]; cbn.
+    + change [] with (@neutr (Mon_pushout f g)).
+      now rewrite (@pres_neutr _ _ h1), (@pres_neutr _ _ h2).
+    + change (h :: t) with (@op (Mon_pushout f g) [h] t).
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
