@@ -83,7 +83,7 @@ Lemma cofactorize_comp :
     exists H' : f .> (q1 .> q2) == g .> (q1 .> q2),
       cofactorize H' == cofactorize H .> q2.
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - now rewrite <- !comp_assoc, H.
   - now rewrite equiv_coequalizer', coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize.
 Qed.

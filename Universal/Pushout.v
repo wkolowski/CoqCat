@@ -169,7 +169,7 @@ Lemma isIso_pushl :
   isIso g -> isIso pushl.
 Proof.
   unfold isIso; intros (g' & Heq1 & Heq2).
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - apply (cotriple A (id A) (g' .> f)).
     abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
   - now pushout_simpl; rewrite comp_assoc, ok, <- comp_assoc, Heq2.
@@ -179,7 +179,7 @@ Lemma isIso_pushr :
   isIso f -> isIso pushr.
 Proof.
   unfold isIso; intros (f' & Heq1 & Heq2).
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - apply (cotriple B (f' .> g) (id B)).
     abstract (now rewrite <- comp_assoc, Heq1, comp_id_l, comp_id_r).
   - now pushout_simpl; rewrite comp_assoc, <- ok, <- comp_assoc, Heq2.

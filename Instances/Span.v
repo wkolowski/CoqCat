@@ -15,7 +15,7 @@ Class SpanHom (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Type :=
 #[export]
 Instance SpanHomSetoid (C : Cat) (hp : HasPullbacks C) (A B : Ob C) : Setoid (SpanHom hp A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - intros [X f g] [Y f' g'].
     exact (exists p : X = Y,
       @transport _ (fun X => Hom X A) _ _ p f == f' /\

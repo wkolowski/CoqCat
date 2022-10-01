@@ -163,7 +163,7 @@ Lemma isIso_pullL :
   isIso g -> isIso pullL.
 Proof.
   unfold isIso; intros (g' & Heq1 & Heq2).
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - apply (triple A (id A) (f .> g')).
     abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
   - pullback_simpl; repeat split; [easy | | easy].
@@ -174,7 +174,7 @@ Lemma isIso_pullR :
   isIso f -> isIso pullR.
 Proof.
   unfold isIso; intros (f' & Heq1 & Heq2).
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - apply (triple B (g .> f') (id B)).
     abstract (now rewrite comp_assoc, Heq2, comp_id_l, comp_id_r).
   - pullback_simpl; repeat split; [| easy | easy].

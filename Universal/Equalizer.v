@@ -77,7 +77,7 @@ Defined.
     exists H' : (e1 .> e2) .> f == (e1 .> e2) .> g,
       factorize H' == e1 .> factorize H.
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - now rewrite !comp_assoc, H.
   - now rewrite equiv_equalizer', factorize_equalize, comp_assoc, factorize_equalize.
 Qed.

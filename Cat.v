@@ -1150,7 +1150,7 @@ Instance CAT : Cat :=
 Proof.
   - cbn; intros A B C F G [p q] H I [r s].
     unfold FunctorComp; cbn.
-    esplit. Unshelve. all: cycle 1.
+    unshelve esplit.
     + now intros X; destruct (p X), (r (fob F X)).
     + cbn; intros X Y f.
       rewrite <- q, <- s; clear q s.
@@ -1218,7 +1218,7 @@ Defined.
 Instance FromProfunctor
   {C D E : Cat} (F : Profunctor C D E) : Functor (CAT_product (Dual C) D) E.
 Proof.
-  esplit. Unshelve. all: cycle 3.
+  unshelve esplit.
   - now cbn; intros [A B]; apply (diob A B).
   - now intros [A1 A2] [B1 B2] [f1 f2]; cbn in *; apply (dimap f1 f2).
   - now intros [A1 A2] [B1 B2] [f1 f2] [g1 g2] [H1 H2]; apply Proper_dimap.
@@ -1283,7 +1283,7 @@ Lemma natural_isomorphism_char' :
     (forall X : Ob C, isIso' (component α X)) -> NatTrans G F.
 Proof.
   intros C D F G α H.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - exact (fun X => proj1_sig (H X)).
   - intros X Y f; cbn.
     destruct (H X) as (g1 & Hg11 & Hg12), (H Y) as (g2 & Hg21 & Hg22); cbn.

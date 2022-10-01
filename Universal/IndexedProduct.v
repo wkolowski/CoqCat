@@ -125,19 +125,17 @@ Lemma isIndexedProduct_iso_unique2 :
 Proof.
   unfold isomorphic, isIso.
   intros * H H1 H2.
-  esplit. Unshelve. all: cycle 1.
-  - apply t2. exact (fun j => p1 j .> projT1 (H j)).
-  - esplit. Unshelve. all: cycle 1.
-    + apply t1. exact (fun j => p2 j .> proj1_sig (projT2 (H j))).
-    + split.
-      * rewrite equiv_indexedProduct'; intros j.
-        rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
-        destruct (H j) as (f & g & Hfg & Hgf); cbn.
-        now rewrite  Hfg, comp_id_l, comp_id_r.
-      * rewrite equiv_indexedProduct'; intros j.
-        rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
-        destruct (H j) as (f & g & Hfg & Hgf); cbn.
-        now rewrite  Hgf, comp_id_l, comp_id_r.
+  split with (t2 _ (fun j => p1 j .> projT1 (H j))).
+  split with (t1 _ (fun j => p2 j .> proj1_sig (projT2 (H j)))).
+  split.
+  - rewrite equiv_indexedProduct'; intros j.
+    rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
+    destruct (H j) as (f & g & Hfg & Hgf); cbn.
+    now rewrite  Hfg, comp_id_l, comp_id_r.
+  - rewrite equiv_indexedProduct'; intros j.
+    rewrite comp_assoc, tuple_out, <- comp_assoc, tuple_out, comp_assoc.
+    destruct (H j) as (f & g & Hfg & Hgf); cbn.
+    now rewrite  Hgf, comp_id_l, comp_id_r.
 Defined.
 
 Lemma small_and_isIndexedProducts :

@@ -416,30 +416,28 @@ Defined.
 #[export]
 Instance Sgr_finl' (A B : Sgr) : SetoidHom A (Sgr_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact (fun a => Cons (inl a) None).
-  - now constructor.
+  split with (fun a => Cons (inl a) None).
+  now constructor.
 Defined.
 
 #[export]
 Instance Sgr_finl {A B : Sgr} : SgrHom A (Sgr_coproduct A B).
 Proof.
-  esplit with (Sgr_finl' A B); cbn.
+  split with (Sgr_finl' A B); cbn.
   now intros; rewrite SCE_cons_op_l.
 Defined.
 
 #[export]
 Instance Sgr_finr' (A B : Sgr) : SetoidHom B (Sgr_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact (fun b => Cons (inr b) None).
-  - now constructor.
+  split with (fun b => Cons (inr b) None).
+  now constructor.
 Defined.
 
 #[export]
 Instance Sgr_finr {A B : Sgr} : SgrHom B (Sgr_coproduct A B).
 Proof.
-  esplit with (Sgr_finr' A B); cbn.
+  split with (Sgr_finr' A B); cbn.
   now intros; rewrite SCE_cons_op_r.
 Defined.
 

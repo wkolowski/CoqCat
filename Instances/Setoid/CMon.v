@@ -100,14 +100,14 @@ Instance CMon_coproduct (A B : CMon) : CMon := CMon_product A B.
 
 Definition CMon_finl' (A B : CMon) : SetoidHom A (CMon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - exact (fun a => (a, neutr)).
   - now intros x y Heq; cbn.
 Defined.
 
 Definition CMon_finl (A B : CMon) : MonHom A (CMon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - esplit with (CMon_finl' A B); cbn.
     now intros; rewrite neutr_l.
   - easy.
@@ -115,14 +115,14 @@ Defined.
 
 Definition CMon_finr' (A B : CMon) : SetoidHom B (CMon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - exact (fun b => (neutr, b)).
   - now intros x y Heq; cbn.
 Defined.
 
 Definition CMon_finr (A B : CMon) : MonHom B (CMon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - esplit with (CMon_finr' A B); cbn.
     now intros; rewrite neutr_l.
   - easy.
@@ -132,7 +132,7 @@ Defined.
 Instance CMon_copair'
   {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : SetoidHom (CMon_coproduct A B) X.
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - refine (fun '(a, b) => op (f a) (g b)).
   - now intros [a1 b1] [a2 b2]; cbn; intros [-> ->].
 Defined.
@@ -141,7 +141,7 @@ Defined.
 Instance CMon_copair
   {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : MonHom (CMon_coproduct A B) X.
 Proof.
-  esplit. Unshelve. all: cycle 1.
+  unshelve esplit.
   - esplit with (CMon_copair' f g); cbn.
     intros [a1 b1] [a2 b2]; cbn.
     rewrite !pres_op.

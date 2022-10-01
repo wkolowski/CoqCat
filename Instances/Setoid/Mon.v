@@ -649,31 +649,29 @@ Defined.
 #[export]
 Instance Mon_finl_Setoid' (A B : Mon) : SetoidHom A (Mon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact (fun a => [inl a]).
-  - now constructor.
+  split with (fun a => [inl a]).
+  now constructor.
 Defined.
 
 #[export]
 Instance Mon_finl_Sgr (A B : Mon) : SgrHom A (Mon_coproduct A B).
 Proof.
-  esplit with (Mon_finl_Setoid' A B); cbn.
+  split with (Mon_finl_Setoid' A B); cbn.
   now intros; rewrite MCE_cons_op_l.
 Defined.
 
 #[export]
 Instance Mon_finl {A B : Mon} : MonHom A (Mon_coproduct A B).
 Proof.
-  esplit with (Mon_finl_Sgr A B); cbn.
+  split with (Mon_finl_Sgr A B); cbn.
   now rewrite MCE_nil_neutr_l.
 Defined.
 
 #[export]
 Instance Mon_finr_Setoid' (A B : Mon) : SetoidHom B (Mon_coproduct A B).
 Proof.
-  esplit. Unshelve. all: cycle 1.
-  - exact (fun b => [inr b]).
-  - now constructor.
+  split with (fun b => [inr b]).
+  now constructor.
 Defined.
 
 #[export]

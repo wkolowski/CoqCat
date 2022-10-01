@@ -36,7 +36,7 @@ Proof.
   intros C F.
   exists (create C); split; cycle 1.
   - apply equiv_initial.
-  - esplit. Unshelve. all: cbn in *; cycle 1.
+  - unshelve esplit; cbn in *.
     + now intros A; destruct (fob F A).
     + now intros A B G; cbn; destruct (fob F A).
 Defined.
@@ -66,7 +66,7 @@ Proof.
   assert (Heq : forall H : Hom X CAT_term, H == CAT_delete X).
   {
     intros H.
-    esplit. Unshelve. all: cycle 1.
+    unshelve esplit.
     - now cbn; intros A; destruct (fob H A).
     - now cbn; intros A B f; apply Eqdep_dec.UIP_refl_unit.
   }
@@ -118,7 +118,7 @@ Lemma CAT_fpair_unique :
     F == FG .> CAT_outl C D -> G == FG .> CAT_outr C D -> CAT_fpair F G == FG.
 Proof.
   intros X C D F G FG [p q] [r s].
-  esplit. Unshelve. all: cycle 1; cbn in *; intros.
+  unshelve esplit; cbn in *; intros.
   - apply eq_prod_intro; cbn; [apply p | apply r].
   - apply eq_prod_intro.
     + rewrite <- q; clear q s.
@@ -265,7 +265,7 @@ Proof.
   - now exists (fun _ => eq_refl).
   - now exists (fun _ => eq_refl).
   - intros [p q] [r s].
-    esplit. Unshelve. all: cycle 1.
+    unshelve esplit.
     + now intros [A | A]; [apply p | apply r].
     + now intros [A | A] [B | B] H; [apply q | | | apply s].
 Defined.
@@ -275,14 +275,10 @@ Defined.
 Instance HasExponentials_CAT : HasExponentials CAT :=
 {
   exponential := @FunCat;
-(*   eval := fun C D =>
-  {|
-    fob := fun '(F, X) => fob F X;
-  |}; *)
 }.
 Proof.
   - cbn; intros C D.
-    esplit with (fob := fun '(F, X) => fob F X). Unshelve. all: cycle 3.
+    unshelve esplit with (fob := fun '(F, X) => fob F X).
     + intros [F X] [G Y] [f g]; cbn in *.
       exact (component f X .> fmap G g).
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
@@ -292,7 +288,7 @@ Proof.
     + now intros [F X]; cbn; rewrite fmap_id, comp_id_l.
   - cbn; intros D E C.
     intros [fob fmap prp pcmp pid].
-    esplit. Unshelve. all: cycle 3; cbn in *.
-    + intro X. esplit with (fob := fun d => fob (X, d)). Unshelve. all: cycle 3.
+    unshelve esplit; cbn in *.
+    + intro X. unshelve esplit with (fob := fun d => fob (X, d)).
       * intros A B f.
 Abort.
