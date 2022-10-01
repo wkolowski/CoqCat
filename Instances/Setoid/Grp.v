@@ -2,9 +2,6 @@ From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
 From Cat.Instances Require Import Setoids Setoid.Mon.
 
-Require Import List.
-Import ListNotations.
-
 Set Implicit Arguments.
 
 Class Grp : Type :=
@@ -307,7 +304,6 @@ match goal with
 | |- _ == _ => now reflect_grp
 | |- Equivalence _ => solve_equiv
 | |- Proper _ _ => proper
-(*| |- (_, _) = (_, _) => f_equal*)
 | _ => grp_simpl || grpobs' || grphoms' || cat
 end.
 
@@ -397,10 +393,57 @@ Instance GrpCat : Cat :=
 Proof.
   - intros A B C f1 f2 Hf g1 g2 Hg x; cbn in *.
     now rewrite Hf, Hg.
-  - now grp.
-  - now grp.
-  - now grp.
+  - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
+
+Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
+
+Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | isIso f}.
+
+Definition AutHom_Fun
+  {C : Cat} {X : Ob C} (A B : AutOb C X) (f : AutHom A B)
+  : Hom X X := proj1_sig f.
+
+Coercion AutHom_Fun : AutHom >-> Hom.
+
+#[refine]
+#[export]
+Instance AutHomSetoid
+  (C : Cat) (X : Ob C)
+  : forall A B : AutOb C X, Setoid (AutHom A B) :=
+{
+  equiv := fun f g : AutHom A B => @equiv _ (@HomSetoid C X X) f g
+}.
+Proof. now grp. Defined.
+
+Definition AutComp
+  (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
+Proof.
+  exists (f .> g).
+  apply isIso_comp.
+  - now destruct f.
+  - now destruct g.
+Defined.
+
+Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.
+Proof.
+  exists (id A).
+  now apply isAut_id.
+Defined.
+
+#[refine]
+#[export]
+Instance AutCat (C : Cat) (X : Ob C) : Cat :=
+{
+  Ob := AutOb C X;
+  Hom := @AutHom C X;
+  HomSetoid := @AutHomSetoid C X;
+  comp := @AutComp C X;
+  id := @AutId C X;
+}.
+Proof. all: now grp. Defined.
 
 Definition Grp_zero_inv : SetoidHom Mon_init Mon_init.
 Proof.
@@ -628,49 +671,3 @@ Proof.
       now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
 Defined.
 
-Definition AutOb (C : Cat) (X : Ob C) : Type := unit.
-
-Definition AutHom {C : Cat} {X : Ob C} (_ _ : AutOb C X) : Type := {f : Hom X X | isIso f}.
-
-Definition AutHom_Fun
-  {C : Cat} {X : Ob C} (A B : AutOb C X) (f : AutHom A B)
-  : Hom X X := proj1_sig f.
-
-Coercion AutHom_Fun : AutHom >-> Hom.
-
-#[refine]
-#[export]
-Instance AutHomSetoid
-  (C : Cat) (X : Ob C)
-  : forall A B : AutOb C X, Setoid (AutHom A B) :=
-{
-  equiv := fun f g : AutHom A B => @equiv _ (@HomSetoid C X X) f g
-}.
-Proof. now grp. Defined.
-
-Definition AutComp
-  (C : Cat) (A : Ob C) (X Y Z : AutOb C A) (f : AutHom X Y) (g : AutHom Y Z) : AutHom X Z.
-Proof.
-  exists (f .> g).
-  apply isIso_comp.
-  - now destruct f.
-  - now destruct g.
-Defined.
-
-Definition AutId (C : Cat) (A : Ob C) (X : AutOb C A) : AutHom X X.
-Proof.
-  exists (id A).
-  now apply isAut_id.
-Defined.
-
-#[refine]
-#[export]
-Instance AutCat (C : Cat) (X : Ob C) : Cat :=
-{
-  Ob := AutOb C X;
-  Hom := @AutHom C X;
-  HomSetoid := @AutHomSetoid C X;
-  comp := @AutComp C X;
-  id := @AutId C X;
-}.
-Proof. all: now grp. Defined.

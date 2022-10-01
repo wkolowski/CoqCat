@@ -433,7 +433,8 @@ Proof.
   now exists (Sgr_outr X Y).
 Defined.
 
-Definition Mon_fpair (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_product A B).
+Definition Mon_fpair
+  (A B X : Mon) (f : MonHom X A) (g : MonHom X B) : MonHom X (Mon_product A B).
 Proof.
   exists (Sgr_fpair f g); cbn.
   now rewrite !pres_neutr.

@@ -32,6 +32,17 @@ Instance CMonCat : Cat :=
 
 #[refine]
 #[export]
+Instance forgetful : Functor CMonCat MonCat :=
+{
+  fob := mon;
+}.
+Proof.
+  - easy.
+  - easy.
+Defined.
+
+#[refine]
+#[export]
 Instance CMon_init : CMon :=
 {
   mon := Mon_init;
@@ -100,32 +111,30 @@ Instance CMon_coproduct (A B : CMon) : CMon := CMon_product A B.
 
 Definition CMon_finl' (A B : CMon) : SetoidHom A (CMon_coproduct A B).
 Proof.
-  unshelve esplit.
-  - exact (fun a => (a, neutr)).
-  - now intros x y Heq; cbn.
+  split with (fun a => (a, neutr)).
+  now intros x y Heq; cbn.
 Defined.
 
-Definition CMon_finl (A B : CMon) : MonHom A (CMon_coproduct A B).
+Definition CMon_finl {A B : CMon} : MonHom A (CMon_coproduct A B).
 Proof.
   unshelve esplit.
-  - esplit with (CMon_finl' A B); cbn.
-    now intros; rewrite neutr_l.
-  - easy.
+  - split with (CMon_finl' A B); cbn.
+    now split; [| symmetry; apply neutr_r].
+  - now cbn.
 Defined.
 
 Definition CMon_finr' (A B : CMon) : SetoidHom B (CMon_coproduct A B).
 Proof.
-  unshelve esplit.
-  - exact (fun b => (neutr, b)).
-  - now intros x y Heq; cbn.
+  split with (fun b => (neutr, b)).
+  now intros x y Heq; cbn.
 Defined.
 
-Definition CMon_finr (A B : CMon) : MonHom B (CMon_coproduct A B).
+Definition CMon_finr {A B : CMon} : MonHom B (CMon_coproduct A B).
 Proof.
   unshelve esplit.
-  - esplit with (CMon_finr' A B); cbn.
-    now intros; rewrite neutr_l.
-  - easy.
+  - split with (CMon_finr' A B); cbn.
+    now split; [symmetry; apply neutr_l |].
+  - now cbn.
 Defined.
 
 #[export]
@@ -133,8 +142,12 @@ Instance CMon_copair'
   {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : SetoidHom (CMon_coproduct A B) X.
 Proof.
   unshelve esplit.
-  - refine (fun '(a, b) => op (f a) (g b)).
-  - now intros [a1 b1] [a2 b2]; cbn; intros [-> ->].
+  - refine (fun x => op (f (fst x)) (g (snd x))).
+    (* refine (fun '(a, b) => op (f a) (g b)). *)
+  - intros a b [Ha Hb]. now f_equiv; apply Proper_func.
+(* cbn. intros [a1 b1] [a2 b2] [Ha hb]; cbn in *.
+    f_equiv. Show Proof.
+ intros [-> ->]. *)
 Defined.
 
 #[export]
@@ -142,12 +155,12 @@ Instance CMon_copair
   {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : MonHom (CMon_coproduct A B) X.
 Proof.
   unshelve esplit.
-  - esplit with (CMon_copair' f g); cbn.
+  - split with (CMon_copair' f g); cbn.
     intros [a1 b1] [a2 b2]; cbn.
     rewrite !pres_op.
     rewrite !assoc; f_equiv.
     rewrite <- !assoc; f_equiv.
-    apply op_comm.
+    now apply op_comm.
   - now cbn; rewrite !pres_neutr, neutr_l.
 Defined.
 
@@ -156,9 +169,9 @@ Defined.
 Instance HasCoproducts_CMon : HasCoproducts CMonCat :=
 {
   coproduct := CMon_coproduct;
-  finl := CMon_finl;
-  finr := CMon_finr;
-  copair := @CMon_copair;
+  finl      := @CMon_finl;
+  finr      := @CMon_finr;
+  copair    := @CMon_copair;
 }.
 Proof.
   split; cbn.
@@ -180,11 +193,216 @@ Defined.
 
 #[refine]
 #[export]
-Instance forgetful : Functor CMonCat MonCat :=
+Instance CMon_equalizer {A B : CMon} (f g : MonHom A B) : CMon :=
 {
-  fob := mon;
+  mon := Mon_equalizer f g;
 }.
 Proof.
+  intros [x Hx] [y Hy]; cbn.
+  now apply op_comm.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_equalize {A B : CMon} (f g : MonHom A B) : MonHom (CMon_equalizer f g) A :=
+{
+  sgrHom := Sgr_equalize f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_factorize
+  {A B : CMon} {f g : MonHom A B}
+  {E' : CMon} (e' : Hom E' A) (Heq : (e' .> f) == (e' .> g))
+  : MonHom E' (CMon_equalizer f g) :=
+{
+  sgrHom := Sgr_factorize Heq;
+}.
+Proof.
+  now cbn; rewrite pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasEqualizers_CMon : HasEqualizers CMonCat :=
+{
+  equalizer := @CMon_equalizer;
+  equalize  := @CMon_equalize;
+  factorize := @CMon_factorize;
+}.
+Proof.
+  split; cbn.
+  - now intros [x H]; cbn.
   - easy.
   - easy.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_coequalizer {A B : CMon} (f g : MonHom A B) : CMon :=
+{
+  mon := Mon_coequalizer f g;
+}.
+Proof.
+  now cbn; intros; apply SgrCE_refl, op_comm.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_coequalize {A B : CMon} {f g : MonHom A B} : MonHom B (CMon_coequalizer f g) :=
+{
+  sgrHom := @Sgr_coequalize A B f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[export]
+#[refine]
+Instance CMon_cofactorize
+  {A B : CMon} {f g : Hom A B}
+  {Q : CMon} (q : Hom B Q) (Heq : f .> q == g .> q)
+  : MonHom (CMon_coequalizer f g) Q :=
+{
+  sgrHom := Sgr_cofactorize Heq;
+}.
+Proof.
+  now cbn; apply pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasCoequalizers_CMon : HasCoequalizers CMonCat :=
+{
+  coequalizer := @CMon_coequalizer;
+  coequalize  := @CMon_coequalize;
+  cofactorize := @CMon_cofactorize;
+}.
+Proof.
+  split; cbn.
+  - now constructor.
+  - easy.
+  - easy.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_pullback
+  {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : CMon :=
+{
+  mon := Mon_pullback f g;
+}.
+Proof.
+  - intros [a1 b1 H1] [a2 b2 H2]; cbn.
+    now split; apply op_comm.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_pullL
+  {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : MonHom (CMon_pullback f g) A :=
+{
+  sgrHom := Mon_pullL f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_pullR
+  {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : MonHom (CMon_pullback f g) B :=
+{
+  sgrHom := Mon_pullR f g;
+}.
+Proof.
+  now cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance CMon_triple
+  {A B X : CMon} (f : Hom A X) (g : Hom B X)
+  {Γ : CMon} (a : Hom Γ A) (b : Hom Γ B) (Heq : a .> f == b .> g)
+  : MonHom Γ (CMon_pullback f g) :=
+{
+  sgrHom := Mon_triple Heq;
+}.
+Proof.
+  now cbn; rewrite !pres_neutr.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_CMon : HasPullbacks CMonCat :=
+{
+  pullback := @CMon_pullback;
+  pullL    := @CMon_pullL;
+  pullR    := @CMon_pullR;
+  triple   := @CMon_triple;
+}.
+Proof.
+  split; cbn.
+  - now apply ok.
+  - easy.
+  - easy.
+  - now split.
+Defined.
+
+(* We construct pushouts from coproducts and coequalizers. *)
+
+#[export]
+Instance CMon_pushout
+  {A B Γ : CMon} (f : MonHom Γ A) (g : MonHom Γ B) : CMon :=
+    @CMon_coequalizer Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
+
+#[export]
+Instance CMon_pushl
+  {A B Γ : CMon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom A (CMon_pushout f g) :=
+    @CMon_finl A B .> @CMon_coequalize Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
+
+#[export]
+Instance CMon_pushr
+  {A B Γ : CMon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom B (CMon_pushout f g) :=
+    @CMon_finr A B .> @CMon_coequalize Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
+
+#[export]
+Instance CMon_cotriple
+  {A B Γ : CMon} {f : Hom Γ A} {g : Hom Γ B}
+  {X : CMon} (h1 : Hom A X) (h2 : Hom B X) (Heq : f .> h1 == g .> h2)
+  : MonHom (CMon_pushout f g) X.
+Proof.
+  apply (@CMon_cofactorize _ _ _ _ _ (CMon_copair h1 h2)).
+  cbn in *; intros.
+  now rewrite !pres_neutr, neutr_l, neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPushouts_CMon : HasPushouts CMonCat :=
+{
+  pushout  := @CMon_pushout;
+  pushl    := @CMon_pushl;
+  pushr    := @CMon_pushr;
+  cotriple := @CMon_cotriple;
+}.
+Proof.
+  split.
+  - intros x; cbn.
+    change (f x, neutr) with (@MonComp _ _ (CMon_coproduct A B) f CMon_finl x).
+    change (neutr, g x) with (@MonComp _ _ (CMon_coproduct A B) g CMon_finr x).
+    now constructor.
+  - now cbn; intros; rewrite pres_neutr, neutr_r.
+  - now cbn; intros; rewrite pres_neutr, neutr_l.
+  - intros Q h1 h2 HA HB [a b].
+    transitivity (h1 (@op (CMon_pushout f g) (a, neutr) (neutr, b))).
+    + apply Proper_func; constructor; cbn.
+      now rewrite neutr_l, neutr_r.
+    + transitivity (h2 (@op (CMon_pushout f g) (a, neutr) (neutr, b))).
+      * now rewrite !pres_op; f_equiv; cbn in *.
+      * apply Proper_func; constructor; cbn.
+        now rewrite neutr_l, neutr_r.
 Defined.
