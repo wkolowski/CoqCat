@@ -551,7 +551,7 @@ Defined.
 #[refine]
 #[export]
 Instance CoqSetoid_pullL
-  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  {A B X : Setoid'} {f : SetoidHom A X} {g : SetoidHom B X}
   : SetoidHom (CoqSetoid_pullback f g) A :=
 {
   func := pullL
@@ -563,7 +563,7 @@ Defined.
 #[refine]
 #[export]
 Instance CoqSetoid_pullR
-  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  {A B X : Setoid'} {f : SetoidHom A X} {g : SetoidHom B X}
   : SetoidHom (CoqSetoid_pullback f g) B :=
 {
   func := pullR;
@@ -575,7 +575,7 @@ Defined.
 #[refine]
 #[export]
 Instance CoqSetoid_triple
-  {A B X : Setoid'} (f : SetoidHom A X) (g : SetoidHom B X)
+  {A B X : Setoid'} {f : SetoidHom A X} {g : SetoidHom B X}
   {Γ : Setoid'} (a : SetoidHom Γ A) (b : SetoidHom Γ B) (Heq : forall x : Γ, f (a x) == g (b x))
   : SetoidHom Γ (CoqSetoid_pullback f g) :=
 {
@@ -601,4 +601,100 @@ Proof.
   - easy.
   - easy.
   - easy.
+Defined.
+
+Section Pushout.
+
+Context
+  {A B Γ : Setoid'} {f : SetoidHom Γ A} {g : SetoidHom Γ B}.
+
+Inductive CoqSetoid_pushout_equiv : A + B -> A + B -> Prop :=
+| CSpe_glue  : forall x : Γ, CoqSetoid_pushout_equiv (inl (f x)) (inr (g x))
+| CSpe_refl  : forall x y : A + B, x == y -> CoqSetoid_pushout_equiv x y
+| CSpe_sym   : forall x y : A + B, CoqSetoid_pushout_equiv y x -> CoqSetoid_pushout_equiv x y
+| CSpe_trans :
+  forall x y z : A + B,
+    CoqSetoid_pushout_equiv x y ->
+    CoqSetoid_pushout_equiv y z ->
+      CoqSetoid_pushout_equiv x z.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pushout : Setoid' :=
+{
+  carrier := CoqSetoid_coproduct A B;
+  setoid :=
+  {|
+    equiv := CoqSetoid_pushout_equiv;
+  |};
+}.
+Proof.
+  split; red.
+  - now intros; apply CSpe_refl.
+  - now intros; apply CSpe_sym.
+  - now intros; apply CSpe_trans with  y.
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pushl : SetoidHom A CoqSetoid_pushout :=
+{
+  func := inl;
+}.
+Proof.
+  intros a1 a2 Heq; cbn.
+  now constructor.
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_pushr : SetoidHom B CoqSetoid_pushout :=
+{
+  func := inr;
+}.
+Proof.
+  intros b1 b2 Heq; cbn.
+  now constructor.
+Defined.
+
+#[refine]
+#[export]
+Instance CoqSetoid_cotriple
+  {X : Setoid'} (h1 : SetoidHom A X) (h2 : SetoidHom B X) (Heq : forall x, h1 (f x) == h2 (g x))
+  : SetoidHom CoqSetoid_pushout X :=
+{
+  func := fun ab =>
+    match ab with
+    | inl a => h1 a
+    | inr b => h2 b
+    end;
+}.
+Proof.
+  intros x y H; cbn in *.
+  induction H as [z | x' y' Hglue | x' y' H IH | x' y' z' H1 IH1 H2 IH2].
+  - now apply Heq.
+  - destruct x' as [a1 | b1], y' as [a2 | b2]; cbn in *; try easy.
+    + now rewrite Hglue.
+    + now rewrite Hglue.
+  - now rewrite IH.
+  - now rewrite IH1, IH2.
+Defined.
+
+End Pushout.
+
+#[refine]
+#[export]
+Instance HasPushouts_CoqSetoid : HasPushouts CoqSetoid :=
+{
+  pushout := @CoqSetoid_pushout;
+  pushl := @CoqSetoid_pushl;
+  pushr := @CoqSetoid_pushr;
+  cotriple := @CoqSetoid_cotriple;
+}.
+Proof.
+  split; cbn.
+  - now constructor.
+  - easy.
+  - easy.
+  - now intros Q h1 h2 HA HB [a | b].
 Defined.

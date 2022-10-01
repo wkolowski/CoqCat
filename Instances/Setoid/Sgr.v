@@ -422,7 +422,7 @@ Proof.
 Defined.
 
 #[export]
-Instance Sgr_finl (A B : Sgr) : SgrHom A (Sgr_coproduct A B).
+Instance Sgr_finl {A B : Sgr} : SgrHom A (Sgr_coproduct A B).
 Proof.
   esplit with (Sgr_finl' A B); cbn.
   now intros; rewrite SCE_cons_op_l.
@@ -437,7 +437,7 @@ Proof.
 Defined.
 
 #[export]
-Instance Sgr_finr (A B : Sgr) : SgrHom B (Sgr_coproduct A B).
+Instance Sgr_finr {A B : Sgr} : SgrHom B (Sgr_coproduct A B).
 Proof.
   esplit with (Sgr_finr' A B); cbn.
   now intros; rewrite SCE_cons_op_r.
@@ -586,7 +586,16 @@ Inductive Sgr_coeq_equiv {A B : Sgr} (f g : SgrHom A B) : B -> B -> Prop :=
 
 #[export] Hint Constructors Sgr_coeq_equiv : core.
 
-#[refine]
+#[export]
+Instance Equivalence_Sgr_coeq_equiv
+  {A B : Sgr} (f g : SgrHom A B) : Equivalence (Sgr_coeq_equiv f g).
+Proof.
+  split; red.
+  - now constructor.
+  - now apply SgrCE_sym.
+  - now intros; apply SgrCE_trans with y.
+Defined.
+
 #[export]
 Instance Sgr_coequalizer_Setoid {A B : Sgr} (f g : SgrHom A B) : Setoid' :=
 {
@@ -596,12 +605,6 @@ Instance Sgr_coequalizer_Setoid {A B : Sgr} (f g : SgrHom A B) : Setoid' :=
     equiv := Sgr_coeq_equiv f g;
   |};
 }.
-Proof.
-  split; red.
-  - now constructor.
-  - now apply SgrCE_sym.
-  - now intros; apply SgrCE_trans with y.
-Defined.
 
 #[refine]
 #[export]
@@ -685,3 +688,122 @@ Proof.
   - easy.
   - easy.
 Defined.
+
+#[refine]
+#[export]
+Instance Sgr_pullback
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : Sgr :=
+{
+  setoid := CoqSetoid_pullback f g;
+}.
+Proof.
+  - intros [a1 b1 H1] [a2 b2 H2]; cbn.
+    refine {| pullL := op a1 a2; pullR := op b1 b2; |}.
+    now rewrite !pres_op, H1, H2.
+    (* intros x y.
+    refine {| pullL := op (pullL x) (pullL y); pullR := op (pullR x) (pullR y); |}.
+    now rewrite !pres_op, !ok. *)
+  - intros [a1 b1 H1] [a2 b2 H2] [Ha12 Hb12] [a3 b3 H3] [a4 b4 H4] [Ha34 Hb34]; cbn in *.
+    now rewrite Ha12, Hb12, Ha34, Hb34.
+  - intros [a1 b1 H1] [a2 b2 H2] [a3 b3 H3]; cbn.
+    now rewrite !assoc.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_pullL
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SgrHom (Sgr_pullback f g) A :=
+{
+  setoidHom := CoqSetoid_pullL;
+}.
+Proof.
+  now intros [a1 b1 H1] [a2 b2 H2]; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_pullR
+  {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SgrHom (Sgr_pullback f g) B :=
+{
+  setoidHom := CoqSetoid_pullR;
+}.
+Proof.
+  now intros [a1 b1 H1] [a2 b2 H2]; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Sgr_triple
+  {A B X : Sgr} (f : Hom A X) (g : Hom B X)
+  {Γ : Sgr} (a : Hom Γ A) (b : Hom Γ B) (Heq : a .> f == b .> g)
+  : SgrHom Γ (Sgr_pullback f g) :=
+{
+  setoidHom := CoqSetoid_triple a b Heq;
+}.
+Proof.
+  now cbn; intros; rewrite !pres_op.
+Defined.
+
+#[refine]
+#[export]
+Instance HasPullbacks_Sgr : HasPullbacks SgrCat :=
+{
+  pullback := @Sgr_pullback;
+  pullL    := @Sgr_pullL;
+  pullR    := @Sgr_pullR;
+  triple   := @Sgr_triple;
+}.
+Proof.
+  split; cbn.
+  - now apply ok.
+  - easy.
+  - easy.
+  - now split.
+Defined.
+
+(* We construct pushouts from coproducts and coequalizers. *)
+
+(* #[refine] *)
+#[export]
+Instance Sgr_pushout'
+  {Γ A B : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Setoid'.
+Proof.
+  split with (Nel (A + B)).
+  unshelve esplit.
+  - exact (@Sgr_coeq_equiv Γ (Sgr_coproduct A B) (f .> Sgr_finl) (g .> Sgr_finr)).
+  - split; red.
+    + now intros x; apply SgrCE_refl.
+    + now intros x y Hxy; apply SgrCE_sym.
+    + now intros x y z Hxy Hyz; apply SgrCE_trans with y.
+Defined.
+
+(*
+Lemma SgrCE_napp_l :
+  forall {Γ A B : Sgr} (f g : SgrHom Γ (Sgr_coproduct A B)) (l1 l2 l2' : Nel (A + B)),
+    Sgr_coeq_equiv f g l2 l2' -> Sgr_coeq_equiv f g (napp l1 l2) (napp l1 l2').
+Proof.
+  induction l1 as [h1 | h1 t1] using Nel_ind'.
+  - intros l2 l2' Heqv.
+    Print Sgr_coeq_equiv.
+Lemma SgrCE_napp :
+  forall {A B : Sgr} (f g : SgrHom A B) (l1 l1' l2 : Nel B),
+    Sgr_coeq_equiv l1 l1' -> Sgr_coeq_equiv (napp l1 l2) (napp l1' l2).
+Proof.
+
+
+#[refine]
+#[export]
+Instance Sgr_pushout
+  {Γ A B : Sgr} (f : SgrHom Γ A) (g : SgrHom Γ B) : Sgr :=
+{
+  setoid := Sgr_pushout' f g;
+  op := napp;
+}.
+Proof.
+  - intros l1 l1' Heq1 l2 l2' Heq2; cbn in *.
+    transitivity (napp l1 l2').
+    + admit.
+    + 
+    induction Heq1. cbn.
+Defined.
+*)
