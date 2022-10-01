@@ -1,4 +1,5 @@
 From Cat Require Export Cat.
+From Cat.Universal Require Import Initial Terminal Coproduct Coequalizer.
 
 Set Implicit Arguments.
 
@@ -209,56 +210,134 @@ Proof.
   - now intros; rewrite !comp_id_l in H.
 Qed.
 
-(*
 Lemma isCoproduct_isPushout :
   forall
     (C : Cat) (ht : HasInit C) (A B : Ob C)
     (P : Ob C) (pushl : Hom A P) (pushr : Hom B P)
-    (copair : forall (P' : Ob C) (f : Hom A P') (g : Hom B P'), Hom P P'),
-      isPushout C (create A) (create B) P pushl pushr (fun P' f g _ => copair P' f g) ->
-        isCoproduct C P pushl pushr copair.
+    (cotriple : forall {P' : Ob C} (f : Hom A P') (g : Hom B P'),
+      create A .> f == create B .> g -> Hom P P'),
+      isPushout C (create A) (create B) P pushl pushr (@cotriple) ->
+        isCoproduct C P pushl pushr (fun P' h1 h2 => cotriple h1 h2 (equiv_initial _)).
 Proof.
-  red; intros. edestruct H, (H1 _ f g) as [[H2 H3] H4].
-    init.
-    repeat split.
-      now rewrite H2.
-      now rewrite H3.
-      intros. apply H4. now cat; [rewrite H5 | rewrite H6].
+  split; intros.
+  - now rewrite pushl_cotriple.
+  - now rewrite pushr_cotriple.
+  - now apply equiv_pushout.
 Qed.
-
 
 Lemma isPushout_isCoproduct :
   forall
     (C : Cat) (ht : HasInit C) (A B : Ob C)
-    (P : Ob C) (pushl : Hom A P) (pushr : Hom B P)
+    (P : Ob C) (finl : Hom A P) (finr : Hom B P)
     (copair : forall (P' : Ob C) (f : Hom A P') (g : Hom B P'), Hom P P'),
-      isCoproduct C P pushl pushr copair ->
-        isPushout C (create A) (create B) P pushl pushr (fun P' f g _ => copair P' f g).
+      isCoproduct C P finl finr copair ->
+        isPushout C (create A) (create B) P finl finr (fun P' f g _ => copair P' f g).
 Proof.
-  red; intros. repeat split.
-    init.
-    edestruct H, H1. now rewrite <- H3.
-    edestruct H, H1. now rewrite <- H4.
-    intros. edestruct H. apply H3. cat.
-      now rewrite H1.
-      now rewrite H5.
+  split; intros.
+  - now apply equiv_initial.
+  - now apply finl_copair.
+  - now apply finr_copair.
+  - now apply equiv_coproduct.
+Qed.
+
+Lemma isPushout_isCoproduct' :
+  forall
+    (C : Cat) (ht : HasInit C) (A B : Ob C)
+    (P : Ob C) (finl : Hom A P) (finr : Hom B P)
+    (copair : forall (P' : Ob C) (f : Hom A P') (g : Hom B P'), Hom P P'),
+      isCoproduct C P finl finr copair
+        <->
+      isPushout C (create A) (create B) P finl finr (fun P' f g _ => copair P' f g).
+Proof.
+  split.
+  - split; intros.
+    + now apply equiv_initial.
+    + now intros; apply finl_copair.
+    + now intros; apply finr_copair.
+    + now intros; apply equiv_coproduct.
+  - split; intros.
+    + rewrite (pushl_cotriple (isPushout := H)); [easy |].
+      now apply equiv_initial.
+    + rewrite (pushr_cotriple (isPushout := H)); [easy |].
+      now apply equiv_initial.
+    + now apply equiv_pushout.
 Qed.
 
 Lemma isCoequalizer_isPushout :
   forall
     (C : Cat) (A B : Ob C) (f g : Hom A B)
-    (P : Ob C) (p : Hom B P)
-    (cotriple : forall (P' : Ob C) (f : Hom B P') (g : Hom B P'), Hom P P'),
-      isPushout C f g P p p (fun P' f g _ => cotriple P' f g) ->
-        isCoequalizer C f g P p (fun (P' : Ob C) (p : Hom B P') _ => cotriple P' p p).
+    (P : Ob C) (push : Hom B P)
+    (cotriple : forall (P' : Ob C) (pushl' pushr' : Hom B P'),
+      f .> pushl' == g .> pushr' -> Hom P P'),
+      isPushout C f g P push push cotriple ->
+        isCoequalizer C f g P push (fun Q q Heq => cotriple Q q q Heq).
 Proof.
-  repeat split.
-    now destruct H.
-    now edestruct H, (H2 _ _ _ H0), H3.
-    intros. edestruct H, (H3 _ _ _ H0). apply H5. cat.
+  split; intros.
+  - now apply ok.
+  - now apply pushl_cotriple.
+  - now apply equiv_pushout.
 Qed.
 
-*)
+Lemma isCoequalizer_isPushout' :
+  forall
+    (C : Cat) (A B Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B)
+    (P : Ob C) (pushl : Hom A P) (pushr : Hom B P)
+    (cotriple : forall (P' : Ob C) (pushl' : Hom A P') (pushr' : Hom B P'),
+      f .> pushl' == g .> pushr' -> Hom P P'),
+      isPushout C f g P pushl pushr cotriple ->
+        isCoequalizer C (f .> pushl) (g .> pushr) P (id P)
+          (fun Q' q Heq => cotriple _ (pushl .> q) (pushr .> q)
+            ltac:(now rewrite <- !comp_assoc)).
+Proof.
+  split.
+  - now rewrite ok.
+  - now intros; rewrite equiv_pushout', comp_id_l, pushl_cotriple, pushr_cotriple.
+  - now intros * Heq; rewrite !comp_id_l in Heq.
+Qed.
+
+Lemma isPushout_isCoequalizer :
+  forall
+    (C : Cat) (A B : Ob C) (f g : Hom A B)
+    (Q : Ob C) (coequalize : Hom B Q)
+    (cofactorize : forall (Q' : Ob C) (q : Hom B Q'), f .> q == g .> q -> Hom Q Q'),
+      isCoequalizer C f g Q coequalize cofactorize -> Type.
+Proof.
+  intros.
+  apply (isPushout C f g B (id B) (id B)).
+  intros P' h1 h2 Heq.
+Abort.
+
+(* Lemma isPushout_isCoequalizer_isCoproduct :
+  forall
+    (C : Cat) (A B Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B)
+    (P : Ob C) (pushl : Hom A P) (pushr : Hom B P)
+    (cotriple : forall {P' : Ob C} (pushl' : Hom A P') (pushr' : Hom B P'),
+                  f .> pushl' == g .> pushr' -> Hom P P'),
+  forall
+    (AB : Ob C),
+      isCoproduct C P pushl pushr (fun P' a b => cotriple 
+      isPushout C f g P pushl pushr (@cotriple). *)
+
+Lemma isPushout_isCoequalizer_isCoproduct :
+  forall
+    (C : Cat) (A B Γ : Ob C) (f : Hom Γ A) (g : Hom Γ B)
+    (AB : Ob C) (finl : Hom A AB) (finr : Hom B AB)
+    (copair : forall {X : Ob C} (finl' : Hom A X) (finr' : Hom B X), Hom AB X)
+    (HisCop : isCoproduct C AB finl finr (@copair))
+    (Q : Ob C) (coequalize : Hom AB Q)
+    (cofactorize : forall {Q' : Ob C} (q : Hom AB Q'),
+      (f .> finl) .> q == (g .> finr) .> q -> Hom Q Q')
+    (HisCoeq : isCoequalizer C (f .> finl) (g .> finr) Q coequalize (@cofactorize)),
+      isPushout C f g Q (finl .> coequalize) (finr .> coequalize)
+        (fun P' pushl' pushr' Heq => cofactorize (copair pushl' pushr')
+          ltac:(now rewrite !comp_assoc, finl_copair, finr_copair)).
+Proof.
+  split.
+  - now rewrite <- !comp_assoc, Coequalizer.ok.
+  - now intros; rewrite comp_assoc, coequalize_cofactorize, finl_copair.
+  - now intros; rewrite comp_assoc, coequalize_cofactorize, finr_copair.
+  - now intros; rewrite equiv_coequalizer', equiv_coproduct', <- !comp_assoc.
+Qed.
 
 Class HasPushouts (C : Cat) : Type :=
 {

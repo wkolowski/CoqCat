@@ -49,6 +49,27 @@ Qed.
 
 #[global] Hint Resolve id_unique_left id_unique_right : core.
 
+Lemma reassoc_l :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
+    f .> (g .> h) == r -> (f .> g) .> h == r.
+Proof.
+  now intros; rewrite comp_assoc.
+Qed.
+
+Lemma reassoc_r :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
+    (f .> g) .> h == r -> f .> (g .> h) == r.
+Proof.
+  now intros; rewrite <- comp_assoc.
+Qed.
+
+Lemma reassoc_both :
+  forall {C : Cat} {X Y Z W : Ob C} {f f' : Hom X Y} {g g' : Hom Y Z} {h h' : Hom Z W},
+    (f .> g) .> h == (f' .> g') .> h' -> f .> (g .> h) == f' .> (g' .> h').
+Proof.
+  now intros; rewrite <- !comp_assoc.
+Qed.
+
 (** ** Reflective tactic for categories *)
 
 Inductive exp {C : Cat} : Ob C -> Ob C -> Type :=

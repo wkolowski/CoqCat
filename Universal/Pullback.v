@@ -1,5 +1,5 @@
 From Cat Require Import Cat.
-From Cat.Universal Require Import Initial Terminal Product Coproduct Equalizer.
+From Cat.Universal Require Import Initial Terminal Product Equalizer.
 
 Set Implicit Arguments.
 
@@ -205,13 +205,6 @@ Proof.
   - now rewrite !comp_id_r in H.
 Qed.
 
-Lemma reassoc_l :
-  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
-    f .> (g .> h) == r -> (f .> g) .> h == r.
-Proof.
-  now intros; rewrite comp_assoc.
-Qed.
-
 Lemma isPullback_comp :
   forall
     {C : Cat} {A A' B X : Ob C} {f : Hom A X} {g : Hom B X} {h : Hom A' A}
@@ -328,27 +321,9 @@ Lemma isEqualizer_isPullback
 Proof.
   split; intros.
   - now apply ok.
-  - now rewrite triple_pullL.
+  - now apply triple_pullL.
   - now apply equiv_pullback.
 Qed.
-
-Lemma isEqualizer_isPullback'
-  (C : Cat) (A X : Ob C) (f g : Hom A X)
-  (P : Ob C) (pull : Hom P A)
-  (triple : forall {Γ : Ob C} (a1 a2 : Hom Γ A), a1 .> f == a2 .> g -> Hom Γ P) :
-    isPullback C f g P pull pull (@triple)
-      <->
-    isEqualizer C f g P pull (fun Γ a Heq => triple a a Heq).
-Proof.
-  split.
-  - split; intros.
-    + now apply ok.
-    + now rewrite triple_pullL.
-    + now apply equiv_pullback.
-  - split; intros.
-    + now apply Equalizer.ok.
-    +
-Abort.
 
 (*
 https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
