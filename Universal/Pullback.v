@@ -325,24 +325,41 @@ Proof.
   - now apply equiv_pullback.
 Qed.
 
-(*
-https://math.stackexchange.com/questions/308391/products-and-pullbacks-imply-equalizers
-
-Lemma isPullback_isEqualizer :
-  forall (C : Cat) (hp : HasProducts C) (A B : Ob C) (f g : Hom A B)
-  (E : Ob C) (e : Hom E A)
-  (factorize : forall (E' : Ob C) (e : Hom E' A), e .> f == e .> g -> Hom E' E),
-    isEqualizer C f g E e factorize ->
-    isPullback C f g (product E E) (outl .> e) (outr .> e)
-      (fun (E' : Ob C) (e1 e2 : Hom E' A) (H : e1 .> f == e2 .> g) =>
-        fpair e1 e2).
+Lemma isEqualizer_isPullback'
+  (C : Cat) (A B X : Ob C) (f : Hom A X) (g : Hom B X)
+  (P : Ob C) (pullL : Hom P A) (pullR : Hom P B)
+  (triple : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), a .> f == b .> g -> Hom Γ P) :
+    isPullback C f g P pullL pullR (@triple) ->
+      isEqualizer C (pullL .> f) (pullR .> g) P (id P)
+        (fun Γ x Heq => triple (x .> pullL) (x .> pullR)
+            ltac:(now rewrite !comp_assoc)).
 Proof.
-  intros. pose (eq := isEqualizer_equiv H H0).
-  repeat split.
-    rewrite eq. edestruct H0. assocr'. rewrite e.
-      f_equiv. destruct hp. cbn in *. do 2 red in is_product.
-Abort.
-*)
+  split.
+  - now rewrite ok.
+  - now intros; rewrite equiv_pullback', comp_id_r, triple_pullL, triple_pullR.
+  - now intros * Heq; rewrite !comp_id_r in Heq.
+Qed.
+
+Lemma isPullback_isEqualizer_isProduct :
+  forall
+    (C : Cat) (A B X : Ob C) (f : Hom A X) (g : Hom B X)
+    (AB : Ob C) (outl : Hom AB A) (outr : Hom AB B)
+    (fpair : forall {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ AB)
+    (HisP : isProduct C AB outl outr (@fpair))
+    (E : Ob C) (equalize : Hom E AB)
+    (factorize : forall {E' : Ob C} (e : Hom E' AB),
+      e .> (outl .> f) == e .> (outr .> g) -> Hom E' E)
+    (HisEq : isEqualizer C (outl .> f) (outr .> g) E equalize (@factorize)),
+      isPullback C f g E (equalize .> outl) (equalize .> outr)
+        (fun Γ a b Heq => factorize (fpair a b)
+          ltac:(now rewrite <- !comp_assoc, fpair_outl, fpair_outr)).
+Proof.
+  split; intros.
+  - now rewrite !comp_assoc, Equalizer.ok.
+  - now rewrite <- comp_assoc, factorize_equalize, fpair_outl.
+  - now rewrite <- comp_assoc, factorize_equalize, fpair_outr.
+  - now rewrite equiv_equalizer', equiv_product', !comp_assoc.
+Qed.
 
 Class HasPullbacks (C : Cat) : Type :=
 {
@@ -394,3 +411,22 @@ Proof.
   exists commutator.
   now now apply isIso_commutator.
 Qed.
+
+#[refine]
+#[local]
+Instance HasPullbacks_HasProducts_HasEqualizers
+  {C : Cat} (hp : HasProducts C) (he : HasEqualizers C) : HasPullbacks C :=
+{
+  pullback := fun A B X f g => @equalizer _ _ (product A B) X (outl .> f) (outr .> g);
+  pullL    := fun A B X f g => equalize (outl .> f) (outr .> g) .> outl;
+  pullR    := fun A B X f g => equalize (outl .> f) (outr .> g) .> outr;
+  triple   := fun A B X f g Γ a b Heq => factorize (fpair a b) _;
+}.
+Proof.
+  - now rewrite <- !comp_assoc, fpair_outl, fpair_outr.
+  - split; intros.
+    + now rewrite !comp_assoc, Equalizer.ok.
+    + now rewrite <- comp_assoc, factorize_equalize, fpair_outl.
+    + now rewrite <- comp_assoc, factorize_equalize, fpair_outr.
+    + now rewrite equiv_equalizer', equiv_product', !comp_assoc.
+Defined.

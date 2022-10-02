@@ -727,34 +727,6 @@ Proof.
   - now split.
 Defined.
 
-(*
-  We construct the pushout group from coproduct and coequalizer, but the rest
-  is inherited from monoids.
-*)
-
-#[export]
-Instance Grp_pushout
-  {A B Γ : Grp} (f : MonHom Γ A) (g : MonHom Γ B) : Grp :=
-    @Grp_coequalizer Γ (Grp_coproduct A B) (f .> finl) (g .> finr).
-
-#[refine]
-#[export]
-Instance HasPushouts_Grp : HasPushouts GrpCat :=
-{
-  pushout  := @Grp_pushout;
-  pushl    := @Mon_pushl;
-  pushr    := @Mon_pushr;
-  cotriple := @Mon_cotriple;
-}.
-Proof.
-  split; cbn.
-  - intros x.
-    change [inl (f x)] with (@MonComp _ _ (Grp_coproduct A B) f Mon_finl x).
-    change [inr (g x)] with (@MonComp _ _ (Grp_coproduct A B) g Mon_finr x).
-    now constructor.
-  - easy.
-  - easy.
-  - intros Q h1 h2 HA HB.
-    now apply (equiv_pushout (isPushout := HasPushouts_isPushout
-      (HasPushouts := HasPushouts_Mon))).
-Defined.
+(* We construct pushouts from coproducts and coequalizers. *)
+#[export] Instance HasPushouts_Grp : HasPushouts GrpCat :=
+  HasPushouts_HasCoproducts_HasCoequalizers HasCoproducts_Grp HasCoequalizers_Grp.

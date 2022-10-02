@@ -353,56 +353,5 @@ Proof.
 Defined.
 
 (* We construct pushouts from coproducts and coequalizers. *)
-
-#[export]
-Instance CMon_pushout
-  {A B Γ : CMon} (f : MonHom Γ A) (g : MonHom Γ B) : CMon :=
-    @CMon_coequalizer Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
-
-#[export]
-Instance CMon_pushl
-  {A B Γ : CMon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom A (CMon_pushout f g) :=
-    @CMon_finl A B .> @CMon_coequalize Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
-
-#[export]
-Instance CMon_pushr
-  {A B Γ : CMon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom B (CMon_pushout f g) :=
-    @CMon_finr A B .> @CMon_coequalize Γ (CMon_coproduct A B) (f .> CMon_finl) (g .> CMon_finr).
-
-#[export]
-Instance CMon_cotriple
-  {A B Γ : CMon} {f : Hom Γ A} {g : Hom Γ B}
-  {X : CMon} (h1 : Hom A X) (h2 : Hom B X) (Heq : f .> h1 == g .> h2)
-  : MonHom (CMon_pushout f g) X.
-Proof.
-  apply (@CMon_cofactorize _ _ _ _ _ (CMon_copair h1 h2)).
-  cbn in *; intros.
-  now rewrite !pres_neutr, neutr_l, neutr_r.
-Defined.
-
-#[refine]
-#[export]
-Instance HasPushouts_CMon : HasPushouts CMonCat :=
-{
-  pushout  := @CMon_pushout;
-  pushl    := @CMon_pushl;
-  pushr    := @CMon_pushr;
-  cotriple := @CMon_cotriple;
-}.
-Proof.
-  split.
-  - intros x; cbn.
-    change (f x, neutr) with (@MonComp _ _ (CMon_coproduct A B) f CMon_finl x).
-    change (neutr, g x) with (@MonComp _ _ (CMon_coproduct A B) g CMon_finr x).
-    now constructor.
-  - now cbn; intros; rewrite pres_neutr, neutr_r.
-  - now cbn; intros; rewrite pres_neutr, neutr_l.
-  - intros Q h1 h2 HA HB [a b].
-    transitivity (h1 (@op (CMon_pushout f g) (a, neutr) (neutr, b))).
-    + apply Proper_func; constructor; cbn.
-      now rewrite neutr_l, neutr_r.
-    + transitivity (h2 (@op (CMon_pushout f g) (a, neutr) (neutr, b))).
-      * now rewrite !pres_op; f_equiv; cbn in *.
-      * apply Proper_func; constructor; cbn.
-        now rewrite neutr_l, neutr_r.
-Defined.
+#[export] Instance HasPushouts_CMon : HasPushouts CMonCat :=
+  HasPushouts_HasCoproducts_HasCoequalizers HasCoproducts_CMon HasCoequalizers_CMon.

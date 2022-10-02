@@ -932,53 +932,5 @@ Proof.
 Defined.
 
 (* We construct pushouts from coproducts and coequalizers. *)
-
-#[export]
-Instance Mon_pushout
-  {A B Γ : Mon} (f : MonHom Γ A) (g : MonHom Γ B) : Mon :=
-    @Mon_coequalizer Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
-
-#[export]
-Instance Mon_pushl
-  {A B Γ : Mon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom A (Mon_pushout f g) :=
-    @Mon_finl A B .> @Mon_coequalize Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
-
-#[export]
-Instance Mon_pushr
-  {A B Γ : Mon} {f : MonHom Γ A} {g : MonHom Γ B} : MonHom B (Mon_pushout f g) :=
-    @Mon_finr A B .> @Mon_coequalize Γ (Mon_coproduct A B) (f .> Mon_finl) (g .> Mon_finr).
-
-#[export]
-Instance Mon_cotriple
-  {A B Γ : Mon} {f : Hom Γ A} {g : Hom Γ B}
-  {X : Mon} (h1 : Hom A X) (h2 : Hom B X) (Heq : f .> h1 == g .> h2)
-  : MonHom (Mon_pushout f g) X.
-Proof.
-  apply (@Mon_cofactorize _ _ _ _ _ (Mon_copair h1 h2)).
-  now cbn in *; intros x; rewrite Heq.
-Defined.
-
-#[refine]
-#[export]
-Instance HasPushouts_Mon : HasPushouts MonCat :=
-{
-  pushout  := @Mon_pushout;
-  pushl    := @Mon_pushl;
-  pushr    := @Mon_pushr;
-  cotriple := @Mon_cotriple;
-}.
-Proof.
-  split; cbn.
-  - intros x.
-    change [inl (f x)] with (@MonComp _ _ (Mon_coproduct A B) f Mon_finl x).
-    change [inr (g x)] with (@MonComp _ _ (Mon_coproduct A B) g Mon_finr x).
-    now constructor.
-  - easy.
-  - easy.
-  - intros Q h1 h2 HA HB; cbn.
-    induction x as [| h t].
-    + change [] with (@neutr (Mon_pushout f g)).
-      now rewrite (@pres_neutr _ _ h1), (@pres_neutr _ _ h2).
-    + change (h :: t) with (@op (Mon_pushout f g) [h] t).
-      now rewrite (@pres_op _ _ h1), (@pres_op _ _ h2), IHt; destruct h; rewrite ?HA, ?HB.
-Defined.
+#[export] Instance HasPushouts_Mon : HasPushouts MonCat :=
+  HasPushouts_HasCoproducts_HasCoequalizers HasCoproducts_Mon HasCoequalizers_Mon.
