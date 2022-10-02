@@ -6,8 +6,8 @@ Class Apartoid : Type :=
 {
   carrier : Type;
   neq : carrier -> carrier -> Prop;
-  neq_irrefl : forall x : carrier, ~ neq x x;
-  neq_sym : forall x y : carrier, neq x y -> neq y x;
+  neq_irrefl  : forall x     : carrier, ~ neq x x;
+  neq_sym     :> Symmetric neq; (* forall x y   : carrier, neq x y -> neq y x; *)
   neq_cotrans : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
 
@@ -33,25 +33,16 @@ match goal with
 | X : Ob _ |- _ => apartoidob X
 end.
 
-#[refine]
-#[export]
-Instance Apartoid_to_Setoid (A : Apartoid) : Setoid A :=
+Record ApartoidHom (A B : Apartoid) : Type :=
 {
-  equiv := fun x y : A => ~ neq x y
+  func :> A -> B;
+  reflect_neq : forall a1 a2 : A, func a1 # func a2 -> a1 # a2;
 }.
-Proof.
-Abort.
-
-Definition ApartoidHom (X Y : Apartoid) : Type :=
-  {f : X -> Y | forall x x' : X, ~ neq x x' -> ~ neq (f x) (f x')}.
-
-Definition ApartoidHom_Fun {X Y : Apartoid} (f : ApartoidHom X Y) : X -> Y := proj1_sig f.
-Coercion ApartoidHom_Fun : ApartoidHom >-> Funclass.
 
 Ltac apartoidhom f := try intros until f;
 match type of f with
 | ApartoidHom _ _ =>
-  let a := fresh f "_pres_equiv" in destruct f as [f a]
+  let a := fresh "Proper_" f in destruct f as [f a]
 | Hom _ _ => progress cbn in f; apartoidhom f
 end.
 
@@ -64,9 +55,9 @@ end.
 Definition ApartoidComp
   (X Y Z : Apartoid) (f : ApartoidHom X Y) (g : ApartoidHom Y Z) : ApartoidHom X Z.
 Proof.
-  red; destruct f as [f Hf], g as [g Hg].
-  exists (fun x : X => g (f x)).
-  now auto.
+  exists (fun x => g (f x)).
+  intros a1 a2 Hneq.
+  now do 2 apply reflect_neq in Hneq.
 Defined.
 
 Definition ApartoidId (X : Apartoid) : ApartoidHom X X.
@@ -82,9 +73,6 @@ match goal with
 | H : _ \/ _ |- _ => destruct H
 | H : ?neq ?x ?x, irrefl : forall x : _, ~ ?neq x x |- False =>
   eapply irrefl; eauto
-| pres_equiv : forall x x' : _, ~ ?A_neq x x' -> ~ ?B_neq (?f x) (?f x'),
-  H : ~ ?A_neq ?x ?x', H' : ?B_neq (?f ?x) (?f ?x') |- False =>
-  eapply pres_equiv; eauto
 | H : ?P, H' : ~ ?P |- False =>
   eapply H'; eauto
 | H : ?P ?x, H' : forall x : _, ~ ?P x |- False =>
@@ -110,26 +98,31 @@ Instance ApartoidCat : Cat :=
 {
   Ob := Apartoid;
   Hom := ApartoidHom;
-  HomSetoid := fun X Y : Apartoid =>
+  HomSetoid := fun A B : Apartoid =>
   {|
-    equiv := fun f g : ApartoidHom X Y => forall x : X, ~ f x # g x
+    equiv := fun f g : ApartoidHom A B => forall a : A, ~ f a # g a
   |};
   comp := ApartoidComp;
   id := ApartoidId
 }.
 Proof.
-  - solve_equiv; apartoid'.
-    + now eapply H; apply Y_neq_sym; eauto.
-    + destruct (Y_neq_cotrans _ _ (y x0) H1).
-      * now eapply H; apply Y_neq_sym; eauto.
-      * now eapply H0; apply Y_neq_sym; eauto.
-  - apartoid'.
-    apply (C_neq_cotrans _ _ (y0 (x x1))) in H1 as [].
-    + now eapply H0; eauto.
-    + now eapply (y0_pres_equiv _ _ (H x1)).
-  - now apartoid.
-  - now apartoid.
-  - now apartoid.
+  - split; red.
+    + now intros; apply neq_irrefl.
+    + intros f g Heq a Hneq.
+      now apply (Heq a); symmetry.
+    + intros f g h Heq1 Heq2 a Hneq.
+      destruct (neq_cotrans _ _ (g a) Hneq).
+      * now apply (Heq1 a).
+      * now apply (Heq2 a).
+  - intros A B C f1  f2 Hf g1 g2 Hg a Hneq; cbn in *.
+    destruct (neq_cotrans _ _ (g1 (f2 a)) Hneq).
+    + apply reflect_neq in H.
+      now apply (Hf a); symmetry.
+    + now apply (Hg (f2 a)).
+  - intros A B C D f g h a Hneq; cbn in *.
+    now apply neq_irrefl in Hneq.
+  - now cbn; intros; apply neq_irrefl.
+  - now cbn; intros; apply neq_irrefl.
 Defined.
 
 #[refine]
@@ -139,13 +132,13 @@ Instance Apartoid_init : Apartoid :=
   carrier := Empty_set;
   neq := fun (e : Empty_set) _ => match e with end
 }.
-Proof. all: now apartoid. Defined.
+Proof. all: easy. Defined.
 
-Definition Apartoid_create (X : Apartoid) : ApartoidHom Apartoid_init X.
-Proof.
-  exists (fun (e : Empty_set) => match e with end).
-  now apartoid.
-Defined.
+Definition Apartoid_create (X : Apartoid) : ApartoidHom Apartoid_init X :=
+{|
+  func := fun e : Apartoid_init => match e with end;
+  reflect_neq := ltac:(easy);
+|}.
 
 #[refine]
 #[export]
@@ -154,7 +147,7 @@ Instance HasInit_Apartoid : HasInit ApartoidCat :=
   init := Apartoid_init;
   create := Apartoid_create
 }.
-Proof. now apartoid. Defined.
+Proof. easy. Defined.
 
 #[export]
 Instance HasStrictInit_Apartoid : HasStrictInit ApartoidCat.
@@ -188,7 +181,7 @@ Instance HasTerm_Apartoid : HasTerm ApartoidCat :=
   term := Apartoid_term;
   delete := Apartoid_delete
 }.
-Proof. now apartoid. Defined.
+Proof. easy. Defined.
 
 #[refine]
 #[export]
@@ -209,13 +202,13 @@ Defined.
 Definition Apartoid_outl (X Y : Apartoid) : ApartoidHom (Apartoid_product X Y) X.
 Proof.
   exists fst.
-  now apartoid.
+  now cbn; left.
 Defined.
 
 Definition Apartoid_outr (X Y : Apartoid) : ApartoidHom (Apartoid_product X Y) Y.
 Proof.
   exists snd.
-  now apartoid.
+  now cbn; right.
 Defined.
 
 Definition Apartoid_fpair
@@ -223,7 +216,7 @@ Definition Apartoid_fpair
   : ApartoidHom X (Apartoid_product A B).
 Proof.
   exists (fun x : X => (f x, g x)).
-  now apartoid.
+  now cbn; intros a1 a2 [H%reflect_neq | H%reflect_neq].
 Defined.
 
 #[refine]
@@ -235,7 +228,12 @@ Instance HasProducts_Apartoid : HasProducts ApartoidCat :=
   outr := Apartoid_outr;
   fpair := Apartoid_fpair
 }.
-Proof. now apartoid. Defined.
+Proof.
+  split; cbn.
+  - easy.
+  - easy.
+  - now firstorder.
+Defined.
 
 #[refine]
 #[export]
@@ -317,8 +315,7 @@ Definition Apartoid_out
   {J : Type} (A : J -> Apartoid) (j : J) : ApartoidHom (Apartoid_indexedProduct A) (A j).
 Proof.
   exists (fun (f : forall j : J, A j) => f j).
-  cbn; intros x y H1 H2.
-  apply H1.
+  cbn; intros a1 a2 Hneq.
   now exists j.
 Defined.
 
@@ -328,9 +325,8 @@ Definition Apartoid_tuple
   : ApartoidHom X (Apartoid_indexedProduct A).
 Proof.
   exists (fun (x : X) (j : J) => f j x).
-  cbn; intros x y H1 [j H2].
-  destruct (f j) as [fj Hfj]; cbn in *.
-  now eapply Hfj; eauto.
+  cbn; intros a1 a2 [j Hneq].
+  now apply reflect_neq in Hneq.
 Defined.
 
 #[refine]
@@ -343,10 +339,9 @@ Instance HasIndexedProducts_Apartoid : HasIndexedProducts ApartoidCat :=
 }.
 Proof.
   split; cbn in *; intros.
-  - eauto.
+  - easy.
   - intros [j Hj].
-    apply (H j x).
-    now apartoid.
+    now apply (H j a).
 Defined.
 
 #[refine]
@@ -357,13 +352,18 @@ Instance Apartoid_equalizer {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid 
   neq := fun p1 p2 : {x : X | ~ (f x) # (g x)} =>
     proj1_sig p1 # proj1_sig p2
 }.
-Proof. all: now apartoid. Defined.
+Proof.
+  - easy.
+  - easy.
+  - intros [x Hx] [y Hy] [z Hz]; cbn.
+    now apply neq_cotrans.
+Defined.
 
 Definition Apartoid_equalize
   {X Y : Apartoid} (f g : ApartoidHom X Y) : ApartoidHom (Apartoid_equalizer f g) X.
 Proof.
   exists (@proj1_sig _ _).
-  now apartoid.
+  now cbn.
 Defined.
 
 Lemma trick
@@ -371,9 +371,8 @@ Lemma trick
   (e' : Hom E' X) (H : e' .> f == e' .> g)
   : E' -> Apartoid_equalizer f g.
 Proof.
-  cbn; intros x.
-  exists (proj1_sig e' x).
-  now apartoid.
+  intros x; cbn in *.
+  now exists (e' x).
 Defined.
 
 Lemma Apartoid_factorize
@@ -381,7 +380,8 @@ Lemma Apartoid_factorize
   (E' : Apartoid) (e' : Hom E' X) (H : e' .> f == e' .> g)
   : ApartoidHom E' (Apartoid_equalizer f g).
 Proof.
-  exists (trick X Y E' f g e' H). apartoid.
+  exists (trick X Y E' f g e' H); cbn.
+  now intros a1 a2 Hneq%reflect_neq.
 Defined.
 
 #[refine]
@@ -393,55 +393,37 @@ Instance HasEqualizers_Apartoid : HasEqualizers ApartoidCat :=
   factorize := @Apartoid_factorize;
 }.
 Proof.
-  cbn; intros X Y [f Hf] [g Hg]; split; cbn.
-  - now apartoid.
-  - intros E' [e' He'] Heq x; cbn.
-    now apartoid.
-  - intros E' [e1 He1] [e2 He2] Heq x; cbn in *.
-    now apartoid.
+  intros A B f g; split; cbn.
+  - now intros [a Ha]; cbn.
+  - now intros E' e' Hneq x.
+  - easy.
 Defined.
 
-(* TODO: likely this can't be done at all.
-Inductive Apartoid_coeq_neq {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y -> Prop :=
-| coeq_step : forall y y' : Y, y # y' -> CoqSetoid_coeq_neq f g y y'
-| coeq_quot : forall x x' : X, x # x' -> CoqSetoid_coeq_neq f g (f x) (g x')
-| coeq_sym : forall y y' : Y, Apartoid_coeq_neq f g y y' -> Apartoid_coeq_neq f g y' y
-| coeq_cotrans_l :
-  forall y1 y2 y3 : Y,
-    Apartoid_coeq_neq f g y1 y2 ->
-    Apartoid_coeq_neq f g y2 y3 ->
-    Apartoid_coeq_neq f g y1 y3.
-*)
+Inductive ACN {A B : Apartoid} (f g : ApartoidHom A B) : B -> B -> Prop :=
+| ACN_glue :
+  forall b1 b2 : B, b1 # b2 ->
+  (forall a1 a2 : A, b1 = f a1 /\ b2 = g a2 -> False) ->
+    ACN f g b1 b2
+| ACN_sym : forall b1 b2 : B, ACN f g b1 b2 -> ACN f g b2 b1.
 
-(* TODO: this shit doesn't work. *)
-Inductive Apartoid_coeq_equiv {X Y : Apartoid} (f g : ApartoidHom X Y) : Y -> Y -> Prop :=
-| coeq_step : forall y y' : Y, ~ y # y' -> Apartoid_coeq_equiv f g y y'
-| coeq_quot : forall x : X, Apartoid_coeq_equiv f g (f x) (g x)
-| coeq_sym : forall y y' : Y, Apartoid_coeq_equiv f g y y' -> Apartoid_coeq_equiv f g y' y
-| coeq_trans :
-  forall y1 y2 y3 : Y,
-    Apartoid_coeq_equiv f g y1 y2 ->
-    Apartoid_coeq_equiv f g y2 y3 ->
-    Apartoid_coeq_equiv f g y1 y3.
-
-(* TODO: finish *)
 #[refine]
 #[export]
-Instance Apartoid_coequalizer {X Y : Apartoid} (f g : ApartoidHom X Y) : Apartoid :=
+Instance Apartoid_coequalizer {A B : Apartoid} (f g : ApartoidHom A B) : Apartoid :=
 {
-  carrier := Y;
-  neq := fun y y' : Y => ~ ~ ~ Apartoid_coeq_equiv f g y y'
+  carrier := B;
+  neq := ACN f g;
 }.
 Proof.
-  - intros y H.
-    apply H; intros H'; apply H'.
-    now constructor.
-  - intros x y H1 H2.
-    apply H2; intros H2'.
-    apply H1; intros H1'; apply H1'.
-    now apply coeq_sym.
-  - intros x y z H.
-    left; intros Hl; apply Hl; intros Hl'.
+  - intros x1.
+    pose (x2 := x1); assert (Heq : x1 = x2) by easy.
+    change (~ ACN f g x1 x2); clearbody x2.
+    induction 1; subst.
+    + now apply neq_irrefl in H.
+    + now apply IHACN.
+  - now red; apply ACN_sym.
+  - induction 1.
+    + destruct (neq_cotrans _ _ z H).
+      * left; constructor; [easy |].
 Abort.
 
 #[refine]
@@ -461,7 +443,8 @@ Definition Apartoid_inj
   {J : Apartoid} (A : J -> Apartoid) (j : J) : ApartoidHom (A j) (Apartoid_indexedCoproduct A).
 Proof.
   exists (fun a : A j => existT _ j a); cbn.
-  now eauto.
+  intros a1 a2 Hneq.
+  now apply neq_irrefl in Hneq.
 Defined.
 
 Definition Apartoid_indexedCopair
@@ -470,7 +453,4 @@ Definition Apartoid_indexedCopair
   : ApartoidHom (Apartoid_indexedCoproduct A) X.
 Proof.
   exists (fun p : {j : J & A j} => f (projT1 p) (projT2 p)).
-  intros [x x'] [y y'] Hxy Hf; cbn in *.
-  destruct (f x) as [fx Hfx]; cbn in *.
-  destruct (f y) as [fy Hfy]; cbn in *.
 Abort.
