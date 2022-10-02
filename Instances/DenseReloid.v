@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
-From Cat Require Export Instances.Setoid.Rel.Reloid.
+From Cat Require Export Instances.Reloid.
 
 Set Implicit Arguments.
 

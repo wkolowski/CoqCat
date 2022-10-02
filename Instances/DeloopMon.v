@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
-From Cat Require Import Instances.Setoid.Mon.
+From Cat Require Import Instances.Mon.
 
 #[refine]
 #[export]

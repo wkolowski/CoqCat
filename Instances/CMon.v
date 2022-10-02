@@ -2,7 +2,7 @@ From CoqAlgs.Sorting Require Import Perm InsertionSort.
 
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
-From Cat Require Export Instances.Setoid.Mon.
+From Cat Require Export Instances.Mon.
 
 Set Implicit Arguments.
 

@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
-From Cat.Instances Require Import Setoids Setoid.Mon.
+From Cat.Instances Require Import Setoids Mon.
 
 Set Implicit Arguments.
 
