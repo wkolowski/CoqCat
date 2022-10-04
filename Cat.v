@@ -49,26 +49,65 @@ Qed.
 
 #[global] Hint Resolve id_unique_left id_unique_right : core.
 
-Lemma reassoc_l :
-  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
-    f .> (g .> h) == r -> (f .> g) .> h == r.
-Proof.
-  now intros; rewrite comp_assoc.
-Qed.
-
-Lemma reassoc_r :
+Lemma assoc_l :
   forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
     (f .> g) .> h == r -> f .> (g .> h) == r.
 Proof.
   now intros; rewrite <- comp_assoc.
 Qed.
 
-Lemma reassoc_both :
+Lemma unassoc_l :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {r : Hom X W},
+    f .> (g .> h) == r -> (f .> g) .> h == r.
+Proof.
+  now intros; rewrite comp_assoc.
+Qed.
+
+Lemma assoc_r :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {l : Hom X W},
+    l == (f .> g) .> h -> l == f .> (g .> h).
+Proof.
+  now intros; rewrite <- comp_assoc.
+Qed.
+
+Lemma unassoc_r :
+  forall {C : Cat} {X Y Z W : Ob C} {f : Hom X Y} {g : Hom Y Z} {h : Hom Z W} {l : Hom X W},
+    l == f .> (g .> h) -> l == (f .> g) .> h.
+Proof.
+  now intros; rewrite comp_assoc.
+Qed.
+
+Lemma assoc :
   forall {C : Cat} {X Y Z W : Ob C} {f f' : Hom X Y} {g g' : Hom Y Z} {h h' : Hom Z W},
     (f .> g) .> h == (f' .> g') .> h' -> f .> (g .> h) == f' .> (g' .> h').
 Proof.
   now intros; rewrite <- !comp_assoc.
 Qed.
+
+Lemma unassoc :
+  forall {C : Cat} {X Y Z W : Ob C} {f f' : Hom X Y} {g g' : Hom Y Z} {h h' : Hom Z W},
+    f .> (g .> h) == f' .> (g' .> h') -> (f .> g) .> h == (f' .> g') .> h'.
+Proof.
+  now intros; rewrite !comp_assoc.
+Qed.
+
+Definition wut_l
+  {U : Cat} {A B C1 C2 D : Ob U}
+  (f : Hom A B) {g1 : Hom B C1} {g2 : Hom B C2} {h1 : Hom C1 D} {h2 : Hom C2 D}
+  (Heq : g1 .> h1 == g2 .> h2)
+  : (f .> g1) .> h1 == (f .> g2) .> h2.
+Proof.
+  now rewrite comp_assoc, Heq, <- comp_assoc.
+Defined.
+
+Definition wut_r
+  {U : Cat} {A B1 B2 C D : Ob U}
+  {f1 : Hom A B1} {f2 : Hom A B2} {g1 : Hom B1 C} {g2 : Hom B2 C}
+  (h : Hom C D) (Heq : f1 .> g1 == f2 .> g2)
+  : f1 .> (g1 .> h) == f2 .> (g2 .> h).
+Proof.
+  now rewrite <- comp_assoc, Heq, comp_assoc.
+Defined.
 
 (** ** Reflective tactic for categories *)
 
@@ -1332,16 +1371,8 @@ Proof.
   now exists (component β X).
 Qed.
 
-Definition represents {C : Cat} (X : Ob C) (F : Functor C CoqSetoid) : Type :=
+Definition representable {C : Cat} (X : Ob C) (F : Functor C CoqSetoid) : Type :=
   {α : NatTrans F (HomFunctor C X) & natural_isomorphism α}.
 
-Definition corepresents {C : Cat} (X : Ob C) (F : Functor (Dual C) CoqSetoid) : Type :=
+Definition corepresentable {C : Cat} (X : Ob C) (F : Functor (Dual C) CoqSetoid) : Type :=
   {α : NatTrans F (HomFunctor (Dual C) X) & natural_isomorphism α}.
-
-(* TODO: redefine representable
-Definition representable {C : Cat} (F : Functor C CoqSetoid) : Prop :=
-  exists (X : Ob C) (α : NatTrans F (HomFunctor C X)), natural_isomorphism α.
-
-Definition corepresentable {C : Cat} (F : Functor (Dual C) CoqSetoid) : Prop :=
-  exists (X : Ob C) (α : NatTrans F (HomFunctor (Dual C) X)), natural_isomorphism α.
-*)

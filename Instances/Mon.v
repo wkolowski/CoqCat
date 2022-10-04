@@ -254,7 +254,6 @@ Proof.
   now reflect_mon.
 Qed.
 
-(* TODO : improve reflection *)
 Lemma flat_reflect_goal :
   forall (X : Mon) (e1 e2 : exp X),
     flatten (simplify e1) = flatten (simplify e2) ->
@@ -268,7 +267,7 @@ Lemma flat_reflect_hyp :
     expDenote e1 == expDenote e2 ->
       flatten (simplify e1) = flatten (simplify e2).
 Proof.
-Admitted.
+Abort.
 
 Lemma flat_reflect_hyp' :
   forall (X : Mon) (e1 e2 : exp X),
@@ -298,12 +297,12 @@ Goal
 Proof.
   intros.
   reflect_goal; cbn.
-  match goal with
+  Fail match goal with
   | H : ?x == ?y |- _ =>
     change (expDenote (reify x) == expDenote (reify y)) in H;
       apply flat_reflect_hyp in H; cbn in H
   end.
-  now inversion H; subst.
+  Fail now inversion H; subst.
 Abort.
 
 #[refine]

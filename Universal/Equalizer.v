@@ -72,14 +72,11 @@ Proof.
   now rewrite equiv_equalizer', factorize_equalize, comp_id_l.
 Defined.
 
-(* TODO*) Lemma factorize_comp :
-  forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (H : e2 .> f == e2 .> g),
-    exists H' : (e1 .> e2) .> f == (e1 .> e2) .> g,
-      factorize H' == e1 .> factorize H.
+Lemma comp_factorize :
+  forall {X Y : Ob C} {e1 : Hom X Y} {e2 : Hom Y A} (Heq : e2 .> f == e2 .> g),
+    e1 .> factorize Heq == factorize (wut_l e1 Heq).
 Proof.
-  unshelve esplit.
-  - now rewrite !comp_assoc, H.
-  - now rewrite equiv_equalizer', factorize_equalize, comp_assoc, factorize_equalize.
+  now intros; rewrite equiv_equalizer', factorize_equalize, comp_assoc, factorize_equalize.
 Qed.
 
 Lemma isMono_equalize :
@@ -92,10 +89,8 @@ End isEqualizer.
 
 Ltac equalizer_simpl :=
   repeat (rewrite
-    ?equiv_equalizer', ?factorize_equalize, ?factorize_ok,
+    ?comp_factorize, ?equiv_equalizer', ?factorize_equalize, ?factorize_ok,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
-
-(* TODO: equalize_comp *)
 
 Section Traditional.
 

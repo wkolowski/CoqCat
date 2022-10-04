@@ -49,13 +49,6 @@ Context
 
 Arguments triple {Γ} _ _.
 
-(* #[global] Instance Proper_triple :
-  Proper (equiv ==> equiv ==> equiv) (@triple X).
-Proof.
-  intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite equiv_pullback', !triple_pullL, !triple_pullR.
-Defined. *)
-
 Lemma triple_universal :
   forall h : Hom Γ P,
     triple a b H == h <-> a == h .> pullL /\ b == h .> pullR.
@@ -76,16 +69,9 @@ Proof.
   now rewrite equiv_pullback', triple_pullL, triple_pullR, !comp_id_l.
 Qed.
 
-Definition wut
-  {Y : Ob C} (h : Hom Y Γ) (Heq : a .> f == b .> g)
-  : (h .> a) .> f == (h .> b) .> g.
-Proof.
-  now rewrite comp_assoc, Heq, <- comp_assoc.
-Defined.
-
-Lemma triple_comp :
+Lemma comp_triple :
   forall {Y : Ob C} {h : Hom Y Γ},
-    h .> triple a b H == triple (h .> a) (h .> b) (wut h H).
+    h .> triple a b H == triple (h .> a) (h .> b) (wut_l h H).
 Proof.
   now intros; rewrite equiv_pullback', !comp_assoc, !triple_pullL, !triple_pullR.
 Qed.
@@ -94,7 +80,7 @@ End isPullback.
 
 Ltac pullback_simpl :=
   repeat (rewrite
-    ?equiv_pullback', ?triple_pullL, ?triple_pullR, ?triple_ok,
+    ?comp_triple, ?equiv_pullback', ?triple_pullL, ?triple_pullR, ?triple_ok,
     ?comp_id_l, ?comp_id_r, ?comp_assoc).
 
 Lemma isPullback_uiso :
@@ -215,7 +201,7 @@ Lemma isPullback_comp :
     {triple' : forall {Γ : Ob C} (a : Hom Γ A') (b : Hom Γ P), a .> h == b .> pullL -> Hom Γ Q}
     (HisQ : isPullback C h pullL Q pullL' pullR' (@triple')),
       isPullback C (h .> f) g Q pullL' (pullR' .> pullR)
-        (fun Γ x y H => triple' x (triple (x .> h) y (reassoc_l H)) ltac:(now rewrite triple_pullL)).
+        (fun Γ x y H => triple' x (triple (x .> h) y (unassoc_l H)) ltac:(now rewrite triple_pullL)).
 Proof.
   split.
   - now rewrite <- comp_assoc, ok, !comp_assoc, ok.
@@ -238,7 +224,7 @@ Lemma isPullback_comp' :
     {triple' : forall {Γ : Ob C} (a' : Hom Γ A') (b : Hom Γ P), a' .> h == b .> pullL -> Hom Γ Q},
       isPullback C (h .> f) g Q pullL' (pullR' .> pullR)
         (fun Γ a' b H =>
-          triple' a' (triple (a' .> h) b (reassoc_l H)) ltac:(now rewrite triple_pullL)) ->
+          triple' a' (triple (a' .> h) b (unassoc_l H)) ltac:(now rewrite triple_pullL)) ->
         isPullback C h pullL Q pullL' pullR' (@triple').
 Proof.
   intros * HisP; split.
@@ -249,7 +235,7 @@ Proof.
       now rewrite <- comp_assoc, Heq, comp_assoc, ok.
     }
     rewrite <- (triple_pullL0 Γ a' (b .> pullR) Heq') at 2.
-    assert (Heq'' : b == triple Γ (a' .> h) (b .> pullR) (reassoc_l Heq')).
+    assert (Heq'' : b == triple Γ (a' .> h) (b .> pullR) (unassoc_l Heq')).
     {
       apply equiv_pullback.
       - now rewrite <- Heq, triple_pullL.

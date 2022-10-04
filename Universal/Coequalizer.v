@@ -78,21 +78,19 @@ Proof.
   now intros X h1 h2 Heq; rewrite equiv_coequalizer'.
 Qed.
 
-Lemma cofactorize_comp :
-  forall {X Y : Ob C} {q1 : Hom B X} {q2 : Hom X Y}  (H : f .> q1 == g .> q1),
-    exists H' : f .> (q1 .> q2) == g .> (q1 .> q2),
-      cofactorize H' == cofactorize H .> q2.
+Lemma comp_cofactorize :
+  forall {X Y : Ob C} {q1 : Hom B X} {q2 : Hom X Y}  (Heq : f .> q1 == g .> q1),
+    cofactorize Heq .> q2 == cofactorize (wut_r q2 Heq).
 Proof.
-  unshelve esplit.
-  - now rewrite <- !comp_assoc, H.
-  - now rewrite equiv_coequalizer', coequalize_cofactorize, <- comp_assoc, coequalize_cofactorize.
+  now intros; rewrite equiv_coequalizer', coequalize_cofactorize, <- comp_assoc,
+    coequalize_cofactorize.
 Qed.
 
 End isCoequalizer.
 
 Ltac coequalizer_simpl :=
   repeat (rewrite
-    ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_ok,
+    ?comp_cofactorize, ?equiv_coequalizer', ?coequalize_cofactorize, ?cofactorize_ok,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Section Traditional.

@@ -52,13 +52,6 @@ Context
 
 Arguments cotriple {P'} _ _.
 
-(* #[global] Instance Proper_cotriple :
-  Proper (equiv ==> equiv ==> equiv) (@cotriple X).
-Proof.
-  intros h1 h1' Heq1 h2 h2' Heq2.
-  now rewrite equiv_pushout', !pushl_cotriple, !pushr_cotriple.
-Defined. *)
-
 Lemma cotriple_universal :
   forall h : Hom P P',
     cotriple x y H == h <-> x == pushl .> h /\ y == pushr .> h.
@@ -79,16 +72,9 @@ Proof.
   now rewrite equiv_pushout', pushl_cotriple, pushr_cotriple, !comp_id_r.
 Qed.
 
-Definition wut
-  {Y : Ob C} (h : Hom P' Y) (Heq : f .> x == g .> y)
-  : f .> (x .> h) == g .> (y .> h).
-Proof.
-  now rewrite <- comp_assoc, Heq, comp_assoc.
-Defined.
-
-Lemma cotriple_comp :
+Lemma comp_cotriple :
   forall {Y : Ob C} {h : Hom P' Y},
-    cotriple x y H .> h == cotriple (x .> h) (y .> h) (wut h H).
+    cotriple x y H .> h == cotriple (x .> h) (y .> h) (wut_r h H).
 Proof.
   now intros; rewrite equiv_pushout', <- !comp_assoc, !pushl_cotriple, !pushr_cotriple.
 Qed.
@@ -97,7 +83,7 @@ End isPushout.
 
 Ltac pushout_simpl :=
   repeat (rewrite
-    ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_ok,
+    ?comp_cotriple, ?equiv_pushout', ?pushl_cotriple, ?pushr_cotriple, ?cotriple_ok,
     ?comp_id_l, ?comp_id_r, <- ?comp_assoc).
 
 Lemma isPushout_uiso :
@@ -222,7 +208,7 @@ Lemma isPushout_comp :
       h .> pushl'' == pushl .> pushr'' -> Hom Q X}
     (HisQ : isPushout C h pushl Q pushl' pushr' (@cotriple')),
       isPushout C (f .> h) g Q pushl' (pushr .> pushr')
-        (fun X h1 h2 Heq => cotriple' h1 (cotriple (h .> h1) h2 (reassoc_r Heq))
+        (fun X h1 h2 Heq => cotriple' h1 (cotriple (h .> h1) h2 (assoc_l Heq))
           ltac:(now rewrite pushl_cotriple)).
 Proof.
   split.

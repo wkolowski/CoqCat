@@ -80,7 +80,7 @@ Proof.
   now solve_coproduct; apply equiv_initial.
 Defined.
 
-(* TODO *) Lemma exp_term_dom :
+Lemma exp_term_dom :
   forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
     exponential (term C) Y ~ Y.
 Proof.
@@ -99,13 +99,13 @@ Proof.
     + rewrite !curry_uncurry. admit.
 Abort.
 
-(* TODO *) Lemma wuuut :
+Lemma wuuut :
   forall (C : Cat) (ccc : CartesianClosed C) (X Y A : Ob C) (f : Hom A (exponential X Y)) (g : Hom A X),
     fpair f g .> eval .> curry outl == f.
 Proof.
 Abort.
 
-(* TODO *) Lemma exp_term_cod :
+Lemma exp_term_cod :
   forall (C : Cat) (ccc : CartesianClosed C) (Y : Ob C),
     exponential Y (term C) ~ term C.
 Proof.
