@@ -433,8 +433,8 @@ Proof. all: easy. Defined.
 #[export]
 Instance HasInit_Grp : HasInit GrpCat :=
 {
-    init := Grp_zero;
-    create := Mon_create
+  init := Grp_zero;
+  create := Mon_create
 }.
 Proof. now grp. Defined.
 

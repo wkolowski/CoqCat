@@ -9,7 +9,7 @@ Set Implicit Arguments.
 Class CMon : Type :=
 {
   mon :> Mon;
-  op_comm: forall x y : mon, op x y == op y x
+  op_comm : forall x y : mon, op x y == op y x;
 }.
 
 Arguments mon _ : clear implicits.
@@ -142,12 +142,8 @@ Instance CMon_copair'
   {A B X : CMon} (f : MonHom A X) (g : MonHom B X) : SetoidHom (CMon_coproduct A B) X.
 Proof.
   unshelve esplit.
-  - refine (fun x => op (f (fst x)) (g (snd x))).
-    (* refine (fun '(a, b) => op (f a) (g b)). *)
-  - intros a b [Ha Hb]. now f_equiv; apply Proper_func.
-(* cbn. intros [a1 b1] [a2 b2] [Ha hb]; cbn in *.
-    f_equiv. Show Proof.
- intros [-> ->]. *)
+  - now refine (fun x => op (f (fst x)) (g (snd x))).
+  - now intros a b [Ha Hb]; f_equiv; apply Proper_func.
 Defined.
 
 #[export]
