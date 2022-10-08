@@ -7,7 +7,7 @@ From Cat.Universal Require Export
 
 #[refine]
 #[export]
-Instance CoqSet : Cat :=
+Instance SET : Cat :=
 {|
   Ob := Type;
   Hom := fun A B : Type => A -> B;
@@ -23,8 +23,8 @@ Proof.
   - easy.
 Defined.
 
-Lemma CoqSet_isMono :
-  forall (A B : Ob CoqSet) (f : A -> B),
+Lemma SET_isMono :
+  forall (A B : Ob SET) (f : A -> B),
     isMono f <-> injective f.
 Proof.
   unfold isMono, injective; cbn.
@@ -33,7 +33,7 @@ Proof.
   - now apply H, H0.
 Defined.
 
-Lemma CoqSet_isEpi :
+Lemma SET_isEpi :
   forall (X Y : Type) (f : Hom X Y),
     isEpi f <-> surjective f.
 Proof.
@@ -54,7 +54,7 @@ Qed.
 
 #[refine]
 #[export]
-Instance HasInit_CoqSet : HasInit CoqSet :=
+Instance HasInit_SET : HasInit SET :=
 {
   init := Empty_set;
   create := fun (X : Type) (e : Empty_set) => match e with end
@@ -62,7 +62,7 @@ Instance HasInit_CoqSet : HasInit CoqSet :=
 Proof. easy. Defined.
 
 #[export]
-Instance HasStrictInit_CoqSet : HasStrictInit CoqSet.
+Instance HasStrictInit_SET : HasStrictInit SET.
 Proof.
   intros A f.
   exists (create A).
@@ -73,7 +73,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HasTerm_CoqSet : HasTerm CoqSet :=
+Instance HasTerm_SET : HasTerm SET :=
 {
   term := unit;
   delete := fun (X : Type) (x : X) => tt
@@ -83,37 +83,37 @@ Proof.
 Defined.
 
 Definition isSingleton (A : Type) : Type :=
-  {a : A | True /\ forall x y : A, x = y}.
+  {a : A | forall x y : A, x = y}.
 
 Definition isSingleton_delete :
   forall A : Type, isSingleton A -> forall X : Type, X -> A.
 Proof.
   unfold isSingleton.
-  intros A (a & _ & H) X x.
+  intros A (a & H) X x.
   exact a.
 Defined.
 
-Lemma isTerminal_CoqSet :
+Lemma isTerminal_SET :
   forall (A : Type) (H : isSingleton A),
-    @isTerminal CoqSet A (isSingleton_delete A H).
+    @isTerminal SET A (isSingleton_delete A H).
 Proof.
   now red; firstorder.
 Qed.
 
-Definition CoqSet_fpair (X Y A : Type) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
+Definition SET_fpair (X Y A : Type) (f : Hom A X) (g : Hom A Y) : Hom A (prod X Y) :=
   fun x : A => (f x, g x).
 
 #[refine]
 #[export]
-Instance HasProducts_CoqSet : HasProducts CoqSet :=
+Instance HasProducts_SET : HasProducts SET :=
 {
   product := prod;
   outl := @fst;
   outr := @snd;
-  fpair := CoqSet_fpair
+  fpair := SET_fpair
 }.
 Proof.
-  split; unfold CoqSet_fpair; cbn; [easy | easy |].
+  split; unfold SET_fpair; cbn; [easy | easy |].
   intros X f g Heq1 Heq2 x.
   now apply injective_projections.
 Defined.
@@ -121,12 +121,12 @@ Defined.
 (* Beware! Requires functional extensionality. *)
 #[refine]
 #[export]
-Instance HasIndexedProducts_CoqSet : HasIndexedProducts CoqSet :=
+Instance HasIndexedProducts_SET : HasIndexedProducts SET :=
 {
-  indexedProduct := fun (J : Type) (A : J -> Ob CoqSet) => forall j : J, A j;
-  out := fun (J : Type) (A : J -> Ob CoqSet) (j : J) => fun (f : forall j : J, A j) => f j;
+  indexedProduct := fun (J : Type) (A : J -> Ob SET) => forall j : J, A j;
+  out := fun (J : Type) (A : J -> Ob SET) (j : J) => fun (f : forall j : J, A j) => f j;
   tuple :=
-    fun (J : Type) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    fun (J : Type) (A : J -> Ob SET) (X : Ob SET)
         (f : forall j : J, Hom X (A j)) (x : X) (j : J) => f j x
 }.
 Proof.
@@ -135,11 +135,11 @@ Proof.
   - now extensionality j.
 Defined.
 
-Definition CoqSet_coproduct := sum.
-Definition CoqSet_finl := @inl.
-Definition CoqSet_finr := @inr.
+Definition SET_coproduct := sum.
+Definition SET_finl := @inl.
+Definition SET_finr := @inr.
 
-Definition CoqSet_copair (X Y A : Type) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
+Definition SET_copair (X Y A : Type) (f : Hom X A) (g : Hom Y A) : Hom (sum X Y) A :=
   fun p : X + Y =>
   match p with
   | inl x => f x
@@ -148,12 +148,12 @@ Definition CoqSet_copair (X Y A : Type) (f : Hom X A) (g : Hom Y A) : Hom (sum X
 
 #[refine]
 #[export]
-Instance HasCoproducts_CoqSet : HasCoproducts CoqSet :=
+Instance HasCoproducts_SET : HasCoproducts SET :=
 {
   coproduct := sum;
   finl := @inl;
   finr := @inr;
-  copair := CoqSet_copair
+  copair := SET_copair
 }.
 Proof.
   split; cbn; [easy | easy |].
@@ -162,12 +162,12 @@ Defined.
 
 #[refine]
 #[export]
-Instance HasIndexedCoproducts_CoqSet : HasIndexedCoproducts CoqSet :=
+Instance HasIndexedCoproducts_SET : HasIndexedCoproducts SET :=
 {
-  indexedCoproduct := fun (J : Type) (A : J -> Ob CoqSet) => {j : J & A j};
-  inj := fun (J : Type) (A : J -> Ob CoqSet) (j : J) => fun (x : A j) => existT A j x;
+  indexedCoproduct := fun (J : Type) (A : J -> Ob SET) => {j : J & A j};
+  inj := fun (J : Type) (A : J -> Ob SET) (j : J) => fun (x : A j) => existT A j x;
   cotuple :=
-    fun (J : Type) (A : J -> Ob CoqSet) (X : Ob CoqSet)
+    fun (J : Type) (A : J -> Ob SET) (X : Ob SET)
       (f : forall j : J, Hom (A j) X) (p : {j : J & A j}) =>
         f (projT1 p) (projT2 p)
 }.
@@ -178,7 +178,7 @@ Proof.
     now apply Heq.
 Defined.
 
-Lemma CoqSet_counterexample1 :
+Lemma SET_counterexample1 :
   exists (A B C : Type) (f : Hom A B) (g : Hom B C),
     injective (f .> g) /\ ~ injective g.
 Proof.
@@ -188,7 +188,7 @@ Proof.
   - now specialize (H true false eq_refl).
 Qed.
 
-Lemma CoqSet_counterexample2 :
+Lemma SET_counterexample2 :
   exists (A B C : Type) (f : Hom A B) (g : Hom B C),
     surjective (f .> g) /\ ~ surjective f.
 Proof.
@@ -198,13 +198,13 @@ Proof.
   - destruct (H false). inversion H0.
 Qed.
 
-Definition CoqSet_equalizer {X Y : Type} (f g : X -> Y) : Type :=
+Definition SET_equalizer {X Y : Type} (f g : X -> Y) : Type :=
   {x : X | f x = g x}.
 
-Definition CoqSet_equalize {X Y : Type} (f g : X -> Y)
+Definition SET_equalize {X Y : Type} (f g : X -> Y)
   (p : {x : X | f x = g x}) : X := proj1_sig p.
 
-Definition CoqSet_factorize
+Definition SET_factorize
   (X Y : Type) (f g : X -> Y)
   (E' : Type) (e' : E' -> X) (H : forall x : E', f (e' x) = g (e' x))
   : E' -> {x : X | f x = g x}
@@ -212,11 +212,11 @@ Definition CoqSet_factorize
 
 #[refine]
 #[export]
-Instance HasEqualizers_CoqSet : HasEqualizers CoqSet :=
+Instance HasEqualizers_SET : HasEqualizers SET :=
 {
-  equalizer := fun (X Y : Ob CoqSet) (f g : Hom X Y) => {x : X | f x = g x};
-  equalize := fun (X Y : Ob CoqSet) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
-  factorize := @CoqSet_factorize;
+  equalizer := fun (X Y : Ob SET) (f g : Hom X Y) => {x : X | f x = g x};
+  equalize := fun (X Y : Ob SET) (f g : Hom X Y) => fun (x : {x : X | f x = g x}) => proj1_sig x;
+  factorize := @SET_factorize;
 }.
 Proof.
   split; cbn.
@@ -229,7 +229,7 @@ Abort.
 
 #[refine]
 #[export]
-Instance HasExponentials_CoqSet : HasExponentials CoqSet :=
+Instance HasExponentials_SET : HasExponentials SET :=
 {
   exponential := fun X Y : Type => X -> Y;
   eval := fun (X Y : Type) (fx : product (X -> Y) X) => (fst fx) (snd fx);
@@ -244,41 +244,41 @@ Proof.
 Defined.
 
 #[export]
-Instance CoqSet_CartesianClosed : CartesianClosed CoqSet :=
+Instance SET_CartesianClosed : CartesianClosed SET :=
 {
-  HasTerm_CartesianClosed := HasTerm_CoqSet;
-  HasProducts_CartesianClosed := HasProducts_CoqSet;
-  HasExponentials_CartesianClosed := HasExponentials_CoqSet;
+  HasTerm_CartesianClosed := HasTerm_SET;
+  HasProducts_CartesianClosed := HasProducts_SET;
+  HasExponentials_CartesianClosed := HasExponentials_SET;
 }.
 
-Definition CoqSet_pullback
+Definition SET_pullback
   {A B X : Type} (f : A -> X) (g : B -> X) : Type :=
     {p : A * B | f (fst p) = g (snd p)}.
 
-Definition CoqSet_pullL
+Definition SET_pullL
   {A B X : Type} (f : A -> X) (g : B -> X)
-  : CoqSet_pullback f g -> A
+  : SET_pullback f g -> A
   := fun p => fst (proj1_sig p).
 
-Definition CoqSet_pullR
+Definition SET_pullR
   {A B X : Type} (f : A -> X) (g : B -> X)
-  : CoqSet_pullback f g -> B
+  : SET_pullback f g -> B
   := fun p => snd (proj1_sig p).
 
-Definition CoqSet_triple
+Definition SET_triple
   {A B X : Type} (f : A -> X) (g : B -> X)
   (Γ : Type) (a : Γ -> A) (b : Γ -> B) (Heq : forall x : Γ, f (a x) = g (b x))
-  : Γ -> CoqSet_pullback f g
+  : Γ -> SET_pullback f g
   := fun x => exist _ (a x, b x) (Heq x).
 
 #[refine]
 #[export]
-Instance HasPullbacks_CoqSet : HasPullbacks CoqSet :=
+Instance HasPullbacks_SET : HasPullbacks SET :=
 {
-  pullback := @CoqSet_pullback;
-  pullL := @CoqSet_pullL;
-  pullR := @CoqSet_pullR;
-  triple := @CoqSet_triple;
+  pullback := @SET_pullback;
+  pullL := @SET_pullL;
+  pullR := @SET_pullR;
+  triple := @SET_triple;
 }.
 Proof.
   split; cbn.

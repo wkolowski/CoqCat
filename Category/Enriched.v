@@ -1,7 +1,7 @@
 From Cat Require Import Cat.
 From Cat.Category Require Import CartesianClosed Monoidal.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
-From Cat Require Import Instances.Setoids.
+From Cat Require Import Instances.SETOID.
 
 Class Enriched (V : Monoidal) : Type :=
 {
@@ -23,10 +23,10 @@ Class Enriched (V : Monoidal) : Type :=
 
 #[refine]
 #[export]
-Instance Enriched_CoqSetoid
-  : Enriched (Monoidal_HasTerm_HasProducts HasTerm_CoqSetoid HasProducts_CoqSetoid) :=
+Instance Enriched_SETOID
+  : Enriched (Monoidal_HasTerm_HasProducts HasTerm_SETOID HasProducts_SETOID) :=
 {
-  EOb := Ob CoqSetoid;
+  EOb := Ob SETOID;
   EHom := fun X Y =>
   {|
     carrier := @Hom _ X Y;

@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Universal Require Import Initial Terminal.
-From Cat.Instances Require Import Setoids.
+From Cat.Instances Require Import SETOID.
 
 Set Implicit Arguments.
 
@@ -125,7 +125,7 @@ Lemma isLimit_char
     @isLimit J C F K del
       <->
     forall c : Ob C,
-      @isomorphic CoqSetoid (HomSetoid C c (apex K)) (HomSetoid (FunCat J C) (ConstFunctor c J) F).
+      @isomorphic SETOID (HomSetoid C c (apex K)) (HomSetoid (FunCat J C) (ConstFunctor c J) F).
 Proof.
 Abort.
 *)

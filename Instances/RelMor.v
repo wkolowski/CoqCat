@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
-From Cat Require Export Instances.Setoids.
+From Cat Require Export Instances.SETOID.
 
 Class SetoidRel (X Y : Setoid') : Type :=
 {
@@ -81,7 +81,7 @@ Proof. all: now rel. Defined.
 #[export]
 Program Instance HasInit_SetoidRel : HasInit SetoidRelCat :=
 {
-  init := CoqSetoid_init;
+  init := SETOID_init;
   create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |}
 }.
 Next Obligation. easy. Defined.
@@ -90,7 +90,7 @@ Next Obligation. easy. Defined.
 #[export]
 Program Instance HasTerm_SetoidRel : HasTerm SetoidRelCat :=
 {
-  term := CoqSetoid_init;
+  term := SETOID_init;
   delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |}
 }.
 Next Obligation. easy. Defined.

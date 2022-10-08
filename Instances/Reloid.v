@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
-From Cat Require Export Instances.Setoids.
+From Cat Require Export Instances.SETOID.
 
 Set Implicit Arguments.
 
@@ -95,7 +95,7 @@ Proof. all: now reloid. Defined.
 #[export]
 Instance Reloid_init : Reloid :=
 {
-  carrier := CoqSetoid_init;
+  carrier := SETOID_init;
   rel := relate_Empty;
 }.
 
@@ -103,7 +103,7 @@ Instance Reloid_init : Reloid :=
 #[export]
 Instance Reloid_create (X : Reloid) : ReloidHom Reloid_init X :=
 {
-  func := CoqSetoid_create X
+  func := SETOID_create X
 }.
 Proof. now proper. Defined.
 
@@ -128,7 +128,7 @@ Defined.
 #[export]
 Instance Reloid_term : Reloid :=
 {
-  carrier := CoqSetoid_term;
+  carrier := SETOID_term;
   rel := relate_unit;
 }.
 
@@ -136,7 +136,7 @@ Instance Reloid_term : Reloid :=
 #[export]
 Instance Reloid_delete (X : Reloid) : ReloidHom X Reloid_term :=
 {
-  func := CoqSetoid_delete X
+  func := SETOID_delete X
 }.
 Proof. easy. Defined.
 
@@ -153,7 +153,7 @@ Proof. easy. Defined.
 #[export]
 Instance Reloid_product (X Y : Reloid) : Reloid :=
 {
-  carrier := CoqSetoid_product X Y;
+  carrier := SETOID_product X Y;
   rel := relate_prod' rel rel;
 }.
 Proof.
@@ -165,7 +165,7 @@ Defined.
 #[export]
 Instance Reloid_outl (X Y : Reloid) : ReloidHom (Reloid_product X Y) X :=
 {
-  func := CoqSetoid_outl X Y
+  func := SETOID_outl X Y
 }.
 Proof. now intros [] []; cbn. Defined.
 
@@ -173,7 +173,7 @@ Proof. now intros [] []; cbn. Defined.
 #[export]
 Instance Reloid_outr (X Y : Reloid) : ReloidHom (Reloid_product X Y) Y :=
 {
-  func := CoqSetoid_outr X Y
+  func := SETOID_outr X Y
 }.
 Proof. now intros [] []; cbn. Defined.
 
@@ -183,7 +183,7 @@ Instance Reloid_fpair (X Y A : Reloid)
   (f : ReloidHom A X) (g : ReloidHom A Y)
   : ReloidHom A (Reloid_product X Y) :=
 {
-  func := CoqSetoid_fpair f g
+  func := SETOID_fpair f g
 }.
 Proof.
   now intros a1 a2 ra; cbn; split; apply pres_rel.
@@ -206,7 +206,7 @@ Defined.
 #[export]
 Instance Reloid_coproduct (X Y : Reloid) : Reloid :=
 {
-  carrier := CoqSetoid_coproduct X Y;
+  carrier := SETOID_coproduct X Y;
   rel := relate_sum rel rel;
 }.
 Proof.
@@ -217,7 +217,7 @@ Defined.
 #[export]
 Instance Reloid_finl (X Y : Reloid) : ReloidHom X (Reloid_coproduct X Y) :=
 {
-  func := CoqSetoid_finl X Y;
+  func := SETOID_finl X Y;
 }.
 Proof. easy. Defined.
 
@@ -225,7 +225,7 @@ Proof. easy. Defined.
 #[export]
 Instance Reloid_finr (X Y : Reloid) : ReloidHom Y (Reloid_coproduct X Y) :=
 {
-  func := CoqSetoid_finr X Y;
+  func := SETOID_finr X Y;
 }.
 Proof. easy. Defined.
 
@@ -235,7 +235,7 @@ Instance Reloid_copair
   (X Y A : Reloid) (f : ReloidHom X A) (g : ReloidHom Y A)
   : ReloidHom (Reloid_coproduct X Y) A :=
 {
-  func := CoqSetoid_copair f g
+  func := SETOID_copair f g
 }.
 Proof.
   now proper; destruct x, y; try apply pres_rel.

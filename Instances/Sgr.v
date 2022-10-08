@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
-From Cat Require Export Instances.Setoids.
+From Cat Require Export Instances.SETOID.
 
 Set Implicit Arguments.
 
@@ -243,14 +243,14 @@ Proof. all: now sgr. Defined.
 #[export]
 Instance Sgr_init : Sgr :=
 {
-  setoid := CoqSetoid_init;
+  setoid := SETOID_init;
   op := fun (e : Empty_set) _ => match e with end
 }.
 Proof. all: easy. Defined.
 
 Definition Sgr_create (X : Sgr) : Hom Sgr_init X.
 Proof.
-  now exists (CoqSetoid_create X).
+  now exists (SETOID_create X).
 Defined.
 
 #[refine]
@@ -266,14 +266,14 @@ Proof. easy. Defined.
 #[export]
 Instance Sgr_term : Sgr :=
 {
-  setoid := CoqSetoid_term;
+  setoid := SETOID_term;
   op := fun _ _ => tt
 }.
 Proof. all: easy. Defined.
 
 Definition Sgr_delete (X : Sgr) : Hom X Sgr_term.
 Proof.
-  now exists (CoqSetoid_delete X).
+  now exists (SETOID_delete X).
 Defined.
 
 #[refine]
@@ -289,7 +289,7 @@ Proof. easy. Defined.
 #[export]
 Instance Sgr_product (X Y : Sgr) : Sgr :=
 {
-  setoid := CoqSetoid_product X Y;
+  setoid := SETOID_product X Y;
   op := fun x y => (op (fst x) (fst y), op (snd x) (snd y))
 }.
 Proof.
@@ -301,18 +301,18 @@ Defined.
 
 Definition Sgr_outl (X Y : Sgr) : SgrHom (Sgr_product X Y) X.
 Proof.
-  now exists (CoqSetoid_outl X Y).
+  now exists (SETOID_outl X Y).
 Defined.
 
 Definition Sgr_outr (X Y : Sgr) : SgrHom (Sgr_product X Y) Y.
 Proof.
-  now exists (CoqSetoid_outr X Y).
+  now exists (SETOID_outr X Y).
 Defined.
 
 Definition Sgr_fpair (A B X : Sgr) (f : SgrHom X A) (g : SgrHom X B)
     : SgrHom X (Sgr_product A B).
 Proof.
-  exists (CoqSetoid_fpair f g); cbn.
+  exists (SETOID_fpair f g); cbn.
   now intros; rewrite !pres_op.
 Defined.
 
@@ -516,7 +516,7 @@ Defined.
 #[export]
 Instance Sgr_equalizer {A B : Sgr} (f g : SgrHom A B) : Sgr :=
 {
-  setoid := CoqSetoid_equalizer f g;
+  setoid := SETOID_equalizer f g;
 }.
 Proof.
   - cbn; intros [x Hx] [y Hy].
@@ -532,7 +532,7 @@ Defined.
 #[export]
 Instance Sgr_equalize {A B : Sgr} (f g : SgrHom A B) : SgrHom (Sgr_equalizer f g) A :=
 {
-  setoidHom := CoqSetoid_equalize f g;
+  setoidHom := SETOID_equalize f g;
 }.
 Proof.
   now intros [x Hx] [y Hy]; cbn.
@@ -545,7 +545,7 @@ Instance Sgr_factorize
   {E' : Sgr} (e' : Hom E' A) (Heq : (e' .> f) == (e' .> g))
   : SgrHom E' (Sgr_equalizer f g) :=
 {
-  setoidHom := CoqSetoid_factorize e' Heq;
+  setoidHom := SETOID_factorize e' Heq;
 }.
 Proof.
   now cbn; intros; rewrite pres_op.
@@ -692,7 +692,7 @@ Defined.
 Instance Sgr_pullback
   {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : Sgr :=
 {
-  setoid := CoqSetoid_pullback f g;
+  setoid := SETOID_pullback f g;
 }.
 Proof.
   - intros [a1 b1 H1] [a2 b2 H2]; cbn.
@@ -709,7 +709,7 @@ Defined.
 Instance Sgr_pullL
   {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SgrHom (Sgr_pullback f g) A :=
 {
-  setoidHom := CoqSetoid_pullL;
+  setoidHom := SETOID_pullL;
 }.
 Proof.
   now intros [a1 b1 H1] [a2 b2 H2]; cbn.
@@ -720,7 +720,7 @@ Defined.
 Instance Sgr_pullR
   {A B X : Sgr} (f : SgrHom A X) (g : SgrHom B X) : SgrHom (Sgr_pullback f g) B :=
 {
-  setoidHom := CoqSetoid_pullR;
+  setoidHom := SETOID_pullR;
 }.
 Proof.
   now intros [a1 b1 H1] [a2 b2 H2]; cbn.
@@ -733,7 +733,7 @@ Instance Sgr_triple
   {Γ : Sgr} (a : Hom Γ A) (b : Hom Γ B) (Heq : a .> f == b .> g)
   : SgrHom Γ (Sgr_pullback f g) :=
 {
-  setoidHom := CoqSetoid_triple a b Heq;
+  setoidHom := SETOID_triple a b Heq;
 }.
 Proof.
   now cbn; intros; rewrite !pres_op.

@@ -454,7 +454,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance forgetful : Functor MonCat CoqSetoid :=
+Instance forgetful : Functor MonCat SETOID :=
 {
   fob := fun X : Mon => @setoid (sgr X);
   fmap := fun (A B : Mon) (f : Hom A B) => f;
@@ -468,7 +468,7 @@ Defined.
 Notation "'U'" := forgetful.
 
 Definition free_monoid
-  (X : Ob CoqSetoid) (M : Mon) (p : Hom X (fob U M)) : Prop :=
+  (X : Ob SETOID) (M : Mon) (p : Hom X (fob U M)) : Prop :=
     forall (N : Mon) (q : SetoidHom X (fob U N)),
       exists!! h : MonHom M N, q == p .> fmap U h.
 
@@ -494,7 +494,7 @@ Proof.
   all: now cbn; intros; lia.
 Defined.
 
-Definition MonListUnit_p : SetoidHom CoqSetoid_term MonListUnit.
+Definition MonListUnit_p : SetoidHom SETOID_term MonListUnit.
 Proof.
   exists (fun _ => 1).
   now proper.
@@ -503,10 +503,10 @@ Defined.
 Set Nested Proofs Allowed.
 
 Lemma free_monoid_MonListUnit :
-  @free_monoid CoqSetoid_term MonListUnit MonListUnit_p.
+  @free_monoid SETOID_term MonListUnit MonListUnit_p.
 Proof.
   unfold free_monoid. intros.
-  Definition f1 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+  Definition f1 (N : Mon) (q : SetoidHom SETOID_term (fob U N))
     : SetoidHom MonListUnit N.
   Proof.
     exists (fix f (n : nat) : N :=
@@ -516,7 +516,7 @@ Proof.
       end).
     now proper; subst.
   Defined.
-  Definition f2 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+  Definition f2 (N : Mon) (q : SetoidHom SETOID_term (fob U N))
     : SgrHom MonListUnit N.
   Proof.
     exists (f1 N q).
@@ -524,7 +524,7 @@ Proof.
     - now cbn; rewrite neutr_l.
     - now cbn; rewrite <- assoc, -> IHx'.
   Defined.
-  Definition f3 (N : Mon) (q : SetoidHom CoqSetoid_term (fob U N))
+  Definition f3 (N : Mon) (q : SetoidHom SETOID_term (fob U N))
     : MonHom MonListUnit N.
   Proof.
     now exists (f2 N q).

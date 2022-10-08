@@ -98,7 +98,7 @@ Proof. now lin. Defined.
 #[export]
 Instance Lin_Pros_product (X Y : Lin) : Pros :=
 {
-  carrier := CoqSetoid_product X Y;
+  carrier := SETOID_product X Y;
   leq := fun p1 p2 : X * Y =>
     fst p1 ≤ fst p2 /\ ~ fst p1 == fst p2
       \/
@@ -140,7 +140,7 @@ Defined.
 #[export]
 Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
 {
-  carrier := CoqSetoid_coproduct X Y;
+  carrier := SETOID_coproduct X Y;
   leq := fun p1 p2 : X + Y =>
     match p1, p2 with
     | inl x, inl x' => leq x x'

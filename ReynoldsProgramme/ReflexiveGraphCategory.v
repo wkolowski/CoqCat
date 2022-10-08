@@ -91,7 +91,7 @@ Axiom JMeq_pi :
 
 #[refine]
 #[export]
-Instance CoqSetFunRel : ReflexiveGraphCategory :=
+Instance SETFunRel : ReflexiveGraphCategory :=
 {
   Ob := Type;
 

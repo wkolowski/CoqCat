@@ -684,7 +684,7 @@ Defined.
 
 (** ** The category of setoids *)
 
-(** [CoqSetoid] corresponds to what most category theory textbooks call Set,
+(** [SETOID] corresponds to what most category theory textbooks call Set,
     the category of sets and functions.
 
     We need to use setoids instead of sets, because our categories have a
@@ -785,7 +785,7 @@ Proof. now setoid. Defined.
 
 #[refine]
 #[global]
-Instance CoqSetoid : Cat :=
+Instance SETOID : Cat :=
 {|
   Ob := Setoid';
   Hom := SetoidHom;
@@ -952,7 +952,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HomFunctor (C : Cat) (X : Ob C) : Functor C CoqSetoid :=
+Instance HomFunctor (C : Cat) (X : Ob C) : Functor C SETOID :=
 {
   fob := fun Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |}
 }.
@@ -991,7 +991,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HomContravariant (C : Cat) (X : Ob C) : Contravariant C CoqSetoid :=
+Instance HomContravariant (C : Cat) (X : Ob C) : Contravariant C SETOID :=
 {
   coob := fun Y : Ob C => {| carrier := Hom Y X; setoid := HomSetoid Y X |}
 }.
@@ -1157,7 +1157,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance HomProfunctor (C : Cat) : Profunctor C C CoqSetoid :=
+Instance HomProfunctor (C : Cat) : Profunctor C C SETOID :=
 {
   diob := fun X Y : Ob C => {| carrier := Hom X Y; setoid := HomSetoid X Y |};
 }.
@@ -1371,8 +1371,8 @@ Proof.
   now exists (component β X).
 Qed.
 
-Definition representable {C : Cat} (X : Ob C) (F : Functor C CoqSetoid) : Type :=
+Definition representable {C : Cat} (X : Ob C) (F : Functor C SETOID) : Type :=
   {α : NatTrans F (HomFunctor C X) & natural_isomorphism α}.
 
-Definition corepresentable {C : Cat} (X : Ob C) (F : Functor (Dual C) CoqSetoid) : Type :=
+Definition corepresentable {C : Cat} (X : Ob C) (F : Functor (Dual C) SETOID) : Type :=
   {α : NatTrans F (HomFunctor (Dual C) X) & natural_isomorphism α}.

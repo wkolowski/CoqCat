@@ -1,5 +1,5 @@
 Require Import ProofIrrelevance.
-From Cat Require Import Instances.Setoids.
+From Cat Require Import Instances.SETOID.
 
 (** Alternative formalization using SProp, the universe of definitionally
     irrelevant propositions.
@@ -60,7 +60,7 @@ Arguments box {A} _.
 
 #[refine]
 #[export]
-Instance CoqSetFunRel : ReflexiveGraphCategory :=
+Instance SETFunRel : ReflexiveGraphCategory :=
 {
   Ob := Type;
 

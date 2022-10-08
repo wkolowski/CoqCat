@@ -1,6 +1,6 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Export Initial Terminal Product Coproduct.
-From Cat Require Export Instances.Setoids.
+From Cat Require Export Instances.SETOID.
 
 Set Implicit Arguments.
 
@@ -123,14 +123,14 @@ Abort.
 #[export]
 Instance Pros_init : Pros :=
 {
-  carrier := CoqSetoid_init;
+  carrier := SETOID_init;
   leq := fun (x y : Empty_set) => match x with end
 }.
 Proof. all: easy. Defined.
 
 Definition Pros_create (X : Pros) : ProsHom Pros_init X.
 Proof.
-  now exists (CoqSetoid_create X).
+  now exists (SETOID_create X).
 Defined.
 
 #[refine]
@@ -155,14 +155,14 @@ Defined.
 #[export]
 Instance Pros_term : Pros :=
 {
-  carrier := CoqSetoid_term;
+  carrier := SETOID_term;
   leq := fun _ _ => True
 }.
 Proof. all: easy. Defined.
 
 Definition Pros_delete (X : Pros) : ProsHom X Pros_term.
 Proof.
-  now exists (CoqSetoid_delete X).
+  now exists (SETOID_delete X).
 Defined.
 
 #[refine]
@@ -178,7 +178,7 @@ Proof. easy. Defined.
 #[export]
 Instance Pros_product (X Y : Pros) : Pros :=
 {
-  carrier := CoqSetoid_product X Y;
+  carrier := SETOID_product X Y;
   leq := fun x y : X * Y => leq (fst x) (fst y) /\ leq (snd x) (snd y)
 }.
 Proof.
@@ -190,18 +190,18 @@ Defined.
 
 Definition Pros_outl (X Y : Pros) : ProsHom (Pros_product X Y) X.
 Proof.
-  now exists (CoqSetoid_outl X Y); cbn.
+  now exists (SETOID_outl X Y); cbn.
 Defined.
 
 Definition Pros_outr (X Y : Pros) : ProsHom (Pros_product X Y) Y.
 Proof.
-  now exists (CoqSetoid_outr X Y); cbn.
+  now exists (SETOID_outr X Y); cbn.
 Defined.
 
 Definition Pros_fpair
   {A B X : Pros} (f : ProsHom X A) (g : ProsHom X B) : ProsHom X (Pros_product A B).
 Proof.
-  exists (CoqSetoid_fpair f g).
+  exists (SETOID_fpair f g).
   now pros.
 Defined.
 
@@ -225,7 +225,7 @@ Defined.
 #[export]
 Instance Pros_coproduct (X Y : Pros) : Pros :=
 {
-  carrier := CoqSetoid_coproduct X Y;
+  carrier := SETOID_coproduct X Y;
   leq := fun a b : X + Y =>
     match a, b with
     | inl x, inl x' => x ≤ x'
@@ -242,18 +242,18 @@ Defined.
 
 Definition Pros_finl (X Y : Pros) : ProsHom X (Pros_coproduct X Y).
 Proof.
-  now exists (CoqSetoid_finl X Y).
+  now exists (SETOID_finl X Y).
 Defined.
 
 Definition Pros_finr (X Y : Pros) : ProsHom Y (Pros_coproduct X Y).
 Proof.
-  now exists (CoqSetoid_finr X Y).
+  now exists (SETOID_finr X Y).
 Defined.
 
 Definition Pros_copair
   (A B X : Pros) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Pros_coproduct A B) X.
 Proof.
-  exists (CoqSetoid_copair f g).
+  exists (SETOID_copair f g).
   now intros [] []; pros.
 Defined.
 
