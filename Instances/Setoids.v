@@ -55,7 +55,7 @@ Proof.
   - now cbn; intros x; apply H, H0.
 Defined.
 
-Lemma CoqSetoid_isEpi :
+Lemma CoqSetoid_isEpi_surjectiveS :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     surjectiveS f -> isEpi f.
 Proof.
@@ -65,7 +65,7 @@ Proof.
   now apply Heq.
 Defined.
 
-Lemma CoqSetoid_surjectiveS :
+Lemma CoqSetoid_surjectiveS_isEpi :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
     isEpi f -> surjectiveS f.
 Proof.
@@ -85,26 +85,13 @@ Proof.
   now intuition eexists.
 Defined.
 
-Lemma CoqSetoid_isSec :
+Lemma CoqSetoid_isEpi :
   forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    isSec f -> injectiveS f.
+    isEpi f <-> surjectiveS f.
 Proof.
-  intros.
-  apply isMono_isSec in H.
-  now apply CoqSetoid_isMono.
-Defined.
-
-Lemma CoqSetoid_isRet :
-  forall (X Y : Ob CoqSetoid) (f : Hom X Y),
-    isRet f <-> surjectiveS' f.
-Proof.
-  unfold isRet, surjectiveS.
-  split; cbn.
-  - intros [g H]. red.
-    exists g.
-    now setoid'.
-  - intros (g & H1 & H2).
-    now exists {| func := g; Proper_func := H1 |}.
+  split.
+  - now apply CoqSetoid_surjectiveS_isEpi.
+  - now apply CoqSetoid_isEpi_surjectiveS.
 Qed.
 
 #[export]

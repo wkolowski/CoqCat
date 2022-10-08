@@ -100,8 +100,6 @@ Class HasColimits (C : Cat) : Type :=
 Arguments colimit  [C _ J] _.
 Arguments colimitMor [C _ J F] _.
 
-(* TODO : natural conditions for (co)limits *)
-
 #[refine]
 #[export]
 Instance CoconeImage

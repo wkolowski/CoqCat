@@ -218,8 +218,8 @@ Proof.
   now repeat split; cbn in *.
 Defined.
 
-Definition thin (C : Cat) : Prop :=
-  forall (X Y : Ob C) (f g : Hom X Y), f == g.
+(* Definition thin (C : Cat) : Prop :=
+  forall (X Y : Ob C) (f g : Hom X Y), f == g. *)
 
 #[refine]
 #[export]

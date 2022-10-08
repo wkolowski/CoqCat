@@ -101,7 +101,6 @@ Proof.
   now setoid.
 Defined.
 
-(* TODO *)
 #[refine]
 #[export]
 Instance SetoidFunRel : ReflexiveGraphCategory :=

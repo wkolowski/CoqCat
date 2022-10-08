@@ -132,46 +132,9 @@ Proof.
   now cbn; intuition.
 Defined.
 
-(* TODO : products of linear orders suck because of constructivity *)
-
-(*
-#[refine]
-#[export]
-Instance Lin_product (X Y : Lin) : Lin :=
-{
-  pos := Lin_product_Pos X Y
-}.
-Proof.
-  intros [x1 y1] [x2 y2]; cbn in *.
-  destruct (leq_total x1 x2), (leq_total x2 x1), (leq_total y1 y2), (leq_total y2 y1).
-  all: firstorder.
-Abort.
-
-Definition Lin_outl (X Y : Lin) : ProsHom (Lin_product X Y) X.
-Proof.
-  red. exists fst. destruct 1, H; try rewrite H; lin.
-Defined.
-
-Definition Lin_outr (X Y : Lin) : ProsHom (Lin_product X Y) Y.
-Proof.
-  red. exists snd. lin'. destruct a, a', H, H; cbn in *.
-Abort.
-*)
-
-(*
-#[refine]
-#[export]
-TODO: Instance HasProducts_Lin : HasProducts LinCat :=
-{
-  product := Lin_product;
-  outl := Pros_outl;
-  outr := Pros_outr;
-  fpair := @Pros_fpair
-}.
-Proof.
-  all: pos'; cat; try rewrite H; try rewrite H0; try destruct (y x); easy.
-Defined.
-*)
+(** Defining product of linear orders is not possible without LEM and coproducts
+    of linear orders don't exist because they are kidn of "connected" and
+    coproducts are all about creating objects which are "disconnected". *)
 
 #[refine]
 #[export]
@@ -194,37 +157,16 @@ Proof.
   - now intros [x1 | y1] [x2 | y2] [x3 | y3] H12 H23; cbn in *; eauto.
 Defined.
 
-#[refine]
-#[export]
-Instance Lin_coproduct (X Y : Lin) : Lin :=
-{
-  pos :=
-  {|
-    pros := Lin_Pros_coproduct X Y;
-  |}
-}.
+Lemma no_coproducts_Lin :
+  HasCoproducts LinCat -> False.
 Proof.
-  all: now intros; repeat (try
-    match goal with
-    | p : _ + _ |- _ => destruct p
-    end;
-    my_simpl; try f_equal; lin').
-Defined.
-
-Definition Lin_finl (X Y : Lin) : ProsHom X (Lin_coproduct X Y).
-Proof.
-  now exists (CoqSetoid_finl X Y).
-Defined.
-
-Definition Lin_finr (X Y : Lin) : ProsHom Y (Lin_coproduct X Y).
-Proof.
-  now exists (CoqSetoid_finr X Y).
-Defined.
-
-Definition Lin_copair
-  (A B X : Lin) (f : ProsHom A X) (g : ProsHom B X) : ProsHom (Lin_coproduct A B) X.
-Proof.
-  exists (CoqSetoid_copair f g).
-  intros [a1 | b1] [a2 | b2] H; cbn in *.
-  - now lin.
+  intros [? ? ? ? _]; cbn in *.
+  specialize (copair _ _ _ (finr Lin_term Lin_term) (finl Lin_term Lin_term)).
+  destruct copair as [[copair Heq] Hleq]; cbn in *.
+  destruct (finl Lin_term Lin_term) as [[f Hf1] Hf2]; cbn in *.
+  destruct (finr Lin_term Lin_term) as [[g Hg1] Hg2]; cbn in *.
+  pose (Hleq1 := Hleq (f tt) (g tt)).
+  pose (Hleq2 := Hleq (g tt) (f tt)).
+  destruct (leq_total (f tt) (g tt)).
+  - specialize (Hleq1 H).
 Abort.

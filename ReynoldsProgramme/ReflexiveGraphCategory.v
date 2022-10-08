@@ -1,7 +1,6 @@
 Require Import JMeq ProofIrrelevance.
 
-(** TODO: work it out.
-    Remember: in a reflexive graph category, morphisms need NOT preserve
+(** Remember: in a reflexive graph category, morphisms need NOT preserve
     all relations. We just have to specify which morphisms preserve
     which relations.
 

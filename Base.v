@@ -545,18 +545,13 @@ Definition bijective {A B : Type} (f : A -> B) : Prop :=
   injective f /\ surjective f.
 
 Definition injectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
-    forall a a' : A, f a == f a' -> a == a'.
+  forall a a' : A, f a == f a' -> a == a'.
 
 Definition surjectiveS {A B : Type} {S : Setoid B} (f : A -> B) : Prop :=
   forall b : B, exists a : A, f a == b.
 
 Definition bijectiveS {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
   injectiveS f /\ surjectiveS f.
-
-Definition surjectiveS'
-  {A B : Type} {SA : Setoid A} {SB : Setoid B} (f : A -> B) : Prop :=
-    exists g : B -> A,
-      Proper (equiv ==> equiv) g /\ forall b : B, f (g b) == b.
 
 #[global] Hint Unfold injective surjective bijective injectiveS surjectiveS bijectiveS : core.
 

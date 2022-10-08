@@ -23,7 +23,7 @@ Proof.
   - easy.
 Defined.
 
-Lemma CoqSet_isMono_inj :
+Lemma CoqSet_isMono :
   forall (A B : Ob CoqSet) (f : A -> B),
     isMono f <-> injective f.
 Proof.
@@ -33,7 +33,7 @@ Proof.
   - now apply H, H0.
 Defined.
 
-Lemma CoqSet_isEpi_sur :
+Lemma CoqSet_isEpi :
   forall (X Y : Type) (f : Hom X Y),
     isEpi f <-> surjective f.
 Proof.
@@ -51,17 +51,6 @@ Proof.
     intros x.
     now apply propositional_extensionality; intuition eauto.
 Qed.
-
-(* TODO : characterize and sections and isomorphisms of sets *)
-
-Lemma CoqSet_isIso_bij :
-  forall (A B : Type) (f : Hom A B),
-    isIso f <-> bijective f.
-Proof.
-  intros A B f.
-  unfold bijective.
-  rewrite isIso_iff_isMono_isRet, <- CoqSet_isMono_inj, <- CoqSet_isEpi_sur.
-Admitted.
 
 #[refine]
 #[export]

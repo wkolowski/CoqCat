@@ -95,10 +95,8 @@ Class HasLimits (C : Cat) : Type :=
   ok : allLimits (@limit) (@limitMor);
 }.
 
-Arguments limit  [C _ J] _.
+Arguments limit    [C _ J] _.
 Arguments limitMor [C _ J F] _.
-
-(* TODO : natural conditions for (co)limits *)
 
 #[refine]
 #[export]
@@ -118,9 +116,10 @@ Definition isContinuous {C D : Cat} {F : Functor C D} : Prop :=
   forall (J : Cat) (Diagram : Functor J C) (K : Cone Diagram),
     isLimit' K -> isLimit' (ConeImage F K).
 
-(* Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F. *)
+(*
+Coercion wut {C D : Cat} (F : Functor C D) : Ob (FunCat C D) := F.
 
-(* Lemma isLimit_char
+Lemma isLimit_char
   (J C : Cat) (F : Functor J C)
   (K : Cone F) (del : forall K' : Cone F, ConeHom K' K) :
     @isLimit J C F K del
@@ -128,4 +127,5 @@ Definition isContinuous {C D : Cat} {F : Functor C D} : Prop :=
     forall c : Ob C,
       @isomorphic CoqSetoid (HomSetoid C c (apex K)) (HomSetoid (FunCat J C) (ConstFunctor c J) F).
 Proof.
-Abort. *)
+Abort.
+*)

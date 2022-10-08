@@ -21,7 +21,6 @@ Class Enriched (V : Monoidal) : Type :=
     forall A B : EOb, bimap (id (EHom A B)) (EId B) .> EComp A B B == right_unitor (EHom A B);
 }.
 
-(* TODO: Commented out because it takes too much time.
 #[refine]
 #[export]
 Instance Enriched_CoqSetoid
@@ -44,4 +43,3 @@ Proof.
   - now cbn.
   - now cbn.
 Defined.
-*)
