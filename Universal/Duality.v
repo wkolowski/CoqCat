@@ -1,7 +1,7 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import
   Initial Terminal Zero Product Coproduct Biproduct Equalizer Coequalizer Pushout Pullback
-  IndexedProduct IndexedCoproduct IndexedBiproduct Limit Colimit.
+  IndexedProduct IndexedCoproduct Limit Colimit.
 
 Set Implicit Arguments.
 
@@ -87,7 +87,17 @@ Lemma isBiproduct_Dual :
       isBiproduct (Dual C) P finl finr outl outr copair fpair
         <->
       isBiproduct C P outl outr finl finr fpair copair.
-Proof. now firstorder. Defined.
+Proof.
+  split.
+  - intros [HP HC ok]; split; cbn in *.
+    + now apply isCoproduct_Dual in HC.
+    + now apply isProduct_Dual in HP.
+    + now rewrite !comp_assoc, ok.
+  - intros [HP HC ok]; split; cbn in *.
+    + now apply isProduct_Dual.
+    + now apply isCoproduct_Dual.
+    + now rewrite <- !comp_assoc, ok.
+Defined.
 
 #[refine]
 #[export]
@@ -238,17 +248,6 @@ Lemma isIndexedCoproduct_Dual :
       isIndexedProduct C P out (@tuple).
 Proof. now firstorder. Defined.
 
-Lemma isIndexedBiproduct_Dual :
-  forall
-    (C : Cat) {J : Type} {A : J -> Ob C}
-    (P : Ob C) (out : forall j : J, Hom P (A j)) (inj : forall j : J, Hom (A j) P)
-    (tuple : forall (X : Ob C) (f : forall j : J, Hom X (A j)), Hom X P)
-    (cotuple : forall (X : Ob C) (f : forall j : J, Hom (A j) X), Hom P X),
-      isIndexedBiproduct (Dual C) P inj out (@cotuple) (@tuple)
-        <->
-      isIndexedBiproduct C P out inj (@tuple) (@cotuple).
-Proof. now firstorder. Defined.
-
 #[refine]
 #[export]
 Instance HasIndexedProducts_Dual
@@ -273,16 +272,4 @@ Instance HasIndexedCoproducts_Dual
 }.
 Proof.
   now intros; apply isIndexedCoproduct_Dual; typeclasses eauto.
-Defined.
-
-#[refine]
-#[export]
-Instance HasIndexedBiproducts_Dual
-  (C : Cat) (hp : HasIndexedBiproducts C) : HasIndexedBiproducts (Dual C) :=
-{
-  HasIndexedProducts_HasIndexedBiproducts := HasIndexedProducts_Dual hp;
-  HasIndexedCoproducts_HasIndexedBiproducts := HasIndexedCoproducts_Dual hp;
-}.
-Proof.
-  now cbn; symmetry; apply HasIndexedBiproducts_spec.
 Defined.

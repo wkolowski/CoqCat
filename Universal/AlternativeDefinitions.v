@@ -120,6 +120,11 @@ Class HasBiproducts (C : Cat) : Type :=
   biproduct : Ob C -> Ob C -> Ob C;
   HasProducts'_HasBiproducts :> HasProducts' C biproduct;
   HasCoproducts'_HasBiproducts :> HasCoproducts' C biproduct;
+  HasBiproducts_ok :
+    forall {A B : Ob C},
+      @outl _ _ _ A B .> @finl _ _ _ A B .> @outr _ _ _ A B .> @finr _ _ _ A B
+        ==
+      outr .> finr .> outl .> finl;
 }.
 
 Coercion HasProducts'_HasBiproducts : HasBiproducts >-> HasProducts'.
@@ -194,19 +199,6 @@ Arguments indexedCoproduct [C _ J] _.
 
 Coercion HasIndexedCoproducts'_HasIndexedCoproducts :
   HasIndexedCoproducts >-> HasIndexedCoproducts'.
-
-Class HasIndexedBiproducts (C : Cat) : Type :=
-{
-  indexedBiproduct : forall {J : Type} (A : J -> Ob C), Ob C;
-  HasIndexedProducts'_HasIndexedBiproducts :> HasIndexedProducts' C (@indexedBiproduct);
-  HasIndexedCoproducts'_HasIndexedBiproducts :> HasIndexedCoproducts' C (@indexedBiproduct);
-}.
-
-Coercion HasIndexedProducts'_HasIndexedBiproducts
-  : HasIndexedBiproducts >-> HasIndexedProducts'.
-
-Coercion HasIndexedCoproducts'_HasIndexedBiproducts
-  : HasIndexedBiproducts >-> HasIndexedCoproducts'.
 
 #[refine]
 #[export]

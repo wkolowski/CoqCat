@@ -175,7 +175,8 @@ Defined.
 
 #[refine]
 #[export]
-Instance FunCat_coproduct {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) : Functor C D :=
+Instance FunCat_coproduct
+  {C D : Cat} {hp : HasCoproducts D} (F G : Functor C D) : Functor C D :=
 {
   fob := fun X : Ob C => coproduct (fob F X) (fob G X);
   fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap F f +' fmap G f
@@ -479,7 +480,11 @@ Instance FunCat_exponential
 Proof.
 Abort.
 
-(* TODO : transfer of exponentials. Do they even transfer? *)
+(**
+  See:
+  - https://mathoverflow.net/questions/104152/exponentials-in-functor-categories
+  - https://ncatlab.org/nlab/show/cartesian+closed+category
+*)
 #[refine]
 #[export]
 Instance HasExponentials_FunCat
