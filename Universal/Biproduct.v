@@ -10,7 +10,7 @@ Set Implicit Arguments.
     for some rationale why it was defined like this
   - http://cahierstgdc.com/wp-content/uploads/2020/07/KARVONEN-LXI-3.pdf
     for a better definition that is used in this file
-  - https://mathoverflow.net/questions/428546/how-exotic-can-an-infinite-biproduct-in-an-additive-category-be
+  - https://mathoverflow.net/questions/428546/
     for why (infinite) indexed biproducts don't make much sense
 *)
 
@@ -66,7 +66,65 @@ Class HasBiproducts' (C : Cat) : Type :=
         ==
       bioutr .> binr .> bioutl .> binl;
 }.
+    
 
+Section BiproductIdentities.
+
+Context
+  (C : Cat)
+  (hb : HasBiproducts' C)
+  (A B : Ob C).
+
+Lemma binl_bioutl :
+  @binl _ _ A B .> bioutl == id A.
+Proof.
+Admitted.
+
+Lemma binr_bioutr :
+  @binr _ _ A B .> bioutr == id B.
+Proof.
+Admitted.
+
+Lemma binl_bioutr :
+  forall {X : Ob C} (f : Hom B X),
+    @binl _ _ A B .> bioutr .> f == @binl _ _ A X .> bioutr.
+Proof.
+Admitted.
+
+Lemma binl_bioutr' :
+  forall {X : Ob C} (f : Hom X A),
+    f .> @binl _ _ A B .> bioutr == @binl _ _ X B .> bioutr.
+Proof.
+Admitted.
+
+Lemma binr_bioutl :
+  forall {X : Ob C} (f : Hom A X),
+    @binr _ _ A B .> bioutl .> f == @binr _ _ X B .> bioutl.
+Proof.
+Admitted.
+
+Lemma binr_bioutl' :
+  forall {X : Ob C} (f : Hom X B),
+    f .> @binr _ _ A B .> bioutl == @binr _ _ A X .> bioutl.
+Proof.
+Admitted.
+
+End BiproductIdentities.
+
+#[refine]
 #[export]
-Instance BiproductBifunctor' {C : Cat} {hp : HasBiproducts C} : Bifunctor C C C :=
-  @CoproductBifunctor C hp.
+Instance BiproductBifunctor' {C : Cat} {hp : HasBiproducts' C} : Bifunctor C C C :=
+{
+  biob := fun X Y : Ob C => biproduct X Y;
+  bimap :=
+    fun (X Y X' Y' : Ob C) (f : Hom X Y) (g : Hom X' Y') =>
+      bicopair (f .> binl) (g .> binr);
+}.
+Proof.
+  - now proper.
+  - now intros; rewrite equiv_coproduct', copair_comp, !comp_assoc, !finl_copair, !finr_copair.
+  - now intros; rewrite equiv_coproduct', finl_copair, finr_copair, !comp_id_l, !comp_id_r.
+Defined.
+
+Notation "A ×+ B" := (@biob _ _ _ (@BiproductBifunctor' _ _) A B) (at level 40, only parsing).
+Notation "f ×+' g" := (@bimap _ _ _ (@BiproductBifunctor' _ _) _ _ _ _ f g) (at level 40).

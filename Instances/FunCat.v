@@ -1,6 +1,6 @@
 From Cat Require Import Cat.
 From Cat.Universal Require Import
-  Initial Terminal Product Coproduct Equalizer Coequalizer Pullback Pushout Exponential.
+  Initial Terminal Product Coproduct Biproduct Equalizer Coequalizer Pullback Pushout Exponential.
 From Cat.Universal Require Import Duality.
 
 Set Implicit Arguments.
@@ -238,6 +238,128 @@ Proof.
   - now apply finl_copair.
   - now apply finr_copair.
   - now apply equiv_coproduct.
+Defined.
+
+(** Biproducts *)
+
+#[refine]
+#[export]
+Instance FunCat_biproduct {C D : Cat} {hb : HasBiproducts' D} (F G : Functor C D) : Functor C D :=
+{
+  fob  := fun X : Ob C => biproduct (fob F X) (fob G X);
+  fmap := fun (X Y : Ob C) (f : Hom X Y) => fmap F f ×+' fmap G f
+}.
+Proof.
+  - now proper.
+  - now intros; rewrite !fmap_comp, bimap_comp.
+  - now intros; rewrite !fmap_id, bimap_id.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_bioutl
+  {C D : Cat} {hp : HasBiproducts' D} {F G : Functor C D} : NatTrans (FunCat_biproduct F G) F :=
+{
+  component := fun _ : Ob C => bioutl
+}.
+Proof.
+  cbn; intros.
+  rewrite copair_comp, !comp_assoc, binl_bioutl, comp_id_r.
+  rewrite equiv_coproduct', finl_copair, finr_copair.
+  now rewrite <- !comp_assoc, binl_bioutl, binr_bioutl, binr_bioutl', comp_id_l.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_bioutr
+  {C D : Cat} {hp : HasBiproducts' D} {F G : Functor C D} : NatTrans (FunCat_biproduct F G) G :=
+{
+  component := fun _ : Ob C => bioutr
+}.
+Proof.
+  cbn; intros.
+  rewrite copair_comp, !comp_assoc, binr_bioutr, comp_id_r.
+  rewrite equiv_coproduct', finl_copair, finr_copair.
+  now rewrite <- !comp_assoc, binr_bioutr, binl_bioutr, binl_bioutr', comp_id_l.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_bipair
+  {C D : Cat} {hp : HasBiproducts' D} {G H F : Functor C D}
+  (α : NatTrans F G) (β : NatTrans F H) : NatTrans F (FunCat_biproduct G H) :=
+{
+  component := fun X : Ob C => bipair (component α X) (component β X)
+}.
+Proof.
+  intros.
+  rewrite fpair_comp, <- !natural.
+  rewrite equiv_product', fpair_outl, fpair_outr.
+  Search bipair fmap. cbn.
+(*   rewrite equiv_product', !comp_assoc, fpair_outl, fpair_outr. cbn.
+  rewrite !copair_comp, binr_bioutl', binl_bioutr'.
+  rewrite !comp_assoc, binl_bioutl, binr_bioutr, !comp_id_r. *)
+Admitted.
+
+#[refine]
+#[export]
+Instance FunCat_binl
+  {C D : Cat} {hp : HasBiproducts' D} {F G : Functor C D} : NatTrans F (FunCat_biproduct F G) :=
+{
+  component := fun _ : Ob C => binl
+}.
+Proof.
+  now cbn; intros; rewrite finl_copair.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_binr
+  {C D : Cat} {hp : HasBiproducts' D} {F G : Functor C D} : NatTrans G (FunCat_biproduct F G) :=
+{
+  component := fun _ : Ob C => binr
+}.
+Proof.
+  now cbn; intros; rewrite finr_copair.
+Defined.
+
+#[refine]
+#[export]
+Instance FunCat_bicopair
+  {C D : Cat} {hp : HasBiproducts' D} {F G H : Functor C D}
+  (α : NatTrans F H) (β : NatTrans G H) : NatTrans (FunCat_biproduct F G) H :=
+{
+  component := fun X : Ob C => bicopair (component α X) (component β X)
+}.
+Proof.
+  cbn; intros.
+  rewrite !copair_comp, equiv_coproduct', !comp_assoc.
+  now rewrite !finl_copair, !finr_copair, !natural.
+Defined.
+
+#[refine]
+#[export]
+Instance HasBiproducts_FunCat
+  {C D : Cat} {hp : HasBiproducts' D} : HasBiproducts' (FunCat C D) :=
+{
+  biproduct := FunCat_biproduct;
+  bioutl    := @FunCat_bioutl C D hp;
+  bioutr    := @FunCat_bioutr C D hp;
+  bipair    := @FunCat_bipair C D hp;
+  binl      := @FunCat_binl C D hp;
+  binr      := @FunCat_binr C D hp;
+  bicopair  := @FunCat_bicopair C D hp;
+}.
+Proof.
+  - split; cbn; intros.
+    + admit.
+    + admit.
+    + now rewrite equiv_product', H, H0.
+  - split; cbn; intros.
+    + now rewrite finl_copair.
+    + now rewrite finr_copair.
+    + now rewrite equiv_coproduct', H, H0.
+  - cbn; intros. apply HasBiproducts'_ok.
 Defined.
 
 #[refine]
