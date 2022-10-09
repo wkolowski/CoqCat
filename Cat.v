@@ -434,7 +434,8 @@ Proof.
     now rewrite comp_assoc, Heq, comp_id_l, comp_id_r.
 Defined.
 
-#[global] Hint Resolve isIso_iff_isSec_isRet isIso_iff_isMono_isRet isIso_iff_isSec_isEpi : core.
+#[global] Hint Resolve
+  isIso_iff_isSec_isRet isIso_iff_isMono_isRet isIso_iff_isSec_isEpi : core.
 
 (** *** Characterizations in terms of hom-sets *)
 
@@ -688,7 +689,11 @@ Defined.
     the category of sets and functions.
 
     We need to use setoids instead of sets, because our categories have a
-    setoid of morphisms instead of a set/type. *)
+    setoid of morphisms instead of a set/type.
+
+    [SETOId] its the name of the category - the type of its objects is called
+    [Setoid'], to avoid name clash with [Setoid].
+*)
 
 Class Setoid' : Type :=
 {
@@ -769,7 +774,8 @@ Ltac setoid := try (setoid'; fail).
 
 #[refine]
 #[export]
-Instance SetoidComp (X Y Z : Setoid') (f : SetoidHom X Y) (g : SetoidHom Y Z) : SetoidHom X Z :=
+Instance SetoidComp
+  (X Y Z : Setoid') (f : SetoidHom X Y) (g : SetoidHom Y Z) : SetoidHom X Z :=
 {
   func := fun x : X => g (f x)
 }.
@@ -810,7 +816,8 @@ Class Functor (C : Cat) (D : Cat) : Type :=
   fob : Ob C -> Ob D;
   fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
   Proper_fmap :> forall A B : Ob C, Proper (equiv ==> equiv) (@fmap A B);
-  fmap_comp : forall {A B C : Ob C} (f : Hom A B) (g : Hom B C), fmap (f .> g) == fmap f .> fmap g;
+  fmap_comp :
+    forall {A B C : Ob C} (f : Hom A B) (g : Hom B C), fmap (f .> g) == fmap f .> fmap g;
   fmap_id : forall A : Ob C, fmap (id A) == id (fob A)
 }.
 
@@ -1376,3 +1383,66 @@ Definition representable {C : Cat} (X : Ob C) (F : Functor C SETOID) : Type :=
 
 Definition corepresentable {C : Cat} (X : Ob C) (F : Functor (Dual C) SETOID) : Type :=
   {α : NatTrans F (HomFunctor (Dual C) X) & natural_isomorphism α}.
+
+(** * Subcategories *)
+
+#[refine]
+#[export]
+Instance WideSubcat (C : Cat) (P : Ob C -> Prop) : Cat :=
+{
+  Ob := {X : Ob C | P X};
+  Hom := fun A B : {X : Ob C | P X} => @Hom C (proj1_sig A) (proj1_sig B);
+  HomSetoid := fun A B => @HomSetoid C (proj1_sig A) (proj1_sig B);
+  comp := fun X Y Z => @comp C (proj1_sig X) (proj1_sig Y) (proj1_sig Z);
+  id := fun X => @id C (proj1_sig X);
+}.
+Proof. all: now cat. Defined.
+
+#[refine]
+#[export]
+Instance FullSubcat
+  {U : Cat} (P : forall {A B : Ob U}, Hom A B -> Prop)
+  (P_id : forall A : Ob U, P (id A))
+  (P_comp : forall {A B C : Ob U} {f : Hom A B} {g : Hom B C}, P f -> P g -> P (f .> g))
+  : Cat :=
+{
+  Ob := Ob U;
+  Hom := fun X Y : Ob U => {f : Hom X Y | P X Y f};
+  HomSetoid := fun X Y : Ob U =>
+    Setoid_kernel_equiv (HomSetoid X Y) (@proj1_sig (Hom X Y) (P X Y));
+}.
+Proof.
+  - intros X Y Z [f Hf] [g Hg].
+    exists (f .> g).
+    now apply P_comp.
+  - intros X Y Z [f1 Hf1] [f2 Hf2] Hf [g1 Hg1] [g2 Hg2] Hg; cbn in *.
+    now rewrite Hf, Hg.
+  - intros X Y Z W [f Hf] [g Hg] [h Hh]; cbn in *.
+    now rewrite comp_assoc.
+  - intros X.
+    exists (id X).
+    now apply P_id.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_l.
+  - intros X Y [f Hf]; cbn.
+    now rewrite comp_id_r.
+Defined.
+
+Definition WithMono (C : Cat) : Cat :=
+  FullSubcat (@isMono C) (@isMono_id C) (@isMono_comp C).
+
+Definition WithEpi (C : Cat) : Cat :=
+  FullSubcat (@isEpi C) (@isEpi_id C) (@isEpi_comp C).
+
+Definition WithSec (C : Cat) : Cat :=
+  FullSubcat (@isSec C) (@isSec_id C) (@isSec_comp C).
+
+Definition WithRet (C : Cat) : Cat :=
+  FullSubcat (@isRet C) (@isRet_id C) (@isRet_comp C).
+
+(**
+  The core of a category [C] is the groupoid that has the same objects as [C],
+  but whose morphisms are only the isomorphisms of [C].
+*)
+Definition Core (C : Cat) : Cat :=
+  FullSubcat (@isIso C) (@isIso_id C) (@isIso_comp C).
