@@ -1,7 +1,7 @@
 From CoqAlgs.Sorting Require Import Perm InsertionSort.
 
 From Cat Require Export Cat.
-From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Zero Product Coproduct Biproduct.
 From Cat Require Export Instances.Mon.
 
 Set Implicit Arguments.
@@ -98,9 +98,9 @@ Defined.
 Instance HasProducts_CMon : HasProducts CMonCat :=
 {
   product := CMon_product;
-  outl := Mon_outl;
-  outr := Mon_outr;
-  fpair := Mon_fpair;
+  outl    := Mon_outl;
+  outr    := Mon_outr;
+  fpair   := Mon_fpair;
 }.
 Proof.
   now repeat split; cbn in *.
@@ -185,6 +185,24 @@ Proof.
     rewrite Heq', Heq.
     apply (Proper_func h2); cbn.
     now rewrite neutr_l, neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasBiproducts'_CMon : HasBiproducts' CMonCat :=
+{
+  biproduct := CMon_product;
+  bioutl    := Mon_outl;
+  bioutr    := Mon_outr;
+  bipair    := Mon_fpair;
+  binl      := @CMon_finl;
+  binr      := @CMon_finr;
+  bicopair  := @CMon_copair;
+}.
+Proof.
+  - now apply HasProducts_CMon.
+  - now apply HasCoproducts_CMon.
+  - now cbn.
 Defined.
 
 #[refine]

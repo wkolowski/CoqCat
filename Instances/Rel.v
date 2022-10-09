@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Zero Product Coproduct Biproduct.
 From Cat Require Export Instances.SETOID.
 
 Class RelHom (X Y : Setoid') : Type :=
@@ -264,4 +264,28 @@ Proof.
     + now exists (inr b).
     + easy.
     + now eapply Proper_h1; eauto.
+Defined.
+
+#[refine]
+#[export]
+Instance HasBiproducts'_Rel : HasBiproducts' Rel :=
+{
+  biproduct := Rel_product;
+  bioutl    := Rel_outl;
+  bioutr    := Rel_outr;
+  bipair    := Rel_fpair;
+  binl      := Rel_finl;
+  binr      := Rel_finr;
+  bicopair  := Rel_copair;
+}.
+Proof.
+  - now apply HasProducts_Rel.
+  - now apply HasCoproducts_Rel.
+  - intros A B [a1 | b1] [a2 | b2]; cbn.
+    + now firstorder.
+    + split; [| now firstorder].
+      now intros [b3 [[[a4 | b4] [[a5 [Heq1 Heq2]] Heq3]] Heq4]].
+    + split; [now firstorder |].
+      now intros [b3 [[[a4 | b4] [[a5 [Heq1 Heq2]] Heq3]] Heq4]].
+    + now firstorder.
 Defined.

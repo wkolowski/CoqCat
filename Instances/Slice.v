@@ -8,8 +8,8 @@ Class SliceOb (C : Cat) (Y : Ob C) : Type :=
   mor : Hom dom Y
 }.
 
-Arguments dom [C] [Y] _.
-Arguments mor [C] [Y] _.
+Arguments dom [C Y] _.
+Arguments mor [C Y] _.
 
 Coercion dom : SliceOb >-> Ob.
 

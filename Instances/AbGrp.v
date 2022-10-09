@@ -1,5 +1,5 @@
 From Cat Require Export Cat.
-From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
+From Cat.Universal Require Import Initial Terminal Zero Product Coproduct Biproduct.
 From Cat.Instances Require Import SETOID Mon CMon Grp.
 
 Set Implicit Arguments.
@@ -101,8 +101,7 @@ Proof.
   - now split.
 Defined.
 
-#[export]
-Instance AbGrp_coproduct (A B : AbGrp) : AbGrp := AbGrp_product A B.
+Definition AbGrp_coproduct (A B : AbGrp) : AbGrp := AbGrp_product A B.
 
 Definition AbGrp_finl {A B : AbGrp} : MonHom A (AbGrp_coproduct A B) :=
   @CMon_finl A B.
@@ -139,6 +138,24 @@ Proof.
     rewrite Heq', Heq.
     apply (Proper_func h2); cbn.
     now rewrite neutr_l, neutr_r.
+Defined.
+
+#[refine]
+#[export]
+Instance HasBiproducts'_AbGrp : HasBiproducts' AbGrpCat :=
+{
+  biproduct := AbGrp_product;
+  bioutl    := Mon_outl;
+  bioutr    := Mon_outr;
+  bipair    := Mon_fpair;
+  binl      := @CMon_finl;
+  binr      := @CMon_finr;
+  bicopair  := @CMon_copair;
+}.
+Proof.
+  - now apply HasProducts_AbGrp.
+  - now apply HasCoproducts_AbGrp.
+  - now cbn.
 Defined.
 
 #[refine]

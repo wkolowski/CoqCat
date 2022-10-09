@@ -11,7 +11,7 @@ Set Implicit Arguments.
   - http://cahierstgdc.com/wp-content/uploads/2020/07/KARVONEN-LXI-3.pdf
     for a better definition that is used in this file
   - https://mathoverflow.net/questions/428546/how-exotic-can-an-infinite-biproduct-in-an-additive-category-be
-    for why infinite biproducts don't make much sense
+    for why (infinite) indexed biproducts don't make much sense
 *)
 
 Class isBiproduct
