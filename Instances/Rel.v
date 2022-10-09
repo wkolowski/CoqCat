@@ -2,25 +2,25 @@ From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct.
 From Cat Require Export Instances.SETOID.
 
-Class SetoidRel (X Y : Setoid') : Type :=
+Class RelHom (X Y : Setoid') : Type :=
 {
   rel : X -> Y -> Prop;
   Proper_rel :> Proper (equiv ==> equiv ==> iff) rel
 }.
 
-Coercion rel : SetoidRel >-> Funclass.
+Coercion rel : RelHom >-> Funclass.
 
-Ltac setoidrelhom R := try intros until R;
+Ltac relhom R := try intros until R;
 match type of R with
-| SetoidRel _ _ =>
+| RelHom _ _ =>
   let a := fresh "Proper_" R in destruct R as [?R a]
-| Hom _ _ => progress cbn in R; setoidrelhom R
+| Hom _ _ => progress cbn in R; relhom R
 end.
 
-Ltac setoidrelhoms := intros; repeat
+Ltac relhoms := intros; repeat
 match goal with
-| R : SetoidRel _ _ |- _ => setoidrelhom R
-| f : Hom _ _ |- _ => setoidrelhom f
+| R : RelHom _ _ |- _ => relhom R
+| f : Hom _ _ |- _ => relhom f
 end.
 
 Ltac rel' := repeat (intros;
@@ -35,16 +35,16 @@ match goal with
 | |- exists _, _ => eexists
 end); cat.
 
-Ltac setoidrel' := repeat (my_simpl || setoidobs || setoidrelhoms || cat).
+Ltac setoidrel' := repeat (my_simpl || setoidobs || relhoms || cat).
 Ltac setoidrel := try (setoidrel'; fail).
 
 Ltac rel := repeat rel'; setoidrel'; rel'.
 
 #[refine]
 #[export]
-Instance SetoidRel_Setoid (X Y : Setoid') : Setoid (SetoidRel X Y) :=
+Instance RelHom_Setoid (X Y : Setoid') : Setoid (RelHom X Y) :=
 {
-  equiv := fun (P Q : SetoidRel X Y) =>
+  equiv := fun (P Q : RelHom X Y) =>
     forall (x : X) (y : Y), P x y <-> Q x y
 }.
 Proof.
@@ -53,110 +53,110 @@ Defined.
 
 #[refine]
 #[export]
-Instance SetoidRelComp
-  (X Y Z : Setoid') (R : SetoidRel X Y) (S : SetoidRel Y Z) : SetoidRel X Z :=
+Instance RelHomComp
+  (X Y Z : Setoid') (R : RelHom X Y) (S : RelHom Y Z) : RelHom X Z :=
 {
   rel := fun (x : X) (z : Z) => exists y : Y, R x y /\ S y z
 }.
 Proof. now rel. Defined.
 
 #[export]
-Instance SetoidRelId (X : Setoid') : SetoidRel X X :=
+Instance RelHomId (X : Setoid') : RelHom X X :=
 {
   rel := equiv
 }.
 
 #[refine]
 #[export]
-Instance SetoidRelCat : Cat :=
+Instance Rel : Cat :=
 {|
   Ob := Setoid';
-  Hom := SetoidRel;
-  HomSetoid := SetoidRel_Setoid;
-  comp := SetoidRelComp;
-  id := SetoidRelId
+  Hom := RelHom;
+  HomSetoid := RelHom_Setoid;
+  comp := RelHomComp;
+  id := RelHomId;
 |}.
 Proof. all: now rel. Defined.
 
 #[export]
-Program Instance HasInit_SetoidRel : HasInit SetoidRelCat :=
+Program Instance HasInit_Rel : HasInit Rel :=
 {
-  init := SETOID_init;
-  create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |}
+  init   := SETOID_init;
+  create := fun X : Setoid' => {| rel := fun (e : Empty_set) _ => match e with end |};
 }.
 Next Obligation. easy. Defined.
 Next Obligation. easy. Defined.
 
 #[export]
-Program Instance HasTerm_SetoidRel : HasTerm SetoidRelCat :=
+Program Instance HasTerm_Rel : HasTerm Rel :=
 {
-  term := SETOID_init;
-  delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |}
+  term   := SETOID_init;
+  delete := fun X : Setoid' => {| rel := fun _ (e : Empty_set) => match e with end |};
 }.
 Next Obligation. easy. Defined.
 Next Obligation. easy. Defined.
 
 #[refine]
 #[export]
-Instance HasZero_SetoidRel : HasZero SetoidRelCat :=
+Instance HasZero_Rel : HasZero Rel :=
 {
-  HasInit_HasZero := HasInit_SetoidRel;
-  HasTerm_HasZero := HasTerm_SetoidRel
+  HasInit_HasZero := HasInit_Rel;
+  HasTerm_HasZero := HasTerm_Rel;
 }.
 Proof. easy. Defined.
 
 #[export]
-Instance SetoidRel_product (X Y : Setoid') : Setoid' :=
+Instance Rel_product (X Y : Setoid') : Setoid' :=
 {
   carrier := X + Y;
-  setoid := Setoid_sum X Y;
+  setoid  := Setoid_sum X Y;
 }.
 
 #[refine]
 #[export]
-Instance SetoidRel_outl (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) X :=
+Instance Rel_outl (X Y : Setoid') : RelHom (Rel_product X Y) X :=
 {
   rel := fun (p : X + Y) (x : X) =>
     match p with
     | inl x' => x == x'
     | _ => False
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_outr (X Y : Setoid') : SetoidRel (SetoidRel_product X Y) Y :=
+Instance Rel_outr (X Y : Setoid') : RelHom (Rel_product X Y) Y :=
 {
   rel := fun (p : X + Y) (y : Y) =>
     match p with
     | inr y' => y == y'
     | _ => False
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_fpair
-  (A B X : Setoid') (R : SetoidRel X A) (S : SetoidRel X B) : SetoidRel X (SetoidRel_product A B) :=
+Instance Rel_fpair
+  (A B X : Setoid') (R : RelHom X A) (S : RelHom X B) : RelHom X (Rel_product A B) :=
 {
   rel := fun (x : X) (p : A + B) =>
     match p with
     | inl a => R x a
     | inr b => S x b
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance HasProducts_SetoidRel : HasProducts SetoidRelCat :=
+Instance HasProducts_Rel : HasProducts Rel :=
 {
-  product := SetoidRel_product;
-  outl := SetoidRel_outl;
-  outr := SetoidRel_outr;
-  fpair := SetoidRel_fpair
+  product := Rel_product;
+  outl    := Rel_outl;
+  outr    := Rel_outr;
+  fpair   := Rel_fpair;
 }.
 Proof.
   split; cbn.
@@ -189,54 +189,54 @@ Proof.
       * eapply Proper_R; [| | eassumption]; easy.
 Defined.
 
-Definition SetoidRel_coproduct := SetoidRel_product.
+Definition Rel_coproduct := Rel_product.
 
 #[refine]
 #[export]
-Instance SetoidRel_finl (X Y : Setoid') : SetoidRel X (SetoidRel_coproduct X Y) :=
+Instance Rel_finl (X Y : Setoid') : RelHom X (Rel_coproduct X Y) :=
 {
   rel := fun (x : X) (p : X + Y) =>
     match p with
     | inl x' => x == x'
     | _ => False
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_finr (X Y : Setoid') : SetoidRel Y (SetoidRel_coproduct X Y) :=
+Instance Rel_finr (X Y : Setoid') : RelHom Y (Rel_coproduct X Y) :=
 {
   rel := fun (y : Y) (p : X + Y) =>
     match p with
     | inr y' => y == y'
     | _ => False
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance SetoidRel_copair
-  (A B X : Setoid') (R : SetoidRel A X) (S : SetoidRel B X)
-  : SetoidRel (SetoidRel_coproduct A B) X :=
+Instance Rel_copair
+  (A B X : Setoid') (R : RelHom A X) (S : RelHom B X)
+  : RelHom (Rel_coproduct A B) X :=
 {
   rel := fun (p : A + B) (x : X) =>
     match p with
     | inl a => R a x
     | inr b => S b x
-    end
+    end;
 }.
 Proof. now rel. Defined.
 
 #[refine]
 #[export]
-Instance HasCoproducts_SetoidRel : HasCoproducts SetoidRelCat :=
+Instance HasCoproducts_Rel : HasCoproducts Rel :=
 {
-  coproduct := SetoidRel_coproduct;
-  finl := SetoidRel_finl;
-  finr := SetoidRel_finr;
-  copair := SetoidRel_copair;
+  coproduct := Rel_coproduct;
+  finl      := Rel_finl;
+  finr      := Rel_finr;
+  copair    := Rel_copair;
 }.
 Proof.
   split; setoidrel'; repeat
