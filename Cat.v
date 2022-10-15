@@ -303,6 +303,17 @@ Definition isAut' {C : Cat} {A : Ob C} (f : Hom A A) : Type :=
 
 #[global] Hint Unfold isEndo isMono isEpi isBi isSec isRet isIso isAut : core.
 
+(** Constant, coconstant and zero morphisms *)
+
+Definition isConstant {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
+  forall (X : Ob C) (h1 h2 : Hom X A), h1 .> f == h2 .> f.
+
+Definition isCoconstant {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
+  forall (X : Ob C) (h1 h2 : Hom B X), f .> h1 == f .> h2.
+
+Definition isZeroMor {C : Cat} {A B : Ob C} (f : Hom A B) : Prop :=
+  isConstant f /\ isCoconstant f.
+
 (** *** Duality and subsumption *)
 
 Lemma isMono_Dual :

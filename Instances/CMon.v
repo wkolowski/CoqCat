@@ -203,6 +203,8 @@ Proof.
   - now apply HasProducts_CMon.
   - now apply HasCoproducts_CMon.
   - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 #[refine]

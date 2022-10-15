@@ -249,8 +249,7 @@ Lemma fpair_comp' :
     (A B Γ A' B' : Ob C) (a : Hom Γ A) (b : Hom Γ B) (h1 : Hom A A') (h2 : Hom B B'),
       fpair a b .> fpair (outl .> h1) (outr .> h2) == fpair (a .> h1) (b .> h2).
 Proof.
-  intros; rewrite equiv_product'.
-  now rewrite !comp_assoc, !fpair_outl, !fpair_outr, <- !comp_assoc, fpair_outl, fpair_outr.
+  now intros; rewrite fpair_comp, <- !comp_assoc, fpair_outl, fpair_outr.
 Qed.
 
 Lemma fpair_comp_id :
@@ -346,6 +345,9 @@ Proof.
   - now apply associator_unassociator.
   - now apply unassociator_associator.
 Defined.
+
+Definition diag {C : Cat} {hp : HasProducts C} {A : Ob C} : Hom A (product A A) :=
+  fpair (id A) (id A).
 
 #[refine]
 #[export]

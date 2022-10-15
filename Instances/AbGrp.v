@@ -156,6 +156,8 @@ Proof.
   - now apply HasProducts_AbGrp.
   - now apply HasCoproducts_AbGrp.
   - now cbn.
+  - now cbn.
+  - now cbn.
 Defined.
 
 #[refine]

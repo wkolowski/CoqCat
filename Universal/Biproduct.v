@@ -17,7 +17,7 @@ Set Implicit Arguments.
 Class isBiproduct
   (C : Cat) {A B : Ob C}
   (P : Ob C) (outl : Hom P A) (outr : Hom P B) (finl : Hom A P) (finr : Hom B P)
-  (fpair : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
+  (fpair  : forall {X : Ob C} (f : Hom X A) (g : Hom X B), Hom X P)
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
   : Prop :=
 {
@@ -56,9 +56,15 @@ Class HasBiproducts' (C : Cat) : Type :=
   binl     : forall {A B : Ob C}, Hom A (biproduct A B);
   binr     : forall {A B : Ob C}, Hom B (biproduct A B);
   bicopair : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (biproduct A B) P;
-
   isCoproduct_HasBiproducts :>
     forall {A B : Ob C}, isCoproduct C (@biproduct A B) binl binr (@bicopair A B);
+
+  binl_bioutl :
+    forall {A B : Ob C},
+      @binl A B .> bioutl == id A;
+  binr_bioutr :
+    forall {A B : Ob C},
+      @binr A B .> bioutr == id B;
 
   HasBiproducts'_ok :
     forall {A B : Ob C},
@@ -66,7 +72,20 @@ Class HasBiproducts' (C : Cat) : Type :=
         ==
       bioutr .> binr .> bioutl .> binl;
 }.
-    
+
+Definition zero {C : Cat} {hb : HasBiproducts' C} {A B : Ob C} : Hom A B :=
+  @binl _ _ A B .> bioutr.
+
+Definition bidiag {C : Cat} {hp : HasBiproducts' C} {A : Ob C} : Hom A (biproduct A A) :=
+  bipair (id A) (id A).
+
+Definition bicodiag {C : Cat} {hp : HasBiproducts' C} {A : Ob C} : Hom (biproduct A A) A :=
+  bicopair (id A) (id A).
+
+Definition biadd
+  {C : Cat} {hb : HasBiproducts' C}
+  {A B : Ob C} (f g : Hom A B) : Hom A B :=
+    bipair f g .> bicodiag.
 
 Section BiproductIdentities.
 
@@ -75,20 +94,16 @@ Context
   (hb : HasBiproducts' C)
   (A B : Ob C).
 
-Lemma binl_bioutl :
-  @binl _ _ A B .> bioutl == id A.
-Proof.
-Admitted.
-
-Lemma binr_bioutr :
-  @binr _ _ A B .> bioutr == id B.
-Proof.
-Admitted.
-
 Lemma binl_bioutr :
   forall {X : Ob C} (f : Hom B X),
     @binl _ _ A B .> bioutr .> f == @binl _ _ A X .> bioutr.
 Proof.
+  intros.
+  (* assert (
+    bioutr .> binr .> bioutl .> @binl _ _ A B .> bioutr .> f
+      ==
+    bioutr .> binr .> bioutl .> @binl _ _ A X .> bioutr).
+  ). *)
 Admitted.
 
 Lemma binl_bioutr' :
@@ -107,9 +122,62 @@ Lemma binr_bioutl' :
   forall {X : Ob C} (f : Hom X B),
     f .> @binr _ _ A B .> bioutl == @binr _ _ A X .> bioutl.
 Proof.
+  intros.
+  assert (H1 : isConstant (@binr _ _ A B .> bioutl)) by admit.
+  assert (H2 : isCoconstant (@binr _ _ A B .> bioutl)) by admit.
+  unfold isConstant, isCoconstant in H1, H2.
 Admitted.
 
 End BiproductIdentities.
+
+Section MoreBiproductIdentities.
+
+Context
+  (C : Cat)
+  (hb : HasBiproducts' C)
+  (A B : Ob C).
+
+Lemma binl_bipair :
+  forall {A' B' : Ob C} (f : Hom A A') (g : Hom B B'),
+    binl .> bipair (bioutl .> f) (bioutr .> g) == f .> binl.
+Proof.
+  intros.
+  rewrite equiv_product', !comp_assoc, fpair_outl, fpair_outr.
+  rewrite binl_bioutl, <- !comp_assoc, binl_bioutl, comp_id_l, comp_id_r.
+  now rewrite binl_bioutr, binl_bioutr'.
+Qed.
+
+Lemma binr_bipair :
+  forall {A' B' : Ob C} (f : Hom A A') (g : Hom B B'),
+    binr .> bipair (bioutl .> f) (bioutr .> g) == g .> binr.
+Proof.
+  intros.
+  rewrite equiv_product', !comp_assoc, fpair_outl, fpair_outr.
+  rewrite binr_bioutr, <- !comp_assoc, binr_bioutr, comp_id_l, comp_id_r.
+  now rewrite binr_bioutl, binr_bioutl'.
+Qed.
+
+Lemma bicopair_bioutl :
+  forall {A' B' : Ob C} (f : Hom A A') (g : Hom B B'),
+    bicopair (f .> binl) (g .> binr) .> bioutl == bioutl .> f.
+Proof.
+  intros.
+  rewrite equiv_coproduct', <- !comp_assoc, finl_copair, finr_copair.
+  rewrite binr_bioutl, binr_bioutl'.
+  now rewrite binl_bioutl, comp_assoc, binl_bioutl, comp_id_l, comp_id_r.
+Defined.
+
+Lemma bicopair_bioutr :
+  forall {A' B' : Ob C} (f : Hom A A') (g : Hom B B'),
+    bicopair (f .> binl) (g .> binr) .> bioutr == bioutr .> g.
+Proof.
+  intros.
+  rewrite equiv_coproduct', <- !comp_assoc, finl_copair, finr_copair.
+  rewrite binl_bioutr, binl_bioutr'.
+  now rewrite binr_bioutr, comp_assoc, binr_bioutr, comp_id_l, comp_id_r.
+Defined.
+
+End MoreBiproductIdentities.
 
 #[refine]
 #[export]

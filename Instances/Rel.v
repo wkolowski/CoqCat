@@ -281,6 +281,12 @@ Instance HasBiproducts'_Rel : HasBiproducts' Rel :=
 Proof.
   - now apply HasProducts_Rel.
   - now apply HasCoproducts_Rel.
+  - intros A B a1 a2; cbn; split.
+    + now intros [[a | b] [H1 H2]]; [rewrite H1, H2 |].
+    + now intros Heq; exists (inl a2).
+  - intros A B b1 b2; cbn; split.
+    + now intros [[a | b] [H1 H2]]; [| rewrite H1, H2].
+    + now intros Heq; exists (inr b2).
   - intros A B [a1 | b1] [a2 | b2]; cbn.
     + now firstorder.
     + split; [| now firstorder].

@@ -353,6 +353,9 @@ Proof.
   now apply isIso_associator.
 Defined.
 
+Definition codiag {C : Cat} {hp : HasCoproducts C} {A : Ob C} : Hom (coproduct A A) A :=
+  copair (id A) (id A).
+
 #[refine]
 #[export]
 Instance CoproductBifunctor {C : Cat} {hp : HasCoproducts C} : Bifunctor C C C :=
