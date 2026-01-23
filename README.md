@@ -44,6 +44,7 @@
 ## TODO
 
 ### Research
+* Formalize more of this paper: http://www.cs.ox.ac.uk/ralf.hinze/SSGIP10/Notes.pdf
 * Investigate how useful is `SProp`.
 * Investigate how useful is HoTT-based approach.
 * Investigate the Reynolds programme.

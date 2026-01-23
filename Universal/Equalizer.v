@@ -65,6 +65,7 @@ Lemma factorize_unique :
 Proof.
   now intros; rewrite equiv_equalizer', factorize_equalize.
 Qed.
+Search (?x == ?x).
 
 Lemma factorize_ok :
   factorize ok == id E.
@@ -178,7 +179,7 @@ Class HasEqualizers (C : Cat) : Type :=
   factorize :
     forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
       e' .> f == e' .> g -> Hom E' (equalizer f g);
-  isEqualizer_HasEqualizers :>
+  isEqualizer_HasEqualizers ::
     forall {X Y : Ob C} (f g : Hom X Y),
       isEqualizer C f g (equalizer f g) (equalize f g) (@factorize _ _ f g)
 }.
@@ -186,3 +187,111 @@ Class HasEqualizers (C : Cat) : Type :=
 Arguments equalizer [C _ X Y] _ _.
 Arguments equalize  [C _ X Y] _ _.
 Arguments factorize [C _ X Y f g E'] _ _.
+
+Module Alt.
+
+Class HasEqualizers (C : Cat) : Type :=
+{
+  equalizer :
+    forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
+  refl :
+    forall {X Y : Ob C} (f : Hom X Y), Hom X (equalizer f f);
+  equalize :
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
+  factorize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
+      Hom (equalizer (e' .> f) (e' .> g)) (equalizer f g);
+  ok :
+    forall {X Y : Ob C} (f g : Hom X Y),
+      equalize f g .> f == equalize f g .> g;
+  refl_equalize :
+    forall {X Y : Ob C} (f : Hom X Y),
+      refl f .> equalize f f == id X;
+  factorize_equalize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
+      factorize e' .> equalize f g == equalize (e' .> f) (e' .> g) .> e';
+  refl_factorize :
+    forall [X Y : Ob C] [f : Hom X Y] [E' : Ob C] (e' : Hom E' X),
+      refl (e' .> f) .> factorize e' == e' .> refl f;
+  equiv_equalizer :
+    forall {X Y : Ob C} (f g : Hom X Y) {E' : Ob C} {e1 e2 : Hom E' (equalizer f g)},
+      e1 .> equalize f g == e2 .> equalize f g -> e1 == e2;
+}.
+
+End Alt.
+
+#[refine]
+Instance old2new (C : Cat) (he : HasEqualizers C) : Alt.HasEqualizers C :=
+{
+  equalizer := @equalizer C he;
+  equalize := @equalize C he;
+  refl := fun X Y f => factorize (id X) _;
+  factorize := fun X Y f g E' e' => factorize (equalize (e' .> f) (e' .> g) .> e') _;
+}.
+Proof.
+  all: intros.
+  - reflexivity.
+  - rewrite !comp_assoc.
+    apply ok.
+  - apply ok.
+  - now equalizer_simpl.
+  - now cbn; equalizer_simpl.
+  - cbn; equalizer_simpl.
+    rewrite <- comp_assoc.
+    now equalizer_simpl.
+  - now equalizer_simpl.
+Defined.
+
+Axiom Proper_equalizer :
+  forall {C : Cat} {he : Alt.HasEqualizers C} {X Y : Ob C} (f f' g g' : Hom X Y),
+    f == f' -> g == g' -> Alt.equalizer f g = Alt.equalizer f' g'.
+
+#[refine]
+Instance new2old (C : Cat) (he : Alt.HasEqualizers C) : HasEqualizers C :=
+{
+  equalizer := @Alt.equalizer C he;
+  equalize := @Alt.equalize C he;
+}.
+Proof.
+  all: intros.
+  - refine (Alt.refl (e' .> f) .> _).
+    rewrite (Proper_equalizer _ _ _ _ ltac:(reflexivity) H).
+    apply Alt.factorize.
+  - split; cbn; intros.
+    + apply Alt.ok.
+    +
+Abort.
+
+(*
+Module Alt'.
+
+Class HasEqualizers (C : Cat) : Type :=
+{
+  equalizer :
+    forall {X Y : Ob C}, Hom X Y -> Hom X Y -> Ob C;
+  refl :
+    forall {X Y : Ob C} (f g : Hom X Y), f == g -> Hom X (equalizer f g);
+  equalize :
+    forall {X Y : Ob C} (f g : Hom X Y), Hom (equalizer f g) X;
+  factorize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
+      Hom (equalizer (e' .> f) (e' .> g)) (equalizer f g);
+  ok :
+    forall {X Y : Ob C} (f g : Hom X Y),
+      equalize f g .> f == equalize f g .> g;
+  refl_equalize :
+    forall {X Y : Ob C} (f g : Hom X Y) (Heq : f == g),
+      refl f g Heq .> equalize f g == id X;
+  factorize_equalize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X),
+      factorize e' .> equalize f g == equalize (e' .> f) (e' .> g) .> e';
+  refl_factorize :
+    forall [X Y : Ob C] [f g : Hom X Y] [E' : Ob C] (e' : Hom E' X) (Heq : e' .> f == e' .> g),
+      refl (e' .> f) (e' .> g) Heq .> factorize e' == e' .> refl f g;
+  equiv_equalizer :
+    forall {X Y : Ob C} (f g : Hom X Y) {E' : Ob C} {e1 e2 : Hom E' (equalizer f g)},
+      e1 .> equalize f g == e2 .> equalize f g -> e1 == e2;
+}.
+
+End Alt.
+*)
