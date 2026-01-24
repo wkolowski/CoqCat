@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Class Monoidal : Type :=
 {
-  cat :> Cat;
+  cat :: Cat;
   tensor : Bifunctor cat cat cat;
   tensor_unit : Ob cat;
   associator : forall X Y Z : Ob cat, Hom (biob (biob X Y) Z) (biob X (biob Y Z));

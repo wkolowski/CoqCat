@@ -76,7 +76,7 @@ Proof.
     by now intros y1 y2 Heq; unfold g; cbn; setoid_rewrite Heq.
   pose (h := (fun _ : Y => True) : Y -> PROP).
   assert (Proper_h : Proper (equiv ==> equiv) h)
-    by firstorder.
+    by (cbn; firstorder).
   pose (g' := {| func := g; Proper_func := Proper_g; |}).
   pose (h' := {| func := h; Proper_func := Proper_h; |}).
   specialize (HEpi PROP g' h').

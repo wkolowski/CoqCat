@@ -355,7 +355,7 @@ Class HasPullbacks (C : Cat) : Type :=
   triple :
     forall {A B X : Ob C} [f : Hom A X] [g : Hom B X] {Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B),
       a .> f == b .> g -> Hom Γ (pullback f g);
-  HasPullbacks_isPullback :>
+  HasPullbacks_isPullback ::
     forall {A B X : Ob C} (f : Hom A X) (g : Hom B X),
       isPullback C f g (pullback f g) (@pullL _ _ _ f g) (@pullR _ _ _ f g) (@triple A B X f g);
 }.

@@ -10,9 +10,9 @@ Class Cat : Type :=
 {
   Ob : Type;
   Hom : Ob -> Ob -> Type;
-  HomSetoid :> forall A B : Ob, Setoid (Hom A B);
+  HomSetoid :: forall A B : Ob, Setoid (Hom A B);
   comp : forall {A B C : Ob}, Hom A B -> Hom B C -> Hom A C;
-  Proper_comp :> forall A B C : Ob, Proper (equiv ==> equiv ==> equiv) (@comp A B C);
+  Proper_comp :: forall A B C : Ob, Proper (equiv ==> equiv ==> equiv) (@comp A B C);
   comp_assoc :
     forall {A B C D : Ob} (f : Hom A B) (g : Hom B C) (h : Hom C D),
       comp (comp f g) h == comp f (comp g h);
@@ -709,7 +709,7 @@ Defined.
 Class Setoid' : Type :=
 {
   carrier : Type;
-  setoid :> Setoid carrier
+  setoid :: Setoid carrier
 }.
 
 Coercion carrier : Setoid' >-> Sortclass.
@@ -742,7 +742,7 @@ end.
 Class SetoidHom (X Y : Setoid') : Type :=
 {
   func : X -> Y;
-  Proper_func :> Proper (@equiv _ X ==> @equiv _ Y) func
+  Proper_func :: Proper (@equiv _ X ==> @equiv _ Y) func
 }.
 
 Arguments func [X Y] _.
@@ -826,7 +826,7 @@ Class Functor (C : Cat) (D : Cat) : Type :=
 {
   fob : Ob C -> Ob D;
   fmap : forall {A B : Ob C}, Hom A B -> Hom (fob A) (fob B);
-  Proper_fmap :> forall A B : Ob C, Proper (equiv ==> equiv) (@fmap A B);
+  Proper_fmap :: forall A B : Ob C, Proper (equiv ==> equiv) (@fmap A B);
   fmap_comp :
     forall {A B C : Ob C} (f : Hom A B) (g : Hom B C), fmap (f .> g) == fmap f .> fmap g;
   fmap_id : forall A : Ob C, fmap (id A) == id (fob A)
@@ -987,7 +987,7 @@ Class Contravariant (C : Cat) (D : Cat) : Type :=
 {
   coob : Ob C -> Ob D;
   comap : forall {X Y : Ob C}, Hom X Y -> Hom (coob Y) (coob X);
-  Proper_comap :> forall X Y : Ob C, Proper (equiv ==> equiv) (@comap X Y);
+  Proper_comap :: forall X Y : Ob C, Proper (equiv ==> equiv) (@comap X Y);
   comap_comp :
     forall (X Y Z : Ob C) (f : Hom X Y) (g : Hom Y Z), comap (f .> g) == comap g .> comap f;
   comap_id : forall A : Ob C, comap (id A) == id (coob A)
@@ -1028,7 +1028,7 @@ Class Bifunctor (C D E : Cat) : Type :=
   bimap :
     forall {X Y : Ob C} {X' Y' : Ob D},
       Hom X Y -> Hom X' Y' -> Hom (biob X X') (biob Y Y');
-  Proper_bimap :>
+  Proper_bimap ::
     forall (X Y : Ob C) (X' Y' : Ob D),
       Proper (equiv ==> equiv ==> equiv) (@bimap X Y X' Y');
   bimap_comp :
@@ -1105,7 +1105,7 @@ Class Profunctor (C D E : Cat) : Type :=
   dimap :
     forall {X Y : Ob C} {X' Y' : Ob D},
       Hom X Y -> Hom X' Y' -> Hom (diob Y X') (diob X Y');
-  Proper_dimap :>
+  Proper_dimap ::
     forall (X Y : Ob C) (X' Y' : Ob D),
       Proper (equiv ==> equiv ==> equiv) (@dimap X Y X' Y');
   dimap_comp :

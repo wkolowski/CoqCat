@@ -5,7 +5,7 @@ From Cat.Universal Require Import
 Class HasInit' (C : Cat) (I : Ob C) : Type :=
 {
   create : forall X : Ob C, Hom I X;
-  isInitial_HasInit' :> isInitial C I create;
+  isInitial_HasInit' :: isInitial C I create;
 }.
 
 Arguments create {C _ _} _.
@@ -15,7 +15,7 @@ Coercion isInitial_HasInit' : HasInit' >-> isInitial.
 Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;
-  HasInit'_HasInit :> HasInit' C init;
+  HasInit'_HasInit :: HasInit' C init;
 }.
 
 Arguments init _ {_}.
@@ -25,7 +25,7 @@ Coercion HasInit'_HasInit : HasInit >-> HasInit'.
 Class HasTerm' (C : Cat) (T : Ob C) : Type :=
 {
   delete : forall X : Ob C, Hom X T;
-  isTerminal_HasTerm' :> isTerminal C T delete;
+  isTerminal_HasTerm' :: isTerminal C T delete;
 }.
 
 Arguments delete {C _ _} _.
@@ -35,7 +35,7 @@ Coercion isTerminal_HasTerm' : HasTerm' >-> isTerminal.
 Class HasTerm (C : Cat) : Type :=
 {
   term : Ob C;
-  HasTerm'_HasTerm :> HasTerm' C term;
+  HasTerm'_HasTerm :: HasTerm' C term;
 }.
 
 Arguments term _ {_}.
@@ -45,8 +45,8 @@ Coercion HasTerm'_HasTerm : HasTerm >-> HasTerm'.
 Class HasZero (C : Cat) : Type :=
 {
   zero : Ob C;
-  HasInit'_HasZero :> HasInit' C zero;
-  HasTerm'_HasZero :> HasTerm' C zero;
+  HasInit'_HasZero :: HasInit' C zero;
+  HasTerm'_HasZero :: HasTerm' C zero;
 }.
 
 Arguments zero _ {_}.
@@ -74,7 +74,7 @@ Class HasProducts' (C : Cat) (product : Ob C -> Ob C -> Ob C) : Type :=
   outl : forall {A B : Ob C}, Hom (product A B) A;
   outr : forall {A B : Ob C}, Hom (product A B) B;
   fpair : forall {A B X : Ob C} (f : Hom X A) (g : Hom X B), Hom X (product A B);
-  isProduct_HasProducts' :>
+  isProduct_HasProducts' ::
     forall {A B : Ob C}, isProduct C (product A B) outl outr (@fpair A B)
 }.
 
@@ -85,7 +85,7 @@ Arguments fpair  {C product HasProducts' A B X} _ _.
 Class HasProducts (C : Cat) : Type :=
 {
   product : Ob C -> Ob C -> Ob C;
-  HasProducts'_HasProducts :> HasProducts' C product;
+  HasProducts'_HasProducts :: HasProducts' C product;
 }.
 
 Arguments product {C HasProducts} _ _.
@@ -97,7 +97,7 @@ Class HasCoproducts' (C : Cat) (coproduct : Ob C -> Ob C -> Ob C) : Type :=
   finl     : forall {A B : Ob C}, Hom A (coproduct A B);
   finr     : forall {A B : Ob C}, Hom B (coproduct A B);
   copair   : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  isCoproduct_HasCoproducts' :>
+  isCoproduct_HasCoproducts' ::
     forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
 }.
 
@@ -108,7 +108,7 @@ Arguments copair   {C coproduct HasCoproducts' A B P} _ _.
 Class HasCoproducts (C : Cat) : Type :=
 {
   coproduct : forall (A B : Ob C), Ob C;
-  HasCoproducts'_HasCoproducts :> HasCoproducts' C coproduct;
+  HasCoproducts'_HasCoproducts :: HasCoproducts' C coproduct;
 }.
 
 Arguments coproduct {C HasCoproducts} _ _.
@@ -118,8 +118,8 @@ Coercion HasCoproducts'_HasCoproducts : HasCoproducts >-> HasCoproducts'.
 Class HasBiproducts (C : Cat) : Type :=
 {
   biproduct : Ob C -> Ob C -> Ob C;
-  HasProducts'_HasBiproducts :> HasProducts' C biproduct;
-  HasCoproducts'_HasBiproducts :> HasCoproducts' C biproduct;
+  HasProducts'_HasBiproducts :: HasProducts' C biproduct;
+  HasCoproducts'_HasBiproducts :: HasCoproducts' C biproduct;
   HasBiproducts_ok :
     forall {A B : Ob C},
       @outl _ _ _ A B .> @finl _ _ _ A B .> @outr _ _ _ A B .> @finr _ _ _ A B
@@ -153,7 +153,7 @@ Class HasIndexedProducts'
   tuple :
     forall {J : Type} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
-  HasIndexedProducts_isIndexedProduct :>
+  HasIndexedProducts_isIndexedProduct ::
     forall {J : Type} {A : J -> Ob C},
       isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.
@@ -164,7 +164,7 @@ Arguments tuple {C _ _ J A X} _.
 Class HasIndexedProducts (C : Cat) : Type :=
 {
   indexedProduct : forall {J : Type} (A : J -> Ob C), Ob C;
-  HasIndexedProducts'_HasIndexedProducts :> HasIndexedProducts' C (@indexedProduct);
+  HasIndexedProducts'_HasIndexedProducts :: HasIndexedProducts' C (@indexedProduct);
 }.
 
 Arguments indexedProduct {C _ J} _.
@@ -181,7 +181,7 @@ Class HasIndexedCoproducts'
   cotuple :
     forall (J : Type) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
       Hom (indexedCoproduct J A) X;
-  isIndexedCoproduct_HasIndexedCoproducts' :>
+  isIndexedCoproduct_HasIndexedCoproducts' ::
     forall (J : Type) (A : J -> Ob C),
       isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.
@@ -192,7 +192,7 @@ Arguments cotuple {C _ _ J A X} _.
 Class HasIndexedCoproducts (C : Cat) : Type :=
 {
   indexedCoproduct : forall J : Type, (J -> Ob C) -> Ob C;
-  HasIndexedCoproducts'_HasIndexedCoproducts :> HasIndexedCoproducts' C (@indexedCoproduct);
+  HasIndexedCoproducts'_HasIndexedCoproducts :: HasIndexedCoproducts' C (@indexedCoproduct);
 }.
 
 Arguments indexedCoproduct [C _ J] _.

@@ -1,5 +1,3 @@
-From CoqAlgs.Sorting Require Import Perm InsertionSort.
-
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Zero Product Coproduct Biproduct.
 From Cat Require Export Instances.Mon.
@@ -8,7 +6,7 @@ Set Implicit Arguments.
 
 Class CMon : Type :=
 {
-  mon :> Mon;
+  mon :: Mon;
   op_comm : forall x y : mon, op x y == op y x;
 }.
 

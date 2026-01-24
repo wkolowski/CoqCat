@@ -9,8 +9,8 @@ Class isZero
   (delete : forall X : Ob C, Hom X Z)
   : Prop :=
 {
-  isInitial_isZero :> isInitial C Z create;
-  isTerminal_isZero :> isTerminal C Z delete;
+  isInitial_isZero :: isInitial C Z create;
+  isTerminal_isZero :: isTerminal C Z delete;
 }.
 
 Definition mediate
@@ -23,8 +23,8 @@ Definition mediate
 
 Class HasZero (C : Cat) : Type :=
 {
-  HasInit_HasZero :> HasInit C;
-  HasTerm_HasZero :> HasTerm C;
+  HasInit_HasZero :: HasInit C;
+  HasTerm_HasZero :: HasTerm C;
   HasZero_spec : init C = term C;
 }.
 

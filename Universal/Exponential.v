@@ -156,7 +156,7 @@ Class HasExponentials (C : Cat) {hp : HasProducts C} : Type :=
   exponential : Ob C -> Ob C -> Ob C;
   eval  : forall {A B : Ob C}, Hom (product (exponential A B) A) B;
   curry : forall {A B : Ob C} {Z : Ob C}, Hom (product Z A) B -> Hom Z (exponential A B);
-  HasExponentials_isExponential :>
+  HasExponentials_isExponential ::
     forall {A B : Ob C}, isExponential A B (exponential A B) (@eval A B) (@curry A B);
 }.
 

@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class SymReloid : Type :=
 {
   reloid : Reloid;
-  rel_symmetric :> Symmetric rel;
+  rel_symmetric :: Symmetric rel;
 }.
 
 Coercion reloid : SymReloid >-> Reloid.

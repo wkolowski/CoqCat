@@ -198,7 +198,7 @@ Class HasProducts (C : Cat) : Type :=
   outl : forall {A B : Ob C}, Hom (product A B) A;
   outr : forall {A B : Ob C}, Hom (product A B) B;
   fpair : forall {A B Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ (product A B);
-  isProduct_HasProducts' :>
+  isProduct_HasProducts' ::
     forall {A B : Ob C}, isProduct C (product A B) outl outr (@fpair A B)
 }.
 

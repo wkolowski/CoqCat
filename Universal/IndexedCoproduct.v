@@ -117,7 +117,7 @@ Class HasIndexedCoproducts (C : Cat) : Type :=
   cotuple :
     forall (J : Type) (A : J -> Ob C) (X : Ob C) (f : forall j : J, Hom (A j) X),
       Hom (indexedCoproduct J A) X;
-  isIndexedCoproduct_HasIndexedCoproducts' :>
+  isIndexedCoproduct_HasIndexedCoproducts' ::
     forall (J : Type) (A : J -> Ob C),
       isIndexedCoproduct C (indexedCoproduct J A) (inj J A) (cotuple J A)
 }.

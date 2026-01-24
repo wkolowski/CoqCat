@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Class Mon : Type :=
 {
-  sgr :> Sgr;
+  sgr :: Sgr;
   neutr : sgr;
   neutr_l : forall a : sgr, op neutr a == a;
   neutr_r : forall a : sgr, op a neutr == a
@@ -20,7 +20,7 @@ Coercion sgr : Mon >-> Sgr.
 
 Class MonHom (X Y : Mon) : Type :=
 {
-  sgrHom :> SgrHom X Y;
+  sgrHom :: SgrHom X Y;
   pres_neutr : sgrHom neutr == neutr;
 }.
 

@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Class AbGrp : Type :=
 {
-  grp :> Grp;
+  grp :: Grp;
   op_comm : forall x y : grp, op x y == op y x;
 }.
 

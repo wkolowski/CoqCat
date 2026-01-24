@@ -338,7 +338,7 @@ Class HasPushouts (C : Cat) : Type :=
       {A B X : Ob C} {f : Hom X A} {g : Hom X B}
       {P : Ob C} (pushl' : Hom A P) (pushr' : Hom B P),
         f .> pushl' == g .> pushr' -> Hom (pushout f g) P;
-  HasPushouts_isPushout :>
+  HasPushouts_isPushout ::
     forall {A B X : Ob C} {f : Hom X A} {g : Hom X B},
       isPushout C f g (pushout f g) pushl pushr (@cotriple A B X f g);
 }.

@@ -7,7 +7,7 @@ Class Apartoid : Type :=
   carrier : Type;
   neq : carrier -> carrier -> Prop;
   neq_irrefl  : forall x     : carrier, ~ neq x x;
-  neq_sym     :> Symmetric neq; (* forall x y   : carrier, neq x y -> neq y x; *)
+  neq_sym     :: Symmetric neq; (* forall x y   : carrier, neq x y -> neq y x; *)
   neq_cotrans : forall x y z : carrier, neq x y -> neq z x \/ neq z y
 }.
 

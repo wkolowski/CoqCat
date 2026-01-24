@@ -2,7 +2,7 @@ From Cat Require Export Instances.Pos.
 
 Class Lin : Type :=
 {
-  pos :> Pos;
+  pos :: Pos;
   leq_total : forall x y : pos, leq x y \/ leq y x
 }.
 

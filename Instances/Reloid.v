@@ -8,7 +8,7 @@ Class Reloid : Type :=
 {
   carrier : Setoid';
   rel : carrier -> carrier -> Prop;
-  Proper_rel :> Proper (equiv ==> equiv ==> iff) rel
+  Proper_rel :: Proper (equiv ==> equiv ==> iff) rel
 }.
 
 Coercion carrier : Reloid >-> Setoid'.

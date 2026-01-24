@@ -66,7 +66,7 @@ Proof.
 Defined.
 
 Definition isColimit' {J C : Cat} {F : Functor J C} (K : Cocone F) : Prop :=
-  forall K' : Cocone F, exists!! _ : CoconeHom K K', True.
+  forall K' : Cocone F, exists!! _f : CoconeHom K K', True.
 
 Definition isColimit
   {J C : Cat} {F : Functor J C}

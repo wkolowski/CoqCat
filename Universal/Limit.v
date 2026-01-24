@@ -70,7 +70,7 @@ Definition isLimit
   : Prop := @isTerminal (ConeCat F) limit limitMor.
 
 Definition isLimit' {J C : Cat} {F : Functor J C} (K : Cone F) : Prop :=
-  forall K' : Cone F, exists!! _ : ConeHom K' K, True.
+  forall K' : Cone F, exists!! _f : ConeHom K' K, True.
 
 Definition allShapedLimits
   {J C : Cat}

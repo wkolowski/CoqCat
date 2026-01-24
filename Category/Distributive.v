@@ -8,10 +8,10 @@ Definition distr
 
 Class Distributive (C : Cat) : Type :=
 {
-  HasInit_Distributive :> HasInit C;
-  HasTerm_Distributive :> HasTerm C;
-  HasProducts_Distributive :> HasProducts C;
-  HasCoproducts_Distributive :> HasCoproducts C;
+  HasInit_Distributive :: HasInit C;
+  HasTerm_Distributive :: HasTerm C;
+  HasProducts_Distributive :: HasProducts C;
+  HasCoproducts_Distributive :: HasCoproducts C;
   isIso_distr : forall X Y Z : Ob C, isIso (distr X Y Z)
 }.
 

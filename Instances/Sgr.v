@@ -6,9 +6,9 @@ Set Implicit Arguments.
 
 Class Sgr : Type :=
 {
-  setoid :> Setoid';
+  setoid :: Setoid';
   op : carrier -> carrier -> carrier;
-  Proper_op :> Proper (equiv ==> equiv ==> equiv) op;
+  Proper_op :: Proper (equiv ==> equiv ==> equiv) op;
   assoc : forall x y z : carrier, op x (op y z) == op (op x y) z
 }.
 
@@ -16,7 +16,7 @@ Coercion setoid : Sgr >-> Setoid'.
 
 Class SgrHom (A B : Sgr) : Type :=
 {
-  setoidHom :> SetoidHom A B;
+  setoidHom :: SetoidHom A B;
   pres_op : forall x y : A, setoidHom (op x y) == op (setoidHom x) (setoidHom y)
 }.
 

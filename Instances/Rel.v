@@ -5,7 +5,7 @@ From Cat Require Export Instances.SETOID.
 Class RelHom (X Y : Setoid') : Type :=
 {
   rel : X -> Y -> Prop;
-  Proper_rel :> Proper (equiv ==> equiv ==> iff) rel
+  Proper_rel :: Proper (equiv ==> equiv ==> iff) rel
 }.
 
 Coercion rel : RelHom >-> Funclass.

@@ -12,7 +12,7 @@ Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
 Class DenseReloid : Type :=
 {
   reloid : Reloid;
-  is_dense :> Dense rel;
+  is_dense :: Dense rel;
 }.
 
 Coercion reloid : DenseReloid >-> Reloid.

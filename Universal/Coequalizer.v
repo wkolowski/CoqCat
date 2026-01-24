@@ -179,7 +179,7 @@ Class HasCoequalizers (C : Cat) : Type :=
   cofactorize :
     forall [A B : Ob C] [f g : Hom A B] [Q' : Ob C] (q2 : Hom B Q'),
       f .> q2 == g .> q2 -> Hom (coequalizer f g) Q';
-  isCoequalizer_HasCoequalizers :>
+  isCoequalizer_HasCoequalizers ::
     forall {A B : Ob C} (f g : Hom A B),
       isCoequalizer C f g (coequalizer f g) (coequalize  f g) (@cofactorize _ _ f g)
 }.

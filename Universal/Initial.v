@@ -26,7 +26,7 @@ Class HasInit (C : Cat) : Type :=
 {
   init : Ob C;
   create : forall X : Ob C, Hom init X;
-  isInitial_HasInit' :> isInitial C init create;
+  isInitial_HasInit' :: isInitial C init create;
 }.
 
 Arguments init   _ {_}.

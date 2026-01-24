@@ -200,7 +200,7 @@ Class HasCoproducts (C : Cat) : Type :=
   finl      : forall {A B : Ob C}, Hom A (coproduct A B);
   finr      : forall {A B : Ob C}, Hom B (coproduct A B);
   copair    : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (coproduct A B) P;
-  isCoproduct_HasCoproducts' :>
+  isCoproduct_HasCoproducts' ::
     forall {A B : Ob C}, isCoproduct C (@coproduct A B) finl finr (@copair A B);
 }.
 

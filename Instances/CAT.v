@@ -283,12 +283,10 @@ Proof.
       exact (component f X .> fmap G g).
     + intros [F X] [G Y] [α f] [β g] [H1 H2]; cbn in *.
       now rewrite H1, H2.
-    + intros [F X] [G Y] [H Z] [[α H1] f] [[β H2] g]; cbn in *.
+    + intros [F X] [G Y] [H Z] [αH1 f] [βH2 g]; cbn in *.
+      destruct αH1 as [α H1], βH2 as [β H2]; cbn in *.
       now rewrite comp_assoc, H2, fmap_comp, !comp_assoc, <- H2.
     + now intros [F X]; cbn; rewrite fmap_id, comp_id_l.
   - cbn; intros D E C.
     intros [fob fmap prp pcmp pid].
-    unshelve esplit; cbn in *.
-    + intro X. unshelve esplit with (fob := fun d => fob (X, d)).
-      * intros A B f.
 Abort.

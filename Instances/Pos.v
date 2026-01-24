@@ -4,7 +4,7 @@ From Cat Require Export Instances.Pros.
 
 Class Pos : Type :=
 {
-  pros :> Pros;
+  pros :: Pros;
   leq_antisym : forall x y : carrier, x ≤ y -> y ≤ x -> x == y
 }.
 

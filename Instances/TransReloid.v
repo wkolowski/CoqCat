@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class TransReloid : Type :=
 {
   reloid : Reloid;
-  rel_transitive :> Transitive rel;
+  rel_transitive :: Transitive rel;
 }.
 
 Coercion reloid : TransReloid >-> Reloid.

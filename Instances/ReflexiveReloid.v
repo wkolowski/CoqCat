@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Class ReflexiveReloid : Type :=
 {
   reloid : Reloid;
-  rel_reflexive :> Reflexive rel;
+  rel_reflexive :: Reflexive rel;
 }.
 
 Coercion reloid : ReflexiveReloid >-> Reloid.

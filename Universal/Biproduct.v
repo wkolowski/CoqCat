@@ -21,8 +21,8 @@ Class isBiproduct
   (copair : forall {X : Ob C} (f : Hom A X) (g : Hom B X), Hom P X)
   : Prop :=
 {
-  isBiproduct_isProduct   :> isProduct C P outl outr (@fpair);
-  isBiproduct_isCoproduct :> isCoproduct C P finl finr (@copair);
+  isBiproduct_isProduct   :: isProduct C P outl outr (@fpair);
+  isBiproduct_isCoproduct :: isCoproduct C P finl finr (@copair);
   isBiproduct_ok : outl .> finl .> outr .> finr == outr .> finr .> outl .> finl;
 }.
 
@@ -31,8 +31,8 @@ Class isBiproduct
 
 Class HasBiproducts (C : Cat) : Type :=
 {
-  HasProducts_HasBiproducts :> HasProducts C;
-  HasCoproducts_HasBiproducts :> HasCoproducts C;
+  HasProducts_HasBiproducts :: HasProducts C;
+  HasCoproducts_HasBiproducts :: HasCoproducts C;
   HasBiproducts_spec : product = coproduct;
 }.
 
@@ -50,13 +50,13 @@ Class HasBiproducts' (C : Cat) : Type :=
   bioutl   : forall {A B : Ob C}, Hom (biproduct A B) A;
   bioutr   : forall {A B : Ob C}, Hom (biproduct A B) B;
   bipair  : forall {A B Γ : Ob C} (a : Hom Γ A) (b : Hom Γ B), Hom Γ (biproduct A B);
-  isProduct_HasBiproducts' :>
+  isProduct_HasBiproducts' ::
     forall {A B : Ob C}, isProduct C (biproduct A B) bioutl bioutr (@bipair A B);
 
   binl     : forall {A B : Ob C}, Hom A (biproduct A B);
   binr     : forall {A B : Ob C}, Hom B (biproduct A B);
   bicopair : forall {A B : Ob C} {P : Ob C} (f : Hom A P) (g : Hom B P), Hom (biproduct A B) P;
-  isCoproduct_HasBiproducts :>
+  isCoproduct_HasBiproducts ::
     forall {A B : Ob C}, isCoproduct C (@biproduct A B) binl binr (@bicopair A B);
 
   binl_bioutl :

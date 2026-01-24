@@ -26,7 +26,7 @@ Class HasTerm (C : Cat) : Type :=
 {
   term : Ob C;
   delete : forall X : Ob C, Hom X term;
-  isTerminal_HasTerm' :> isTerminal C term delete;
+  isTerminal_HasTerm' :: isTerminal C term delete;
 }.
 
 Arguments term   C {_}.

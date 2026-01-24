@@ -6,9 +6,9 @@ Set Implicit Arguments.
 
 Class Pros : Type :=
 {
-  carrier :> Setoid';
+  carrier :: Setoid';
   leq : carrier -> carrier -> Prop;
-  Proper_leq :> Proper (equiv ==> equiv ==> equiv) leq;
+  Proper_leq :: Proper (equiv ==> equiv ==> equiv) leq;
   leq_refl : forall a b : carrier, a == b -> leq a b;
   leq_trans : forall a b c : carrier, leq a b -> leq b c -> leq a c
 }.

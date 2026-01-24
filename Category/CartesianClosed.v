@@ -3,9 +3,9 @@ From Cat.Universal Require Import Initial Terminal Product Coproduct Exponential
 
 Class CartesianClosed (C : Cat) : Type :=
 {
-  HasTerm_CartesianClosed :> HasTerm C;
-  HasProducts_CartesianClosed :> HasProducts C;
-  HasExponentials_CartesianClosed :> HasExponentials C
+  HasTerm_CartesianClosed :: HasTerm C;
+  HasProducts_CartesianClosed :: HasProducts C;
+  HasExponentials_CartesianClosed :: HasExponentials C
 }.
 
 Coercion HasTerm_CartesianClosed : CartesianClosed >-> HasTerm.

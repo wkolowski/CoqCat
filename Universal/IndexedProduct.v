@@ -228,7 +228,7 @@ Class HasIndexedProducts (C : Cat) : Type :=
   tuple :
     forall {J : Type} {A : J -> Ob C} {X : Ob C} (f : forall j : J, Hom X (A j)),
       Hom X (indexedProduct A);
-  HasIndexedProducts_isIndexedProduct :>
+  HasIndexedProducts_isIndexedProduct ::
     forall {J : Type} {A : J -> Ob C},
       isIndexedProduct C (indexedProduct A) (@out J A) (@tuple J A)
 }.

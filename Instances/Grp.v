@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Class Grp : Type :=
 {
-  mon :> Mon;
+  mon :: Mon;
   inv : SetoidHom mon mon;
   inv_l : forall x : mon, op (inv x) x == neutr;
   inv_r : forall x : mon, op x (inv x) == neutr
