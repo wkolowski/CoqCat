@@ -129,11 +129,11 @@ Instance Lin_product_Pos (X Y : Lin) : Pos :=
   pros := Lin_Pros_product X Y
 }.
 Proof.
-  now cbn; intuition.
+  now cbn; intuition (auto with *).
 Defined.
 
 (** Defining product of linear orders is not possible without LEM and coproducts
-    of linear orders don't exist because they are kidn of "connected" and
+    of linear orders don't exist because they are kind of "connected" and
     coproducts are all about creating objects which are "disconnected". *)
 
 #[refine]
@@ -170,3 +170,5 @@ Proof.
   destruct (leq_total (f tt) (g tt)).
   - specialize (Hleq1 H).
 Abort.
+
+(* TODO: finish products and coproducts for [Lin] *)

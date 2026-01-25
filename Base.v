@@ -525,10 +525,8 @@ Defined.
 Definition setoid_unique {A : Type} {S : Setoid A} (P : A -> Prop) (x : A) : Prop :=
   P x /\ (forall y : A, P y -> x == y).
 
-Set Warnings "-deprecated-ident-entry".
 Notation "'exists' !! x : A , P" :=
   (ex (@setoid_unique A _ (fun x => P))) (at level 200, x ident).
-Set Warnings "+deprecated-ident-entry".
 
 #[global] Hint Unfold setoid_unique : core.
 
