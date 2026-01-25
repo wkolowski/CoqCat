@@ -124,7 +124,7 @@ Defined.
 
 #[refine]
 #[export]
-Instance Lin_product_Pos (X Y : Lin) : Pos :=
+Instance Lin_Pos_product (X Y : Lin) : Pos :=
 {
   pros := Lin_Pros_product X Y
 }.
@@ -132,43 +132,107 @@ Proof.
   now cbn; intuition (auto with *).
 Defined.
 
-(** Defining product of linear orders is not possible without LEM and coproducts
-    of linear orders don't exist because they are kind of "connected" and
-    coproducts are all about creating objects which are "disconnected". *)
+(**
+  Defining product of linear orders is not possible without LEM.
+*)
 
 #[refine]
 #[export]
-Instance Lin_Pros_coproduct (X Y : Lin) : Pros :=
+Instance Lin_product (X Y : Lin) : Lin :=
 {
-  carrier := SETOID_coproduct X Y;
-  leq := fun p1 p2 : X + Y =>
-    match p1, p2 with
-    | inl x, inl x' => leq x x'
-    | inr y, inr y' => leq y y'
-    | inl _, inr _ => True
-    | inr _, inl _ => False
+  pos := Lin_Pos_product X Y;
+}.
+Proof.
+Abort.
+
+(**
+  Coproducts of linear orders don't exist because they are kind of "connected"
+  and coproducts are all about creating objects which are "disconnected".
+*)
+
+#[export]
+Instance SBool : Setoid' :=
+{
+  carrier := bool;
+  setoid := Setoid_bool;
+}.
+
+#[refine]
+#[export]
+Instance Pros_bool : Pros :=
+{
+  carrier := SBool;
+  leq x y :=
+    match x, y with
+    | true, false => False
+    | _, _ => True
     end
 }.
 Proof.
-  - intros [a1 | b1] [a2 | b2] H12 [a3 | b3] [a4 | b4] H34; cbn in *; try easy.
-    + now rewrite H12, H34.
-    + now rewrite H12, H34.
-  - now intros [x1 | y1] [x2 | y2] Heq; cbn in *; eauto.
-  - now intros [x1 | y1] [x2 | y2] [x3 | y3] H12 H23; cbn in *; eauto.
+  - now intros [] []; cbn.
+  - now intros [] []; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Pos_bool : Pos :=
+{
+  pros := Pros_bool;
+}.
+Proof.
+  now intros [] []; cbn.
+Defined.
+
+#[refine]
+#[export]
+Instance Lin_bool : Lin :=
+{
+  pos := Pos_bool;
+}.
+Proof.
+  now intros [] []; cbn; auto.
+Defined.
+
+Definition SetoidHom_const_true : SetoidHom SBool SBool :=
+{|
+  Cat.func := fun _ => true;
+|}.
+
+Definition ProsHom_const_true : ProsHom Pros_bool Pros_bool.
+Proof.
+  exists SetoidHom_const_true.
+  now cbn.
+Defined.
+
+Definition SetoidHom_const_false : SetoidHom SBool SBool :=
+{|
+  Cat.func := fun _ => false;
+|}.
+
+Definition ProsHom_const_false : ProsHom Pros_bool Pros_bool.
+Proof.
+  exists SetoidHom_const_false.
+  now cbn.
 Defined.
 
 Lemma no_coproducts_Lin :
   HasCoproducts LinCat -> False.
 Proof.
-  intros [? ? ? ? _]; cbn in *.
-  specialize (copair _ _ _ (finr Lin_term Lin_term) (finl Lin_term Lin_term)).
-  destruct copair as [[copair Heq] Hleq]; cbn in *.
-  destruct (finl Lin_term Lin_term) as [[f Hf1] Hf2]; cbn in *.
-  destruct (finr Lin_term Lin_term) as [[g Hg1] Hg2]; cbn in *.
-  pose (Hleq1 := Hleq (f tt) (g tt)).
-  pose (Hleq2 := Hleq (g tt) (f tt)).
-  destruct (leq_total (f tt) (g tt)).
-  - specialize (Hleq1 H).
-Abort.
-
-(* TODO: finish products and coproducts for [Lin] *)
+  intros [? ? ? ? H].
+  destruct (H Lin_bool Lin_bool); clear H.
+  destruct (leq_total (finl Lin_bool Lin_bool true) (finr Lin_bool Lin_bool true)).
+  - specialize (finl_copair Lin_bool ProsHom_const_true ProsHom_const_false true);
+      cbn in finl_copair.
+    specialize (finr_copair Lin_bool ProsHom_const_true ProsHom_const_false true);
+      cbn in finr_copair.
+    change (true ≤ false).
+    rewrite <- finl_copair, <- finr_copair.
+    now apply func_pres_leq.
+  - specialize (finl_copair Lin_bool ProsHom_const_false ProsHom_const_true true);
+      cbn in finl_copair.
+    specialize (finr_copair Lin_bool ProsHom_const_false ProsHom_const_true true);
+      cbn in finr_copair.
+    change (true ≤ false).
+    rewrite <- finr_copair, <- finl_copair.
+    now apply func_pres_leq.
+Qed.

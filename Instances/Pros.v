@@ -41,11 +41,11 @@ end.
 Ltac prosobs := prosobs_template prosob.
 Ltac prosobs' := prosobs_template prosob'.
 
-Definition ProsHom (A B : Pros) : Type :=
-  {f : SetoidHom A B| forall a a', a ≤ a' -> f a ≤ f a'}.
-
-Definition ProsHom_Fun {A B : Pros} (f : ProsHom A B) : SetoidHom A B := proj1_sig f.
-Coercion ProsHom_Fun : ProsHom >-> SetoidHom.
+Record ProsHom (A B : Pros) : Type :=
+{
+  setoidHom :> SetoidHom A B;
+  func_pres_leq : forall a a', a ≤ a' -> setoidHom a ≤ setoidHom a';
+}.
 
 Ltac proshom f := try intros until f;
 match type of f with
