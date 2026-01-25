@@ -1,10 +1,13 @@
 From Cat Require Export Cat.
 From Cat.Universal Require Import Initial Terminal Product Coproduct.
 
-(* TODO: records for representing F-algebras *)
+Record FAlg {C : Cat} (F : Functor C C) : Type :=
+{
+  carrier :> Ob C;
+  algebra : @Hom C (fob F carrier) carrier;
+}.
 
-Definition FAlg {C : Cat} (F : Functor C C) : Type :=
-  {X : Ob C & @Hom C (fob F X) X}.
+Arguments algebra {C F}.
 
 Ltac falg_simpl := repeat red; cbn in *; intros.
 
@@ -22,8 +25,13 @@ end.
 
 Ltac falgobs := falgobs_template falgob; cbn in *.
 
-Definition FAlgHom {C : Cat} {F : Functor C C} (X Y : FAlg F) : Type :=
-  {f : Hom (projT1 X) (projT1 Y) | projT2 X .> f == fmap F f .> projT2 Y}.
+Record FAlgHom {C : Cat} {F : Functor C C} (X Y : FAlg F) : Type :=
+{
+  setoidHom : Hom X Y;
+  fmap_setoidHom : algebra X .> setoidHom == fmap F setoidHom .> algebra Y
+}.
+
+Arguments setoidHom {C F X Y}.
 
 Ltac falghom f := try intros until f;
 match type of f with
@@ -39,19 +47,19 @@ end.
 
 Ltac falghoms := falghoms_template falghom.
 
-Ltac falg := repeat (falg_simpl || falgobs || falghoms || cat); unfold FAlgHom; cbn.
+Ltac falg := repeat (falg_simpl || falgobs || falghoms || cat); cbn.
 
 #[refine]
 #[export]
 Instance FAlgHomSetoid {C : Cat} {F : Functor C C} (X Y : FAlg F) : Setoid (FAlgHom X Y) :=
 {
-  equiv := fun f g : FAlgHom X Y =>
-    @equiv _ (@HomSetoid C (projT1 X) (projT1 Y)) (proj1_sig f) (proj1_sig g)
+  equiv := fun f g : FAlgHom X Y => setoidHom f == setoidHom g
 }.
 Proof. now apply Setoid_kernel_equiv. Defined.
 
 Definition FAlgComp
-  {C : Cat} {F : Functor C C} {X Y Z : FAlg F} (f : FAlgHom X Y) (g : FAlgHom Y Z) : FAlgHom X Z.
+  {C : Cat} {F : Functor C C} {X Y Z : FAlg F} (f : FAlgHom X Y) (g : FAlgHom Y Z)
+  : FAlgHom X Z.
 Proof.
   falg.
   exists (f .> g).
@@ -60,7 +68,7 @@ Defined.
 
 Definition FAlgId {C : Cat} {F : Functor C C} {X : FAlg F} : FAlgHom X X.
 Proof.
-  exists (@id _ (projT1 X)).
+  exists (id X).
   now rewrite fmap_id, comp_id_l, comp_id_r.
 Defined.
 

@@ -5,9 +5,7 @@ From Cat Require Export Instances.Reloid.
 Set Implicit Arguments.
 
 Class Dense {A : Type} (R : A -> A -> Prop) : Prop :=
-{
-  dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y
-}.
+  dense : forall x y : A, R x y -> exists z : A, R x z /\ R z y.
 
 Class DenseReloid : Type :=
 {
@@ -20,7 +18,7 @@ Coercion reloid : DenseReloid >-> Reloid.
 Ltac dreloidob X := try intros until X;
 match type of X with
 | DenseReloid =>
-  let a := fresh X "_rel_is_dense" in destruct X as [X [a]]; reloidob X
+  let a := fresh X "_rel_is_dense" in destruct X as [X a]; reloidob X
 | Ob _ => progress cbn in X; dreloidob X
 end.
 
@@ -129,9 +127,10 @@ Instance DenseReloid_product (X Y : DenseReloid) : DenseReloid :=
   reloid := Reloid_product X Y
 }.
 Proof.
-  split; intros [x1 y1] [x2 y2] [rx ry]; cbn in *.
-  destruct (dense x1 x2 rx) as (x & Hx1 & Hx2),
-           (dense y1 y2 ry) as (y & Hy1 & Hy2).
+  intros [x1 y1] [x2 y2] [rx ry]; cbn in *.
+  destruct
+    (dense x1 x2 rx) as (x & Hx1 & Hx2),
+    (dense y1 y2 ry) as (y & Hy1 & Hy2).
   now exists (x, y); cbn.
 Defined.
 
@@ -183,7 +182,7 @@ Instance DenseReloid_coproduct (X Y : DenseReloid) : DenseReloid :=
   reloid := Reloid_coproduct X Y
 }.
 Proof.
-  split. intros [x1 | y1] [x2 | y2] r; cbn in *.
+  intros [x1 | y1] [x2 | y2] r; cbn in *.
   - destruct (dense x1 x2 r) as (x & H).
     now exists (inl x).
   - easy.

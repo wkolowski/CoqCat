@@ -4,9 +4,9 @@
 * Type of objects and Setoid of morphisms. Tried other configurations and this one seems best.
 * Using typeclasses and universe polymorphism where possible.
 * Axioms:
-  - `functional_extensionality` — only needed to prove that the category `CoqSet` has exponentials and indexed products.
+  - `functional_extensionality` — only needed to prove that the category `SET` has exponentials and indexed products.
   - `proof_irrelevance` — only needed to prove `Dual (Dual C) = C`.
-  - `propositional_extensionality` — only needed to prove that epimorphisms in Set are surjections.
+  - `propositional_extensionality` — only needed to prove that epimorphisms in SET are surjections.
 
 ## Accomplished
 * Basics: defined categories and proved properties of different kinds of morphisms.
@@ -24,7 +24,7 @@
 
   This is one of my greatest accomplishments — after changing, improving and correcting the definitions a gazillion times I'm starting to be pretty sure that they are correct and convenient. However, they're not perfect yet: there are issues with coherence conditions.
 * Defined and proved properties of these categories:
-  - `CoqSetoid` - this formalization's equivalent of Set, the category of sets and functions. We use setoids because our categories actually have a setoid of morphisms and not simply a set.
+  - `SETOID` - this formalization's equivalent of Set, the category of sets and functions. We use setoids because our categories actually have a setoid of morphisms and not simply a set.
   - `Rel` - category of types and relations.
   - `Sgr` - category of semigroups.
   - `Mon` - category of monoids.
@@ -32,7 +32,7 @@
   - `Pros` - category of preorders.
   - `Pos` - category of posets.
 
-  Also defined other hierarchies based not on `CoqSetoid`, but rather on `CoqSet` (the category of types and functions). I also wanted to make an `Apartoid`-based hierarchy (where an `Apartoid` is a type together with an apartness relation; morphisms are functions which reflect the apartness).
+  I also wanted to make an `Apartoid`-based hierarchy (where an `Apartoid` is a type together with an apartness relation; morphisms are functions which reflect the apartness).
 * Got some quite useful general tactics:
   - `proper` — a tactic for solving instances of `Proper`
   - `solve_equiv` —  a tactic for proving that a relation is an `Equivalence`
@@ -77,3 +77,4 @@
 * If Coq doesn't see that some morphism is `Proper`, put the corresponding theorem in context using `pose`, eg. `pose (P := Proper_fpair)`. This likely has something to do with registering morphisms as `Proper`. I should read the docs...
 * Unique up to unique isomorphism means an isomorphism compatible with structure. In the case of products, for example, it has to be compatible with the projections (they are the structure), but not with the pairing (I think pairing is a property, not structure).
 * Coherences for dependent stuff can be stated by lifting standard equivalences to heterogenous ones. Coherence for objects can be stated using these heterogenous equivalences on their identity morphisms.
+

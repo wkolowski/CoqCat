@@ -13,23 +13,27 @@ Arguments mor [C Y] _.
 
 Coercion dom : SliceOb >-> Ob.
 
-Definition SliceHom {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Type :=
-  {f : Hom A B | mor A == f .> mor B}.
+Record SliceHom {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Type :=
+{
+  sliceHom : Hom A B;
+  sliceHom_mor_law : sliceHom .> mor B == mor A;
+}.
 
 #[refine]
 #[export]
 Instance SliceHomSetoid {C : Cat} {Y : Ob C} (A B : SliceOb C Y) : Setoid (SliceHom A B) :=
 {
-  equiv := fun f g : SliceHom A B => proj1_sig f == proj1_sig g
+  equiv := fun f g : SliceHom A B => sliceHom f == sliceHom g
 }.
 Proof. now solve_equiv. Defined.
 
 Definition SliceComp
-  {C : Cat} {A : Ob C} (X Y Z : SliceOb C A) (f : SliceHom X Y) (g : SliceHom Y Z) : SliceHom X Z.
+  {C : Cat} {A : Ob C} (X Y Z : SliceOb C A) (f : SliceHom X Y) (g : SliceHom Y Z)
+  : SliceHom X Z.
 Proof.
-  destruct f as [f Hf], g as [g Hg]; red.
+  destruct f as [f Hf], g as [g Hg].
   exists (f .> g).
-  now rewrite comp_assoc, <- Hg.
+  now rewrite comp_assoc, Hg.
 Defined.
 
 Definition SliceId {C : Cat} {Y : Ob C} (X : SliceOb C Y) : SliceHom X X.
