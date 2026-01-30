@@ -8,7 +8,7 @@
 *v.d
 
 makefile
-_CoqProject
+makefile.conf
 
 .*
 *~

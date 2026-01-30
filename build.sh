@@ -1,6 +1,6 @@
 #!/bin/sh
 
-coq_makefile -R "." Cat -o makefile $(find . -name "*v")
+coq_makefile -f _CoqProject -o makefile $(find . -name "*v")
 
 # Use NIX_BUILD_CORES if set (nix build), otherwise use nproc (manual)
 if [ -n "$NIX_BUILD_CORES" ]; then
@@ -11,4 +11,3 @@ fi
 
 make -j $JOBS
 
-rm makefile makefile.conf

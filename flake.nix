@@ -27,7 +27,7 @@
         installPhase =
         ''
           mkdir -p $out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/CoqCat
-          find . -name "*.vo" -exec cp {} $out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/CoqCat/ \;
+          cp -r * $out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/CoqCat/
         '';
       };
 
@@ -37,8 +37,7 @@
         shellHook =
         ''
           export PS1="\n\[\033[1;32m\][nix:\w]\$\[\033[0m\] "
-
-          ./build.sh
+          echo "Run './build.sh' to build the project"
         '';
       };
     };
