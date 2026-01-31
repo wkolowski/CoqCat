@@ -1,5 +1,5 @@
 {
-  description = "CoqCat";
+  description = "Cat";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
@@ -9,36 +9,8 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-      packages.${system}.default = pkgs.stdenv.mkDerivation
-      {
-        name = "CoqCat";
-        src = ./.;
+      packages.${system}.default = import ./default.nix { inherit pkgs; };
 
-        enableParallelBuilding = true;
-
-        buildInputs = [ pkgs.coq_8_20 ];
-
-        buildPhase =
-        ''
-          patchShebangs build.sh
-          ./build.sh
-        '';
-
-        installPhase =
-        ''
-          mkdir -p $out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/CoqCat
-          cp -r * $out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/CoqCat/
-        '';
-      };
-
-      devShells.${system}.default = pkgs.mkShell
-      {
-        buildInputs = with pkgs; [ coq_8_20 coqPackages_8_20.coqide ];
-        shellHook =
-        ''
-          export PS1="\n\[\033[1;32m\][nix:\w]\$\[\033[0m\] "
-          echo "Run './build.sh' to build the project"
-        '';
-      };
+      devShells.${system}.default = import ./shell.nix { inherit pkgs; };
     };
 }
