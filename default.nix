@@ -8,9 +8,10 @@ pkgs.stdenv.mkDerivation
 
   enableParallelBuilding = true;
 
-  buildInputs =
+  buildInputs = with pkgs;
   [
-    pkgs.coq_8_20
+    coq_9_1
+    rocqPackages_9_1.stdlib
   ];
 
   buildPhase =
@@ -22,7 +23,7 @@ pkgs.stdenv.mkDerivation
 
   installPhase =
   ''
-    INSTALLPATH=$out/lib/coq/${pkgs.coq_8_20.coq-version}/user-contrib/Cat
+    INSTALLPATH=$out/lib/coq/${pkgs.coq_9_1.coq-version}/user-contrib/Cat
     mkdir -p $INSTALLPATH
     cp -r * $INSTALLPATH
   '';

@@ -4,12 +4,15 @@ pkgs.mkShell
 {
   buildInputs = with pkgs;
   [
-    coq_8_20
-    coqPackages_8_20.coqide
+    (coq_9_1.override { buildIde = true; })
+    rocqPackages_9_1.stdlib
   ];
 
   shellHook =
   ''
+    # Create an alias for compatibility.
+    alias coqide='rocqide'
+
     GREEN="\033[1;32m"
     RESET="\033[0m"
 

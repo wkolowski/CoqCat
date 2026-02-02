@@ -1,4 +1,4 @@
-Require Import FunctionalExtensionality PropExtensionality.
+From Stdlib Require Import FunctionalExtensionality PropExtensionality.
 From Cat Require Export Cat.
 From Cat Require Import Category.CartesianClosed.
 From Cat.Universal Require Export

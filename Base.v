@@ -1,7 +1,7 @@
-Require Export Setoid Classes.SetoidClass.
-Require Export Bool Arith Lia.
+From Stdlib Require Export Setoid Classes.SetoidClass.
+From Stdlib Require Export Bool Arith Lia.
 
-Require Export List.
+From Stdlib Require Export List.
 Export ListNotations.
 
 #[global] Set Universe Polymorphism.

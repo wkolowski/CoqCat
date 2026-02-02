@@ -1,4 +1,4 @@
-Require Import JMeq ProofIrrelevance.
+From Stdlib.Logic Require Import JMeq ProofIrrelevance.
 
 (** Remember: in a reflexive graph category, morphisms need NOT preserve
     all relations. We just have to specify which morphisms preserve

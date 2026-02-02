@@ -1,4 +1,4 @@
-Require Import ProofIrrelevance.
+From Stdlib Require Import ProofIrrelevance.
 From Cat Require Import Instances.SETOID.
 
 (** Alternative formalization using SProp, the universe of definitionally
