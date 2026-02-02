@@ -1,18 +1,23 @@
 { pkgs ? import <nixpkgs> {} }:
 
+let
+  # Make "coqide" an alias for "rocqide".
+  coqide-alias = pkgs.writeShellScriptBin "coqide" ''
+    exec ${pkgs.coq_9_1.override { buildIde = true; }}/bin/rocqide "$@"
+  '';
+in
+
 pkgs.mkShell
 {
   buildInputs = with pkgs;
   [
     (coq_9_1.override { buildIde = true; })
     rocqPackages_9_1.stdlib
+    coqide-alias
   ];
 
   shellHook =
   ''
-    # Create an alias for compatibility.
-    alias coqide='rocqide'
-
     GREEN="\033[1;32m"
     RESET="\033[0m"
 

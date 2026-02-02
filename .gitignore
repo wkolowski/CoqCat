@@ -9,8 +9,12 @@
 
 makefile
 makefile.conf
+.makefile.d
 
-.*
+.filestoinstall
+.lia.cache
+.vscode/
+
 *~
 
 result
