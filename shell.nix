@@ -1,9 +1,12 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
+  # Coq with CoqIDE.
+  coq-with-ide = pkgs.coq_9_1.override { buildIde = true; };
+
   # Make "coqide" an alias for "rocqide".
   coqide-alias = pkgs.writeShellScriptBin "coqide" ''
-    exec ${pkgs.coq_9_1.override { buildIde = true; }}/bin/rocqide "$@"
+    exec ${coq-with-ide}/bin/rocqide "$@"
   '';
 in
 
@@ -11,9 +14,9 @@ pkgs.mkShell
 {
   buildInputs = with pkgs;
   [
-    (coq_9_1.override { buildIde = true; })
-    rocqPackages_9_1.stdlib
+    coq-with-ide
     coqide-alias
+    rocqPackages_9_1.stdlib
   ];
 
   shellHook =

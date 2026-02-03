@@ -24,7 +24,11 @@ pkgs.stdenv.mkDerivation
   installPhase =
   ''
     INSTALLPATH=$out/lib/coq/${pkgs.coq_9_1.coq-version}/user-contrib/Cat
+
     mkdir -p $INSTALLPATH
-    cp -r * $INSTALLPATH
+    cp -r src/* $INSTALLPATH/
+
+    # Remove .vos, .vok and .aux files.
+    find $INSTALLPATH -name "*.vos" -o -name "*.vok" -o -name ".*.aux" | xargs rm -f
   '';
 }

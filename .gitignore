@@ -1,8 +1,8 @@
-*vo
-*vos
-*vok
-*glob
-*aux
+*.vo
+*.vos
+*.vok
+*.glob
+.*.aux
 
 *crashcoqide
 *v.d

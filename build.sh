@@ -4,7 +4,7 @@
 if [ ! -f makefile ] || [ _CoqProject -nt makefile ]
 then
   echo "Regenerating makefile..."
-  coq_makefile -f _CoqProject -o makefile $(find . -name "*.v")
+  coq_makefile -f _CoqProject -o makefile $(find src -name "*.v")
 fi
 
 
