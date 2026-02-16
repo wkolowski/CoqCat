@@ -18,7 +18,6 @@ pkgs.stdenv.mkDerivation
   ''
     patchShebangs build.sh
     ./build.sh
-    rm -f makefile makefile.conf .makefile.d
   '';
 
   installPhase =

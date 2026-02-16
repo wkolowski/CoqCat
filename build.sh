@@ -1,12 +1,7 @@
 #!/bin/sh
 
-# If the makefile is missing or _CoqProject has changed, regenerate the makefile.
-if [ ! -f makefile ] || [ _CoqProject -nt makefile ]
-then
-  echo "Regenerating makefile..."
-  coq_makefile -f _CoqProject -o makefile $(find src -name "*.v")
-fi
-
+# Regenerate the makefile.
+coq_makefile -f _CoqProject -o makefile $(find . -name "*.v")
 
 # Determine the numbers of CPU cores on which the build will run in parallel.
 if [ -n "$NIX_BUILD_CORES" ]
